@@ -149,11 +149,11 @@ class NURAX_Schema {
 			),
 			array(
 				'How fast is delivery?',
-				'Same-day within Nairobi on orders before 2:00pm, 1 to 3 business days countrywide, and 3 to 10 business days internationally with tracking.',
+				'Same-day within Nairobi on orders before 5:00pm, 1 to 3 business days countrywide, and 3 to 10 business days internationally with tracking.',
 			),
 			array(
 				'Can I return or exchange a wig?',
-				'Unworn, unaltered units can be returned within 14 days of delivery. Worn, cut or installed units cannot be returned for hygiene reasons.',
+				'Unworn, unaltered units can be returned within 7 days of delivery. Worn, cut or installed units cannot be returned for hygiene reasons.',
 			),
 			array(
 				'Do you install wigs?',

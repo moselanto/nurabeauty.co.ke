@@ -78,7 +78,7 @@ HTML;
 <p>We deliver premium wigs, hair and beauty across Kenya and worldwide, carefully packaged and tracked.</p>
 <h3>Delivery times</h3>
 <ul>
-<li><strong>Nairobi:</strong> same-day delivery on orders placed before 2:00pm; otherwise next day.</li>
+<li><strong>Nairobi:</strong> same-day delivery on orders placed before 5:00pm; otherwise next day.</li>
 <li><strong>Countrywide (Kenya):</strong> 1 to 3 business days via trusted couriers.</li>
 <li><strong>International / diaspora:</strong> 3 to 10 business days via DHL or FedEx with full tracking, priced in USD.</li>
 </ul>
@@ -96,7 +96,7 @@ HTML;
 <p>For hygiene and safety reasons, wigs and hair products are intimate items. We follow Kenyan consumer-protection guidance and offer returns and exchanges under the clear conditions below. Nothing here removes any right you have under the Consumer Protection Act.</p>
 <h3>What can be returned</h3>
 <ul>
-<li><strong>Unworn, unaltered units</strong> in original condition with tags on, lace uncut and all packaging intact - within <strong>14 days</strong> of delivery.</li>
+<li><strong>Unworn, unaltered units</strong> in original condition with tags on, lace uncut and all packaging intact - within <strong>7 days</strong> of delivery.</li>
 <li><strong>Wrong item received</strong> - we cover return shipping and send the correct unit or a full refund.</li>
 <li><strong>Faulty or damaged on arrival</strong> - reported with photos within 48 hours of delivery (see Warranty for full coverage terms).</li>
 </ul>
@@ -110,13 +110,13 @@ HTML;
 <h3>Who pays for return shipping</h3>
 <ul>
 <li><strong>Wrong item received or faulty on arrival:</strong> NURA covers return shipping in full.</li>
-<li><strong>Change-of-mind returns</strong> (unworn unit, within 14 days): return shipping is the customer's responsibility. We recommend a tracked courier so we can confirm arrival before processing your refund.</li>
+<li><strong>Change-of-mind returns</strong> (unworn unit, within 7 days): return shipping is the customer's responsibility. We recommend a tracked courier so we can confirm arrival before processing your refund.</li>
 </ul>
 <h3>International &amp; diaspora orders</h3>
 <p>Because of the cost of return freight on international shipments, change-of-mind returns are not available for orders shipped outside Kenya via DHL or FedEx. Diaspora orders remain fully covered by our <a href="/warranty/">Warranty</a> for faulty or damaged units. If you are unsure about sizing, colour or texture before ordering internationally, we strongly recommend a free virtual consultation first.</p>
 <h3>How to start a return</h3>
 <ol>
-<li>Contact us on WhatsApp or email within 14 days of delivery, quoting your order number.</li>
+<li>Contact us on WhatsApp or email within 7 days of delivery, quoting your order number.</li>
 <li>Share clear photos of the item and packaging.</li>
 <li>We confirm approval and share return instructions, including the return address.</li>
 <li>Send the item back (unworn, in original packaging) via a tracked courier.</li>
@@ -268,9 +268,9 @@ HTML;
 <h3>How do I pay?</h3>
 <p>M-Pesa and Visa/Mastercard (both via Paystack), bank transfer, and cash on delivery within Nairobi. See <a href="/payment-information/">Payment Information</a>.</p>
 <h3>How fast is delivery?</h3>
-<p>Same-day within Nairobi (order before 2:00pm), 1 to 3 business days countrywide, and 3 to 10 business days internationally with tracking. See <a href="/shipping-delivery/">Delivery Information</a>.</p>
+<p>Same-day within Nairobi (order before 5:00pm), 1 to 3 business days countrywide, and 3 to 10 business days internationally with tracking. See <a href="/shipping-delivery/">Delivery Information</a>.</p>
 <h3>Can I return or exchange a wig?</h3>
-<p>Unworn, unaltered units can be returned within 14 days of delivery. Worn, cut or installed units cannot be returned for hygiene reasons. See <a href="/returns-refunds/">Refund &amp; Returns</a>.</p>
+<p>Unworn, unaltered units can be returned within 7 days of delivery. Worn, cut or installed units cannot be returned for hygiene reasons. See <a href="/returns-refunds/">Refund &amp; Returns</a>.</p>
 <h3>Do you install wigs?</h3>
 <p>Yes - installation, styling, colouring, revamp and repairs. See <a href="/wig-installation/">Wig Installation</a>.</p>
 <p>Still have a question? Chat with us on WhatsApp at <strong>$phone</strong>.</p>

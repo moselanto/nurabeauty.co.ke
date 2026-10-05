@@ -225,12 +225,18 @@ class NURAX_Mega_Menu {
 		$ico_menu  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
 
 		echo '<nav class="nura-bottom-nav" aria-label="' . esc_attr__( 'Mobile navigation', 'nura-experience' ) . '">';
-		// v1.36.0: Search replaces Home in the thumb zone (the logo already goes home);
-		// on mobile, search is the fastest path to a product.
-		$ico_search = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>';
-		echo '<button type="button" class="nbn-search" data-nura-search-open aria-label="' . esc_attr__( 'Search', 'nura-experience' ) . '"><span class="nbn-i">' . $ico_search . '</span><span class="nbn-t">' . esc_html__( 'Search', 'nura-experience' ) . '</span></button>';
-		echo '<a href="' . esc_url( $shop ) . '"><span class="nbn-i">' . $ico_shop . '</span><span class="nbn-t">' . esc_html__( 'Shop', 'nura-experience' ) . '</span></a>';
-		echo '<a class="nbn-saved" href="' . esc_url( $account ) . '"><span class="nbn-i">' . $ico_heart . '</span><span class="nbn-t">' . esc_html__( 'Saved', 'nura-experience' ) . '</span><span class="nbn-badge nura-wish-badge" hidden></span></a>';
+		// v1.40.0: Home | Shop | WhatsApp | Cart | Menu. Search lives in the header
+		// bar on every page, so the thumb zone goes to the actions Kenyan shoppers
+		// use most: going home, browsing, and chatting on WhatsApp.
+		$wa_raw = (string) get_theme_mod( 'nura_whatsapp', '' );
+		$wa_url = $wa_raw ? $wa_raw : 'https://wa.me/254714994898';
+		$wa_url = add_query_arg( 'text', rawurlencode( __( 'Hi NURA, I need help choosing a wig.', 'nura-experience' ) ), $wa_url );
+		$ico_wa = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';
+		$is_home = is_front_page();
+		$is_shop = function_exists( 'is_woocommerce' ) && ( is_shop() || is_product_taxonomy() || is_product() );
+		echo '<a class="nbn-home' . ( $is_home ? ' is-active' : '' ) . '" href="' . esc_url( $home ) . '"' . ( $is_home ? ' aria-current="page"' : '' ) . '><span class="nbn-i">' . $ico_home . '</span><span class="nbn-t">' . esc_html__( 'Home', 'nura-experience' ) . '</span></a>';
+		echo '<a class="nbn-shop' . ( $is_shop ? ' is-active' : '' ) . '" href="' . esc_url( $shop ) . '"><span class="nbn-i">' . $ico_shop . '</span><span class="nbn-t">' . esc_html__( 'Shop', 'nura-experience' ) . '</span></a>';
+		echo '<a class="nbn-wa" href="' . esc_url( $wa_url ) . '" target="_blank" rel="noopener"><span class="nbn-i">' . $ico_wa . '</span><span class="nbn-t">' . esc_html__( 'WhatsApp', 'nura-experience' ) . '</span></a>';
 		echo '<a class="nbn-cart" href="' . esc_url( $cart ) . '"><span class="nbn-i">' . $ico_bag . '</span><span class="nbn-t">' . esc_html__( 'Cart', 'nura-experience' ) . '</span>' . ( $count ? '<span class="nbn-badge">' . esc_html( $count ) . '</span>' : '' ) . '</a>';
 		echo '<button type="button" class="nbn-menu" data-nura-drawer aria-label="' . esc_attr__( 'Open menu', 'nura-experience' ) . '"><span class="nbn-i">' . $ico_menu . '</span><span class="nbn-t">' . esc_html__( 'Menu', 'nura-experience' ) . '</span></button>';
 		echo '</nav>';

@@ -755,3 +755,21 @@ form.cart .single_add_to_cart_button.disabled,form.cart .single_add_to_cart_butt
 .woocommerce-checkout .woocommerce-invalid input.input-text{border-color:#b3261e}
 .woocommerce-checkout textarea#order_comments{min-height:80px}
 @media(max-width:640px){.woocommerce-checkout .form-row-first,.woocommerce-checkout .form-row-last{width:100%;float:none}}
+
+/* ===== v1.30.0 Mobile: bottom bar Home | Shop | WhatsApp | Cart | Menu, visible NURA Stylist chat ===== */
+@media(max-width:768px){
+  .nura-bottom-nav{display:grid;grid-template-columns:repeat(5,1fr)}
+  .nura-bottom-nav>a,.nura-bottom-nav>button{min-height:58px}
+  .nura-bottom-nav .is-active{color:var(--nura-gold) !important}
+  .nura-bottom-nav .is-active .nbn-t{font-weight:700}
+  .nura-bottom-nav .nbn-wa{color:#128C7E}
+  .nura-bottom-nav .nbn-wa .nbn-i svg{width:24px;height:24px}
+  /* WhatsApp now lives in the bottom bar, so the floating WA bubble is not needed */
+  .nura-wa{display:none !important}
+  /* NURA Stylist chat: a clear gold pill with a label, above the bottom bar */
+  .nurax-stylist{right:12px !important;bottom:calc(72px + env(safe-area-inset-bottom)) !important}
+  .nurax-stylist__fab{background:var(--nura-gold,#C9A24B) !important;color:#0E0E0E !important;padding:.7rem 1rem .7rem .85rem !important;border:2px solid #fff !important;box-shadow:0 8px 24px rgba(0,0,0,.35) !important;font-weight:600}
+  .nurax-stylist__fab-icon{color:#0E0E0E !important}
+  .nurax-stylist__fab-label{display:inline !important;font-size:.8rem;letter-spacing:.06em}
+  .nurax-stylist__panel{bottom:0;height:min(72vh,560px) !important}
+}

@@ -707,3 +707,12 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form){return;}
 	d.addEventListener("click",function(e){var t=e.target&&e.target.closest?e.target.closest("[data-nura-search-open]"):null;if(t){goBar(e);}},true);
 	d.addEventListener("keydown",function(e){var tg=e.target&&e.target.tagName;if(e.key==="/"&&!/INPUT|TEXTAREA|SELECT/.test(tg||"")&&!(e.target&&e.target.isContentEditable)){goBar(e);}},true);
 })(document);
+
+/* v1.31.0 NURA Stylist button: full label at the top of the page, shrinks to a round chat icon while scrolling so it never covers products. */
+(function(d,w){
+	var st=d.querySelector(".nurax-stylist");if(!st){return;}
+	var t=null;
+	function on(){if(w.scrollY>240){st.classList.add("is-compact");}else{st.classList.remove("is-compact");}}
+	w.addEventListener("scroll",function(){if(t){return;}t=setTimeout(function(){t=null;on();},120);},{passive:true});
+	on();
+})(document,window);

@@ -120,7 +120,14 @@ if ( ! function_exists( 'nura_footer_company_menu' ) ) {
 <?php
 $wa = nura_opt( 'nura_whatsapp' );
 if ( $wa ) {
-	printf( '<a class="nura-wa" href="%s" aria-label="%s" target="_blank" rel="noopener">WA</a>', esc_url( $wa ), esc_attr__( 'Chat on WhatsApp', 'nura-beauty' ) );
+	$wa_link = add_query_arg( 'text', rawurlencode( __( 'Hi NURA, I need help choosing a wig.', 'nura-beauty' ) ), $wa );
+	printf(
+		'<a class="nura-wa" href="%1$s" aria-label="%2$s" target="_blank" rel="noopener">%3$s<span class="nura-wa__tip">%4$s</span></a>',
+		esc_url( $wa_link ),
+		esc_attr__( 'Chat with us on WhatsApp', 'nura-beauty' ),
+		'<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>', // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG.
+		esc_html__( 'Chat with us', 'nura-beauty' )
+	);
 }
 ?>
 <?php wp_footer(); ?>

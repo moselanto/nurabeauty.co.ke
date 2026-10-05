@@ -53,28 +53,31 @@ class NURAX_AI_Stylist {
 		?>
 		<div class="nurax-stylist" data-nurax-stylist data-has-ai="<?php echo self::has_ai() ? '1' : '0'; ?>" data-wa="<?php echo esc_attr( $wa ); ?>">
 			<button type="button" class="nurax-stylist__fab" data-stylist-toggle aria-label="<?php esc_attr_e( 'Chat with the NURA Stylist', 'nura-experience' ); ?>">
-				<span class="nurax-stylist__fab-icon" aria-hidden="true">&#9826;</span>
-				<span class="nurax-stylist__fab-label"><?php esc_html_e( 'NURA Stylist', 'nura-experience' ); ?></span>
+				<span class="nurax-stylist__fab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg></span>
+				<span class="nurax-stylist__fab-label"><?php esc_html_e( 'Ask NURA Stylist', 'nura-experience' ); ?></span>
 			</button>
 			<div class="nurax-stylist__panel" data-stylist-panel hidden>
 				<div class="nurax-stylist__head">
 					<div>
 						<strong><?php esc_html_e( 'NURA Stylist', 'nura-experience' ); ?></strong>
-						<small><?php esc_html_e( 'Your personal wig concierge', 'nura-experience' ); ?></small>
+						<small><?php esc_html_e( 'Online now - replies instantly', 'nura-experience' ); ?></small>
 					</div>
+					<?php if ( $wa ) : ?><a class="nurax-stylist__wa" href="<?php echo esc_url( add_query_arg( 'text', rawurlencode( __( 'Hi NURA, I need help choosing a wig.', 'nura-experience' ) ), $wa ) ); ?>" target="_blank" rel="noopener" aria-label="<?php esc_attr_e( 'Talk to a person on WhatsApp', 'nura-experience' ); ?>">WhatsApp</a><?php endif; ?>
 					<button type="button" class="nurax-stylist__close" data-stylist-close aria-label="<?php esc_attr_e( 'Close', 'nura-experience' ); ?>">&times;</button>
 				</div>
 				<div class="nurax-stylist__log" data-stylist-log>
 					<div class="nurax-msg nurax-msg--bot"><?php echo esc_html( $greeting ); ?></div>
 				</div>
 				<div class="nurax-stylist__quick" data-stylist-quick>
+					<button type="button" data-q="<?php esc_attr_e( 'Show me wigs under KES 5,000', 'nura-experience' ); ?>"><?php esc_html_e( 'Under KSh 5K', 'nura-experience' ); ?></button>
+					<button type="button" data-q="<?php esc_attr_e( 'Show me 100% human hair wigs', 'nura-experience' ); ?>"><?php esc_html_e( 'Human hair', 'nura-experience' ); ?></button>
 					<button type="button" data-q="<?php esc_attr_e( 'I need a wig for my wedding', 'nura-experience' ); ?>"><?php esc_html_e( 'Bridal', 'nura-experience' ); ?></button>
-					<button type="button" data-q="<?php esc_attr_e( 'Show me HD lace front wigs', 'nura-experience' ); ?>"><?php esc_html_e( 'HD Lace', 'nura-experience' ); ?></button>
-					<button type="button" data-q="<?php esc_attr_e( 'What do you have under KES 5000?', 'nura-experience' ); ?>"><?php esc_html_e( 'Under 5K', 'nura-experience' ); ?></button>
+					<button type="button" data-q="<?php esc_attr_e( 'Which wig suits a beginner? I want glueless', 'nura-experience' ); ?>"><?php esc_html_e( 'Beginner / glueless', 'nura-experience' ); ?></button>
+					<button type="button" data-q="<?php esc_attr_e( 'How does delivery and payment work?', 'nura-experience' ); ?>"><?php esc_html_e( 'Delivery & M-Pesa', 'nura-experience' ); ?></button>
 					<button type="button" data-q="<?php esc_attr_e( 'How do I care for my wig?', 'nura-experience' ); ?>"><?php esc_html_e( 'Wig care', 'nura-experience' ); ?></button>
 				</div>
 				<form class="nurax-stylist__input" data-stylist-form>
-					<input type="text" name="msg" autocomplete="off" placeholder="<?php esc_attr_e( 'Ask me anything...', 'nura-experience' ); ?>" required>
+					<input type="text" name="msg" autocomplete="off" placeholder="<?php esc_attr_e( 'Type your question, e.g. curly wig under 8K', 'nura-experience' ); ?>" required>
 					<button type="submit" aria-label="<?php esc_attr_e( 'Send', 'nura-experience' ); ?>">&#10148;</button>
 				</form>
 			</div>

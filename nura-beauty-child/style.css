@@ -1,0 +1,24 @@
+/*
+Theme Name: NURA Beauty Child
+Theme URI: https://nurabeauty.co.ke
+Template: nura-beauty
+Author: NURA - The House of Radiant Confidence
+Author URI: https://nurabeauty.co.ke
+Description: Child theme for NURA Beauty. ALWAYS activate this child theme (not the parent) so your customisations survive parent-theme updates. Add your custom CSS below and PHP overrides in functions.php.
+Version: 1.0.1
+Requires at least: 6.2
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: nura-beauty-child
+*/
+
+/* =========================================================
+   Add your custom CSS here. Everything below overrides the
+   parent theme. Brand colours/fonts are best changed in
+   Appearance > Customize > NURA Options (no code needed).
+   ========================================================= */
+
+/* Example: nudge the gold a touch warmer (uncomment to use)
+:root{ --nura-gold:#C9A24B; }
+*/

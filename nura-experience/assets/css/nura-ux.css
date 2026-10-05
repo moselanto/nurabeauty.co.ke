@@ -1,0 +1,909 @@
+/* =========================================================================
+   NURA UX layer  -  mega menu + mobile bottom navigation + drawer menu
+   + homepage discovery sections (tiles, journal, paths).
+   Shipped by the NURA Experience plugin (assets/css/nura-ux.css).
+   Additive only: it styles the code-driven navigation and homepage sections
+   without touching the parent theme's main.css.
+   ========================================================================= */
+
+:root {
+	--nura-ux-ink:   #0E0E0E;
+	--nura-ux-gold:  #C9A24B;
+	--nura-ux-ivory: #F3E9DC;
+}
+
+/* ---------------------------- Desktop mega menu ------------------------- */
+.nura-nav .nura-mega {
+	display: flex;
+	gap: 1.6rem;
+	align-items: center;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.nura-nav .nura-mega > li { position: relative; }
+.nura-nav .nura-mega > li > a {
+	display: inline-block;
+	padding: 1.1rem 0;
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	font-size: .8rem;
+	letter-spacing: .14em;
+	text-transform: uppercase;
+	color: var(--nura-ux-ink);
+	text-decoration: none;
+	white-space: nowrap;
+}
+.nura-nav .nura-mega > li > a:hover { color: var(--nura-ux-gold); }
+
+.nura-mega__panel {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	transform: translateY(8px);
+	min-width: 740px;
+	background: #fff;
+	border-top: 2px solid var(--nura-ux-gold);
+	box-shadow: 0 24px 60px rgba(0, 0, 0, .14);
+	padding: 1.6rem 2rem;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity .18s ease, transform .18s ease;
+	z-index: 60;
+}
+.nura-mega__panel--simple { min-width: 240px; }
+.nura-mega__item:hover > .nura-mega__panel,
+.nura-mega__item:focus-within > .nura-mega__panel {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+.nura-mega__cols {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(140px, 1fr));
+	gap: 1.4rem 2rem;
+}
+.nura-nav .nura-mega__col ul,
+.nura-nav .nura-mega__panel--simple ul { display: block; list-style: none; margin: .45rem 0 0; padding: 0; gap: 0; }
+.nura-nav .nura-mega__col li,
+.nura-nav .nura-mega__panel--simple li { display: block; margin: 0; }
+.nura-mega__h {
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	font-size: .68rem;
+	letter-spacing: .16em;
+	text-transform: uppercase;
+	color: var(--nura-ux-gold);
+}
+.nura-mega__col a,
+.nura-mega__panel--simple a {
+	display: block;
+	padding: .3rem 0;
+	font-size: .9rem;
+	color: #333;
+	text-decoration: none;
+}
+.nura-mega__col a:hover,
+.nura-mega__panel--simple a:hover { color: var(--nura-ux-ink); }
+.nura-nav .nura-mega__panel a::after { display: none; }
+
+/* --------------------------- Mobile drawer menu ------------------------- */
+.nura-drawer-menu,
+.nura-drawer-menu ul { list-style: none; margin: 0; padding: 0; }
+.nura-drawer-menu > li { border-bottom: 1px solid rgba(0, 0, 0, .06); padding: .2rem 0; }
+.nura-drawer-menu > li > a { font-weight: 600; }
+.nura-drawer-menu ul { margin: .1rem 0 .7rem .9rem; }
+.nura-drawer-menu a {
+	display: block;
+	padding: .38rem 0;
+	color: var(--nura-ux-ink);
+	text-decoration: none;
+}
+.nura-drawer-menu ul a { color: #555; font-size: .92rem; }
+
+/* ------------------------ Mobile bottom navigation ---------------------- */
+.nura-bottom-nav { display: none; }
+
+@media (max-width: 768px) {
+	.nura-bottom-nav {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 80;
+		display: flex;
+		justify-content: space-around;
+		align-items: center;
+		background: #fff;
+		border-top: 1px solid rgba(0, 0, 0, .08);
+		box-shadow: 0 -6px 20px rgba(0, 0, 0, .06);
+		padding: .35rem 0 calc(.35rem + env(safe-area-inset-bottom));
+	}
+	.nura-bottom-nav a,
+	.nura-bottom-nav button {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 2px;
+		padding: .2rem .6rem;
+		background: none;
+		border: 0;
+		font: inherit;
+		color: var(--nura-ux-ink);
+		text-decoration: none;
+		cursor: pointer;
+	}
+	.nura-bottom-nav .nbn-i { line-height: 0; }
+	.nura-bottom-nav svg { width: 22px; height: 22px; }
+	.nura-bottom-nav .nbn-t {
+		font-size: .62rem;
+		letter-spacing: .04em;
+		text-transform: uppercase;
+	}
+	.nbn-badge {
+		position: absolute;
+		top: -3px;
+		right: .35rem;
+		min-width: 16px;
+		height: 16px;
+		padding: 0 4px;
+		border-radius: 9px;
+		background: var(--nura-ux-gold);
+		color: #fff;
+		font-size: .6rem;
+		line-height: 16px;
+		text-align: center;
+	}
+
+	/* Keep page content and the WhatsApp FAB clear of the bar. */
+	body { padding-bottom: 62px; }
+	.nura-wa { bottom: 78px !important; }
+
+	/* The desktop mega panels never show on small screens. */
+	.nura-nav .nura-mega { display: none; }
+}
+
+/* ===================== Homepage discovery tiles ========================= */
+.nura-tiles {
+	display: grid;
+	gap: 1rem;
+}
+.nura-tiles--3 { grid-template-columns: repeat(3, 1fr); }
+.nura-tiles--4 { grid-template-columns: repeat(4, 1fr); }
+
+.nura-tile {
+	position: relative;
+	display: flex;
+	align-items: flex-end;
+	min-height: 200px;
+	padding: 1.1rem 1.2rem;
+	border-radius: 4px;
+	overflow: hidden;
+	text-decoration: none;
+	color: #fff;
+	background: linear-gradient(150deg, #1c1c1c 0%, #2e2226 55%, #3a2a1f 100%);
+	background-size: cover;
+	background-position: center;
+	isolation: isolate;
+	transition: transform .3s ease, box-shadow .3s ease;
+}
+.nura-tile::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background: linear-gradient(to top, rgba(0, 0, 0, .62) 0%, rgba(0, 0, 0, .12) 55%, rgba(0, 0, 0, .04) 100%);
+}
+.nura-tile.has-img { background-color: #1c1c1c; }
+.nura-tile:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0, 0, 0, .22); }
+.nura-tile__label {
+	font-family: var(--nura-font-display, 'Playfair Display', serif);
+	font-size: 1.28rem;
+	line-height: 1.15;
+	letter-spacing: .01em;
+}
+.nura-tile__label small {
+	display: block;
+	margin-top: .3rem;
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	font-size: .68rem;
+	font-weight: 400;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	opacity: .82;
+}
+
+/* Compact tiles for care / beauty / services / textures */
+.nura-tiles--care .nura-tile,
+.nura-tiles--budget .nura-tile { min-height: 132px; }
+.nura-tiles--care .nura-tile__label { font-size: 1.1rem; }
+
+/* "Find your perfect wig" path cards: light, editorial */
+.nura-tiles--paths .nura-tile {
+	min-height: 150px;
+	color: var(--nura-ux-ink);
+	background: #fff;
+	border: 1px solid rgba(201, 162, 75, .4);
+}
+.nura-tiles--paths .nura-tile::after { display: none; }
+.nura-tiles--paths .nura-tile:hover { border-color: var(--nura-ux-gold); }
+.nura-tiles--paths .nura-tile__label small { opacity: .7; color: #6a5a3c; }
+
+/* Budget tiles: warm ivory, gold text */
+.nura-tiles--budget .nura-tile {
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	color: var(--nura-ux-ink);
+	background: var(--nura-ux-ivory);
+}
+.nura-tiles--budget .nura-tile::after { display: none; }
+.nura-tiles--budget .nura-tile__label { font-size: 1.12rem; }
+
+/* ---------------------------- NURA Journal ------------------------------ */
+.nura-journal {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1.4rem;
+}
+.nura-jcard { text-decoration: none; color: var(--nura-ux-ink); display: block; }
+.nura-jcard__media {
+	display: block;
+	aspect-ratio: 3 / 2;
+	overflow: hidden;
+	border-radius: 4px;
+	margin-bottom: .8rem;
+}
+.nura-jcard__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.nura-jcard:hover .nura-jcard__media img { transform: scale(1.05); }
+.nura-jcard__body strong {
+	display: block;
+	font-family: var(--nura-font-display, 'Playfair Display', serif);
+	font-size: 1.12rem;
+	line-height: 1.25;
+}
+.nura-jcard__body small { display: block; margin-top: .35rem; color: #666; font-size: .86rem; line-height: 1.5; }
+
+/* ----------------------------- Responsive ------------------------------- */
+@media (max-width: 960px) {
+	.nura-tiles--4 { grid-template-columns: repeat(3, 1fr); }
+	.nura-journal { grid-template-columns: 1fr; }
+}
+@media (max-width: 680px) {
+	.nura-tiles--3,
+	.nura-tiles--4 { grid-template-columns: repeat(2, 1fr); }
+	.nura-tile { min-height: 150px; }
+	.nura-tile__label { font-size: 1.08rem; }
+}
+
+/* ===================== Shop: faceted sidebar + 4-up grid =============== */
+.nura-shop-layout {
+	display: flex;
+	align-items: flex-start;
+	gap: 2.2rem;
+}
+.nura-shop-sidebar {
+	position: relative;
+	flex: 0 0 250px;
+	width: 250px;
+}
+.nura-shop-main { flex: 1 1 auto; min-width: 0; }
+
+/* Force the luxury 4-up grid inside the main column. */
+.nura-shop-main ul.products {
+	display: grid !important;
+	grid-template-columns: repeat(4, 1fr) !important;
+	gap: 1.6rem !important;
+	margin: 0 !important;
+}
+.nura-shop-main ul.products::before,
+.nura-shop-main ul.products::after { content: none !important; }
+.nura-shop-main ul.products li.product {
+	width: auto !important;
+	margin: 0 !important;
+	float: none !important;
+	position: relative;
+}
+
+/* Sidebar facets */
+.nura-fh { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: .4rem; }
+.nura-fh span { font-family: var(--nura-font-display, 'Playfair Display', serif); font-size: 1.15rem; }
+.nura-fclear { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--nura-ux-gold); text-decoration: none; }
+.nura-facet { border-top: 1px solid rgba(0, 0, 0, .09); padding: .7rem 0; }
+.nura-facet summary {
+	cursor: pointer;
+	list-style: none;
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	font-size: .76rem;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	color: var(--nura-ux-ink);
+}
+.nura-facet summary::-webkit-details-marker { display: none; }
+.nura-facet summary::after { content: "+"; float: right; color: #999; }
+.nura-facet[open] summary::after { content: "\2212"; }
+.nura-facet ul { list-style: none; margin: .55rem 0 0; padding: 0; }
+.nura-facet ul.nura-subcats { margin: .1rem 0 .3rem .8rem; }
+.nura-facet a { display: flex; align-items: center; gap: .5rem; padding: .3rem 0; font-size: .9rem; color: #444; text-decoration: none; }
+.nura-facet a:hover { color: var(--nura-ux-ink); }
+.nura-facet a.is-active { color: var(--nura-ux-gold); font-weight: 600; }
+.nura-check { flex: 0 0 auto; width: 14px; height: 14px; border: 1px solid #bbb; border-radius: 3px; }
+.nura-facet a.is-active .nura-check { background: var(--nura-ux-gold); border-color: var(--nura-ux-gold); box-shadow: inset 0 0 0 2px #fff; }
+.nura-price-form { margin-top: .6rem; }
+.nura-price-row { display: flex; align-items: center; gap: .4rem; }
+.nura-price-row input { width: 100%; padding: .4rem .5rem; border: 1px solid rgba(0, 0, 0, .18); border-radius: 3px; font: inherit; }
+.nura-price-go { margin-top: .55rem; width: 100%; }
+
+/* Wishlist heart on cards */
+.nura-wish {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	z-index: 3;
+	width: 34px;
+	height: 34px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 0;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, .92);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+	cursor: pointer;
+}
+.nura-wish svg { width: 18px; height: 18px; fill: none; stroke: #333; stroke-width: 1.6; }
+.nura-wish.is-on svg { fill: var(--nura-ux-gold); stroke: var(--nura-ux-gold); }
+.nura-tryon-link {
+	display: inline-block;
+	margin-top: .35rem;
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	font-size: .68rem;
+	letter-spacing: .1em;
+	text-transform: uppercase;
+	color: var(--nura-ux-ink);
+	text-decoration: none;
+	border-bottom: 1px solid var(--nura-ux-gold);
+}
+
+/* Mobile filter drawer */
+.nura-filter-toggle { display: none; }
+.nura-sidebar-close { display: none; }
+
+@media (max-width: 1100px) {
+	.nura-shop-main ul.products { grid-template-columns: repeat(3, 1fr) !important; }
+}
+@media (max-width: 768px) {
+	.nura-shop-layout { display: block; }
+	.nura-filter-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: .4rem;
+		margin: 0 0 1rem;
+		padding: .55rem 1.1rem;
+		border: 1px solid var(--nura-ux-ink);
+		border-radius: 40px;
+		background: #fff;
+		font-family: var(--nura-font-ui, 'Jost', sans-serif);
+		font-size: .74rem;
+		letter-spacing: .1em;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+	.nura-shop-sidebar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		z-index: 120;
+		width: 84%;
+		max-width: 330px;
+		background: #fff;
+		padding: 1.4rem 1.3rem 5rem;
+		overflow: auto;
+		transform: translateX(-100%);
+		transition: transform .25s ease;
+		box-shadow: 12px 0 40px rgba(0, 0, 0, .18);
+	}
+	.nura-shop-sidebar.is-open { transform: none; }
+	.nura-sidebar-close {
+		position: absolute;
+		top: .6rem;
+		right: .8rem;
+		display: block;
+		border: 0;
+		background: none;
+		font-size: 1.6rem;
+		line-height: 1;
+		cursor: pointer;
+	}
+	body.nura-filter-open { overflow: hidden; }
+	.nura-shop-main ul.products { grid-template-columns: repeat(2, 1fr) !important; gap: 1rem !important; }
+}
+
+/* ===================== Single product: specs, tabs, cross-sell ========= */
+.nura-specs {
+	list-style: none;
+	margin: 1rem 0 1.2rem;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: .5rem 1.4rem;
+}
+.nura-specs li {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: .35rem 0;
+	border-bottom: 1px solid rgba(0, 0, 0, .07);
+	font-size: .88rem;
+}
+.nura-specs__k {
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	font-size: .68rem;
+	letter-spacing: .1em;
+	text-transform: uppercase;
+	color: #8a7a58;
+}
+.nura-specs__v { font-weight: 600; text-align: right; }
+
+.nura-spec-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 0 0 1.4rem;
+}
+.nura-spec-table th,
+.nura-spec-table td {
+	text-align: left;
+	padding: .6rem .8rem;
+	border-bottom: 1px solid rgba(0, 0, 0, .08);
+	font-size: .92rem;
+}
+.nura-spec-table th {
+	width: 34%;
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	font-size: .72rem;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	color: #8a7a58;
+	font-weight: 600;
+}
+.nura-inc { margin: .4rem 0 1.2rem 1.1rem; padding: 0; }
+.nura-inc li { margin: .3rem 0; }
+.nura-note { color: #666; font-size: .86rem; }
+
+.nura-complete { margin-top: 2.4rem; padding: 2.4rem 0; border-top: 1px solid rgba(0, 0, 0, .08); }
+.nura-complete .nura-shead { margin-bottom: 1.4rem; }
+
+@media (max-width: 680px) {
+	.nura-specs { grid-template-columns: 1fr; }
+	.nura-spec-table th { width: 42%; }
+}
+
+/* ---- Phase 3b: variation swatches ---- */
+.nura-hidden-select { position: absolute !important; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.variations td.value:has(.nura-swatches) > select { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.nura-swatches { display: flex; flex-wrap: wrap; gap: .5rem; margin: .2rem 0 .3rem; }
+.nura-swatch {
+	appearance: none;
+	cursor: pointer;
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	font-size: .82rem;
+	letter-spacing: .02em;
+	line-height: 1;
+	padding: .55rem .85rem;
+	border: 1px solid rgba(0, 0, 0, .18);
+	border-radius: 999px;
+	background: #fff;
+	color: #2a2a2a;
+	transition: border-color .15s ease, box-shadow .15s ease, color .15s ease;
+}
+.nura-swatch:hover { border-color: var(--nura-gold, #c79a54); }
+.nura-swatch.is-active {
+	border-color: var(--nura-gold, #c79a54);
+	color: var(--nura-gold, #c79a54);
+	box-shadow: 0 0 0 1px var(--nura-gold, #c79a54) inset;
+}
+.nura-swatch.is-unavailable {
+	opacity: .38;
+	cursor: not-allowed;
+	text-decoration: line-through;
+}
+/* Colour dots */
+.nura-swatches--colour { gap: .6rem; }
+.nura-swatch--dot {
+	width: 2.2rem;
+	height: 2.2rem;
+	padding: 3px;
+	border-radius: 50%;
+	background: #fff;
+}
+.nura-swatch--dot span {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	border: 1px solid rgba(0, 0, 0, .12);
+}
+.nura-swatch--dot.is-active { box-shadow: 0 0 0 2px var(--nura-gold, #c79a54); }
+.nura-swatch--dot.is-unavailable { text-decoration: none; }
+
+/* ---- Phase 3b: "add the full set" bundle bar ---- */
+.nura-bundle-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: .8rem 1.2rem;
+	margin-top: 1.4rem;
+	padding: 1rem 1.2rem;
+	border: 1px solid rgba(199, 154, 84, .4);
+	border-radius: 14px;
+	background: rgba(199, 154, 84, .06);
+}
+.nura-bundle-bar__txt {
+	font-family: var(--nura-font-display, 'Cormorant Garamond', serif);
+	font-size: 1.15rem;
+	color: #2a2a2a;
+}
+.nura-bundle-bar__btn { display: inline-flex; align-items: center; gap: .5rem; white-space: nowrap; }
+.nura-bundle-bar__price { font-weight: 600; }
+@media (max-width: 560px) {
+	.nura-bundle-bar { flex-direction: column; align-items: stretch; text-align: center; }
+	.nura-bundle-bar__btn { justify-content: center; }
+}
+
+/* ---- Phase 3c: The NURA Circle portal ---- */
+.nurax-portal { margin: 0 0 1rem; }
+.nura-portal-lede { color: #555; margin: 0 0 1.2rem; }
+.nura-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	gap: .8rem;
+	margin: 0 0 1.4rem;
+}
+.nura-stat {
+	display: flex;
+	flex-direction: column;
+	gap: .25rem;
+	padding: 1rem;
+	border: 1px solid rgba(199, 154, 84, .3);
+	border-radius: 14px;
+	background: rgba(199, 154, 84, .05);
+}
+.nura-stat__v {
+	font-family: var(--nura-font-display, 'Cormorant Garamond', serif);
+	font-size: 1.5rem;
+	line-height: 1.1;
+	color: #2a2a2a;
+}
+.nura-stat__k {
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	font-size: .7rem;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	color: #8a7a58;
+}
+.nura-tier { margin: 0 0 1.6rem; }
+.nura-tier__labels {
+	display: flex;
+	justify-content: space-between;
+	font-size: .78rem;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	color: #8a7a58;
+	margin-bottom: .4rem;
+}
+.nura-tier__bar {
+	height: 8px;
+	border-radius: 999px;
+	background: rgba(0, 0, 0, .08);
+	overflow: hidden;
+}
+.nura-tier__bar span {
+	display: block;
+	height: 100%;
+	border-radius: 999px;
+	background: linear-gradient(90deg, #c79a54, #e4c887);
+}
+.nura-tier__note { font-size: .86rem; color: #666; margin: .5rem 0 0; }
+.nura-portal-links { display: flex; flex-wrap: wrap; gap: .6rem; }
+
+.nura-care-order { margin: 0 0 1.4rem; }
+.nura-care-order h4 { margin: 0 0 .6rem; }
+.nura-care-list { list-style: none; margin: 0; padding: 0; }
+.nura-care-list li {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .5rem .9rem;
+	padding: .6rem 0;
+	border-bottom: 1px solid rgba(0, 0, 0, .07);
+}
+.nura-care-when { min-width: 120px; font-weight: 600; color: #2a2a2a; }
+.nura-care-what { flex: 1; }
+.nura-care-badge {
+	font-size: .68rem;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	padding: .18rem .5rem;
+	border-radius: 999px;
+	background: rgba(0, 0, 0, .06);
+	color: #666;
+}
+.nura-care-list li.is-upcoming .nura-care-badge { background: rgba(199, 154, 84, .18); color: #8a6a2a; }
+.nura-care-book { white-space: nowrap; }
+
+.nura-wty-table .nura-wty-status {
+	font-size: .72rem;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	padding: .18rem .55rem;
+	border-radius: 999px;
+}
+.nura-wty-status.is-active { background: rgba(46, 125, 50, .12); color: #2e7d32; }
+.nura-wty-status.is-expired { background: rgba(0, 0, 0, .07); color: #777; }
+
+.nura-cert {
+	border: 2px solid #c79a54;
+	border-radius: 16px;
+	padding: 2rem;
+	background: #fffdf8;
+	text-align: center;
+	max-width: 620px;
+}
+.nura-cert__brand {
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	letter-spacing: .3em;
+	text-transform: uppercase;
+	font-size: .8rem;
+	color: #8a7a58;
+	margin: 0 0 .4rem;
+}
+.nura-cert__title {
+	font-family: var(--nura-font-display, 'Cormorant Garamond', serif);
+	font-size: 1.6rem;
+	color: #2a2a2a;
+	margin: 0 0 1.4rem;
+}
+.nura-cert__rows { text-align: left; display: grid; gap: .55rem; margin: 0 auto 1.2rem; max-width: 420px; }
+.nura-cert__rows > div { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px dotted rgba(0, 0, 0, .18); padding-bottom: .35rem; }
+.nura-cert__rows span { color: #8a7a58; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; }
+.nura-cert__note { font-size: .84rem; color: #666; margin: 0; }
+.nura-cert__actions { margin: 1.2rem 0 0; }
+@media print {
+	body * { visibility: hidden; }
+	#nura-cert, #nura-cert * { visibility: visible; }
+	#nura-cert { position: absolute; left: 0; top: 0; width: 100%; border: none; }
+}
+
+/* ---- Phase 3c: NURA Journal (editorial content) ---- */
+.nura-article-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .4rem 1.1rem;
+	margin: 0 0 1.4rem;
+	padding: 0 0 1rem;
+	border-bottom: 1px solid rgba(0, 0, 0, .08);
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	font-size: .82rem;
+	letter-spacing: .03em;
+	color: #8a7a58;
+	text-transform: uppercase;
+}
+.nura-article-meta__author { font-weight: 600; color: #2a2a2a; }
+.nura-article-meta a { color: inherit; }
+
+.nura-journal-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 1.4rem;
+}
+.nura-jcard { display: flex; flex-direction: column; }
+.nura-jcard__media {
+	display: block;
+	overflow: hidden;
+	border-radius: 14px;
+	aspect-ratio: 4 / 3;
+	background: #f2ede4;
+}
+.nura-jcard__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.nura-jcard:hover .nura-jcard__media img { transform: scale(1.04); }
+.nura-jcard__body { padding: .9rem 0 0; }
+.nura-jcard__cat {
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	font-size: .68rem;
+	letter-spacing: .1em;
+	text-transform: uppercase;
+	color: #c79a54;
+}
+.nura-jcard__title {
+	font-family: var(--nura-font-display, 'Cormorant Garamond', serif);
+	font-size: 1.3rem;
+	line-height: 1.2;
+	margin: .3rem 0 .4rem;
+}
+.nura-jcard__title a { color: #2a2a2a; text-decoration: none; }
+.nura-jcard__title a:hover { color: #c79a54; }
+.nura-jcard__excerpt { color: #555; font-size: .92rem; margin: 0 0 .5rem; }
+.nura-jcard__meta { display: block; font-size: .76rem; color: #8a7a58; margin: 0 0 .5rem; }
+.nura-jcard__more { font-size: .82rem; font-weight: 600; color: #c79a54; text-decoration: none; }
+.nura-jcard__more:hover { text-decoration: underline; }
+
+/* NURA v1.15.0 - Cluster "Keep reading" related block (#18/#23) */
+.nura-related {
+	margin: 3rem 0 0;
+	padding-top: 2rem;
+	border-top: 1px solid rgba(201,162,75,.28);
+}
+.nura-related__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+	margin-bottom: 1.4rem;
+}
+.nura-related__head h2 {
+	margin: 0;
+	font-family: var(--nura-font-display, 'Cormorant Garamond', serif);
+	font-size: 1.6rem;
+}
+.nura-related__pillar {
+	font-family: var(--nura-font-ui, 'Jost', sans-serif);
+	font-size: .78rem;
+	letter-spacing: .14em;
+	text-transform: uppercase;
+	color: #c79a54;
+	text-decoration: none;
+	white-space: nowrap;
+}
+.nura-related__pillar:hover { text-decoration: underline; }
+
+
+/* =========================================================================
+   NURA v1.25.0 : bottom-right floating layer + sticky bar collision fix
+   The AI Stylist launcher (.nurax-stylist) and the WhatsApp FAB (.nura-wa)
+   both sat at right:20px; bottom:20px, so the Stylist pill covered the
+   WhatsApp button ("chat and ai chat" overlap), and both floated over the
+   single-product sticky "Add to cart" bar (.nura-sticky-atc), hiding its
+   price on the right. This stacks the two buttons, keeps the sticky bar's
+   price clear, and removes a stray horizontal scrollbar. Additive only;
+   positions use !important so they win over the parent theme's inline
+   positions regardless of stylesheet load order.
+   ========================================================================= */
+
+/* Stray horizontal-scroll guard. overflow-x:clip does NOT create a scroll
+   container, so (unlike hidden/auto) it never breaks any position:sticky. */
+html { overflow-x: clip; }
+
+/* The slide-in cart drawer used width:100vw at <=560px, which is wider than
+   the usable width whenever a vertical scrollbar is present -> a horizontal
+   scrollbar. Use the containing-block width instead. */
+@media (max-width: 560px) {
+	.nura-cartdrawer { width: 100% !important; max-width: 100%; }
+}
+
+/* Lift the WhatsApp FAB above the AI Stylist launcher so the two never
+   overlap each other at the bottom-right corner. */
+.nura-wa { bottom: 90px !important; z-index: 9989; }
+
+/* Reserve room on the sticky bar's right edge so its price never hides behind
+   the floating buttons (this alone fixes it even where :has() is unsupported). */
+.nura-sticky-atc { padding-right: calc(var(--gutter, 24px) + 200px) !important; }
+
+/* Progressive polish (desktop): when the sticky bar is actually on screen,
+   lift both floating buttons fully above it so nothing overlaps the bar. */
+@media (min-width: 769px) {
+	body:has(.nura-sticky-atc.is-visible) .nurax-stylist { bottom: 84px; }
+	body:has(.nura-sticky-atc.is-visible) .nura-wa { bottom: 152px !important; }
+}
+
+@media (max-width: 768px) {
+	/* The mobile bottom nav already owns this strip, so the single-product
+	   sticky bar is redundant here and only collided with the nav - hide it. */
+	.nura-sticky-atc { display: none !important; }
+	/* Stack the launcher and WhatsApp FAB clearly above the bottom nav;
+	   env() keeps them clear of the iOS/Android home indicator. */
+	.nurax-stylist { right: 12px !important; bottom: calc(76px + env(safe-area-inset-bottom)) !important; }
+	.nura-wa { right: 12px !important; bottom: calc(144px + env(safe-area-inset-bottom)) !important; }
+}
+
+/* While the mobile drawer menu is open, hide the floating buttons so they never
+   sit on top of the drawer (the drawer is z-index:100, below the FABs). */
+body.nura-drawer-open .nura-wa,
+body.nura-drawer-open .nurax-stylist { display: none !important; }
+
+
+/* =========================================================================
+   NURA v1.26.0 : header contact affordance + homepage "Why NURA" value grid
+   + "Talk to NURA" contact section. Additive; reuses the theme's .section,
+   .nura-container, .nura-shead, .nura-eyebrow and .nura-btn helpers.
+   ========================================================================= */
+
+/* --- Header contact link (top-right, beside Search) --- */
+.nura-contact-link { display: inline-flex; align-items: center; gap: .45rem; white-space: nowrap; }
+.nura-contact-link__ic { width: 18px; height: 18px; flex: 0 0 auto; }
+.nura-contact-link__txt { font-family: var(--nura-font-ui, 'Jost', sans-serif); font-size: .82rem; letter-spacing: .02em; }
+@media (max-width: 900px) { .nura-contact-link__txt { display: none; } } /* icon-only on tablet/mobile */
+
+/* --- Homepage: "Why NURA" value grid --- */
+.nura-why__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+.nura-why__item {
+	display: flex;
+	flex-direction: column;
+	gap: .5rem;
+	padding: 1.4rem 1.3rem;
+	background: #fff;
+	border: 1px solid rgba(201, 162, 75, .28);
+	border-radius: 14px;
+	text-align: left;
+}
+.nura-why__ic {
+	display: inline-flex;
+	width: 40px;
+	height: 40px;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background: rgba(201, 162, 75, .12);
+	color: var(--nura-ux-gold);
+}
+.nura-why__ic svg { width: 22px; height: 22px; }
+.nura-why__t { font-family: var(--nura-font-display, 'Playfair Display', serif); font-size: 1.12rem; color: var(--nura-ux-ink); }
+.nura-why__d { color: #5a5147; font-size: .9rem; line-height: 1.55; }
+@media (max-width: 900px) { .nura-why__grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .nura-why__grid { grid-template-columns: 1fr; } }
+
+/* --- Homepage: "Talk to NURA" contact grid --- */
+.nura-contact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.6rem; }
+.nura-contact-card {
+	display: flex;
+	flex-direction: column;
+	gap: .35rem;
+	padding: 1.4rem 1.2rem;
+	background: #fff;
+	border: 1px solid rgba(201, 162, 75, .3);
+	border-radius: 14px;
+	text-decoration: none;
+	color: var(--nura-ux-ink);
+	transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+a.nura-contact-card:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(0, 0, 0, .1); border-color: var(--nura-ux-gold); }
+.nura-contact-card__ic {
+	display: inline-flex;
+	width: 42px;
+	height: 42px;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background: rgba(201, 162, 75, .12);
+	color: var(--nura-ux-gold);
+	margin-bottom: .3rem;
+}
+.nura-contact-card__ic svg { width: 22px; height: 22px; }
+.nura-contact-card__k { font-family: var(--nura-font-ui, 'Jost', sans-serif); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: var(--nura-ux-gold); }
+.nura-contact-card__v { font-family: var(--nura-font-display, 'Playfair Display', serif); font-size: 1.08rem; line-height: 1.25; word-break: break-word; }
+.nura-contact-card__cta { font-size: .82rem; color: #6a6058; }
+.nura-contact-note { margin: 1.4rem 0 0; text-align: center; font-size: .86rem; color: #6a6058; }
+@media (max-width: 900px) { .nura-contact-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .nura-contact-grid { grid-template-columns: 1fr; } }
+
+
+/* Google Business Profile reviews (NURAX_Google_Reviews) */
+.nura-gr{max-width:1160px;margin:3rem auto;padding:0 1.2rem}
+.nura-gr-head{text-align:center;margin-bottom:1.6rem}
+.nura-gr-title{margin:0 0 .4rem}
+.nura-gr-agg{margin:0;color:#4b4b4b;font-size:.98rem}
+.nura-gr-agg strong{font-size:1.1rem;margin:0 .15rem}
+.nura-gr-stars{display:inline-flex;gap:1px;vertical-align:middle}
+.nura-gr-stars .on{color:#e8b30b}
+.nura-gr-stars .off{color:#d9d4cc}
+.nura-gr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+.nura-gr-card{border:1px solid #ece7df;border-radius:14px;padding:1.1rem 1.15rem;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.nura-gr-card-head{display:flex;align-items:center;gap:.55rem;margin-bottom:.35rem}
+.nura-gr-ava{width:40px;height:40px;border-radius:50%;object-fit:cover}
+.nura-gr-name{font-weight:600}
+.nura-gr-text{margin:.5rem 0 .35rem;color:#333;line-height:1.5;font-size:.95rem}
+.nura-gr-when{color:#8a8378;font-size:.82rem}
+.nura-gr-more{text-align:center;margin-top:1.4rem}
+.nura-gr-more a{color:inherit;text-decoration:underline}

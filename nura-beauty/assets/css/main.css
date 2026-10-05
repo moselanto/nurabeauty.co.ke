@@ -808,3 +808,14 @@ form.cart .single_add_to_cart_button.disabled,form.cart .single_add_to_cart_butt
 /* v1.31.1 Mobile: one WhatsApp only. The bottom bar has WhatsApp, so the floating
    bubble is hidden on phones (the v1.31.0 bubble restyle had re-shown it). */
 @media(max-width:768px){html body a.nura-wa{display:none !important}}
+
+/* ===== v1.32.0 SEO: keyword H1 in hero, slide titles as H2, homepage wig guide + FAQ ===== */
+.nura-slide__inner .nura-hero-kw{font-family:var(--font-ui);font-size:.72rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;line-height:1.6;color:var(--nura-gold-soft);margin:0 0 1.1rem}
+.nura-slide__inner .nura-hero-h{color:#fff;line-height:1.05;font-size:clamp(2.5rem,5.2vw,4.6rem);margin:0 0 .35em}
+.nura-seo-home{background:#faf6f0}
+.nura-seo-home__grid{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(28px,5vw,72px);align-items:start}
+.nura-seo-home__intro p{color:#4a423b;line-height:1.75;margin:0 0 1rem}
+.nura-seo-home__intro a{color:var(--nura-ink);text-decoration:underline;text-decoration-color:var(--nura-gold);text-underline-offset:3px}
+.nura-seo-home__faq h2{font-size:clamp(1.4rem,2.4vw,1.9rem);margin:0 0 .6rem}
+.nura-seo-home__faq details p{color:#4a423b;line-height:1.7;margin:.6rem 0 0}
+@media(max-width:860px){.nura-seo-home__grid{grid-template-columns:1fr}}

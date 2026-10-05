@@ -10,8 +10,8 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[\![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.31.1-0E0E0E?style=for-the-badge)](nura-beauty)
-[\![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.41.0-C9A24B?style=for-the-badge)](nura-experience)
+[\![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.32.0-0E0E0E?style=for-the-badge)](nura-beauty)
+[\![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.42.0-C9A24B?style=for-the-badge)](nura-experience)
 [\![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 \![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -61,9 +61,9 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Package | Folder | Version | Role |
 | --- | --- | :---: | --- |
-| **NURA Beauty** | [`nura-beauty/`](nura-beauty) | `1.31.1` | Parent theme: storefront, design system, header search, checkout, Customizer, SEO schema |
+| **NURA Beauty** | [`nura-beauty/`](nura-beauty) | `1.32.0` | Parent theme: storefront, design system, header search, checkout, Customizer, SEO schema |
 | **NURA Beauty Child** | [`nura-beauty-child/`](nura-beauty-child) | `1.0.0` | **Active theme.** Update-safe layer for site-specific CSS and PHP |
-| **NURA Experience** | [`nura-experience/`](nura-experience) | `1.41.0` | Plugin: AI Stylist chat, AI Wig Finder, Quick View, WhatsApp ordering, mobile bottom bar, policy pages, NURA Circle |
+| **NURA Experience** | [`nura-experience/`](nura-experience) | `1.42.0` | Plugin: AI Stylist chat, AI Wig Finder, Quick View, WhatsApp ordering, mobile bottom bar, policy pages, NURA Circle |
 
 > [\!NOTE]
 > Nothing brand-specific is hard-coded. Colours, fonts, contact details, social links, announcement bar and hero copy are edited under **Appearance > Customize > NURA Options**.
@@ -379,6 +379,7 @@ window.nuraxTryonProvider = { align: (photo, wig) => { /* MediaPipe / Banuba */ 
 
 | Theme | Plugin | Highlights |
 | :---: | :---: | --- |
+| `1.32.0` | `1.42.0` | SEO for Kenyan wig searches: keyword H1, homepage wig guide + FAQ schema, Product shipping/returns schema, image alt text, LocalBusiness areas |
 | `1.31.1` | - | Mobile: only one WhatsApp (bottom bar); floating bubble hidden on phones |
 | `1.31.0` | `1.41.0` | WhatsApp bubble with real logo, redesigned NURA Stylist button and chat, one-line mobile announcement bar |
 | `1.30.0` | `1.40.0` | Mobile bottom bar: Home, Shop, WhatsApp, Cart, Menu; visible chat button |

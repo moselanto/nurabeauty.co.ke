@@ -115,8 +115,12 @@ $slides = array(
 				<div class="nura-slide<?php echo 0 === $i ? ' is-active' : ''; ?>" role="group" aria-roledescription="<?php esc_attr_e( 'slide', 'nura-beauty' ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: 1: current slide number, 2: total slides. */ __( '%1$d of %2$d', 'nura-beauty' ), $i + 1, $nura_total ) ); ?>">
 					<div class="nura-slide__media" style="background-image:url('<?php echo esc_url( $s['img'] ); ?>')" aria-hidden="true"></div>
 					<div class="nura-container nura-slide__inner">
+						<?php if ( 0 === $i ) : // One keyword H1 for the page; slide titles are H2 with the same look. ?>
+						<h1 class="nura-eyebrow nura-hero-kw"><?php esc_html_e( 'Wigs in Kenya - Human Hair, Lace Front & Glueless Wigs', 'nura-beauty' ); ?></h1>
+						<?php else : ?>
 						<p class="nura-eyebrow"><?php echo esc_html( $s['eyebrow'] ); ?></p>
-						<h1><?php echo esc_html( $s['title'] ); ?></h1>
+						<?php endif; ?>
+						<h2 class="nura-hero-h"><?php echo esc_html( $s['title'] ); ?></h2>
 						<p class="nura-lede"><?php echo esc_html( $s['sub'] ); ?></p>
 						<div class="nura-hero__cta">
 							<a class="nura-btn nura-btn--gold" href="<?php echo esc_url( $wigs_url ); ?>"><?php esc_html_e( 'Shop Wigs', 'nura-beauty' ); ?></a>
@@ -358,6 +362,8 @@ $slides = array(
 			<p class="nura-contact-note"><?php esc_html_e( 'Same-day delivery in Nairobi (order before 5pm) - Kenya-wide in 1-3 days - Worldwide shipping available.', 'nura-beauty' ); ?></p>
 		</div>
 	</section>
+
+	<?php if ( function_exists( 'nura_home_seo_section' ) ) { nura_home_seo_section(); } ?>
 
 	<!-- NURA STYLIST (final conversion CTA) -->
 	<section class="section text-center">

@@ -257,3 +257,37 @@ r(function(){
 		}).catch(function(){body.innerHTML='<p style="padding:2rem">Sorry, something went wrong.</p>';});
 	});
 });})();
+
+/* v1.39.0 Order on WhatsApp: send a complete order message (product, chosen colour/options, quantity, price, link). */
+(function(d){
+	function txt(el){return (el&&el.textContent?el.textContent:"").replace(/\s+/g," ").trim();}
+	d.addEventListener("click",function(e){
+		var a=e.target&&e.target.closest?e.target.closest("[data-nura-wa-order]"):null;
+		if(!a){return;}
+		var scope=a.closest(".nura-qv-info")||a.closest(".summary")||a.closest(".product")||d;
+		var form=scope.querySelector("form.cart");
+		var lines=["Hi NURA, I would like to order:",""];
+		lines.push("Product: "+(a.getAttribute("data-wa-name")||""));
+		var missing=[];
+		if(form){
+			[].forEach.call(form.querySelectorAll(".variations select"),function(sel){
+				var row=sel.closest("tr");var lab=row?row.querySelector("th label, td.label label, label"):null;
+				var name=lab?txt(lab).replace(/:.*$/,""):"Option";
+				var opt=sel.options[sel.selectedIndex];
+				if(sel.value&&opt){lines.push(name+": "+opt.text);}else{missing.push(name.toLowerCase());}
+			});
+		}
+		var q=form?form.querySelector("input.qty"):null;
+		lines.push("Quantity: "+((q&&q.value)?q.value:"1"));
+		var vp=form?form.querySelector(".woocommerce-variation-price .price"):null;
+		var price=txt(vp)||a.getAttribute("data-wa-price")||"";
+		if(price){lines.push("Price: "+price);}
+		lines.push("Link: "+(a.getAttribute("data-wa-url")||location.href));
+		lines.push("");
+		if(missing.length){lines.push("Please help me choose the "+missing.join(" and ")+".");}
+		lines.push("Delivery to: ");
+		lines.push("Is it available?");
+		var num=a.getAttribute("data-wa-num")||"254714994898";
+		a.href="https://wa.me/"+num+"?text="+encodeURIComponent(lines.join("\n"));
+	},true);
+})(document);

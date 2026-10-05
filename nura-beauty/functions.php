@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.27.0' );
+define( 'NURA_VERSION', '1.28.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 

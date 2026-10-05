@@ -367,9 +367,16 @@ class NURAX_Product_Page {
 				get_permalink( $product->get_id() )
 			);
 			$wa       = 'https://wa.me/' . $num . '?text=' . rawurlencode( $msg );
+			$price    = wp_strip_all_tags( wc_price( wc_get_price_to_display( $product ), array( 'decimals' => 0 ) ) );
+			$wa_icon  = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';
 			$buttons .= sprintf(
-				'<a class="nura-btn nura-btn--wa nura-pdp-actions__btn" href="%s" target="_blank" rel="noopener nofollow">%s</a>',
+				'<a class="nura-btn nura-btn--wa nura-pdp-actions__btn" href="%1$s" target="_blank" rel="noopener nofollow" data-nura-wa-order data-wa-num="%2$s" data-wa-name="%3$s" data-wa-url="%4$s" data-wa-price="%5$s">%6$s<span>%7$s</span></a>',
 				esc_url( $wa ),
+				esc_attr( $num ),
+				esc_attr( $product->get_name() ),
+				esc_url( get_permalink( $product->get_id() ) ),
+				esc_attr( $price ),
+				$wa_icon,
 				esc_html__( 'Order on WhatsApp', 'nura-experience' )
 			);
 		}
@@ -385,7 +392,7 @@ class NURAX_Product_Page {
 			echo '<style>'
 				. '.nura-pdp-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin:1rem 0 0;clear:both;width:100%}'
 				. '.nura-pdp-actions__btn{flex:1 1 200px;display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:48px;padding:.7rem 1.2rem;border-radius:6px;text-decoration:none}'
-				. '.nura-btn--wa{background:#25D366;color:#0b3d24;border:1px solid #1da851;font-weight:700}'
+				. '.nura-btn--wa{background:#25D366;color:#fff;border:1px solid #1da851;font-weight:700;gap:.55rem;letter-spacing:.1em}'
 				. '.nura-btn--wa:hover{background:#1ebe5b}'
 				. '</style>';
 		}

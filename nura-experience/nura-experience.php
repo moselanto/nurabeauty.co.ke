@@ -3,7 +3,7 @@
  * Plugin Name:       NURA Experience
  * Plugin URI:        https://nurabeauty.co.ke
  * Description:       NURA's exclusive features: AI Wig Finder, Virtual Try-On, and The NURA Circle luxury client portal (order history, care schedule, warranty certificates, maintenance reminders, loyalty points, VIP membership), plus the NURA catalogue architecture, a catalogue-driven mega menu, mobile bottom navigation, a faceted shop experience and an upgraded product page. Requires WooCommerce.
- * Version:           1.38.1
+ * Version:           1.39.0
  * Author:            NURA - The House of Radiant Confidence
  * License:           GPL-2.0-or-later
  * Text Domain:       nura-experience
@@ -18,10 +18,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURAX_VERSION', '1.38.1' );
+define( 'NURAX_VERSION', '1.39.0' );
 
 /*
- * Virtual Try-On is switched OFF for the Kenyan market (v1.38.1). The code stays in
+ * Virtual Try-On is switched OFF for the Kenyan market (v1.39.0). The code stays in
  * the plugin so it can be restored later: change false to true below (or return true
  * from the 'nurax_enable_tryon' filter) and re-upload. While off, the Try on buttons
  * and menu link are hidden and /virtual-try-on/ redirects to the AI Wig Finder.

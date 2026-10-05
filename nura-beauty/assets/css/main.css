@@ -715,3 +715,18 @@ body.woocommerce-checkout .nurax-stylist,body.woocommerce-cart .nurax-stylist{di
 .nura-nav .menu-item-has-children>a::before,.nura-nav .nura-mega__item>a::before{order:2;margin:-3px 0 0 .1em}
 @media(max-width:1100px) and (min-width:861px){.nura-hlabel,.nura-contact-link__txt{display:none}.nura-header-actions{gap:1rem}}
 @media(max-width:860px){.nura-hlabel{display:none}.nura-header-actions{gap:.9rem}.nura-account-link svg{width:22px;height:22px}}
+
+/* ===== v1.28.0 Buy box: Add to cart + Order on WhatsApp ===== */
+.woocommerce-variation-add-to-cart,form.cart:not(.variations_form){display:flex;flex-wrap:wrap;align-items:stretch;gap:.6rem}
+form.cart .quantity{flex:none;margin:0}
+form.cart .quantity input.qty{width:72px;height:52px;min-height:52px;text-align:center;font-size:16px;border:1px solid rgba(0,0,0,.2);border-radius:6px;background:#fff}
+form.cart .single_add_to_cart_button{flex:1 1 180px;min-height:52px;margin:0;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:.55rem;border:0;border-radius:6px;background:var(--nura-ink);color:#fff;font-family:var(--font-ui);font-size:.85rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .1s}
+form.cart .single_add_to_cart_button::before{content:"";width:18px;height:18px;flex:none;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 7h12l-1 13H7L6 7z'/%3E%3Cpath d='M9 7a3 3 0 0 1 6 0'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 7h12l-1 13H7L6 7z'/%3E%3Cpath d='M9 7a3 3 0 0 1 6 0'/%3E%3C/svg%3E") center/contain no-repeat}
+form.cart .single_add_to_cart_button:hover{background:#2a2420}
+form.cart .single_add_to_cart_button:active{transform:scale(.99)}
+form.cart .single_add_to_cart_button.disabled,form.cart .single_add_to_cart_button.wc-variation-selection-needed{opacity:.55}
+.nura-pdp-actions{flex:1 1 100%;margin:.15rem 0 0}
+.nura-pdp-actions .nura-btn--wa,.nura-btn--wa.nura-pdp-actions__btn{flex:1 1 100%;min-height:52px;border-radius:6px;background:#25D366;color:#fff;border:0;font-family:var(--font-ui);font-size:.85rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:inline-flex;align-items:center;justify-content:center;gap:.55rem}
+.nura-btn--wa:hover{background:#1ebe5b;color:#fff}
+.nura-btn--wa svg{flex:none}
+[data-qv-body] .nura-qv-actions>.nura-btn--ghost{min-height:48px;border-radius:6px}

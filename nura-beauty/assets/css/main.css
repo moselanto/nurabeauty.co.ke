@@ -804,3 +804,7 @@ form.cart .single_add_to_cart_button.disabled,form.cart .single_add_to_cart_butt
   /* Announcement bar: one line on phones */
   .nura-announcement,.nura-announce,.nura-topbar{font-size:.66rem !important;letter-spacing:.08em !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-block:.5rem !important}
 }
+
+/* v1.31.1 Mobile: one WhatsApp only. The bottom bar has WhatsApp, so the floating
+   bubble is hidden on phones (the v1.31.0 bubble restyle had re-shown it). */
+@media(max-width:768px){html body a.nura-wa{display:none !important}}

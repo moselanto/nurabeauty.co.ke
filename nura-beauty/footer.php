@@ -3,11 +3,12 @@
  * Footer.
  * @package NURA_Beauty
  */
-$payments = array_filter( array_map( 'trim', explode( ',', (string) nura_opt( 'nura_payments' ) ) ) );
-if ( empty( $payments ) && function_exists( 'nura_payment_methods' ) ) {
-	// Fall back to the merchant's actually-enabled WooCommerce gateways so the
-	// footer badges never advertise a payment method that is switched off.
-	$payments = nura_payment_methods();
+// v1.25.1: badges come from the payment methods actually switched on in
+// WooCommerce (e.g. Paystack shows as M-Pesa + Card), so they can never go out
+// of date. The Customizer list is only used if no gateway is detected.
+$payments = function_exists( 'nura_payment_methods' ) ? nura_payment_methods() : array();
+if ( empty( $payments ) ) {
+	$payments = array_filter( array_map( 'trim', explode( ',', (string) nura_opt( 'nura_payments' ) ) ) );
 }
 
 /**

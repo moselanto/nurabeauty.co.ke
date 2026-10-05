@@ -668,3 +668,7 @@ body.woocommerce-checkout .nurax-stylist,body.woocommerce-cart .nurax-stylist{di
   .nura-hsearch__btn{padding:0 1rem}
   .nura-contact-link__txt{display:none}
 }
+
+/* v1.25.1 keep footer bottom row clear of the floating WhatsApp / Stylist buttons */
+.nura-foot-bottom{padding-right:clamp(0px,14vw,230px)}
+@media(max-width:860px){.nura-foot-bottom{padding-right:0;padding-bottom:6.5rem!important}}

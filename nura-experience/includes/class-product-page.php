@@ -204,11 +204,16 @@ class NURAX_Product_Page {
 
 	public function tab_shipping() {
 		echo '<ul class="nura-inc">';
-		echo '<li>' . esc_html__( 'Free same-day delivery in Nairobi on orders over KES 10,000.', 'nura-experience' ) . '</li>';
+		$free = function_exists( 'nura_free_delivery_threshold' ) ? (float) nura_free_delivery_threshold() : 0;
+		echo '<li>' . esc_html__( 'Same-day delivery in Nairobi on orders placed before 2:00pm; otherwise next day.', 'nura-experience' ) . '</li>';
+		if ( $free > 0 ) {
+			/* translators: %s: free delivery minimum, e.g. KSh 10,000 */
+			echo '<li>' . sprintf( esc_html__( 'Free delivery on orders over %s.', 'nura-experience' ), wp_strip_all_tags( wc_price( $free, array( 'decimals' => 0 ) ) ) ) . '</li>';
+		}
 		echo '<li>' . esc_html__( 'Countrywide delivery in 1-3 business days.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'International shipping available on request.', 'nura-experience' ) . '</li>';
-		echo '<li>' . esc_html__( 'Pay with M-Pesa, card, or on delivery within Nairobi.', 'nura-experience' ) . '</li>';
-		echo '<li>' . esc_html__( 'Unworn units in original condition may be returned within 7 days; custom units are made to order.', 'nura-experience' ) . '</li>';
+		echo '<li>' . esc_html__( 'Pay with M-Pesa or card at checkout, or cash on delivery within Nairobi.', 'nura-experience' ) . '</li>';
+		echo '<li>' . esc_html__( 'Unworn units in original condition may be returned within 14 days of delivery; worn, cut or installed units cannot be returned for hygiene reasons.', 'nura-experience' ) . '</li>';
 		echo '</ul>';
 	}
 

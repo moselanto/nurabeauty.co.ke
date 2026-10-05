@@ -17,7 +17,7 @@
  *    publish.
  *
  * The copy is grounded in NURA's own published details (Nairobi studio,
- * +254 714 994 898, care@nurabeauty.co.ke, M-Pesa/card/PayPal, same-day Nairobi
+ * +254 714 994 898, care@nurabeauty.co.ke, M-Pesa/card (Paystack)/bank transfer/COD, same-day Nairobi
  * delivery, 48-hour returns window). A few store-specific values that only the
  * owner can confirm (exact Till number, precise fees) are shown at checkout or
  * left as a clearly marked note rather than invented.
@@ -180,7 +180,7 @@ HTML;
 <h3>Orders &amp; payment</h3>
 <ul>
 <li>All prices are listed in Kenyan Shillings (KES) unless otherwise stated; international orders may be quoted in USD.</li>
-<li>We accept M-Pesa, card payment, PayPal and pay-on-delivery within Nairobi (where available).</li>
+<li>We accept M-Pesa and card (via Paystack), bank transfer, and cash on delivery within Nairobi.</li>
 <li>Orders are confirmed once payment is received or, for pay-on-delivery orders, once we have confirmed the order details with you.</li>
 <li>We may cancel or refuse an order - for example in cases of suspected fraud, pricing errors or stock unavailability - and will notify you promptly.</li>
 </ul>
@@ -230,13 +230,11 @@ HTML;
 <p>Shopping with NURA is secure and flexible. Choose whatever works best for you at checkout.</p>
 <h3>Ways to pay</h3>
 <ul>
-<li><strong>M-Pesa:</strong> STK push, Buy Goods/Till, or Pochi la Biashara. Your M-Pesa prompt and Till details are shown at checkout.</li>
-<li><strong>Card:</strong> Visa and Mastercard, processed securely.</li>
-<li><strong>PayPal:</strong> ideal for diaspora and international orders.</li>
-<li><strong>Pay on delivery:</strong> available within Nairobi.</li>
+<li><strong>M-Pesa:</strong> choose M-Pesa at checkout, enter your Safaricom number and approve the prompt on your phone with your M-Pesa PIN. Processed securely by Paystack.</li>
+<li><strong>Card:</strong> Visa and Mastercard, processed securely by Paystack.</li>
+<li><strong>Bank transfer:</strong> our bank details are shown at checkout and in your order email. Your order ships once the transfer reflects.</li>
+<li><strong>Cash on delivery:</strong> available within Nairobi.</li>
 </ul>
-<h3>NURA Flex (flexible payment)</h3>
-<p>For units above KES 15,000, begin with a <strong>50% M-Pesa deposit</strong> and pay the balance before delivery, or split the cost over instalments. Lipa Later / Buy-Now-Pay-Later is available on eligible orders.</p>
 <h3>Security</h3>
 <p>Payments are handled by trusted, encrypted providers. We never see or store your full card details. If a payment fails or you need help, message us on WhatsApp at <strong>$phone</strong>.</p>
 HTML;
@@ -262,17 +260,17 @@ HTML;
 		$faq = <<<HTML
 <h2>Frequently Asked Questions</h2>
 <h3>Are NURA wigs real human hair?</h3>
-<p>Yes. Our premium units are verified human hair with a provenance certificate and written guarantee. We never sell synthetic hair as human hair.</p>
+<p>We sell three types, and every product is clearly labelled with its type: 100% human hair, human-hair blend, and heat-resistant fibre. Human-hair units are listed under Human Hair Wigs. If you are unsure which type a unit is, ask us on WhatsApp before you order.</p>
 <h3>How do I choose the right wig?</h3>
 <p>Take our Find Your Wig quiz, chat with NURA Stylist, or book a consultation. You can also visit our Nairobi studio for a fitting.</p>
 <h3>What lengths, textures and colours are available?</h3>
 <p>Most units come in 10&Prime; to 30&Prime; lengths, densities of 130% to 200%, textures from straight to afro curly, and colours from natural black to blonde, ombr&eacute;, burgundy and 613. Each variation shows its own price and availability on the product page.</p>
 <h3>How do I pay?</h3>
-<p>M-Pesa, Visa/Mastercard, PayPal, and pay-on-delivery in Nairobi. NURA Flex is available on units above KES 15,000. See <a href="/payment-information/">Payment Information</a>.</p>
+<p>M-Pesa and Visa/Mastercard (both via Paystack), bank transfer, and cash on delivery within Nairobi. See <a href="/payment-information/">Payment Information</a>.</p>
 <h3>How fast is delivery?</h3>
 <p>Same-day within Nairobi (order before 2:00pm), 1 to 3 business days countrywide, and 3 to 10 business days internationally with tracking. See <a href="/shipping-delivery/">Delivery Information</a>.</p>
 <h3>Can I return or exchange a wig?</h3>
-<p>Unworn, unaltered units can be returned within 48 hours of delivery. Worn, cut or installed units cannot be returned for hygiene reasons. See <a href="/returns-refunds/">Refund &amp; Returns</a>.</p>
+<p>Unworn, unaltered units can be returned within 14 days of delivery. Worn, cut or installed units cannot be returned for hygiene reasons. See <a href="/returns-refunds/">Refund &amp; Returns</a>.</p>
 <h3>Do you install wigs?</h3>
 <p>Yes - installation, styling, colouring, revamp and repairs. See <a href="/wig-installation/">Wig Installation</a>.</p>
 <p>Still have a question? Chat with us on WhatsApp at <strong>$phone</strong>.</p>

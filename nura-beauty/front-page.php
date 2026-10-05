@@ -203,7 +203,7 @@ $slides = array(
 				array(
 					'svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17.5" cy="18" r="1.6"/></svg>',
 					't'   => __( 'Same-Day Nairobi', 'nura-beauty' ),
-					'd'   => __( 'Order before 5pm for same-day Nairobi delivery; 1-3 days countrywide.', 'nura-beauty' ),
+					'd'   => __( 'Order before 2pm for same-day Nairobi delivery; 1-3 days countrywide.', 'nura-beauty' ),
 				),
 				array(
 					'svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9.5h19"/></svg>',
@@ -355,7 +355,7 @@ $slides = array(
 					<span class="nura-contact-card__cta"><?php esc_html_e( 'Visits by appointment', 'nura-beauty' ); ?></span>
 				</div>
 			</div>
-			<p class="nura-contact-note"><?php esc_html_e( 'Same-day delivery in Nairobi (order before 5pm) - Kenya-wide in 1-3 days - Worldwide shipping available.', 'nura-beauty' ); ?></p>
+			<p class="nura-contact-note"><?php esc_html_e( 'Same-day delivery in Nairobi (order before 2pm) - Kenya-wide in 1-3 days - Worldwide shipping available.', 'nura-beauty' ); ?></p>
 		</div>
 	</section>
 

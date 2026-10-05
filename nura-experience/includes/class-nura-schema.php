@@ -78,7 +78,7 @@ class NURAX_Schema {
 			'telephone'   => apply_filters( 'nurax_schema_phone', '+254714994898' ),
 			'priceRange'  => apply_filters( 'nurax_schema_pricerange', 'KSh' ),
 			'currenciesAccepted' => 'KES',
-			'paymentAccepted'    => 'M-Pesa, Visa, Mastercard, PayPal, Cash on Delivery',
+			'paymentAccepted'    => 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash on Delivery',
 			'areaServed'  => 'Kenya',
 			'address'     => array(
 				'@type'           => 'PostalAddress',
@@ -141,11 +141,11 @@ class NURAX_Schema {
 		$qas = apply_filters( 'nurax_schema_faq', array(
 			array(
 				'Are NURA wigs real human hair?',
-				'Yes. Our premium units are verified human hair with a provenance certificate and written guarantee. We never sell synthetic hair as human hair.',
+				'We sell 100% human hair, human-hair blend and heat-resistant fibre wigs, and every product is clearly labelled with its hair type.',
 			),
 			array(
 				'How do I pay?',
-				'M-Pesa, Visa/Mastercard, PayPal, and pay-on-delivery in Nairobi. NURA Flex is available on units above KES 15,000.',
+				'M-Pesa and Visa/Mastercard (both via Paystack), bank transfer, and cash on delivery within Nairobi.',
 			),
 			array(
 				'How fast is delivery?',
@@ -153,7 +153,7 @@ class NURAX_Schema {
 			),
 			array(
 				'Can I return or exchange a wig?',
-				'Unworn, unaltered units can be returned within 48 hours of delivery. Worn, cut or installed units cannot be returned for hygiene reasons.',
+				'Unworn, unaltered units can be returned within 14 days of delivery. Worn, cut or installed units cannot be returned for hygiene reasons.',
 			),
 			array(
 				'Do you install wigs?',

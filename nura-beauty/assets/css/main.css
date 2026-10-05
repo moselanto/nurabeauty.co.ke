@@ -626,3 +626,11 @@ body.nura-cart-open{overflow:hidden}
 	.woocommerce-checkout input.input-text,.woocommerce-checkout select{font-size:16px;min-height:46px}
 	.nura-sticky-atc{padding-bottom:calc(.7rem + env(safe-area-inset-bottom))}
 }
+
+/* v1.24.0 - floating buttons (NURA Stylist, WhatsApp) never cover the cart,
+   menu, filters or search, and the Stylist stays out of the way at checkout. */
+body.nura-cart-open .nurax-stylist,body.nura-cart-open .nura-wa,
+body.nura-drawer-open .nurax-stylist,body.nura-drawer-open .nura-wa,
+body.nura-filters-open .nurax-stylist,body.nura-filters-open .nura-wa,
+html.nura-noscroll .nurax-stylist,html.nura-noscroll .nura-wa,
+body.woocommerce-checkout .nurax-stylist,body.woocommerce-cart .nurax-stylist{display:none!important}

@@ -672,3 +672,28 @@ body.woocommerce-checkout .nurax-stylist,body.woocommerce-cart .nurax-stylist{di
 /* v1.25.1 keep footer bottom row clear of the floating WhatsApp / Stylist buttons */
 .nura-foot-bottom{padding-right:clamp(0px,14vw,230px)}
 @media(max-width:860px){.nura-foot-bottom{padding-right:0;padding-bottom:6.5rem!important}}
+
+/* ===== v1.26.0 Quick View: professional option picker + add to bag ===== */
+[data-qv-body] .nura-qv-actions{flex-direction:column;align-items:stretch}
+[data-qv-body] form.cart{width:100%;margin:0}
+[data-qv-body] table.variations,[data-qv-body] table.variations tbody,[data-qv-body] table.variations tr,[data-qv-body] table.variations th,[data-qv-body] table.variations td{display:block;width:100%;border:0;padding:0;background:none}
+[data-qv-body] table.variations tr{margin-bottom:.9rem}
+[data-qv-body] table.variations th label,[data-qv-body] table.variations td.label label{display:block;text-align:left;font-family:var(--font-ui);font-size:.78rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--nura-ink);margin:0 0 .5rem}
+.nura-chosen{text-transform:none;letter-spacing:0;font-weight:500;color:var(--nura-gold)}
+[data-qv-body] .reset_variations{display:inline-block;margin-top:.4rem;font-family:var(--font-ui);font-size:.8rem;color:#7a7066;text-decoration:underline}
+[data-qv-body] .nura-swatches{gap:.5rem}
+.nura-swatch.is-unavailable,.nura-pill.is-unavailable{opacity:.4;text-decoration:line-through;cursor:not-allowed}
+[data-qv-body] .single_variation_wrap{margin-top:.2rem}
+[data-qv-body] .woocommerce-variation-price .price{display:block;color:var(--nura-gold);font-family:var(--font-ui);font-size:1.25rem;font-weight:600;margin:.2rem 0 .5rem}
+[data-qv-body] .woocommerce-variation-availability p{font-family:var(--font-ui);font-size:.85rem;margin:0 0 .5rem;color:#2e7d32}
+[data-qv-body] .woocommerce-variation-availability p.out-of-stock{color:#b3261e}
+[data-qv-body] .woocommerce-variation-add-to-cart,[data-qv-body] form.cart:not(.variations_form){display:flex;align-items:stretch;gap:.6rem;margin-top:.6rem}
+[data-qv-body] .quantity{flex:none;margin:0}
+[data-qv-body] .quantity input.qty{width:72px;height:50px;min-height:50px;text-align:center;font-family:var(--font-ui);font-size:16px;border:1px solid rgba(0,0,0,.2);border-radius:4px;padding:0 .3rem;background:#fff}
+[data-qv-body] .single_add_to_cart_button{flex:1;margin:0;min-height:50px;border:0;border-radius:4px;cursor:pointer;background:var(--nura-ink);color:#fff;font-family:var(--font-ui);font-size:.85rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;transition:background .2s}
+[data-qv-body] .single_add_to_cart_button:hover{background:#2a2420}
+[data-qv-body] .single_add_to_cart_button.disabled,[data-qv-body] .single_add_to_cart_button.wc-variation-selection-needed{opacity:.55;cursor:not-allowed}
+[data-qv-body] .single_add_to_cart_button.loading{opacity:.7}
+[data-qv-body] .nura-qv-actions>a.nura-btn,[data-qv-body] .nura-qv-actions>.nura-btn--ghost{width:100%;justify-content:center;text-align:center}
+[data-qv-body] .nura-qv-error{color:#b3261e;font-weight:600}
+@media(max-width:640px){.nura-qv-modal__box{max-height:92vh}.nura-qv-info{padding:18px}}

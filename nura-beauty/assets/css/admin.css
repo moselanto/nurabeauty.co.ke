@@ -1,0 +1,5 @@
+.nura-welcome{max-width:920px;margin:20px auto;background:#0E0E0E;color:#F3E9DC;padding:40px;border-radius:6px;font-family:-apple-system,Segoe UI,Roboto,sans-serif}
+.nura-welcome h1{color:#C9A24B;font-size:28px;margin-top:0}
+.nura-welcome .nura-step{border-left:2px solid #C9A24B;padding:8px 0 8px 18px;margin:14px 0}
+.nura-welcome a.button-primary{background:#C9A24B;border-color:#C9A24B;color:#0E0E0E}
+.nura-welcome code{background:rgba(255,255,255,.1);padding:2px 6px;border-radius:3px}

@@ -1,0 +1,202 @@
+:root{}
+.woocommerce ul.products,.woocommerce-page ul.products{display:grid!important;grid-template-columns:repeat(3,1fr);gap:clamp(18px,2.2vw,36px);margin:0!important}
+.woocommerce ul.products li.product,.woocommerce-page ul.products li.product{width:auto!important;margin:0!important;float:none!important;text-align:center;position:relative}
+.woocommerce ul.products li.product a img{border-radius:2px}
+.woocommerce ul.products li.product .woocommerce-loop-product__title{font-family:var(--font-display);font-size:1.05rem;padding:.6rem 0 .2rem}
+.woocommerce ul.products li.product .price{color:var(--nura-gold);font-family:var(--font-ui)}
+.woocommerce ul.products li.product .button,.woocommerce a.button,.woocommerce button.button,.woocommerce input.button,.woocommerce #respond input#submit{background:var(--nura-ink);color:var(--nura-ivory);border-radius:2px;text-transform:uppercase;letter-spacing:.14em;font-family:var(--font-ui);font-size:.76rem;padding:.9em 1.8em;font-weight:500}
+.woocommerce a.button:hover,.woocommerce button.button:hover,.woocommerce ul.products li.product .button:hover{background:var(--nura-gold);color:var(--nura-ink)}
+.woocommerce div.product p.price,.woocommerce div.product span.price{color:var(--nura-gold);font-family:var(--font-ui);font-size:1.5rem}
+.woocommerce div.product .product_title{font-family:var(--font-display)}
+.woocommerce .woocommerce-message,.woocommerce .woocommerce-info{border-top-color:var(--nura-gold)}
+.woocommerce span.onsale{background:var(--nura-plum);color:var(--nura-ivory);border-radius:0;font-family:var(--font-ui);letter-spacing:.1em}
+@media(max-width:860px){.woocommerce ul.products,.woocommerce-page ul.products{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.woocommerce ul.products,.woocommerce-page ul.products{grid-template-columns:1fr 1fr}}
+
+
+/* ================= v1.0.2 shop polish ================= */
+/* Equal-height product cards with aligned images, prices and buttons */
+.woocommerce ul.products li.product,.woocommerce-page ul.products li.product{display:flex;flex-direction:column;height:100%;text-align:center}
+.woocommerce ul.products li.product a.woocommerce-loop-product__link,.woocommerce ul.products li.product a.woocommerce-LoopProduct-link{display:flex;flex-direction:column;flex:1 1 auto}
+.woocommerce ul.products li.product a img,.woocommerce ul.products li.product img{aspect-ratio:3/4;object-fit:cover;width:100%;height:auto;margin:0 0 .7rem}
+.woocommerce ul.products li.product .woocommerce-loop-product__title{flex:1 1 auto;min-height:2.4em;display:flex;align-items:center;justify-content:center}
+.woocommerce ul.products li.product .price{display:block;margin:.15rem 0 .85rem}
+.woocommerce ul.products li.product .button,.woocommerce ul.products li.product a.added_to_cart{margin-top:auto!important;align-self:center}
+/* Full-width shop / product / cart / account (sidebar removed) */
+.woocommerce #secondary,.woocommerce-page #secondary,.woocommerce .widget-area,.woocommerce-page .widget-area,.woocommerce-page aside.widget-area{display:none!important}
+.woocommerce .woo-main .nura-container,.woocommerce-page .woo-main .nura-container{max-width:1320px;margin-inline:auto}
+.woocommerce div.product,.woocommerce-page div.product{width:100%;float:none!important}
+/* Single product: keep variation dropdowns tidy and full-width */
+.woocommerce div.product form.variations_form{width:100%}
+.woocommerce div.product .variations{width:100%;margin-bottom:1rem}
+.woocommerce div.product .variations td,.woocommerce div.product .variations th{padding:.35rem 0}
+.woocommerce div.product .variations select{min-height:44px;border:1px solid rgba(0,0,0,.18);border-radius:2px;padding:.4rem .6rem;font-family:var(--font-ui)}
+
+
+/* ================= v1.0.3 : force clean product grid ================= */
+.woocommerce ul.products,.woocommerce-page ul.products,ul.products.nura-home-products{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:clamp(18px,2.2vw,36px)!important;float:none!important;margin:0!important}
+.woocommerce ul.products li.product,.woocommerce-page ul.products li.product,ul.products.nura-home-products li.product{width:auto!important;max-width:none!important;margin:0!important;float:none!important;clear:none!important}
+.woocommerce ul.products li.product::before,.woocommerce ul.products li.product::after{content:none!important;display:none!important}
+@media(max-width:860px){.woocommerce ul.products,.woocommerce-page ul.products,ul.products.nura-home-products{grid-template-columns:1fr 1fr!important}}
+@media(max-width:520px){.woocommerce ul.products,.woocommerce-page ul.products,ul.products.nura-home-products{grid-template-columns:1fr 1fr!important}}
+
+
+/* ============ v1.0.4 : remove WooCommerce clearfix pseudo-elements ============ */
+/* In a grid container these ::before/::after become phantom cells that leave an
+   empty first slot and push every product one place over. Neutralise them. */
+.woocommerce ul.products::before,.woocommerce ul.products::after,.woocommerce-page ul.products::before,.woocommerce-page ul.products::after,ul.products.nura-home-products::before,ul.products.nura-home-products::after{content:none!important;display:none!important}
+
+
+/* ===== NURA v1.2.0 - shop review/related/toolbar polish ===== */
+.woocommerce-result-count{font-family:var(--font-ui);font-size:.8rem;color:#777;letter-spacing:.04em}
+.woocommerce-ordering select{font-family:var(--font-ui);font-size:.82rem;padding:.5rem .7rem;border:1px solid var(--nura-line);border-radius:6px;background:#fff}
+.related.products,.up-sells.products,.cross-sells{margin-top:clamp(44px,6vw,84px)}
+.related.products>h2,.up-sells>h2,.cross-sells>h2{font-family:var(--font-display);font-size:clamp(1.4rem,2.4vw,2rem);margin-bottom:1.4rem;text-align:left}
+#reviews .commentlist{list-style:none;padding:0}
+#reviews .comment-text{background:var(--nura-ivory);padding:1.2rem 1.4rem;border-radius:8px;border:1px solid var(--nura-line)}
+#reviews .star-rating{color:var(--nura-gold)}
+#reviews .woocommerce-Reviews-title,#reviews h2{font-family:var(--font-display)}
+.woocommerce #review_form #respond textarea,.woocommerce #review_form #respond input[type=text],.woocommerce #review_form #respond input[type=email]{border:1px solid var(--nura-line);border-radius:6px;padding:.7rem .8rem}
+
+
+/* ===== NURA v1.7.0 : related & up-sell products 4-up ===== */
+/* Beats the global repeat(3,1fr)!important via higher specificity (.related.products). */
+.related.products ul.products,.up-sells.products ul.products{grid-template-columns:repeat(4,1fr)!important}
+@media(max-width:1024px){.related.products ul.products,.up-sells.products ul.products{grid-template-columns:repeat(3,1fr)!important}}
+@media(max-width:860px){.related.products ul.products,.up-sells.products ul.products{grid-template-columns:1fr 1fr!important}}
+@media(max-width:520px){.related.products ul.products,.up-sells.products ul.products{grid-template-columns:1fr 1fr!important}}
+
+
+/* ================= NURA v1.9.0 : faceted shop filters ================= */
+.nura-filterbar{margin:0 0 clamp(20px,3vw,34px)}
+.nura-filterbar__top{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.9rem}
+.nura-filter-toggle{display:none;align-items:center;gap:.55rem;font-family:var(--font-ui);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500;background:var(--nura-ink);color:var(--nura-ivory);border:1px solid var(--nura-ink);border-radius:var(--radius);padding:.8em 1.4em;cursor:pointer}
+.nura-filter-toggle__icon{width:14px;height:10px;position:relative;display:inline-block}
+.nura-filter-toggle__icon::before,.nura-filter-toggle__icon::after{content:"";position:absolute;left:0;right:0;height:2px;background:currentColor}
+.nura-filter-toggle__icon::before{top:0}
+.nura-filter-toggle__icon::after{bottom:0;left:3px;right:3px}
+.nura-filter-toggle__count{background:var(--nura-gold);color:var(--nura-ink);border-radius:999px;min-width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;padding:0 .3em}
+.nura-chips{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.nura-chip{display:inline-flex;align-items:center;gap:.45rem;font-family:var(--font-ui);font-size:.74rem;letter-spacing:.04em;background:var(--nura-ivory);border:1px solid var(--nura-line);border-radius:999px;padding:.4em .9em;color:var(--nura-text);transition:all .25s var(--ease)}
+.nura-chip:hover{border-color:var(--nura-gold);color:var(--nura-ink)}
+.nura-chip__x{font-size:1rem;line-height:1;color:var(--nura-gold)}
+.nura-chip--clear{background:transparent;border-color:transparent;text-decoration:underline;color:var(--nura-muted)}
+.nura-chip--clear:hover{color:var(--nura-ink)}
+.nura-filters{display:block}
+.nura-filters__groups{display:flex;flex-wrap:wrap;gap:.7rem;align-items:flex-start}
+.nura-filters__head,.nura-filters__foot{display:none}
+.nura-facet{position:relative;font-family:var(--font-ui)}
+.nura-facet>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500;color:var(--nura-ink);background:#fff;border:1px solid var(--nura-line);border-radius:var(--radius);padding:.75em 1.15em;white-space:nowrap;transition:border-color .25s var(--ease)}
+.nura-facet>summary::-webkit-details-marker{display:none}
+.nura-facet>summary::after{content:"";width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);opacity:.55}
+.nura-facet[open]>summary{border-color:var(--nura-gold)}
+.nura-facet[open]>summary::after{transform:rotate(225deg) translateY(1px)}
+.nura-facet>summary:hover{border-color:var(--nura-gold)}
+.nura-facet__badge{background:var(--nura-gold);color:var(--nura-ink);border-radius:999px;min-width:17px;height:17px;display:inline-flex;align-items:center;justify-content:center;font-size:.68rem}
+.nura-facet__menu{position:absolute;top:calc(100% + 6px);left:0;z-index:40;min-width:230px;max-height:340px;overflow:auto;background:#fff;border:1px solid var(--nura-line);border-radius:var(--radius);box-shadow:0 16px 40px rgba(14,14,14,.12);padding:.4rem}
+.nura-facet__opt{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;border-radius:var(--radius);font-size:.86rem;letter-spacing:.01em;color:var(--nura-text);cursor:pointer;text-transform:none}
+.nura-facet__opt:hover{background:var(--nura-ivory);color:var(--nura-ink)}
+.nura-facet__opt:focus-visible{outline:2px solid var(--nura-gold);outline-offset:1px}
+.nura-facet__box{flex:none;width:16px;height:16px;border:1.5px solid var(--nura-line);border-radius:3px;position:relative;transition:all .2s var(--ease)}
+.nura-facet__opt.is-active .nura-facet__box{background:var(--nura-gold);border-color:var(--nura-gold)}
+.nura-facet__opt.is-active .nura-facet__box::after{content:"";position:absolute;left:4px;top:1px;width:5px;height:9px;border:solid var(--nura-ink);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.nura-facet__name{flex:1 1 auto}
+.nura-facet__count{font-style:normal;color:var(--nura-muted);font-size:.76rem}
+.nura-facet__opt.is-active .nura-facet__name{font-weight:500;color:var(--nura-ink)}
+.nura-facet--price .nura-facet__menu{min-width:250px}
+.nura-price-row{display:flex;align-items:center;gap:.5rem;padding:.4rem .3rem .7rem}
+.nura-price-row input{width:100%;min-height:42px;border:1px solid var(--nura-line);border-radius:var(--radius);padding:.5rem .6rem;font-family:var(--font-ui);font-size:.9rem}
+.nura-price-sep{color:var(--nura-muted)}
+.nura-price-go{width:100%;padding:.85em 1.2em;font-size:.72rem}
+.nura-facet--toggle>.nura-facet__opt{border:1px solid var(--nura-line);border-radius:var(--radius);padding:.75em 1.15em}
+.nura-facet--toggle>.nura-facet__opt.is-active{border-color:var(--nura-gold)}
+.nura-shop-results{transition:opacity .2s ease}
+.nura-shop-results.is-loading{opacity:.45;pointer-events:none}
+@media(max-width:860px){
+	.nura-filter-toggle{display:inline-flex}
+	.nura-filters{position:fixed;left:0;right:0;bottom:0;z-index:1200;max-height:88vh;display:flex;flex-direction:column;background:#fff;border-top-left-radius:16px;border-top-right-radius:16px;box-shadow:0 -20px 50px rgba(14,14,14,.25);transform:translateY(102%);transition:transform .34s var(--ease);visibility:hidden}
+	.nura-filters.is-open{transform:translateY(0);visibility:visible}
+	.nura-filters__head{display:flex;align-items:center;justify-content:space-between;padding:1.05rem 1.3rem;border-bottom:1px solid var(--nura-line);font-family:var(--font-display);font-size:1.15rem}
+	.nura-filters__close{background:none;border:none;font-size:1.7rem;line-height:1;cursor:pointer;color:var(--nura-ink)}
+	.nura-filters__groups{flex-direction:column;flex-wrap:nowrap;gap:0;overflow:auto;padding:.2rem 1.1rem 1rem}
+	.nura-facet{border-bottom:1px solid var(--nura-line);width:100%}
+	.nura-facet>summary{border:none;border-radius:0;padding:1.05em .2em;width:100%;justify-content:space-between;font-size:.82rem}
+	.nura-facet[open]>summary{border:none}
+	.nura-facet__menu{position:static;box-shadow:none;border:none;padding:0 0 .8rem;max-height:none;min-width:0}
+	.nura-facet--price .nura-facet__menu{min-width:0}
+	.nura-facet--toggle{border-bottom:1px solid var(--nura-line)}
+	.nura-facet--toggle>.nura-facet__opt{border:none;padding:1.05em .2em}
+	.nura-filters__foot{display:flex;gap:.8rem;padding:1rem 1.3rem;border-top:1px solid var(--nura-line)}
+	.nura-filters__foot .nura-btn{flex:1 1 50%;padding:1em 1.2em}
+	body.nura-filters-open{overflow:hidden}
+}
+
+
+/* ================= NURA v1.10.0 : product cards + variation UX ================= */
+/* Hover-reveal of the second gallery image */
+.woocommerce ul.products li.product .nura-loop-2nd{position:absolute;top:0;left:0;width:100%;aspect-ratio:3/4;object-fit:cover;margin:0;opacity:0;transition:opacity .55s var(--ease);z-index:1;pointer-events:none;border-radius:2px}
+@media(hover:hover){.woocommerce ul.products li.product:hover .nura-loop-2nd{opacity:1}}
+.woocommerce ul.products li.product .nura-badges{z-index:3}
+/* Sold-out flash */
+.nura-soldout{position:absolute;top:12px;right:12px;z-index:3;background:var(--nura-ink);color:var(--nura-ivory);font-family:var(--font-ui);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;padding:.4em .7em;border-radius:2px}
+.woocommerce ul.products li.product:has(.nura-soldout) a img{opacity:.72}
+/* Colour dots on cards */
+.nura-swatch-dots{display:flex;align-items:center;justify-content:center;gap:.32rem;margin:.1rem 0 .5rem;min-height:14px}
+.nura-dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(14,14,14,.18);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.nura-dot-more{font-family:var(--font-ui);font-size:.68rem;color:var(--nura-muted);letter-spacing:.04em}
+/* Variation swatch / pill selector (revealed only when JS enhances the form) */
+.nura-swatches{display:none;flex-wrap:wrap;gap:.5rem;margin:.15rem 0 .4rem}
+.nura-var-enhanced .nura-swatches{display:flex}
+.nura-var-enhanced .variations select{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.nura-swatch,.nura-pill{cursor:pointer;font-family:var(--font-ui);background:#fff;border:1px solid var(--nura-line);border-radius:2px;color:var(--nura-text);transition:all .22s var(--ease)}
+.nura-pill{padding:.6em 1.1em;font-size:.8rem;letter-spacing:.06em;min-height:42px}
+.nura-pill:hover{border-color:var(--nura-gold)}
+.nura-pill.is-active{border-color:var(--nura-ink);background:var(--nura-ink);color:var(--nura-ivory)}
+.nura-swatch{display:inline-flex;align-items:center;gap:.5rem;padding:.4em .8em .4em .45em;font-size:.8rem;min-height:42px}
+.nura-swatch:hover{border-color:var(--nura-gold)}
+.nura-swatch.is-active{border-color:var(--nura-gold);box-shadow:0 0 0 1px var(--nura-gold)}
+.nura-swatch__dot{width:20px;height:20px;border-radius:50%;border:1px solid rgba(14,14,14,.2);flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
+.nura-swatch__name{white-space:nowrap}
+.nura-swatch.is-active .nura-swatch__dot{box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),0 0 0 2px var(--nura-gold)}
+.nura-swatch:focus-visible,.nura-pill:focus-visible{outline:2px solid var(--nura-gold);outline-offset:2px}
+/* Colour filter facet swatches (v1.11.0) */
+.nura-facet__menu--colour{display:flex;flex-wrap:wrap;gap:.35rem .7rem}
+.nura-facet__opt--swatch{display:inline-flex;align-items:center;gap:.5rem}
+.nura-facet__box--swatch{width:18px;height:18px;border-radius:50%;border:1px solid rgba(14,14,14,.22);box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);flex:none}
+.nura-facet__opt--swatch.is-active .nura-facet__box--swatch{box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),0 0 0 2px var(--nura-gold)}
+.nura-facet__opt--swatch .nura-facet__name{white-space:nowrap}
+/* Product spec chips + Complete Your Look + Wig Finder (v1.13.0) */
+.nura-specchips{list-style:none;margin:1.1rem 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.5rem}
+.nura-specchip{display:inline-flex;flex-direction:column;gap:.05rem;padding:.45rem .8rem;border:1px solid var(--nura-line);border-radius:var(--radius);background:#fff}
+.nura-specchip__k{font-family:var(--font-ui);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--nura-muted)}
+.nura-specchip__v{font-family:var(--font-editorial);font-size:.95rem;color:var(--nura-ink)}
+.nura-complete-look{margin:3.5rem 0 1rem}
+.nura-complete-look__head{text-align:center;margin-bottom:1.6rem}
+.nura-complete-look__head h2{font-family:var(--font-display);font-size:clamp(1.4rem,2.6vw,2rem);margin:0 0 .3rem}
+.nura-complete-look__head p{font-family:var(--font-editorial);color:var(--nura-muted);margin:0}
+.nura-finder{max-width:820px;margin:0 auto;background:var(--nura-ivory);border:1px solid var(--nura-line);border-radius:var(--radius);padding:clamp(1.4rem,3vw,2.4rem)}
+.nura-finder__intro{text-align:center;margin-bottom:1.6rem}
+.nura-finder__intro h3{font-family:var(--font-display);font-size:clamp(1.3rem,2.6vw,1.9rem);margin:.2rem 0 0;line-height:1.15}
+.nura-finder__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.1rem 1.4rem}
+.nura-finder__q{display:flex;flex-direction:column;gap:.3rem}
+.nura-finder__label{font-family:var(--font-ui);font-size:.82rem;letter-spacing:.04em;color:var(--nura-ink);font-weight:500}
+.nura-finder__hint{font-family:var(--font-editorial);font-size:.85rem;color:var(--nura-muted);margin:0}
+.nura-finder__select{font-family:var(--font-ui);font-size:.9rem;padding:.7em .9em;border:1px solid var(--nura-line);border-radius:var(--radius);background:#fff;color:var(--nura-ink);cursor:pointer}
+.nura-finder__select:focus-visible{outline:2px solid var(--nura-gold);outline-offset:2px}
+.nura-finder__foot{display:flex;align-items:center;justify-content:center;gap:1.2rem;margin-top:1.8rem;flex-wrap:wrap}
+.nura-finder__skip{font-family:var(--font-ui);font-size:.82rem;color:var(--nura-muted);text-decoration:underline}
+.nura-finder__skip:hover{color:var(--nura-ink)}
+.nura-finder--empty{text-align:center}
+
+
+/* ================= NURA v1.17.0 : punch-list fixes ================= */
+
+/* #2 "Complete Your NURA Look" -> 4 across (the global grid forces 3, like the
+   related-products 4-up rule above). Extra .woocommerce prefix guarantees the win. */
+.woocommerce .nura-complete-look ul.products,.nura-complete-look ul.products{grid-template-columns:repeat(4,1fr)!important}
+@media(max-width:1024px){.woocommerce .nura-complete-look ul.products,.nura-complete-look ul.products{grid-template-columns:repeat(3,1fr)!important}}
+@media(max-width:860px){.woocommerce .nura-complete-look ul.products,.nura-complete-look ul.products{grid-template-columns:1fr 1fr!important}}
+
+/* #3 Single product title -> ~30px (was inheriting the huge global h1 clamp). */
+.woocommerce div.product .product_title,.woocommerce-page div.product .product_title{font-size:30px;line-height:1.2;margin:.1rem 0 .7rem}
+@media(max-width:560px){.woocommerce div.product .product_title,.woocommerce-page div.product .product_title{font-size:24px}}

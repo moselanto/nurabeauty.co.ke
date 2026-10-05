@@ -741,3 +741,17 @@ form.cart .single_add_to_cart_button.disabled,form.cart .single_add_to_cart_butt
   .nura-header-inner{grid-template-columns:minmax(max-content,1fr) minmax(0,560px) minmax(max-content,1fr);column-gap:2.5rem}
 }
 @media(max-width:1360px) and (min-width:861px){.nura-contact-link__txt{display:none}}
+
+/* ===== v1.29.0 Simple checkout ===== */
+.woocommerce-checkout .form-row{margin-bottom:1rem}
+.woocommerce-checkout .form-row label{font-family:var(--font-ui);font-size:.85rem;font-weight:600;color:var(--nura-ink);margin-bottom:.35rem;display:block}
+.woocommerce-checkout .form-row .required{color:#b3261e;text-decoration:none}
+.woocommerce-checkout .form-row input.input-text,.woocommerce-checkout .form-row select,.woocommerce-checkout .form-row textarea,.woocommerce-checkout .select2-container .select2-selection--single{width:100%;min-height:50px;font-size:16px;border:1px solid rgba(0,0,0,.2);border-radius:6px;padding:.6rem .8rem;background:#fff}
+.woocommerce-checkout .select2-container .select2-selection--single .select2-selection__rendered{line-height:32px;padding-left:0}
+.woocommerce-checkout .select2-container .select2-selection--single .select2-selection__arrow{height:48px}
+.woocommerce-checkout .form-row input.input-text:focus,.woocommerce-checkout .form-row textarea:focus{border-color:var(--nura-gold);box-shadow:0 0 0 3px rgba(201,162,75,.18);outline:0}
+.woocommerce-checkout #billing_phone_field input{font-size:18px;letter-spacing:.04em}
+.woocommerce-checkout .form-row .description{font-size:.8rem;color:#6b625a;margin-top:.3rem}
+.woocommerce-checkout .woocommerce-invalid input.input-text{border-color:#b3261e}
+.woocommerce-checkout textarea#order_comments{min-height:80px}
+@media(max-width:640px){.woocommerce-checkout .form-row-first,.woocommerce-checkout .form-row-last{width:100%;float:none}}

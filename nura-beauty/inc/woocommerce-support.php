@@ -498,33 +498,99 @@ add_action( 'woocommerce_before_cart', function () {
 } );
 
 /**
- * Shorter, mobile-friendly checkout for Kenyan shoppers: phone first (it is how
- * orders are confirmed and M-Pesa is paid), no company / second address line, and
- * the right keyboards on mobile. Only removes optional fields.
+ * v1.29.0 Simple Kenyan checkout.
+ * Order of fields: Phone / M-Pesa number (required), First name, Last name,
+ * Email, County, Town / Area, Delivery address, then optional delivery notes.
+ * Removed: company, address line 2 and postcode (not used in Kenya).
+ * Country defaults to Kenya; other countries still work for diaspora orders.
  */
 add_filter( 'woocommerce_checkout_fields', function ( $fields ) {
 	foreach ( array( 'billing', 'shipping' ) as $group ) {
-		foreach ( array( 'company', 'address_2' ) as $f ) {
-			$key = $group . '_' . $f;
-			if ( isset( $fields[ $group ][ $key ] ) && empty( $fields[ $group ][ $key ]['required'] ) ) {
-				unset( $fields[ $group ][ $key ] );
-			}
+		foreach ( array( 'company', 'address_2', 'postcode' ) as $f ) {
+			unset( $fields[ $group ][ $group . '_' . $f ] );
 		}
 	}
-	if ( isset( $fields['billing']['billing_phone'] ) ) {
-		$fields['billing']['billing_phone']['priority']          = 25;
-		$fields['billing']['billing_phone']['label']             = __( 'Phone / M-Pesa number', 'nura-beauty' );
-		$fields['billing']['billing_phone']['placeholder']       = '07XX XXX XXX';
-		$fields['billing']['billing_phone']['custom_attributes'] = array( 'inputmode' => 'tel', 'autocomplete' => 'tel' );
+	$b =& $fields['billing'];
+	if ( isset( $b['billing_phone'] ) ) {
+		$b['billing_phone']['required']          = true;
+		$b['billing_phone']['priority']          = 5;
+		$b['billing_phone']['label']             = __( 'Phone / M-Pesa number', 'nura-beauty' );
+		$b['billing_phone']['placeholder']       = '07XX XXX XXX';
+		$b['billing_phone']['description']       = __( 'We call or WhatsApp this number to confirm your order and delivery.', 'nura-beauty' );
+		$b['billing_phone']['class']             = array( 'form-row-wide' );
+		$b['billing_phone']['custom_attributes'] = array( 'inputmode' => 'tel', 'autocomplete' => 'tel' );
 	}
-	if ( isset( $fields['billing']['billing_email'] ) ) {
-		$fields['billing']['billing_email']['priority'] = 26;
+	$map = array(
+		'billing_first_name' => array( 10, __( 'First name', 'nura-beauty' ), '', array( 'form-row-first' ) ),
+		'billing_last_name'  => array( 20, __( 'Last name', 'nura-beauty' ), '', array( 'form-row-last' ) ),
+		'billing_email'      => array( 30, __( 'Email (for your receipt)', 'nura-beauty' ), 'you@example.com', array( 'form-row-wide' ) ),
+		'billing_country'    => array( 40, __( 'Country', 'nura-beauty' ), '', array( 'form-row-wide', 'address-field', 'update_totals_on_change' ) ),
+		'billing_state'      => array( 50, __( 'County', 'nura-beauty' ), '', array( 'form-row-first', 'address-field' ) ),
+		'billing_city'       => array( 60, __( 'Town / Area', 'nura-beauty' ), __( 'e.g. Westlands, Thika, Kisumu', 'nura-beauty' ), array( 'form-row-last', 'address-field' ) ),
+		'billing_address_1'  => array( 70, __( 'Delivery address', 'nura-beauty' ), __( 'Estate, street, building or landmark', 'nura-beauty' ), array( 'form-row-wide', 'address-field' ) ),
+	);
+	foreach ( $map as $key => $cfg ) {
+		if ( isset( $b[ $key ] ) ) {
+			$b[ $key ]['priority'] = $cfg[0];
+			$b[ $key ]['label']    = $cfg[1];
+			if ( '' !== $cfg[2] ) {
+				$b[ $key ]['placeholder'] = $cfg[2];
+			}
+			$b[ $key ]['class'] = $cfg[3];
+		}
 	}
-	if ( isset( $fields['billing']['billing_address_1'] ) ) {
-		$fields['billing']['billing_address_1']['placeholder'] = __( 'Estate, street, building or landmark', 'nura-beauty' );
+	if ( isset( $b['billing_email'] ) ) {
+		$b['billing_email']['custom_attributes'] = array( 'inputmode' => 'email', 'autocomplete' => 'email' );
+	}
+	if ( isset( $fields['order']['order_comments'] ) ) {
+		$fields['order']['order_comments']['label']       = __( 'Delivery notes (optional)', 'nura-beauty' );
+		$fields['order']['order_comments']['placeholder'] = __( 'e.g. Call when at the gate, deliver after 2pm', 'nura-beauty' );
 	}
 	return $fields;
 }, 20 );
+
+/** Kenya address format: County + Town, no postcode, labels that make sense locally. */
+add_filter( 'woocommerce_get_country_locale', function ( $locale ) {
+	$locale['KE'] = array_merge(
+		isset( $locale['KE'] ) ? $locale['KE'] : array(),
+		array(
+			'postcode' => array( 'required' => false, 'hidden' => true ),
+			'state'    => array( 'label' => __( 'County', 'nura-beauty' ), 'required' => true, 'priority' => 50 ),
+			'city'     => array( 'label' => __( 'Town / Area', 'nura-beauty' ), 'required' => true, 'priority' => 60 ),
+			'address_1' => array( 'label' => __( 'Delivery address', 'nura-beauty' ), 'priority' => 70 ),
+		)
+	);
+	return $locale;
+} );
+
+/** Postcode never required anywhere at checkout (removed for every country). */
+add_filter( 'woocommerce_default_address_fields', function ( $f ) {
+	if ( isset( $f['postcode'] ) ) {
+		$f['postcode']['required'] = false;
+	}
+	return $f;
+} );
+
+/** Default new shoppers to Kenya. */
+add_filter( 'default_checkout_billing_country', function ( $c ) {
+	return $c ? $c : 'KE';
+} );
+add_filter( 'default_checkout_shipping_country', function ( $c ) {
+	return $c ? $c : 'KE';
+} );
+
+/** Phone must be a real Kenyan or international number. */
+add_action( 'woocommerce_after_checkout_validation', function ( $data, $errors ) {
+	$raw    = isset( $data['billing_phone'] ) ? (string) $data['billing_phone'] : '';
+	$digits = preg_replace( '/\D+/', '', $raw );
+	if ( '' === $digits ) {
+		return; // WooCommerce already shows "Phone is required".
+	}
+	$ok = (bool) preg_match( '/^(0[17]\d{8}|254[17]\d{8})$/', $digits ) || ( strlen( $digits ) >= 9 && strlen( $digits ) <= 15 && 0 !== strpos( $digits, '0' ) && 0 !== strpos( $digits, '254' ) );
+	if ( !$ok ) {
+		$errors->add( 'validation', __( 'Please enter a valid phone number, e.g. 0712 345 678.', 'nura-beauty' ) );
+	}
+}, 10, 2 );
 
 /**
  * Reassurance right above the payment options at checkout.

@@ -538,6 +538,16 @@ body.nura-cart-open{overflow:hidden}
 .nura-cartdrawer .woocommerce-mini-cart-item a:not(.remove){color:var(--nura-ink);font-family:var(--font-editorial);font-size:1.02rem}
 .nura-cartdrawer .woocommerce-mini-cart-item img{width:58px;height:auto;order:-1;border-radius:2px}
 .nura-cartdrawer .woocommerce-mini-cart-item a.remove{position:absolute;top:.7rem;right:0;color:var(--nura-muted)!important}
+.nura-cartdrawer .woocommerce-mini-cart-item{flex-wrap:wrap;padding-right:2.75rem;column-gap:.75rem;row-gap:.35rem}
+.nura-cartdrawer .woocommerce-mini-cart-item>a:not(.remove){display:flex;align-items:flex-start;gap:.75rem;flex:1 1 100%;min-width:0;line-height:1.35}
+.nura-cartdrawer .woocommerce-mini-cart-item>a:not(.remove) img{flex:none;margin:0}
+.nura-cartdrawer .woocommerce-mini-cart-item dl.variation,.nura-cartdrawer .woocommerce-mini-cart-item .quantity{margin:0 0 0 calc(58px + .75rem)}
+.nura-cartdrawer .woocommerce-mini-cart-item dl.variation{flex:1 1 100%;font-size:.85rem}
+.nura-cartdrawer .woocommerce-mini-cart-item .quantity{flex:1 1 auto;align-self:center;font-size:.92rem}
+.nura-cartdrawer .woocommerce-mini-cart-item .nura-qtystep{flex:none;margin:0;align-self:center}
+.nura-cartdrawer .woocommerce-mini-cart-item a.remove{top:.75rem;right:0;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:1.3rem;line-height:1;text-decoration:none;transition:background .2s,color .2s}
+.nura-cartdrawer .woocommerce-mini-cart-item a.remove:hover,.nura-cartdrawer .woocommerce-mini-cart-item a.remove:focus-visible{background:#f4efe8;color:#b3261e!important}
+@media(max-width:380px){.nura-cartdrawer .woocommerce-mini-cart-item .quantity{flex-basis:100%}.nura-cartdrawer .woocommerce-mini-cart-item .nura-qtystep{margin-left:calc(58px + .75rem)}}
 .nura-cartdrawer .woocommerce-mini-cart__total{display:flex;justify-content:space-between;align-items:baseline;margin:1rem 0 .2rem;font-size:1rem}
 .nura-cartdrawer .woocommerce-mini-cart__total .amount{color:var(--nura-gold);font-weight:600}
 .nura-cartdrawer .woocommerce-mini-cart__empty-message{font-family:var(--font-editorial);font-size:1.1rem;color:var(--nura-muted);text-align:center;padding:2.2rem 0}

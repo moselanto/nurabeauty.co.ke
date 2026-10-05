@@ -3,7 +3,7 @@
  * Plugin Name:       NURA Experience
  * Plugin URI:        https://nurabeauty.co.ke
  * Description:       NURA's exclusive features: AI Wig Finder, Virtual Try-On, and The NURA Circle luxury client portal (order history, care schedule, warranty certificates, maintenance reminders, loyalty points, VIP membership), plus the NURA catalogue architecture, a catalogue-driven mega menu, mobile bottom navigation, a faceted shop experience and an upgraded product page. Requires WooCommerce.
- * Version:           1.36.0
+ * Version:           1.37.0
  * Author:            NURA - The House of Radiant Confidence
  * License:           GPL-2.0-or-later
  * Text Domain:       nura-experience
@@ -18,7 +18,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURAX_VERSION', '1.36.0' );
+define( 'NURAX_VERSION', '1.37.0' );
+
+/*
+ * Virtual Try-On is switched OFF for the Kenyan market (v1.37.0). The code stays in
+ * the plugin so it can be restored later: change false to true below (or return true
+ * from the 'nurax_enable_tryon' filter) and re-upload. While off, the Try on buttons
+ * and menu link are hidden and /virtual-try-on/ redirects to the AI Wig Finder.
+ */
+if ( ! defined( 'NURAX_ENABLE_TRYON' ) ) {
+	define( 'NURAX_ENABLE_TRYON', false );
+}
+function nurax_tryon_enabled() {
+	return (bool) apply_filters( 'nurax_enable_tryon', NURAX_ENABLE_TRYON );
+}
 define( 'NURAX_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NURAX_URL', plugin_dir_url( __FILE__ ) );
 
@@ -70,7 +83,18 @@ require_once NURAX_DIR . 'includes/class-admin-tidy.php';
  */
 function nurax_init() {
 	new NURAX_AI_Wig_Finder();
-	new NURAX_Virtual_TryOn();
+	if ( nurax_tryon_enabled() ) {
+		new NURAX_Virtual_TryOn();
+	} else {
+		// Send anyone landing on the old Try-On page (bookmarks, menus, Google) to the Wig Finder.
+		add_action( 'template_redirect', function () {
+			if ( is_page( 'virtual-try-on' ) ) {
+				$finder = get_page_by_path( 'ai-wig-finder' );
+				wp_safe_redirect( $finder ? get_permalink( $finder->ID ) : home_url( '/' ), 302 );
+				exit;
+			}
+		} );
+	}
 	new NURAX_Circle();
 	new NURAX_Settings();
 	new NURAX_AI_Stylist();

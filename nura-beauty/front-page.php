@@ -197,8 +197,8 @@ $slides = array(
 			$nura_why = array(
 				array(
 					'svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8l4 3 5-6 5 6 4-3-2 11H5L3 8z"/></svg>',
-					't'   => __( '100% Human Hair', 'nura-beauty' ),
-					'd'   => __( 'Premium human-hair and HD-lace units, quality-checked before they ship.', 'nura-beauty' ),
+					't'   => __( 'Quality-Checked Hair', 'nura-beauty' ),
+					'd'   => __( 'Human hair, human-hair blend and heat-resistant fibre units - each clearly labelled and checked before it ships.', 'nura-beauty' ),
 				),
 				array(
 					'svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17.5" cy="18" r="1.6"/></svg>',

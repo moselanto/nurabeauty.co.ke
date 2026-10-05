@@ -342,7 +342,7 @@ class NURAX_Product_Page {
 		$buttons = '';
 
 		// Try it on -> the Virtual Try-On page preloaded with this product.
-		$vto = get_page_by_path( 'virtual-try-on' );
+		$vto = nurax_tryon_enabled() ? get_page_by_path( 'virtual-try-on' ) : null;
 		if ( $vto ) {
 			$url      = add_query_arg( 'tryon', $product->get_id(), get_permalink( $vto->ID ) );
 			$buttons .= sprintf(

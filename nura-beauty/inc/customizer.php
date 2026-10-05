@@ -40,7 +40,7 @@ function nura_settings_map() {
 		'nura_brand_name'  => array( 'default' => 'NURA', 'label' => __( 'Brand name (text fallback if no logo)', 'nura-beauty' ), 'section' => 'nura_brand' ),
 		'nura_tagline'     => array( 'default' => 'The House of Radiant Confidence', 'label' => __( 'Tagline', 'nura-beauty' ), 'section' => 'nura_brand' ),
 		'nura_signoff'     => array( 'default' => 'Wear your crown. — NURA', 'label' => __( 'Signature sign-off', 'nura-beauty' ), 'section' => 'nura_brand' ),
-		'nura_bio'         => array( 'default' => "East Africa's house of radiant confidence. Premium human-hair wigs, hand-crafted in Nairobi.", 'label' => __( 'One-line bio (footer)', 'nura-beauty' ), 'section' => 'nura_brand', 'control' => 'textarea' ),
+		'nura_bio'         => array( 'default' => "East Africa's house of radiant confidence. Premium wigs, hand-finished in Nairobi.", 'label' => __( 'One-line bio (footer)', 'nura-beauty' ), 'section' => 'nura_brand', 'control' => 'textarea' ),
 		'nura_announcement'=> array( 'default' => 'Free same-day delivery in Nairobi on orders over KES 10,000 · Pay with M-Pesa on delivery', 'label' => __( 'Announcement bar', 'nura-beauty' ), 'section' => 'nura_brand', 'control' => 'textarea' ),
 		'nura_phone'       => array( 'default' => '+254 714 994 898', 'label' => __( 'Phone', 'nura-beauty' ), 'section' => 'nura_brand' ),
 		'nura_whatsapp'    => array( 'default' => 'https://wa.me/254714994898', 'label' => __( 'WhatsApp link (wa.me/...)', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),

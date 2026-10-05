@@ -244,7 +244,7 @@ class NURAX_Shop_Filters {
 	/** Try-On shortcut on the product card. */
 	public function tryon_button() {
 		global $product;
-		if ( ! $product ) {
+		if ( ! $product || ! nurax_tryon_enabled() ) {
 			return;
 		}
 		printf(

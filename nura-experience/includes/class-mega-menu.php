@@ -106,7 +106,6 @@ class NURAX_Mega_Menu {
 				'links' => array(
 					'About Us'        => self::page_url( 'about-us' ),
 					'AI Wig Finder'   => self::page_url( 'ai-wig-finder' ),
-					'Virtual Try-On'  => self::page_url( 'virtual-try-on' ),
 					'The NURA Circle' => self::page_url( 'nura-circle' ),
 					'Journal'         => self::page_url( 'journal' ),
 				),

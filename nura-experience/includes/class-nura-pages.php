@@ -113,7 +113,7 @@ HTML;
 <li><strong>Change-of-mind returns</strong> (unworn unit, within 14 days): return shipping is the customer's responsibility. We recommend a tracked courier so we can confirm arrival before processing your refund.</li>
 </ul>
 <h3>International &amp; diaspora orders</h3>
-<p>Because of the cost of return freight on international shipments, change-of-mind returns are not available for orders shipped outside Kenya via DHL or FedEx. Diaspora orders remain fully covered by our <a href="/warranty/">Warranty</a> for faulty or damaged units. If you are unsure about sizing, colour or texture before ordering internationally, we strongly recommend a free virtual consultation first, or our Virtual Try-On tool.</p>
+<p>Because of the cost of return freight on international shipments, change-of-mind returns are not available for orders shipped outside Kenya via DHL or FedEx. Diaspora orders remain fully covered by our <a href="/warranty/">Warranty</a> for faulty or damaged units. If you are unsure about sizing, colour or texture before ordering internationally, we strongly recommend a free virtual consultation first.</p>
 <h3>How to start a return</h3>
 <ol>
 <li>Contact us on WhatsApp or email within 14 days of delivery, quoting your order number.</li>
@@ -310,7 +310,7 @@ HTML;
 <li><strong>200% and above:</strong> very full, dramatic red-carpet volume.</li>
 </ul>
 <h3>Still not sure?</h3>
-<p>Try our <a href="/ai-wig-finder/">Find Your Wig</a> quiz and <a href="/virtual-try-on/">Virtual Try-On</a> for the look, then message us on WhatsApp at <strong>$phone</strong> or email <strong>$email</strong> and we will help you confirm size, cap and density before you order. You can also visit our Nairobi studio for a fitting.</p>
+<p>Try our <a href="/ai-wig-finder/">Find Your Wig</a> quiz, then message us on WhatsApp at <strong>$phone</strong> or email <strong>$email</strong> and we will help you confirm size, cap and density before you order. You can also visit our Nairobi studio for a fitting.</p>
 HTML;
 
 		return array(

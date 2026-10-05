@@ -624,3 +624,58 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form){return;}
 		});
 	});
 })();
+
+/* v1.25.0 Classic header search bar: type, see matching products, tap one or press Search. */
+(function(d){
+	var form=d.querySelector("[data-nura-hsearch]");
+	if(!form){return;}
+	var input=form.querySelector(".nura-hsearch__input");
+	var drop=form.querySelector(".nura-hsearch__drop");
+	var timer=null, last="", active=-1, ctrl=null;
+	var wa=(window.NURA&&NURA.whatsapp)?NURA.whatsapp:"https://wa.me/254714994898";
+	function esc(t){var e=d.createElement("div");e.textContent=t==null?"":String(t);return e.innerHTML;}
+	function hide(){drop.hidden=true;active=-1;input.setAttribute("aria-expanded","false");}
+	function show(){drop.hidden=false;input.setAttribute("aria-expanded","true");}
+	function items(){return drop.querySelectorAll(".nura-hsearch__item");}
+	function render(q,data){
+		var h="";
+		var ps=(data&&data.products)?data.products:[];
+		ps.forEach(function(p){
+			h+='<a class="nura-hsearch__item" role="option" href="'+esc(p.url)+'">'+(p.img?'<img src="'+esc(p.img)+'" alt="" loading="lazy">':'<img alt="">')+'<span>'+esc(p.title)+'<small>'+(p.price||"")+'</small></span></a>';
+		});
+		var all=(data&&data.viewAllUrl)?data.viewAllUrl:(form.action+"?post_type=product&s="+encodeURIComponent(q));
+		if(ps.length){h+='<a class="nura-hsearch__all" href="'+esc(all)+'">See all results for &ldquo;'+esc(q)+'&rdquo;</a>';}
+		else{h='<div class="nura-hsearch__empty">No products found for &ldquo;'+esc(q)+'&rdquo;. <a href="'+esc(wa)+'" target="_blank" rel="noopener">Ask us on WhatsApp</a> and we will help you find it.</div>';}
+		drop.innerHTML=h;active=-1;show();
+	}
+	function run(){
+		var q=input.value.trim();
+		if(q.length<2){hide();last="";return;}
+		if(q===last){show();return;}
+		last=q;
+		if(!(window.NURA&&NURA.ajaxUrl)){return;}
+		if(ctrl&&ctrl.abort){ctrl.abort();}
+		ctrl=window.AbortController?new AbortController():null;
+		fetch(NURA.ajaxUrl+"?action=nura_search&nonce="+encodeURIComponent(NURA.nonce||"")+"&q="+encodeURIComponent(q),{credentials:"same-origin",signal:ctrl?ctrl.signal:undefined})
+			.then(function(r){return r.json();})
+			.then(function(j){if(input.value.trim()===q){render(q,j&&j.data?j.data:{});}})
+			.catch(function(){});
+	}
+	input.addEventListener("input",function(){clearTimeout(timer);timer=setTimeout(run,220);});
+	input.addEventListener("focus",function(){if(input.value.trim().length>1&&drop.innerHTML){show();}});
+	input.addEventListener("keydown",function(e){
+		var list=items();
+		if(e.key==="ArrowDown"&&list.length){e.preventDefault();active=(active+1)%list.length;}
+		else if(e.key==="ArrowUp"&&list.length){e.preventDefault();active=(active-1+list.length)%list.length;}
+		else if(e.key==="Escape"){hide();return;}
+		else if(e.key==="Enter"&&active>-1&&list[active]){e.preventDefault();window.location.href=list[active].href;return;}
+		else{return;}
+		[].forEach.call(list,function(el,i){el.classList.toggle("is-active",i===active);});
+	});
+	form.addEventListener("submit",function(e){if(!input.value.trim()){e.preventDefault();input.focus();}});
+	d.addEventListener("click",function(e){if(!form.contains(e.target)){hide();}});
+	/* Old search triggers (mobile bottom bar "Search", "/" shortcut) now go to this bar instead of the pop-up. */
+	function goBar(e){if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation){e.stopImmediatePropagation();}}window.scrollTo({top:0,behavior:"smooth"});setTimeout(function(){input.focus();},120);}
+	d.addEventListener("click",function(e){var t=e.target&&e.target.closest?e.target.closest("[data-nura-search-open]"):null;if(t){goBar(e);}},true);
+	d.addEventListener("keydown",function(e){var tg=e.target&&e.target.tagName;if(e.key==="/"&&!/INPUT|TEXTAREA|SELECT/.test(tg||"")&&!(e.target&&e.target.isContentEditable)){goBar(e);}},true);
+})(document);

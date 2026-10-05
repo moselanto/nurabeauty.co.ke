@@ -46,6 +46,15 @@
 			?>
 		</nav>
 
+		<form role="search" method="get" class="nura-hsearch" action="<?php echo esc_url( home_url( '/' ) ); ?>" data-nura-hsearch autocomplete="off">
+			<label class="screen-reader-text" for="nura-hsearch-q"><?php esc_html_e( 'Search products', 'nura-beauty' ); ?></label>
+			<span class="nura-hsearch__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></span>
+			<input id="nura-hsearch-q" class="nura-hsearch__input" type="search" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" placeholder="<?php esc_attr_e( 'Search wigs, hair & beauty...', 'nura-beauty' ); ?>" enterkeyhint="search" aria-autocomplete="list" aria-controls="nura-hsearch-drop">
+			<input type="hidden" name="post_type" value="product">
+			<button type="submit" class="nura-hsearch__btn"><?php esc_html_e( 'Search', 'nura-beauty' ); ?></button>
+			<div class="nura-hsearch__drop" id="nura-hsearch-drop" role="listbox" hidden></div>
+		</form>
+
 		<div class="nura-header-actions">
 			<?php
 			$nura_phone   = function_exists( 'nura_opt' ) ? nura_opt( 'nura_phone' ) : '';
@@ -64,8 +73,6 @@
 				<span class="nura-contact-link__txt"><?php echo esc_html( $nura_contact_txt ); ?></span>
 			</a>
 			<?php endif; ?>
-			<button class="nura-icon-btn nura-search-ic" type="button" data-nura-search-open aria-label="<?php esc_attr_e( 'Search', 'nura-beauty' ); ?>"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></button>
-			<a class="nura-icon-btn nura-search-txt" href="<?php echo esc_url( add_query_arg( 'post_type', 'product', home_url( '/?s=' ) ) ); ?>" data-nura-search-open aria-label="<?php esc_attr_e( 'Search', 'nura-beauty' ); ?>"><?php esc_html_e( 'Search', 'nura-beauty' ); ?></a>
 			<?php if ( function_exists( 'nura_cart_button' ) ) { nura_cart_button(); } ?>
 		</div>
 	</div>

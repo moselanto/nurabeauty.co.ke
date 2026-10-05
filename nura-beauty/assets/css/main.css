@@ -730,3 +730,14 @@ form.cart .single_add_to_cart_button.disabled,form.cart .single_add_to_cart_butt
 .nura-btn--wa:hover{background:#1ebe5b;color:#fff}
 .nura-btn--wa svg{flex:none}
 [data-qv-body] .nura-qv-actions>.nura-btn--ghost{min-height:48px;border-radius:6px}
+
+/* ===== v1.28.1 Header search: single clean box, never touches the icons ===== */
+.nura-hsearch .nura-hsearch__input,.nura-hsearch .nura-hsearch__input:hover,.nura-hsearch .nura-hsearch__input:focus,.nura-hsearch .nura-hsearch__input:focus-visible{border:0 !important;outline:0 !important;box-shadow:none !important;background:transparent !important;border-radius:0 !important;margin:0 !important;height:46px !important;min-height:0 !important;padding:0 .6rem !important;width:auto !important}
+.nura-hsearch{height:48px;border-width:1.5px;overflow:hidden}
+.nura-hsearch__btn{border-radius:0 !important;height:100%}
+.nura-hsearch__drop{overflow-y:auto}
+.nura-hsearch:has(.nura-hsearch__drop:not([hidden])){overflow:visible}
+@media(min-width:861px){
+  .nura-header-inner{grid-template-columns:minmax(max-content,1fr) minmax(0,560px) minmax(max-content,1fr);column-gap:2.5rem}
+}
+@media(max-width:1360px) and (min-width:861px){.nura-contact-link__txt{display:none}}

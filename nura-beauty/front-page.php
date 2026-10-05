@@ -89,7 +89,7 @@ $slides = array(
 		'img'     => NURA_URI . 'assets/images/hero.webp',
 		'eyebrow' => __( 'Premium Wigs • Beauty • Care • Confidence', 'nura-beauty' ),
 		'title'   => __( 'Wear Your Crown', 'nura-beauty' ),
-		'sub'     => __( 'Discover human-hair wigs and beauty essentials curated for the modern woman.', 'nura-beauty' ),
+		'sub'     => __( 'Discover premium wigs and beauty essentials curated for the modern woman.', 'nura-beauty' ),
 	),
 	array(
 		'img'     => NURA_URI . 'assets/images/hero-2.webp',

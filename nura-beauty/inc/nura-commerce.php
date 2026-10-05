@@ -36,6 +36,15 @@ if ( ! function_exists( 'nura_payment_methods' ) ) {
 				}
 				$id    = strtolower( (string) $gw->id );
 				$title = trim( wp_strip_all_tags( (string) $gw->get_title() ) );
+				// Paystack (Kenya) collects M-Pesa and cards in one gateway. Show what the
+				// shopper can actually use; trim via the 'nura_paystack_labels' filter if a
+				// channel is switched off in the Paystack dashboard (e.g. cards).
+				if ( false !== strpos( $id, 'paystack' ) ) {
+					foreach ( (array) apply_filters( 'nura_paystack_labels', array( __( 'M-Pesa', 'nura-beauty' ), __( 'Card', 'nura-beauty' ) ) ) as $pl ) {
+						$labels[ $pl ] = $pl;
+					}
+					continue;
+				}
 				if ( false !== strpos( $id, 'mpesa' ) || false !== stripos( $title, 'mpesa' ) || false !== stripos( $title, 'm-pesa' ) ) {
 					$label = __( 'M-Pesa', 'nura-beauty' );
 				} elseif ( 'cod' === $id || false !== stripos( $title, 'on delivery' ) || false !== stripos( $title, 'cash' ) ) {

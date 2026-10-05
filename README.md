@@ -10,7 +10,7 @@
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
 ![WooCommerce](https://img.shields.io/badge/WooCommerce-8.0%E2%80%939.1-96588A?logo=woocommerce&logoColor=white)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php&logoColor=white)
-![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.26.0-0E0E0E)
+![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.27.0-0E0E0E)
 ![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.38.1-C9A24B)
 ![AI](https://img.shields.io/badge/AI-OpenAI%20%7C%20Gemini-3A1E2E)
 ![License](https://img.shields.io/badge/License-GPLv2%2B-blue)
@@ -44,7 +44,7 @@ NURA Beauty is a premium wig and beauty brand based in Nairobi. This repository 
 
 | Package | Folder | Version | Role |
 | --- | --- | --- | --- |
-| **NURA Beauty** (parent theme) | [`nura-beauty/`](nura-beauty) | 1.26.0 | Storefront, design system, Customizer, SEO schema, one-click setup and sample data |
+| **NURA Beauty** (parent theme) | [`nura-beauty/`](nura-beauty) | 1.27.0 | Storefront, design system, Customizer, SEO schema, one-click setup and sample data |
 | **NURA Beauty Child** | [`nura-beauty-child/`](nura-beauty-child) | 1.0.0 | **Active theme.** Update-safe layer for site-specific CSS and PHP |
 | **NURA Experience** (plugin) | [`nura-experience/`](nura-experience) | 1.38.1 | AI Wig Finder, AI Stylist chat, Virtual Try-On, NURA Circle client portal, shop enhancements and wig attributes |
 

@@ -73,6 +73,12 @@
 				<span class="nura-contact-link__txt"><?php echo esc_html( $nura_contact_txt ); ?></span>
 			</a>
 			<?php endif; ?>
+			<?php if ( function_exists( 'wc_get_page_permalink' ) ) : ?>
+			<a class="nura-icon-btn nura-account-link" href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" aria-label="<?php esc_attr_e( 'My account', 'nura-beauty' ); ?>">
+				<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
+				<span class="nura-hlabel"><?php echo is_user_logged_in() ? esc_html__( 'Account', 'nura-beauty' ) : esc_html__( 'Sign in', 'nura-beauty' ); ?></span>
+			</a>
+			<?php endif; ?>
 			<?php if ( function_exists( 'nura_cart_button' ) ) { nura_cart_button(); } ?>
 		</div>
 	</div>

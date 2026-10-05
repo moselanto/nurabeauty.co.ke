@@ -60,10 +60,9 @@ class NURAX_Schema {
 			$logo = get_site_icon_url( 512 );
 		}
 
-		$same_as = apply_filters( 'nurax_schema_sameas', array(
-			'https://www.instagram.com/nurabeauty',
-			'https://www.tiktok.com/@nurabeauty',
-		) );
+		// Social profiles come from the theme Customizer (NURA Options > Brand) so
+		// only real, owner-entered profile URLs are declared to search engines.
+		$same_as = apply_filters( 'nurax_schema_sameas', function_exists( 'nura_social_urls' ) ? nura_social_urls() : array() );
 
 		$business = array(
 			'@context'    => 'https://schema.org',

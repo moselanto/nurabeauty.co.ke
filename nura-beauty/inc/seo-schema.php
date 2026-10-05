@@ -82,11 +82,7 @@ function nura_org_schema() {
 			'contactType' => 'customer service',
 			'areaServed'  => 'KE',
 		),
-		'sameAs' => array_values( array_filter( array(
-			get_theme_mod( 'nura_instagram', '' ),
-			get_theme_mod( 'nura_tiktok', '' ),
-			get_theme_mod( 'nura_facebook', '' ),
-		) ) ),
+		'sameAs' => array_values( nura_social_urls() ),
 	);
 	$website = array(
 		'@context'        => 'https://schema.org',

@@ -70,6 +70,13 @@ if ( ! function_exists( 'nura_footer_company_menu' ) ) {
 					<li><a href="mailto:<?php echo esc_attr( nura_opt( 'nura_email' ) ); ?>"><?php echo esc_html( nura_opt( 'nura_email' ) ); ?></a></li>
 					<li><?php echo esc_html( nura_opt( 'nura_address' ) ); ?></li>
 				</ul>
+				<?php $nura_socials = nura_social_links(); if ( $nura_socials ) : ?>
+				<ul class="nura-foot-social" aria-label="<?php esc_attr_e( 'NURA on social media', 'nura-beauty' ); ?>">
+					<?php foreach ( $nura_socials as $soc ) : ?>
+					<li><a href="<?php echo esc_url( $soc['url'] ); ?>" target="_blank" rel="noopener me" aria-label="<?php echo esc_attr( sprintf( __( 'NURA on %s', 'nura-beauty' ), $soc['label'] ) ); ?>"><?php echo nura_social_icon( $soc['key'] ); // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG. ?></a></li>
+					<?php endforeach; ?>
+				</ul>
+				<?php endif; ?>
 				<div class="nura-newsletter">
 					<h4><?php esc_html_e( 'Join The House', 'nura-beauty' ); ?></h4>
 					<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" class="nura-subscribe-form">

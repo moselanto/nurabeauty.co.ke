@@ -51,6 +51,10 @@ function nura_settings_map() {
 		'nura_instagram'   => array( 'default' => '', 'label' => __( 'Instagram URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
 		'nura_tiktok'      => array( 'default' => '', 'label' => __( 'TikTok URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
 		'nura_facebook'    => array( 'default' => '', 'label' => __( 'Facebook URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
+		'nura_youtube'     => array( 'default' => '', 'label' => __( 'YouTube URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
+		'nura_pinterest'   => array( 'default' => '', 'label' => __( 'Pinterest URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
+		'nura_x'           => array( 'default' => '', 'label' => __( 'X (Twitter) URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
+		'nura_threads'     => array( 'default' => '', 'label' => __( 'Threads URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
 
 		// ---- Homepage hero ----
 		'nura_hero_eyebrow'  => array( 'default' => 'The House of Radiant Confidence', 'label' => __( 'Hero eyebrow', 'nura-beauty' ), 'section' => 'nura_home' ),
@@ -165,3 +169,52 @@ function nura_customize_register( $wp_customize ) {
 	}
 }
 add_action( 'customize_register', 'nura_customize_register' );
+
+/**
+ * Social profiles, in display order. Only profiles with a URL saved in
+ * Appearance > Customize > NURA Options > Brand are returned, so empty ones
+ * never show as dead icons. Used by the footer icons and the schema sameAs.
+ *
+ * @return array[] Each: key, label, url.
+ */
+function nura_social_links() {
+	$networks = array(
+		'instagram' => 'Instagram',
+		'tiktok'    => 'TikTok',
+		'facebook'  => 'Facebook',
+		'youtube'   => 'YouTube',
+		'pinterest' => 'Pinterest',
+		'x'         => 'X',
+		'threads'   => 'Threads',
+	);
+	$out = array();
+	foreach ( $networks as $key => $label ) {
+		$url = trim( (string) get_theme_mod( 'nura_' . $key, '' ) );
+		if ( '' !== $url ) {
+			$out[] = array( 'key' => $key, 'label' => $label, 'url' => $url );
+		}
+	}
+	return apply_filters( 'nura_social_links', $out );
+}
+
+/** Plain list of social profile URLs (for schema sameAs). */
+function nura_social_urls() {
+	return wp_list_pluck( nura_social_links(), 'url' );
+}
+
+/** Inline SVG icon for a social network (stroke icons, inherit currentColor). */
+function nura_social_icon( $key ) {
+	$paths = array(
+		'instagram' => '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/>',
+		'tiktok'    => '<path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5"/><path d="M14 3c.5 2.7 2.3 4.3 5 4.5"/>',
+		'facebook'  => '<path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V10H6.5v3.5H9V21h3.5v-7.5H15l.5-3.5h-3V7a1 1 0 0 1 1-1H15z"/>',
+		'youtube'   => '<rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor"/>',
+		'pinterest' => '<circle cx="12" cy="12" r="9"/><path d="M11 21l2-8"/><path d="M9.5 13.5c-1-2.5.5-6 3.5-6 2.5 0 3.5 1.8 3.5 3.5 0 2.5-1.5 4.5-3.5 4.5-1 0-1.6-.6-1.5-1.5"/>',
+		'x'         => '<path d="M4 4l16 16M20 4L4 20"/>',
+		'threads'   => '<path d="M16.5 11c-.3-2.7-2-4-4.4-4-2.7 0-4.6 2-4.6 5s1.9 5 4.6 5c2 0 3.4-1 3.4-2.6 0-1.9-2-2.6-4.2-2.2-1.4.3-2 1.2-1.6 2.1"/><path d="M12 21a9 9 0 1 1 9-9c0 3-1.5 5-4 5"/>',
+	);
+	if ( empty( $paths[ $key ] ) ) {
+		return '';
+	}
+	return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $paths[ $key ] . '</svg>';
+}

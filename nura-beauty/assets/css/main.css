@@ -516,6 +516,9 @@ a:focus-visible,button:focus-visible,.nura-btn:focus-visible,input:focus-visible
 .nura-foot-contact{list-style:none;margin:.2rem 0 1.4rem;padding:0;line-height:2;font-size:.9rem}
 .nura-foot-contact a{color:rgba(243,233,220,.8)}
 .nura-foot-contact li:last-child{color:rgba(243,233,220,.6)}
+.nura-foot-social{list-style:none;display:flex;flex-wrap:wrap;gap:.6rem;margin:-.4rem 0 1.4rem;padding:0}
+.nura-foot-social a{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1px solid rgba(243,233,220,.25);color:rgba(243,233,220,.85);transition:color .2s,border-color .2s,background .2s}
+.nura-foot-social a:hover,.nura-foot-social a:focus-visible{color:#1a1410;background:#c9a24b;border-color:#c9a24b}
 
 /* #8 Slide-in AJAX cart drawer */
 .nura-cart-overlay{position:fixed;inset:0;background:rgba(14,14,14,.5);z-index:1300;opacity:0;visibility:hidden;transition:opacity .3s var(--ease)}

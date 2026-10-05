@@ -226,7 +226,10 @@ class NURAX_Mega_Menu {
 		$ico_menu  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
 
 		echo '<nav class="nura-bottom-nav" aria-label="' . esc_attr__( 'Mobile navigation', 'nura-experience' ) . '">';
-		echo '<a href="' . esc_url( $home ) . '"><span class="nbn-i">' . $ico_home . '</span><span class="nbn-t">' . esc_html__( 'Home', 'nura-experience' ) . '</span></a>';
+		// v1.36.0: Search replaces Home in the thumb zone (the logo already goes home);
+		// on mobile, search is the fastest path to a product.
+		$ico_search = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>';
+		echo '<button type="button" class="nbn-search" data-nura-search-open aria-label="' . esc_attr__( 'Search', 'nura-experience' ) . '"><span class="nbn-i">' . $ico_search . '</span><span class="nbn-t">' . esc_html__( 'Search', 'nura-experience' ) . '</span></button>';
 		echo '<a href="' . esc_url( $shop ) . '"><span class="nbn-i">' . $ico_shop . '</span><span class="nbn-t">' . esc_html__( 'Shop', 'nura-experience' ) . '</span></a>';
 		echo '<a class="nbn-saved" href="' . esc_url( $account ) . '"><span class="nbn-i">' . $ico_heart . '</span><span class="nbn-t">' . esc_html__( 'Saved', 'nura-experience' ) . '</span><span class="nbn-badge nura-wish-badge" hidden></span></a>';
 		echo '<a class="nbn-cart" href="' . esc_url( $cart ) . '"><span class="nbn-i">' . $ico_bag . '</span><span class="nbn-t">' . esc_html__( 'Cart', 'nura-experience' ) . '</span>' . ( $count ? '<span class="nbn-badge">' . esc_html( $count ) . '</span>' : '' ) . '</a>';

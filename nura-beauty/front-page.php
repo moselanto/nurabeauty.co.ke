@@ -207,8 +207,8 @@ $slides = array(
 				),
 				array(
 					'svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9.5h19"/></svg>',
-					't'   => __( 'M-Pesa & Pay on Delivery', 'nura-beauty' ),
-					'd'   => __( 'Pay by M-Pesa, card or on delivery in Nairobi - whatever suits you.', 'nura-beauty' ),
+					't'   => __( 'Easy, Local Payment', 'nura-beauty' ),
+					'd'   => sprintf( /* translators: %s: enabled payment methods */ __( 'Pay with %s - whatever suits you.', 'nura-beauty' ), function_exists( 'nura_payment_summary' ) ? nura_payment_summary( __( 'M-Pesa or Cash on Delivery', 'nura-beauty' ) ) : __( 'M-Pesa or Cash on Delivery', 'nura-beauty' ) ),
 				),
 			);
 			echo '<div class="nura-why nura-reveal"><div class="nura-why__grid">';
@@ -271,7 +271,7 @@ $slides = array(
 
 	<!-- RAIL: HOUSE FAVOURITES (4 products) -->
 	<?php if ( class_exists( 'WooCommerce' ) ) : ?>
-	<?php nura_query_rail( __( 'Most loved', 'nura-beauty' ), __( 'Best Sellers', 'nura-beauty' ), array( 'meta_key' => 'total_sales', 'orderby' => 'meta_value_num', 'order' => 'DESC', 'posts_per_page' => 18 ), 10, $shop_url, __( 'View all', 'nura-beauty' ) ); ?>
+	<?php nura_query_rail( __( 'Most loved', 'nura-beauty' ), __( 'Best Sellers', 'nura-beauty' ), array( 'meta_key' => 'total_sales', 'orderby' => 'meta_value_num', 'order' => 'DESC', 'posts_per_page' => 18, 'meta_query' => array( array( 'key' => 'total_sales', 'value' => 0, 'compare' => '>', 'type' => 'NUMERIC' ) ), 'nura_fallback' => array( 'orderby' => 'rand', 'posts_per_page' => 18 ) ), 10, $shop_url, __( 'View all', 'nura-beauty' ) ); ?>
 	<?php endif; ?>
 
 	<!-- BRAND STORY (editorial split, condensed) -->

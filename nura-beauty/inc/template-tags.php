@@ -201,14 +201,30 @@ if ( function_exists( 'nura_query_rail' ) === false ) {
 				),
 			),
 		);
-		$pool = new WP_Query( array_merge( $defaults, (array) $pool_args ) );
+		// v1.22.0: never repeat a product that an earlier rail on this page already
+		// showed (Best Sellers was mirroring New Arrivals), and allow a fallback pool
+		// for rails whose primary signal (e.g. sales) has no data yet.
+		$pool_args = (array) $pool_args;
+		$fallback  = isset( $pool_args['nura_fallback'] ) ? (array) $pool_args['nura_fallback'] : array();
+		unset( $pool_args['nura_fallback'] );
+		$shown = isset( $GLOBALS['nura_rail_shown'] ) ? (array) $GLOBALS['nura_rail_shown'] : array();
+		if ( $shown ) {
+			$defaults['post__not_in'] = $shown;
+		}
+		$pool = new WP_Query( array_merge( $defaults, $pool_args ) );
 		$ids  = $pool->posts;
 		wp_reset_postdata();
+		if ( count( $ids ) < 4 && $fallback ) {
+			$fb  = new WP_Query( array_merge( $defaults, $fallback, array( 'post__not_in' => array_merge( $shown, $ids ) ) ) );
+			$ids = array_merge( $ids, $fb->posts );
+			wp_reset_postdata();
+		}
 		if ( empty( $ids ) ) {
 			return;
 		}
 		shuffle( $ids );
 		$ids  = array_slice( $ids, 0, $show );
+		$GLOBALS['nura_rail_shown'] = array_merge( $shown, $ids );
 		$loop = new WP_Query( array(
 			'post_type'           => 'product',
 			'post_status'         => 'publish',

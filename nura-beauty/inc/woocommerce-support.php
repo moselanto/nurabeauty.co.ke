@@ -137,11 +137,15 @@ function nura_sticky_atc() {
 	if ( ! $product ) {
 		return;
 	}
+	$label = $product->is_in_stock()
+		? ( $product->is_type( 'variable' ) ? __( 'Choose options', 'nura-beauty' ) : __( 'Add to bag', 'nura-beauty' ) )
+		: __( 'Sold out', 'nura-beauty' );
 	printf(
-		'<div class="nura-sticky-atc" data-product="%1$d" aria-hidden="true"><span class="nura-sticky-atc__title">%2$s</span><span class="nura-sticky-atc__price">%3$s</span></div>',
+		'<div class="nura-sticky-atc" data-product="%1$d" aria-hidden="true"><span class="nura-sticky-atc__info"><span class="nura-sticky-atc__title">%2$s</span><span class="nura-sticky-atc__price">%3$s</span></span><span class="nura-sticky-atc__btn">%4$s</span></div>',
 		absint( $product->get_id() ),
 		esc_html( $product->get_name() ),
-		wp_kses_post( $product->get_price_html() )
+		wp_kses_post( $product->get_price_html() ),
+		esc_html( $label )
 	);
 }
 
@@ -428,3 +432,111 @@ function nura_cart_drawer() {
 	</aside>
 	<?php
 }
+
+
+/* ================= NURA v1.22.0 : user-flow upgrades ================= */
+
+if ( ! function_exists( 'nura_free_delivery_threshold' ) ) {
+	/**
+	 * Lowest "minimum order amount" on any enabled Free Shipping method, read from
+	 * the real WooCommerce shipping zones. Returns 0 when no threshold is configured,
+	 * in which case no progress bar is shown (we never promise what checkout won't give).
+	 *
+	 * @return float
+	 */
+	function nura_free_delivery_threshold() {
+		if ( ! class_exists( 'WC_Shipping_Zones' ) ) {
+			return 0;
+		}
+		$min = 0;
+		foreach ( WC_Shipping_Zones::get_zones() as $zone ) {
+			$methods = isset( $zone['shipping_methods'] ) ? $zone['shipping_methods'] : array();
+			foreach ( $methods as $m ) {
+				if ( ! isset( $m->id ) || 'free_shipping' !== $m->id ) {
+					continue;
+				}
+				$on = method_exists( $m, 'is_enabled' ) ? $m->is_enabled() : ( isset( $m->enabled ) && 'yes' === $m->enabled );
+				if ( ! $on ) {
+					continue;
+				}
+				$amt = (float) $m->get_option( 'min_amount', 0 );
+				if ( $amt > 0 && ( 0 === $min || $amt < $min ) ) {
+					$min = $amt;
+				}
+			}
+		}
+		return (float) $min;
+	}
+}
+
+/**
+ * Free-delivery progress bar markup (cart drawer + cart page).
+ */
+function nura_free_delivery_bar() {
+	if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+		return '';
+	}
+	$goal = nura_free_delivery_threshold();
+	if ( $goal <= 0 || WC()->cart->is_empty() ) {
+		return '<div class="nura-freebar" hidden></div>';
+	}
+	$total = (float) WC()->cart->get_displayed_subtotal();
+	$pct   = min( 100, round( ( $total / $goal ) * 100 ) );
+	if ( $total >= $goal ) {
+		$msg = esc_html__( 'You have unlocked free delivery.', 'nura-beauty' );
+	} else {
+		/* translators: %s: amount left to spend for free delivery */
+		$msg = sprintf( esc_html__( 'Add %s more for free delivery.', 'nura-beauty' ), wp_kses_post( wc_price( $goal - $total ) ) );
+	}
+	return '<div class="nura-freebar' . ( $pct >= 100 ? ' is-done' : '' ) . '"><p class="nura-freebar__msg">' . $msg . '</p><span class="nura-freebar__track"><span class="nura-freebar__fill" style="width:' . absint( $pct ) . '%"></span></span></div>';
+}
+add_action( 'woocommerce_before_mini_cart', function () {
+	echo nura_free_delivery_bar(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+} );
+add_action( 'woocommerce_before_cart', function () {
+	echo nura_free_delivery_bar(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+} );
+
+/**
+ * Shorter, mobile-friendly checkout for Kenyan shoppers: phone first (it is how
+ * orders are confirmed and M-Pesa is paid), no company / second address line, and
+ * the right keyboards on mobile. Only removes optional fields.
+ */
+add_filter( 'woocommerce_checkout_fields', function ( $fields ) {
+	foreach ( array( 'billing', 'shipping' ) as $group ) {
+		foreach ( array( 'company', 'address_2' ) as $f ) {
+			$key = $group . '_' . $f;
+			if ( isset( $fields[ $group ][ $key ] ) && empty( $fields[ $group ][ $key ]['required'] ) ) {
+				unset( $fields[ $group ][ $key ] );
+			}
+		}
+	}
+	if ( isset( $fields['billing']['billing_phone'] ) ) {
+		$fields['billing']['billing_phone']['priority']          = 25;
+		$fields['billing']['billing_phone']['label']             = __( 'Phone / M-Pesa number', 'nura-beauty' );
+		$fields['billing']['billing_phone']['placeholder']       = '07XX XXX XXX';
+		$fields['billing']['billing_phone']['custom_attributes'] = array( 'inputmode' => 'tel', 'autocomplete' => 'tel' );
+	}
+	if ( isset( $fields['billing']['billing_email'] ) ) {
+		$fields['billing']['billing_email']['priority'] = 26;
+	}
+	if ( isset( $fields['billing']['billing_address_1'] ) ) {
+		$fields['billing']['billing_address_1']['placeholder'] = __( 'Estate, street, building or landmark', 'nura-beauty' );
+	}
+	return $fields;
+}, 20 );
+
+/**
+ * Reassurance right above the payment options at checkout.
+ */
+add_action( 'woocommerce_review_order_before_payment', function () {
+	$pay = function_exists( 'nura_payment_summary' ) ? nura_payment_summary( __( 'M-Pesa or Cash on Delivery', 'nura-beauty' ) ) : '';
+	echo '<ul class="nura-checkout-trust">';
+	echo '<li>' . esc_html__( 'Secure checkout - your details stay private', 'nura-beauty' ) . '</li>';
+	if ( $pay ) {
+		/* translators: %s: payment methods */
+		echo '<li>' . esc_html( sprintf( __( 'Pay with %s', 'nura-beauty' ), $pay ) ) . '</li>';
+	}
+	echo '<li>' . esc_html__( 'We confirm every order by phone or WhatsApp', 'nura-beauty' ) . '</li>';
+	echo '</ul>';
+} );

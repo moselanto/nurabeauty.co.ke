@@ -907,3 +907,10 @@ a.nura-contact-card:hover { transform: translateY(-3px); box-shadow: 0 16px 36px
 .nura-gr-when{color:#8a8378;font-size:.82rem}
 .nura-gr-more{text-align:center;margin-top:1.4rem}
 .nura-gr-more a{color:inherit;text-decoration:underline}
+
+
+/* v1.36.0 - bottom nav: active tab + search button */
+@media (max-width: 768px) {
+	.nura-bottom-nav .is-active { color: var(--nura-ux-gold, #C9A24B); }
+	.nura-bottom-nav .nbn-search { background: none; border: 0; font: inherit; color: inherit; cursor: pointer; }
+}

@@ -216,6 +216,43 @@ function nura_render_search_overlay() {
 				<input type="search" id="nura-search-input" name="s" autocomplete="off" placeholder="<?php esc_attr_e( 'Search by name, texture, colour, length&hellip;', 'nura-beauty' ); ?>" data-nura-search-input>
 				<button type="button" class="nura-search-modal__close" data-nura-search-close aria-label="<?php esc_attr_e( 'Close search', 'nura-beauty' ); ?>">&times;</button>
 			</form>
+			<div class="nura-search-modal__default" data-nura-search-default>
+				<div class="nura-sresult__group" data-nura-search-recent hidden>
+					<p class="nura-sresult__label"><?php esc_html_e( 'Recent searches', 'nura-beauty' ); ?> <button type="button" class="nura-sresult__clear" data-nura-search-recent-clear><?php esc_html_e( 'Clear', 'nura-beauty' ); ?></button></p>
+					<div class="nura-sresult__chips" data-nura-search-recent-list></div>
+				</div>
+				<?php
+				$nura_popular = array(
+					__( 'Bob', 'nura-beauty' ),
+					__( 'Water curl', 'nura-beauty' ),
+					__( 'Headband', 'nura-beauty' ),
+					__( '4x4 closure', 'nura-beauty' ),
+					__( 'Lace front', 'nura-beauty' ),
+					__( 'Body wave', 'nura-beauty' ),
+				);
+				?>
+				<div class="nura-sresult__group">
+					<p class="nura-sresult__label"><?php esc_html_e( 'Popular searches', 'nura-beauty' ); ?></p>
+					<div class="nura-sresult__chips">
+						<?php foreach ( $nura_popular as $nura_term ) : ?>
+							<a class="nura-sresult__chip" data-nura-search-term="<?php echo esc_attr( $nura_term ); ?>" href="<?php echo esc_url( add_query_arg( array( 's' => $nura_term, 'post_type' => 'product' ), home_url( '/' ) ) ); ?>"><span><?php echo esc_html( $nura_term ); ?></span></a>
+						<?php endforeach; ?>
+					</div>
+				</div>
+				<?php
+				$nura_cats = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => true, 'parent' => 0, 'orderby' => 'count', 'order' => 'DESC', 'number' => 6, 'exclude' => array( (int) get_option( 'default_product_cat' ) ) ) );
+				if ( ! is_wp_error( $nura_cats ) && $nura_cats ) :
+					?>
+				<div class="nura-sresult__group">
+					<p class="nura-sresult__label"><?php esc_html_e( 'Shop by category', 'nura-beauty' ); ?></p>
+					<div class="nura-sresult__chips">
+						<?php foreach ( $nura_cats as $nura_cat ) : $nura_link = get_term_link( $nura_cat ); if ( is_wp_error( $nura_link ) ) { continue; } ?>
+							<a class="nura-sresult__chip" href="<?php echo esc_url( $nura_link ); ?>"><span><?php echo esc_html( $nura_cat->name ); ?></span><em><?php echo absint( $nura_cat->count ); ?></em></a>
+						<?php endforeach; ?>
+					</div>
+				</div>
+				<?php endif; ?>
+			</div>
 			<div class="nura-search-modal__results" data-nura-search-results aria-live="polite"></div>
 		</div>
 	</div>

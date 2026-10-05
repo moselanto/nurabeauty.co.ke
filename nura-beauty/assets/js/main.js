@@ -553,3 +553,74 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form){return;}
 		if(atc&&atc.parentNode){atc.parentNode.removeChild(atc);}
 	},true);
 })();
+
+
+/* ===== NURA v1.22.0 - search: default panel, recent searches, keyboard nav, "/" shortcut ===== */
+(function(){
+	var d=document,modal=d.querySelector("[data-nura-search-modal]");
+	if(!modal){return;}
+	var input=modal.querySelector("[data-nura-search-input]");
+	var results=modal.querySelector("[data-nura-search-results]");
+	var def=modal.querySelector("[data-nura-search-default]");
+	var recentBox=modal.querySelector("[data-nura-search-recent]");
+	var recentList=modal.querySelector("[data-nura-search-recent-list]");
+	var KEY="nura_recent_searches";
+	function load(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")||[];}catch(e){return [];}}
+	function save(q){q=(q||"").trim();if(q.length<2){return;}var a=load().filter(function(x){return x.toLowerCase()!==q.toLowerCase();});a.unshift(q);try{localStorage.setItem(KEY,JSON.stringify(a.slice(0,6)));}catch(e){}}
+	function esc(s){var t=d.createElement("div");t.textContent=s;return t.innerHTML;}
+	function paintRecent(){
+		if(!recentBox||!recentList){return;}
+		var a=load();
+		if(!a.length){recentBox.hidden=true;recentList.innerHTML="";return;}
+		recentBox.hidden=false;
+		recentList.innerHTML=a.map(function(q){return '<a class="nura-sresult__chip" href="'+(window.location.origin+"/?post_type=product&s="+encodeURIComponent(q))+'" data-nura-search-term="'+esc(q)+'"><span>'+esc(q)+'</span></a>';}).join("");
+	}
+	function syncDefault(){if(def){def.hidden=input.value.trim().length>=2;}}
+	paintRecent();syncDefault();
+	input.addEventListener("input",syncDefault);
+	var form=input.form;
+	if(form){form.addEventListener("submit",function(){save(input.value);});}
+	modal.addEventListener("click",function(e){
+		var clr=e.target.closest("[data-nura-search-recent-clear]");
+		if(clr){e.preventDefault();try{localStorage.removeItem(KEY);}catch(x){}paintRecent();input.focus();return;}
+		var t=e.target.closest("[data-nura-search-term]");
+		if(t){save(t.getAttribute("data-nura-search-term"));return;}
+		var item=e.target.closest(".nura-sresult__item,.nura-sresult__all");
+		if(item){save(input.value);}
+	});
+	// Arrow-key navigation through visible results / chips.
+	modal.addEventListener("keydown",function(e){
+		if(e.key!=="ArrowDown"&&e.key!=="ArrowUp"){return;}
+		var scope=(def&&!def.hidden)?def:results;
+		var links=[].slice.call(scope.querySelectorAll("a"));
+		if(!links.length){return;}
+		e.preventDefault();
+		var i=links.indexOf(d.activeElement);
+		if(e.key==="ArrowDown"){i=(i<0)?0:Math.min(links.length-1,i+1);}else{i=(i<=0)?-1:i-1;}
+		if(i<0){input.focus();}else{links[i].focus();}
+	});
+	// "/" opens search from anywhere (desktop), unless typing in a field.
+	d.addEventListener("keydown",function(e){
+		if(e.key!=="/"||e.ctrlKey||e.metaKey||e.altKey){return;}
+		var tag=(d.activeElement&&d.activeElement.tagName)||"";
+		if(/INPUT|TEXTAREA|SELECT/.test(tag)||(d.activeElement&&d.activeElement.isContentEditable)){return;}
+		var opener=d.querySelector("[data-nura-search-open]");
+		if(opener){e.preventDefault();opener.click();}
+	});
+	// Refresh recent list each time the overlay opens.
+	[].forEach.call(d.querySelectorAll("[data-nura-search-open]"),function(o){o.addEventListener("click",function(){paintRecent();syncDefault();});});
+})();
+
+/* ===== NURA v1.22.0 - mobile bottom nav: active tab ===== */
+(function(){
+	var d=document;function r(f){if(d.readyState!=="loading"){f();}else{d.addEventListener("DOMContentLoaded",f);}}
+	r(function(){
+		var nav=d.querySelector(".nura-bottom-nav");if(!nav){return;}
+		var path=window.location.pathname.replace(/\/+$/,"")||"/";
+		[].forEach.call(nav.querySelectorAll("a[href]"),function(a){
+			var p;try{p=new URL(a.href,window.location.href).pathname.replace(/\/+$/,"")||"/";}catch(e){return;}
+			var hit=(p==="/")?(path==="/"):(path===p||path.indexOf(p+"/")===0);
+			if(hit){a.classList.add("is-active");a.setAttribute("aria-current","page");}
+		});
+	});
+})();

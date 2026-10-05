@@ -581,3 +581,35 @@ body.nura-cart-open{overflow:hidden}
 .nura-newsletter input[type=email]{flex:1 1 auto;min-width:0;margin:0;padding:.5rem .6rem;font-size:.82rem;line-height:1.25}
 .nura-newsletter .nura-btn{flex:0 0 auto;width:auto;padding:.5rem 1rem;font-size:.66rem;letter-spacing:.12em;line-height:1.25;white-space:nowrap}
 @media(max-width:560px){.nura-newsletter form{flex-wrap:wrap}.nura-newsletter .nura-btn{flex:1 0 100%;width:100%}}
+
+
+/* ================= NURA v1.22.0 : user-flow upgrades ================= */
+/* Search overlay default panel */
+.nura-search-modal__default{padding:.4rem 0 1rem;overflow-y:auto}
+.nura-search-modal__default[hidden]{display:none}
+.nura-sresult__label{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.nura-sresult__clear{background:none;border:0;padding:0;font:inherit;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--nura-gold);cursor:pointer}
+.nura-sresult__chip:focus-visible,.nura-sresult__item:focus-visible{outline:2px solid var(--nura-gold);outline-offset:2px}
+.nura-sresult__chip em{font-style:normal;font-size:.72em;color:#8a8a8a}
+/* Sticky add-to-bag bar: real button */
+.nura-sticky-atc{cursor:pointer;gap:1rem}
+.nura-sticky-atc__info{display:flex;flex-direction:column;min-width:0}
+.nura-sticky-atc__title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nura-sticky-atc__btn{flex:0 0 auto;background:var(--nura-gold);color:var(--nura-ink);font-family:var(--font-ui);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500;padding:.85em 1.3em;border-radius:2px}
+/* Free-delivery progress */
+.nura-freebar{margin:0 0 1rem;padding:.8rem .9rem;border:1px solid var(--nura-line);border-radius:8px;background:var(--nura-ivory)}
+.nura-freebar[hidden]{display:none}
+.nura-freebar__msg{margin:0 0 .5rem;font-family:var(--font-ui);font-size:.82rem}
+.nura-freebar__track{display:block;height:6px;border-radius:999px;background:rgba(0,0,0,.08);overflow:hidden}
+.nura-freebar__fill{display:block;height:100%;background:var(--nura-gold);transition:width .4s ease}
+.nura-freebar.is-done .nura-freebar__msg{color:#2f7a3d;font-weight:500}
+/* Checkout reassurance */
+.nura-checkout-trust{list-style:none;margin:0 0 1rem;padding:.8rem 1rem;border:1px solid var(--nura-line);border-radius:8px;background:var(--nura-ivory);font-family:var(--font-ui);font-size:.82rem;display:grid;gap:.35rem}
+.nura-checkout-trust li::before{content:"\2713";color:var(--nura-gold);margin-right:.5rem}
+/* Mobile: bigger tap targets + sticky filter bar on shop */
+@media (max-width:768px){
+	.woocommerce ul.products li.product .button{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+	.nura-filterbar__top{position:sticky;top:var(--nura-header-h,64px);z-index:30;background:#fff;padding:.5rem 0;margin-inline:calc(var(--gutter,16px) * -1);padding-inline:var(--gutter,16px);box-shadow:0 6px 12px -10px rgba(0,0,0,.25)}
+	.woocommerce-checkout input.input-text,.woocommerce-checkout select{font-size:16px;min-height:46px}
+	.nura-sticky-atc{padding-bottom:calc(.7rem + env(safe-area-inset-bottom))}
+}

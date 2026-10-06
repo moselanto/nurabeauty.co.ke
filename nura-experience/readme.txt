@@ -3,7 +3,7 @@ Contributors: NURA
 Requires at least: 6.2
 Requires PHP: 7.4
 WC requires at least: 8.0
-Stable tag: 1.45.0
+Stable tag: 1.46.0
 License: GPLv2 or later
 
 NURA's three exclusive features for a luxury wig store.
@@ -45,6 +45,9 @@ Destination number: Settings > NURA Experience > "WhatsApp link or number"
 (falls back to the Customizer WhatsApp link).
 
 == Changelog ==
+= 1.46.0 =
+* Order pop-up: Full name, Phone, County (all 47 counties) and Town are now required for every order; estate / street is optional. County and town are included in the WhatsApp message and saved with each order.
+
 = 1.45.0 =
 * Fix: Order on WhatsApp buttons went straight to WhatsApp because the pop-up script ran before the pop-up markup was on the page. The pop-up now loads first and the script waits for the page.
 

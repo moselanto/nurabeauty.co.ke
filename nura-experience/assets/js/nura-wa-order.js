@@ -1,5 +1,5 @@
 /*!
- * NURA WhatsApp Order pop-up (NURA Experience 1.45.0).
+ * NURA WhatsApp Order pop-up (NURA Experience 1.46.0).
  * Ported from the Tabarak Electronics order funnel, restyled for NURA.
  * Every trigger is a real wa.me link, so ordering still works without JS.
  */
@@ -90,7 +90,7 @@
   function remember() {
     try {
       localStorage.setItem(STORE, JSON.stringify({
-        name: val('name'), phone: val('phone'), location: val('location'),
+        name: val('name'), phone: val('phone'), location: val('location'), town: val('town'),
         area: val('area'), fulfil: val('fulfil'), payment: val('payment')
       }));
     } catch (e) {}
@@ -99,7 +99,7 @@
     var s = null;
     try { s = JSON.parse(localStorage.getItem(STORE) || 'null'); } catch (e) {}
     if (!s) { return; }
-    ['name', 'phone', 'location', 'area'].forEach(function (k) {
+    ['name', 'phone', 'location', 'town', 'area'].forEach(function (k) {
       var el = form.elements[k];
       if (el && !el.value && s[k]) { el.value = s[k]; }
     });
@@ -121,7 +121,11 @@
     var n = form.elements.name, p = form.elements.phone, l = form.elements.location;
     if (clean(n.value).length < 2) { setErr(n, 'Please enter your full name.'); ok = false; first = first || n; } else { setErr(n, ''); }
     if (!normPhone(p.value)) { setErr(p, 'Enter a valid Kenyan number, e.g. 0712 345 678 or 0110 345 678.'); ok = false; first = first || p; } else { setErr(p, ''); }
-    if (val('fulfil') !== 'pickup' && !l.value) { setErr(l, 'Choose your county or town.'); ok = false; first = first || l; } else { setErr(l, ''); }
+    var tw = form.elements.town;
+    if (!l.value) { setErr(l, 'Please select your county.'); ok = false; first = first || l; } else { setErr(l, ''); }
+    if (tw) {
+      if (clean(tw.value).length < 2) { setErr(tw, 'Please enter your town.'); ok = false; first = first || tw; } else { setErr(tw, ''); }
+    }
     var sels = optsEl.querySelectorAll('select');
     for (var i = 0; i < sels.length; i++) {
       var s = sels[i], box = s.parentNode.querySelector('.nwo-err');
@@ -280,10 +284,11 @@
     L.push('*Customer:* ' + val('name'));
     L.push('*Phone:* +' + normPhone(val('phone')));
     if (val('fulfil') === 'pickup') {
+      L.push('*Location:* ' + val('town') + ', ' + val('location') + ' County');
       L.push('*Delivery:* ' + (C.pickup || 'Pick-up at NURA studio'));
     } else {
-      var loc = val('location'), area = val('area');
-      L.push('*Delivery:* ' + loc + (area ? ', ' + area : ''));
+      var area = val('area');
+      L.push('*Delivery:* ' + (area ? area + ', ' : '') + val('town') + ', ' + val('location') + ' County');
     }
     if (val('payment')) { L.push('*Payment:* ' + val('payment')); }
     if (val('note')) { L.push('*Note:* ' + val('note')); }
@@ -312,7 +317,7 @@
     fd.append('source', state.mode);
     fd.append('page', location.href);
     fd.append('items', JSON.stringify(orderItems()));
-    ['name', 'phone', 'location', 'area', 'fulfil', 'payment', 'note', 'website'].forEach(function (k) { fd.append(k, val(k)); });
+    ['name', 'phone', 'location', 'town', 'area', 'fulfil', 'payment', 'note', 'website'].forEach(function (k) { fd.append(k, val(k)); });
     var url = C.ajax || '/wp-admin/admin-ajax.php';
     try {
       if (window.fetch) { fetch(url, { method: 'POST', body: fd, credentials: 'same-origin', keepalive: true }).catch(function () {}); }
@@ -346,7 +351,6 @@
     var pick = val('fulfil') === 'pickup';
     deliveryEl.hidden = pick;
     pickupEl.hidden = !pick;
-    if (pick) { setErr(form.elements.location, ''); }
   }
   function focusables() {
     return [].filter.call(panel.querySelectorAll('a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'), function (el) {
@@ -467,7 +471,7 @@
     var t = e.target;
     if (t.getAttribute('aria-invalid') === 'true') {
       if (t.name === 'phone' && normPhone(t.value)) { setErr(t, ''); }
-      if (t.name === 'name' && clean(t.value).length >= 2) { setErr(t, ''); }
+      if ((t.name === 'name' || t.name === 'town') && clean(t.value).length >= 2) { setErr(t, ''); }
     }
   });
 

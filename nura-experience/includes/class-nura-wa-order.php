@@ -124,13 +124,10 @@ class NURAX_WA_Order {
 	}
 
 	/** Delivery areas: Nairobi estates + major towns. */
-	private static function locations() {
-		$nairobi = array( 'CBD', 'Westlands', 'Parklands', 'Kilimani', 'Kileleshwa', 'Lavington', 'Hurlingham', 'Upper Hill', 'Ngong Road', 'Karen', 'Langata', 'South B', 'South C', 'Industrial Area', 'Embakasi', 'Donholm', 'Buruburu', 'Umoja', 'Eastleigh', 'Kasarani', 'Roysambu', 'Thika Road', 'Kahawa', 'Runda', 'Gigiri', 'Ruaka', 'Kitisuru', 'Syokimau', 'Kitengela', 'Rongai', 'Ngong', 'Ruiru', 'Juja', 'Kikuyu', 'Other Nairobi area' );
-		$towns   = array( 'Mombasa', 'Kisumu', 'Nakuru', 'Eldoret', 'Thika', 'Machakos', 'Nyeri', 'Meru', 'Embu', 'Naivasha', 'Nanyuki', 'Kisii', 'Kakamega', 'Kericho', 'Kitale', 'Malindi', 'Diani', 'Kilifi', 'Bungoma', 'Narok', 'Garissa', 'Other town in Kenya' );
-		return apply_filters( 'nurax_wa_order_locations', array(
-			'Nairobi'           => $nairobi,
-			'Countrywide towns' => $towns,
-		) );
+	/** Kenya's 47 counties (Nairobi first, the rest A-Z). */
+	private static function counties() {
+		$list = array( 'Nairobi', 'Baringo', 'Bomet', 'Bungoma', 'Busia', 'Elgeyo-Marakwet', 'Embu', 'Garissa', 'Homa Bay', 'Isiolo', 'Kajiado', 'Kakamega', 'Kericho', 'Kiambu', 'Kilifi', 'Kirinyaga', 'Kisii', 'Kisumu', 'Kitui', 'Kwale', 'Laikipia', 'Lamu', 'Machakos', 'Makueni', 'Mandera', 'Marsabit', 'Meru', 'Migori', 'Mombasa', "Murang'a", 'Nakuru', 'Nandi', 'Narok', 'Nyamira', 'Nyandarua', 'Nyeri', 'Samburu', 'Siaya', 'Taita-Taveta', 'Tana River', 'Tharaka-Nithi', 'Trans Nzoia', 'Turkana', 'Uasin Gishu', 'Vihiga', 'Wajir', 'West Pokot' );
+		return apply_filters( 'nurax_wa_order_counties', $list );
 	}
 
 	private static function payments() {
@@ -391,6 +388,26 @@ class NURAX_WA_Order {
 							<p class="nwo-err" id="nwo-err-phone"></p>
 						</div>
 
+						<div class="nwo-row2">
+							<div class="nwo-f">
+								<label for="nwo-location"><?php esc_html_e( 'County', 'nura-experience' ); ?> <span class="nwo-req" aria-hidden="true">*</span></label>
+								<div class="nwo-select">
+									<select id="nwo-location" name="location" autocomplete="address-level1" required aria-describedby="nwo-err-location">
+										<option value=""><?php esc_html_e( 'Select county', 'nura-experience' ); ?></option>
+										<?php foreach ( self::counties() as $county ) : ?>
+											<option value="<?php echo esc_attr( $county ); ?>"><?php echo esc_html( $county ); ?></option>
+										<?php endforeach; ?>
+									</select>
+								</div>
+								<p class="nwo-err" id="nwo-err-location"></p>
+							</div>
+							<div class="nwo-f">
+								<label for="nwo-town"><?php esc_html_e( 'Town', 'nura-experience' ); ?> <span class="nwo-req" aria-hidden="true">*</span></label>
+								<input id="nwo-town" name="town" type="text" autocomplete="address-level2" maxlength="60" placeholder="<?php esc_attr_e( 'e.g. Westlands, Thika', 'nura-experience' ); ?>" required aria-describedby="nwo-err-town">
+								<p class="nwo-err" id="nwo-err-town"></p>
+							</div>
+						</div>
+
 						<fieldset class="nwo-f nwo-choice">
 							<legend><?php esc_html_e( 'How do you want to receive it?', 'nura-experience' ); ?></legend>
 							<div class="nwo-cards nwo-cards--2">
@@ -401,25 +418,8 @@ class NURAX_WA_Order {
 
 						<div data-nwo-delivery>
 							<div class="nwo-f">
-								<label for="nwo-location"><?php esc_html_e( 'Delivery location', 'nura-experience' ); ?> <span class="nwo-req" aria-hidden="true">*</span></label>
-								<div class="nwo-select">
-									<select id="nwo-location" name="location" aria-describedby="nwo-err-location">
-										<option value=""><?php esc_html_e( 'Select your area', 'nura-experience' ); ?></option>
-										<?php foreach ( self::locations() as $group => $places ) : ?>
-											<optgroup label="<?php echo esc_attr( $group ); ?>">
-												<?php foreach ( (array) $places as $place ) : ?>
-													<?php $val = ( 'Nairobi' === $group ) ? 'Nairobi - ' . $place : $place; ?>
-													<option value="<?php echo esc_attr( $val ); ?>"><?php echo esc_html( $place ); ?></option>
-												<?php endforeach; ?>
-											</optgroup>
-										<?php endforeach; ?>
-									</select>
-								</div>
-								<p class="nwo-err" id="nwo-err-location"></p>
-							</div>
-							<div class="nwo-f">
-								<label for="nwo-area"><?php esc_html_e( 'Estate, street or building', 'nura-experience' ); ?></label>
-								<input id="nwo-area" name="area" type="text" autocomplete="street-address" maxlength="120" placeholder="<?php esc_attr_e( 'e.g. Kilimani, Argwings Kodhek Rd', 'nura-experience' ); ?>">
+								<label for="nwo-area"><?php esc_html_e( 'Estate, street or landmark (optional)', 'nura-experience' ); ?></label>
+								<input id="nwo-area" name="area" type="text" autocomplete="street-address" maxlength="120" placeholder="<?php esc_attr_e( 'e.g. Kilimani, Argwings Kodhek Rd, near Yaya Centre', 'nura-experience' ); ?>">
 							</div>
 						</div>
 						<p class="nwo-pickup" data-nwo-pickup hidden><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span><?php echo esc_html( self::pickup_text() ); ?></span></p>
@@ -616,12 +616,17 @@ class NURAX_WA_Order {
 
 		$fulfil   = ( isset( $in['fulfil'] ) && 'pickup' === $in['fulfil'] ) ? 'pickup' : 'delivery';
 		$location = isset( $in['location'] ) ? self::cut( sanitize_text_field( (string) $in['location'] ), 80 ) : '';
+		$town     = isset( $in['town'] ) ? self::cut( sanitize_text_field( (string) $in['town'] ), 60 ) : '';
 		$area     = isset( $in['area'] ) ? self::cut( sanitize_text_field( (string) $in['area'] ), 120 ) : '';
+		if ( '' === $location || '' === $town ) {
+			wp_send_json_error( array( 'message' => __( 'Please choose your county and enter your town.', 'nura-experience' ) ), 400 );
+		}
+		$place    = $town . ', ' . $location . ' County';
 		$payment  = isset( $in['payment'] ) ? sanitize_text_field( (string) $in['payment'] ) : '';
 		if ( ! in_array( $payment, self::payments(), true ) ) {
 			$payment = '';
 		}
-		$delivery = 'pickup' === $fulfil ? self::pickup_text() : trim( $location . ( '' !== $area ? ', ' . $area : '' ), ', ' );
+		$delivery = 'pickup' === $fulfil ? self::pickup_text() : trim( ( '' !== $area ? $area . ', ' : '' ) . $place, ', ' );
 		$source   = isset( $in['source'] ) && in_array( $in['source'], array( 'product', 'card', 'cart' ), true ) ? (string) $in['source'] : 'product';
 		$page     = isset( $in['page'] ) ? esc_url_raw( (string) $in['page'] ) : '';
 		if ( '' !== $page && wp_parse_url( $page, PHP_URL_HOST ) !== wp_parse_url( home_url(), PHP_URL_HOST ) ) {
@@ -636,6 +641,8 @@ class NURAX_WA_Order {
 			'total'    => $total,
 			'fulfil'   => $fulfil,
 			'delivery' => $delivery,
+			'county'   => $location,
+			'town'     => $town,
 			'payment'  => $payment,
 			'note'     => self::cut( sanitize_textarea_field( $note ), 300 ),
 			'source'   => $source,

@@ -123,6 +123,10 @@ html.nwo-lock,html.nwo-lock body{overflow:hidden!important}
 .nwo-err{margin:6px 0 0;font-size:.84rem;font-weight:500;color:#c62f22}
 .nwo-err:empty{display:none}
 
+/* County + town side by side */
+.nwo-row2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media (max-width:420px){.nwo-row2{grid-template-columns:1fr}}
+
 /* Option cards (receive + payment) */
 .nwo-choice{margin-bottom:20px}
 .nwo-cards{display:grid;grid-template-columns:1fr;gap:10px}

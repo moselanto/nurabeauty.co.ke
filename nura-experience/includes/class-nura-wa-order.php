@@ -42,7 +42,7 @@ class NURAX_WA_Order {
 		}
 		add_action( 'init', array( $this, 'register_cpt' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'assets' ), 20 );
-		add_action( 'wp_footer', array( $this, 'modal' ), 30 );
+		add_action( 'wp_footer', array( $this, 'modal' ), 5 ); // Before footer scripts (priority 20) so the pop-up exists when its script runs.
 
 		// Triggers.
 		add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'product_button' ), 25 );

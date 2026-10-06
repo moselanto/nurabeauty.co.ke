@@ -1,10 +1,12 @@
 /*!
- * NURA WhatsApp Order pop-up (NURA Experience 1.44.0 redesign).
+ * NURA WhatsApp Order pop-up (NURA Experience 1.45.0).
  * Ported from the Tabarak Electronics order funnel, restyled for NURA.
  * Every trigger is a real wa.me link, so ordering still works without JS.
  */
 (function () {
   'use strict';
+  // v1.45.0: wait for the whole page so the pop-up markup (printed late in the footer) exists.
+  function nwoBoot() {
 
   var C = window.NURAX_WO || {};
   var d = document;
@@ -512,4 +514,6 @@
     }
     sending = false;
   });
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', nwoBoot); } else { nwoBoot(); }
 })();

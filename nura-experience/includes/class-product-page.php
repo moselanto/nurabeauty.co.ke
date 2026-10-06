@@ -46,8 +46,8 @@ class NURAX_Product_Page {
 		// One-click "add the full care set" bundle handler.
 		add_action( 'template_redirect', array( $this, 'handle_bundle' ) );
 
-		// Consolidated single-product action row (Try it on + Order on WhatsApp),
-		// rendered just after the add-to-cart button so both sit in a tidy row.
+		// Single-product action row (Try it on), rendered just after the add-to-cart
+		// button. Order on WhatsApp is provided by NURAX_WA_Order since v1.43.0.
 		add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'secondary_actions' ), 20 );
 	}
 
@@ -314,30 +314,10 @@ class NURAX_Product_Page {
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Single-product action row: Try it on + Order on WhatsApp            */
+	/* Single-product action row: Try it on                                */
 	/* ------------------------------------------------------------------ */
 
-	/** Resolve the store WhatsApp number to digits (with a public fallback). */
-	private function whatsapp_number() {
-		$raw = '';
-		if ( class_exists( 'NURAX_Settings' ) ) {
-			$raw = (string) NURAX_Settings::get( 'whatsapp', '' );
-		}
-		if ( '' === $raw ) {
-			$raw = (string) get_theme_mod( 'nura_whatsapp', '' );
-		}
-		$digits = preg_replace( '/\D+/', '', $raw );
-		if ( '' === $digits ) {
-			$digits = '254714994898'; // NURA's public WhatsApp number.
-		}
-		if ( 0 === strpos( $digits, '0' ) ) {
-			$digits = '254' . substr( $digits, 1 );
-		}
-		/** Allow overriding the destination WhatsApp number (digits only). */
-		return preg_replace( '/\D+/', '', (string) apply_filters( 'nurax_whatsapp_number', $digits ) );
-	}
-
-	/** Render "Try it on" + "Order on WhatsApp" in one aligned row under add-to-cart. */
+	/** Render "Try it on" in an aligned row under add-to-cart (Order on WhatsApp now lives in NURAX_WA_Order). */
 	public function secondary_actions() {
 		global $product;
 		if ( ! $product instanceof WC_Product ) {
@@ -357,29 +337,8 @@ class NURAX_Product_Page {
 			);
 		}
 
-		// Order on WhatsApp -> prefilled message with the product name + link.
-		$num = $this->whatsapp_number();
-		if ( $num ) {
-			$msg = sprintf(
-				/* translators: 1: product name, 2: product URL */
-				__( "Hi NURA, I'd like to order the %1\$s (%2\$s). Is it available?", 'nura-experience' ),
-				$product->get_name(),
-				get_permalink( $product->get_id() )
-			);
-			$wa       = 'https://wa.me/' . $num . '?text=' . rawurlencode( $msg );
-			$price    = wp_strip_all_tags( wc_price( wc_get_price_to_display( $product ), array( 'decimals' => 0 ) ) );
-			$wa_icon  = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.2.7a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';
-			$buttons .= sprintf(
-				'<a class="nura-btn nura-btn--wa nura-pdp-actions__btn" href="%1$s" target="_blank" rel="noopener nofollow" data-nura-wa-order data-wa-num="%2$s" data-wa-name="%3$s" data-wa-url="%4$s" data-wa-price="%5$s">%6$s<span>%7$s</span></a>',
-				esc_url( $wa ),
-				esc_attr( $num ),
-				esc_attr( $product->get_name() ),
-				esc_url( get_permalink( $product->get_id() ) ),
-				esc_attr( $price ),
-				$wa_icon,
-				esc_html__( 'Order on WhatsApp', 'nura-experience' )
-			);
-		}
+		// Order on WhatsApp moved to NURAX_WA_Order (v1.43.0): a full order pop-up is
+		// rendered right under add to cart, so there is no second WhatsApp button here.
 
 		if ( '' === $buttons ) {
 			return;

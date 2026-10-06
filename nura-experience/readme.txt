@@ -3,6 +3,7 @@ Contributors: NURA
 Requires at least: 6.2
 Requires PHP: 7.4
 WC requires at least: 8.0
+Stable tag: 1.43.0
 License: GPLv2 or later
 
 NURA's three exclusive features for a luxury wig store.
@@ -33,3 +34,16 @@ The recommender, try-on overlay and portal are fully functional MVPs with clean
 extension points. True computer-vision face analysis and auto-aligned AR try-on
 require a third-party vision service or model and an API key/subscription — this
 plugin is built to plug those in, not to ship a trained model.
+
+== WhatsApp order pop-up (1.43.0) ==
+An "Order on WhatsApp" pop-up form on every page: product page (under add to
+cart, uses the chosen variation), every product card, and "Order whole cart on
+WhatsApp" on the cart page. Kenyan phone check, delivery area or pick-up,
+payment preference, order reference NURA-YYMMDD-XXXX and a neatly formatted
+WhatsApp message. Every order is saved under WooCommerce > WhatsApp Orders.
+Destination number: Settings > NURA Experience > "WhatsApp link or number"
+(falls back to the Customizer WhatsApp link).
+
+== Changelog ==
+= 1.43.0 =
+* Professional WhatsApp order pop-up (product page, product cards, whole cart) and WooCommerce > WhatsApp Orders admin list.

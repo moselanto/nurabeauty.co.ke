@@ -10,7 +10,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[\![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.32.1-0E0E0E?style=for-the-badge)](nura-beauty)
+[\![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.32.2-0E0E0E?style=for-the-badge)](nura-beauty)
 [\![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.42.0-C9A24B?style=for-the-badge)](nura-experience)
 [\![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
@@ -61,7 +61,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Package | Folder | Version | Role |
 | --- | --- | :---: | --- |
-| **NURA Beauty** | [`nura-beauty/`](nura-beauty) | `1.32.1` | Parent theme: storefront, design system, header search, checkout, Customizer, SEO schema |
+| **NURA Beauty** | [`nura-beauty/`](nura-beauty) | `1.32.2` | Parent theme: storefront, design system, header search, checkout, Customizer, SEO schema |
 | **NURA Beauty Child** | [`nura-beauty-child/`](nura-beauty-child) | `1.0.0` | **Active theme.** Update-safe layer for site-specific CSS and PHP |
 | **NURA Experience** | [`nura-experience/`](nura-experience) | `1.42.0` | Plugin: AI Stylist chat, AI Wig Finder, Quick View, WhatsApp ordering, mobile bottom bar, policy pages, NURA Circle |
 
@@ -379,6 +379,7 @@ window.nuraxTryonProvider = { align: (photo, wig) => { /* MediaPipe / Banuba */ 
 
 | Theme | Plugin | Highlights |
 | :---: | :---: | --- |
+| `1.32.2` | - | Aligned product cards: reserved shade row, fixed price row, full-width buttons pinned to the bottom |
 | `1.32.1` | - | Equal two-line product titles on every card; semi-human and bone straight category intros |
 | `1.32.0` | `1.42.0` | SEO for Kenyan wig searches: keyword H1, homepage wig guide + FAQ schema, Product shipping/returns schema, image alt text, LocalBusiness areas |
 | `1.31.1` | - | Mobile: only one WhatsApp (bottom bar); floating bubble hidden on phones |

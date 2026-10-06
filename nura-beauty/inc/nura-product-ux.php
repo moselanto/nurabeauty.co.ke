@@ -166,6 +166,7 @@ add_action( 'woocommerce_before_shop_loop_item_title', 'nura_loop_soldout_flash'
 function nura_loop_colour_dots() {
 	global $product;
 	if ( ! $product || ! $product->is_type( 'variable' ) ) {
+		echo '<div class="nura-swatch-dots nura-swatch-dots--empty" aria-hidden="true"></div>'; // keeps every card the same height
 		return;
 	}
 	$attrs   = $product->get_variation_attributes();
@@ -180,6 +181,7 @@ function nura_loop_colour_dots() {
 		}
 	}
 	if ( empty( $colours ) ) {
+		echo '<div class="nura-swatch-dots nura-swatch-dots--empty" aria-hidden="true"></div>'; // keeps every card the same height
 		return;
 	}
 	$is_tax = taxonomy_exists( $tax );

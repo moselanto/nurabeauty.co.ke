@@ -11,7 +11,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 <br>
 
 [\![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.32.2-0E0E0E?style=for-the-badge)](nura-beauty)
-[\![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.43.0-C9A24B?style=for-the-badge)](nura-experience)
+[\![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.44.0-C9A24B?style=for-the-badge)](nura-experience)
 [\![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 \![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -63,7 +63,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 | --- | --- | :---: | --- |
 | **NURA Beauty** | [`nura-beauty/`](nura-beauty) | `1.32.2` | Parent theme: storefront, design system, header search, checkout, Customizer, SEO schema |
 | **NURA Beauty Child** | [`nura-beauty-child/`](nura-beauty-child) | `1.0.0` | **Active theme.** Update-safe layer for site-specific CSS and PHP |
-| **NURA Experience** | [`nura-experience/`](nura-experience) | `1.43.0` | Plugin: AI Stylist chat, AI Wig Finder, Quick View, WhatsApp order pop-up + WhatsApp Orders admin, mobile bottom bar, policy pages, NURA Circle |
+| **NURA Experience** | [`nura-experience/`](nura-experience) | `1.44.0` | Plugin: AI Stylist chat, AI Wig Finder, Quick View, WhatsApp order pop-up + WhatsApp Orders admin, mobile bottom bar, policy pages, NURA Circle |
 
 > [\!NOTE]
 > Nothing brand-specific is hard-coded. Colours, fonts, contact details, social links, announcement bar and hero copy are edited under **Appearance > Customize > NURA Options**.
@@ -379,6 +379,7 @@ window.nuraxTryonProvider = { align: (photo, wig) => { /* MediaPipe / Banuba */ 
 
 | Theme | Plugin | Highlights |
 | :---: | :---: | --- |
+| - | `1.44.0` | Redesigned WhatsApp order pop-up: 3-step progress, product card with category, sale price and quantity, +254 phone field, delivery / pick-up and payment option cards, sticky total + Send order button |
 | - | `1.43.0` | WhatsApp order pop-up on product page, every product card and cart (variation, qty, delivery, payment, ref NURA-YYMMDD-XXXX); orders saved under WooCommerce > WhatsApp Orders |
 | `1.32.2` | - | Aligned product cards: reserved shade row, fixed price row, full-width buttons pinned to the bottom |
 | `1.32.1` | - | Equal two-line product titles on every card; semi-human and bone straight category intros |

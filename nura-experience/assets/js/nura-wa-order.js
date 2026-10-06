@@ -1,5 +1,5 @@
 /*!
- * NURA WhatsApp Order pop-up (NURA Experience 1.43.0).
+ * NURA WhatsApp Order pop-up (NURA Experience 1.44.0 redesign).
  * Ported from the Tabarak Electronics order funnel, restyled for NURA.
  * Every trigger is a real wa.me link, so ordering still works without JS.
  */
@@ -18,6 +18,8 @@
   var qtyRow = modal.querySelector('[data-nwo-qtyrow]');
   var qtyIn = form.elements.qty;
   var totalEl = modal.querySelector('[data-nwo-total]');
+  var footTotalEl = modal.querySelector('[data-nwo-foottotal]');
+  var titleEl = modal.querySelector('[data-nwo-title]');
   var doneEl = modal.querySelector('[data-nwo-done]');
   var deliveryEl = modal.querySelector('[data-nwo-delivery]');
   var pickupEl = modal.querySelector('[data-nwo-pickup]');
@@ -142,24 +144,32 @@
           (it.option ? '<em>' + esc(it.option) + '</em>' : '') + '<small>' + esc(it.qty) + ' x ' + esc(money(it.price)) + '</small></span>' +
           '<span class="nwo-sum__line">' + esc(money(it.line)) + '</span></li>';
       }).join('');
-      sumEl.innerHTML = '<ul class="nwo-sum__list">' + rows + '</ul><div class="nwo-sum__total"><span>Cart total</span><strong>' + esc(money(state.total)) + '</strong></div>';
+      sumEl.innerHTML = '<p class="nwo-sum__cat">Your cart &middot; ' + state.items.length + (state.items.length === 1 ? ' item' : ' items') + '</p><ul class="nwo-sum__list">' + rows + '</ul><div class="nwo-sum__total"><span>Cart total</span><strong>' + esc(money(state.total)) + '</strong></div>';
       qtyRow.hidden = true;
+      if (titleEl) { titleEl.textContent = 'Order your cart'; }
+      if (footTotalEl) { footTotalEl.textContent = money(state.total); }
       return;
     }
     var p = state.product;
+    var reg = Number(p.regular) || 0;
+    var regTxt = (reg > state.price && !state.option) ? money(reg) : '';
     var priceTxt = state.price > 0 ? ((p.variable && !state.option) ? 'From ' + money(state.price) : money(state.price)) : '';
     sumEl.innerHTML = '<div class="nwo-sum__prod">' +
       (state.img ? '<img class="nwo-sum__img" src="' + esc(state.img) + '" alt="" width="72" height="72" loading="lazy">' : '') +
-      '<div class="nwo-sum__info"><p class="nwo-sum__name">' + esc(p.name) + '</p>' +
+      '<div class="nwo-sum__info">' + (p.cat ? '<p class="nwo-sum__cat">' + esc(p.cat) + '</p>' : '') + '<p class="nwo-sum__name">' + esc(p.name) + '</p>' +
       (state.option ? '<p class="nwo-sum__opt">' + esc(state.option) + '</p>' : '') +
-      (priceTxt ? '<p class="nwo-sum__price">' + esc(priceTxt) + '</p>' : '') + '</div></div>';
+      (priceTxt ? '<p class="nwo-sum__price"><b>' + esc(priceTxt) + '</b>' + (regTxt ? ' <del>' + esc(regTxt) + '</del>' : '') + '</p>' : '') +
+      (state.stockNote ? '<p class="nwo-sum__note">' + esc(state.stockNote) + '</p>' : '') + '</div></div>';
+    if (titleEl) { titleEl.textContent = 'Complete your order'; }
     qtyRow.hidden = false;
     updateTotal();
   }
   function updateTotal() {
     if (!state || state.mode === 'cart') { return; }
     var t = state.price * qty();
-    totalEl.textContent = state.price > 0 ? ((state.product.variable && !state.option) ? 'From ' + money(t) : money(t)) : 'To be confirmed';
+    var tt = state.price > 0 ? ((state.product.variable && !state.option) ? 'From ' + money(t) : money(t)) : 'To be confirmed';
+    totalEl.textContent = tt;
+    if (footTotalEl) { footTotalEl.textContent = tt; }
   }
 
   /* ---------- variation helpers ---------- */

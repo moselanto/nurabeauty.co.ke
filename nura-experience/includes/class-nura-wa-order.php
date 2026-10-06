@@ -1,6 +1,6 @@
 <?php
 /**
- * NURA WhatsApp Order pop-up (v1.43.0).
+ * NURA WhatsApp Order pop-up (v1.43.0, redesigned v1.44.0).
  *
  * A polished "Order on WhatsApp" form, ported from the Tabarak Electronics order
  * funnel and restyled for NURA:
@@ -164,7 +164,38 @@ class NURAX_WA_Order {
 			'img'      => $img ? $img : ( function_exists( 'wc_placeholder_img_src' ) ? wc_placeholder_img_src() : '' ),
 			'url'      => get_permalink( $product->get_id() ),
 			'variable' => $product->is_type( 'variable' ) ? 1 : 0,
+			'regular'  => self::regular_price( $product ),
+			'cat'      => self::category_name( $product ),
 		);
+	}
+
+	/** Regular (crossed-out) price when the product is on sale, else 0. */
+	private static function regular_price( $product ) {
+		if ( ! $product instanceof WC_Product || ! $product->is_on_sale() ) {
+			return 0.0;
+		}
+		if ( $product->is_type( 'variable' ) ) {
+			return (float) $product->get_variation_regular_price( 'min', true );
+		}
+		$reg = $product->get_regular_price();
+		if ( '' === $reg ) {
+			return 0.0;
+		}
+		return (float) wc_get_price_to_display( $product, array( 'price' => $reg ) );
+	}
+
+	/** First real product category name, shown above the product in the pop-up. */
+	private static function category_name( $product ) {
+		$terms = get_the_terms( $product->get_id(), 'product_cat' );
+		if ( empty( $terms ) || is_wp_error( $terms ) ) {
+			return '';
+		}
+		foreach ( $terms as $term ) {
+			if ( 'uncategorized' !== $term->slug ) {
+				return wp_strip_all_tags( $term->name );
+			}
+		}
+		return '';
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -301,115 +332,140 @@ class NURAX_WA_Order {
 		if ( is_admin() ) {
 			return;
 		}
-		$steps = array( __( 'Details', 'nura-experience' ), __( 'Sent', 'nura-experience' ) );
+		$steps = array(
+			__( 'Your details', 'nura-experience' ),
+			__( 'Send on WhatsApp', 'nura-experience' ),
+			__( 'We confirm & deliver', 'nura-experience' ),
+		);
+		$pay_notes = array(
+			'M-Pesa on delivery' => __( 'Pay when it arrives', 'nura-experience' ),
+			'M-Pesa now'         => __( 'We send the till number', 'nura-experience' ),
+			'Cash on delivery'   => __( 'Pay the rider in cash', 'nura-experience' ),
+		);
 		?>
 		<div class="nwo" id="nwo-modal" data-nwo-modal hidden>
 			<div class="nwo__overlay" data-nwo-close></div>
 			<div class="nwo__panel" role="dialog" aria-modal="true" aria-labelledby="nwo-title" tabindex="-1">
-				<div class="nwo__head">
-					<div>
-						<p class="nwo__eyebrow"><?php esc_html_e( 'NURA Beauty', 'nura-experience' ); ?></p>
-						<h2 class="nwo__title" id="nwo-title"><?php esc_html_e( 'Order on WhatsApp', 'nura-experience' ); ?></h2>
+				<div class="nwo__top">
+					<div class="nwo__head">
+						<div class="nwo__headtxt">
+							<p class="nwo__eyebrow"><?php echo self::wa_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Fast WhatsApp order', 'nura-experience' ); ?></span></p>
+							<h2 class="nwo__title" id="nwo-title" data-nwo-title><?php esc_html_e( 'Complete your order', 'nura-experience' ); ?></h2>
+						</div>
+						<button type="button" class="nwo__close" data-nwo-close aria-label="<?php esc_attr_e( 'Close', 'nura-experience' ); ?>"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
 					</div>
-					<button type="button" class="nwo__close" data-nwo-close aria-label="<?php esc_attr_e( 'Close', 'nura-experience' ); ?>">&times;</button>
+					<ol class="nwo-progress" aria-label="<?php esc_attr_e( 'Order progress', 'nura-experience' ); ?>">
+						<?php foreach ( $steps as $i => $label ) : ?>
+							<li class="nwo-progress__step<?php echo 0 === $i ? ' is-active' : ''; ?>" data-nwo-step="<?php echo (int) $i; ?>"><span class="nwo-progress__dot"><?php echo (int) ( $i + 1 ); ?></span><span class="nwo-progress__label"><?php echo esc_html( $label ); ?></span></li>
+						<?php endforeach; ?>
+					</ol>
 				</div>
-				<ol class="nwo-progress" aria-label="<?php esc_attr_e( 'Order progress', 'nura-experience' ); ?>">
-					<?php foreach ( $steps as $i => $label ) : ?>
-						<li class="nwo-progress__step<?php echo 0 === $i ? ' is-active' : ''; ?>" data-nwo-step="<?php echo (int) $i; ?>"><span class="nwo-progress__dot"><?php echo (int) ( $i + 1 ); ?></span><span class="nwo-progress__label"><?php echo esc_html( $label ); ?></span></li>
-					<?php endforeach; ?>
-				</ol>
 
 				<form class="nwo-form" data-nwo-form novalidate>
-					<div class="nwo-sum" data-nwo-sum></div>
-
-					<div class="nwo-opts" data-nwo-opts hidden></div>
-
-					<div class="nwo-qtyrow" data-nwo-qtyrow>
-						<div class="nwo-qty">
-							<span class="nwo-qty__label" id="nwo-qty-label"><?php esc_html_e( 'Quantity', 'nura-experience' ); ?></span>
-							<div class="nwo-qty__ctrl" role="group" aria-labelledby="nwo-qty-label">
-								<button type="button" class="nwo-qty__btn" data-nwo-qty="-1" aria-label="<?php esc_attr_e( 'Decrease quantity', 'nura-experience' ); ?>">&minus;</button>
-								<input type="number" name="qty" class="nwo-qty__input" value="1" min="1" max="20" inputmode="numeric" aria-labelledby="nwo-qty-label">
-								<button type="button" class="nwo-qty__btn" data-nwo-qty="1" aria-label="<?php esc_attr_e( 'Increase quantity', 'nura-experience' ); ?>">+</button>
+					<div class="nwo-body">
+						<div class="nwo-card">
+							<div class="nwo-sum" data-nwo-sum></div>
+							<div class="nwo-opts" data-nwo-opts hidden></div>
+							<div class="nwo-qtyrow" data-nwo-qtyrow>
+								<div class="nwo-qty__ctrl" role="group" aria-label="<?php esc_attr_e( 'Quantity', 'nura-experience' ); ?>">
+									<button type="button" class="nwo-qty__btn" data-nwo-qty="-1" aria-label="<?php esc_attr_e( 'Decrease quantity', 'nura-experience' ); ?>">&minus;</button>
+									<input type="number" name="qty" class="nwo-qty__input" value="1" min="1" max="20" inputmode="numeric" aria-label="<?php esc_attr_e( 'Quantity', 'nura-experience' ); ?>">
+									<button type="button" class="nwo-qty__btn" data-nwo-qty="1" aria-label="<?php esc_attr_e( 'Increase quantity', 'nura-experience' ); ?>">+</button>
+								</div>
+								<div class="nwo-total"><span><?php esc_html_e( 'Total', 'nura-experience' ); ?></span><strong data-nwo-total aria-live="polite"></strong></div>
 							</div>
 						</div>
-						<div class="nwo-total"><span><?php esc_html_e( 'Total', 'nura-experience' ); ?></span><strong data-nwo-total aria-live="polite"></strong></div>
-					</div>
 
-					<div class="nwo-grid">
 						<div class="nwo-f">
 							<label for="nwo-name"><?php esc_html_e( 'Full name', 'nura-experience' ); ?> <span class="nwo-req" aria-hidden="true">*</span></label>
-							<input id="nwo-name" name="name" type="text" autocomplete="name" maxlength="80" required aria-describedby="nwo-err-name">
+							<input id="nwo-name" name="name" type="text" autocomplete="name" maxlength="80" placeholder="<?php esc_attr_e( 'e.g. Jane Wanjiku', 'nura-experience' ); ?>" required aria-describedby="nwo-err-name">
 							<p class="nwo-err" id="nwo-err-name"></p>
 						</div>
+
 						<div class="nwo-f">
-							<label for="nwo-phone"><?php esc_html_e( 'Phone (M-Pesa / WhatsApp)', 'nura-experience' ); ?> <span class="nwo-req" aria-hidden="true">*</span></label>
-							<input id="nwo-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="16" placeholder="0712 345 678" required aria-describedby="nwo-err-phone">
+							<label for="nwo-phone"><?php esc_html_e( 'Phone / WhatsApp number', 'nura-experience' ); ?> <span class="nwo-req" aria-hidden="true">*</span></label>
+							<div class="nwo-phone">
+								<span class="nwo-phone__cc" aria-hidden="true">+254</span>
+								<input id="nwo-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="16" placeholder="0712 345 678" required aria-describedby="nwo-err-phone">
+							</div>
 							<p class="nwo-err" id="nwo-err-phone"></p>
 						</div>
-					</div>
 
-					<fieldset class="nwo-f nwo-choice">
-						<legend><?php esc_html_e( 'How would you like to receive it?', 'nura-experience' ); ?></legend>
-						<div class="nwo-pills">
-							<label class="nwo-pill"><input type="radio" name="fulfil" value="delivery" checked><span><?php esc_html_e( 'Delivery', 'nura-experience' ); ?></span></label>
-							<label class="nwo-pill"><input type="radio" name="fulfil" value="pickup"><span><?php esc_html_e( 'Pick-up', 'nura-experience' ); ?></span></label>
-						</div>
-					</fieldset>
+						<fieldset class="nwo-f nwo-choice">
+							<legend><?php esc_html_e( 'How do you want to receive it?', 'nura-experience' ); ?></legend>
+							<div class="nwo-cards nwo-cards--2">
+								<label class="nwo-opt"><input type="radio" name="fulfil" value="delivery" checked><span class="nwo-opt__box"><span class="nwo-opt__ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" fill="#fff" stroke="currentColor" stroke-width="1.6"/><circle cx="17" cy="17.5" r="1.7" fill="#fff" stroke="currentColor" stroke-width="1.6"/></svg></span><span class="nwo-opt__txt"><strong><?php esc_html_e( 'Delivery', 'nura-experience' ); ?></strong><small><?php esc_html_e( 'Same day in Nairobi, countrywide 1-3 days', 'nura-experience' ); ?></small></span><span class="nwo-opt__tick" aria-hidden="true"></span></span></label>
+								<label class="nwo-opt"><input type="radio" name="fulfil" value="pickup"><span class="nwo-opt__box"><span class="nwo-opt__ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 10l1.5-5h13L20 10M4 10v10h16V10M4 10h16M10 20v-5h4v5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span><span class="nwo-opt__txt"><strong><?php esc_html_e( 'Pick up', 'nura-experience' ); ?></strong><small><?php esc_html_e( 'Collect at our Nairobi CBD studio', 'nura-experience' ); ?></small></span><span class="nwo-opt__tick" aria-hidden="true"></span></span></label>
+							</div>
+						</fieldset>
 
-					<div class="nwo-grid" data-nwo-delivery>
-						<div class="nwo-f">
-							<label for="nwo-location"><?php esc_html_e( 'County / town', 'nura-experience' ); ?> <span class="nwo-req" aria-hidden="true">*</span></label>
-							<select id="nwo-location" name="location" aria-describedby="nwo-err-location">
-								<option value=""><?php esc_html_e( 'Choose your area', 'nura-experience' ); ?></option>
-								<?php foreach ( self::locations() as $group => $places ) : ?>
-									<optgroup label="<?php echo esc_attr( $group ); ?>">
-										<?php foreach ( (array) $places as $place ) : ?>
-											<?php $val = ( 'Nairobi' === $group ) ? 'Nairobi - ' . $place : $place; ?>
-											<option value="<?php echo esc_attr( $val ); ?>"><?php echo esc_html( $place ); ?></option>
+						<div data-nwo-delivery>
+							<div class="nwo-f">
+								<label for="nwo-location"><?php esc_html_e( 'Delivery location', 'nura-experience' ); ?> <span class="nwo-req" aria-hidden="true">*</span></label>
+								<div class="nwo-select">
+									<select id="nwo-location" name="location" aria-describedby="nwo-err-location">
+										<option value=""><?php esc_html_e( 'Select your area', 'nura-experience' ); ?></option>
+										<?php foreach ( self::locations() as $group => $places ) : ?>
+											<optgroup label="<?php echo esc_attr( $group ); ?>">
+												<?php foreach ( (array) $places as $place ) : ?>
+													<?php $val = ( 'Nairobi' === $group ) ? 'Nairobi - ' . $place : $place; ?>
+													<option value="<?php echo esc_attr( $val ); ?>"><?php echo esc_html( $place ); ?></option>
+												<?php endforeach; ?>
+											</optgroup>
 										<?php endforeach; ?>
-									</optgroup>
+									</select>
+								</div>
+								<p class="nwo-err" id="nwo-err-location"></p>
+							</div>
+							<div class="nwo-f">
+								<label for="nwo-area"><?php esc_html_e( 'Estate, street or building', 'nura-experience' ); ?></label>
+								<input id="nwo-area" name="area" type="text" autocomplete="street-address" maxlength="120" placeholder="<?php esc_attr_e( 'e.g. Kilimani, Argwings Kodhek Rd', 'nura-experience' ); ?>">
+							</div>
+						</div>
+						<p class="nwo-pickup" data-nwo-pickup hidden><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span><?php echo esc_html( self::pickup_text() ); ?></span></p>
+
+						<fieldset class="nwo-f nwo-choice">
+							<legend><?php esc_html_e( 'How will you pay?', 'nura-experience' ); ?></legend>
+							<div class="nwo-cards">
+								<?php foreach ( self::payments() as $i => $pay ) : ?>
+									<label class="nwo-opt nwo-opt--row"><input type="radio" name="payment" value="<?php echo esc_attr( $pay ); ?>"<?php checked( 0, $i ); ?>><span class="nwo-opt__box"><span class="nwo-opt__txt"><strong><?php echo esc_html( $pay ); ?></strong><?php if ( isset( $pay_notes[ $pay ] ) ) : ?><small><?php echo esc_html( $pay_notes[ $pay ] ); ?></small><?php endif; ?></span><span class="nwo-opt__tick" aria-hidden="true"></span></span></label>
 								<?php endforeach; ?>
-							</select>
-							<p class="nwo-err" id="nwo-err-location"></p>
-						</div>
+							</div>
+						</fieldset>
+
 						<div class="nwo-f">
-							<label for="nwo-area"><?php esc_html_e( 'Estate / street / landmark', 'nura-experience' ); ?></label>
-							<input id="nwo-area" name="area" type="text" autocomplete="street-address" maxlength="120" placeholder="<?php esc_attr_e( 'e.g. Argwings Kodhek Rd, near Yaya Centre', 'nura-experience' ); ?>">
+							<label for="nwo-note"><?php esc_html_e( 'Anything else? (optional)', 'nura-experience' ); ?></label>
+							<textarea id="nwo-note" name="note" rows="2" maxlength="300" placeholder="<?php esc_attr_e( 'Preferred delivery time, colour question, styling request...', 'nura-experience' ); ?>"></textarea>
 						</div>
-					</div>
-					<p class="nwo-pickup" data-nwo-pickup hidden><?php echo esc_html( self::pickup_text() ); ?></p>
 
-					<fieldset class="nwo-f nwo-choice">
-						<legend><?php esc_html_e( 'Payment preference', 'nura-experience' ); ?></legend>
-						<div class="nwo-pills">
-							<?php foreach ( self::payments() as $i => $pay ) : ?>
-								<label class="nwo-pill"><input type="radio" name="payment" value="<?php echo esc_attr( $pay ); ?>"<?php checked( 0, $i ); ?>><span><?php echo esc_html( $pay ); ?></span></label>
-							<?php endforeach; ?>
+						<div class="nwo-hp" aria-hidden="true">
+							<label for="nwo-website">Website</label>
+							<input id="nwo-website" name="website" type="text" tabindex="-1" autocomplete="off">
 						</div>
-					</fieldset>
 
-					<div class="nwo-f">
-						<label for="nwo-note"><?php esc_html_e( 'Note (optional)', 'nura-experience' ); ?></label>
-						<textarea id="nwo-note" name="note" rows="2" maxlength="300" placeholder="<?php esc_attr_e( 'Preferred delivery time, styling request...', 'nura-experience' ); ?>"></textarea>
+						<ul class="nwo-trust">
+							<li><?php esc_html_e( 'No payment now', 'nura-experience' ); ?></li>
+							<li><?php esc_html_e( 'We confirm stock first', 'nura-experience' ); ?></li>
+							<li><?php esc_html_e( '7-day returns', 'nura-experience' ); ?></li>
+						</ul>
 					</div>
 
-					<div class="nwo-hp" aria-hidden="true">
-						<label for="nwo-website">Website</label>
-						<input id="nwo-website" name="website" type="text" tabindex="-1" autocomplete="off">
+					<div class="nwo-foot">
+						<p class="nwo-formerr" data-nwo-formerr role="alert" hidden></p>
+						<div class="nwo-foot__row">
+							<div class="nwo-foot__total"><span><?php esc_html_e( 'Order total', 'nura-experience' ); ?></span><strong data-nwo-foottotal></strong></div>
+							<button type="submit" class="nwo-submit"><?php echo self::wa_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Send order', 'nura-experience' ); ?></span></button>
+						</div>
+						<p class="nwo-small"><?php esc_html_e( 'WhatsApp opens with your order ready. Just tap send.', 'nura-experience' ); ?></p>
 					</div>
-
-					<p class="nwo-formerr" data-nwo-formerr role="alert" hidden></p>
-					<button type="submit" class="nwo-submit"><?php echo self::wa_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Send order on WhatsApp', 'nura-experience' ); ?></span></button>
-					<p class="nwo-small"><?php esc_html_e( 'No payment now. We confirm availability and delivery cost on WhatsApp first.', 'nura-experience' ); ?></p>
 				</form>
 
 				<div class="nwo-done" data-nwo-done hidden>
-					<div class="nwo-done__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.2 4.2L19 7"/></svg></div>
-					<h3 class="nwo-done__title" tabindex="-1"><?php esc_html_e( 'Your order is on its way to us', 'nura-experience' ); ?></h3>
-					<p class="nwo-done__text"><?php esc_html_e( 'WhatsApp has opened with your order. Just tap send and a NURA stylist will confirm availability, delivery and payment.', 'nura-experience' ); ?></p>
-					<p class="nwo-done__ref"><?php esc_html_e( 'Order reference', 'nura-experience' ); ?> <strong data-nwo-ref></strong></p>
-					<a class="nwo-btn nwo-btn--pdp nwo-done__wa" data-nwo-again href="#" target="_blank" rel="noopener nofollow"><?php echo self::wa_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Open WhatsApp again', 'nura-experience' ); ?></span></a>
+					<div class="nwo-done__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.2 4.2L19 7"/></svg></div>
+					<h3 class="nwo-done__title" tabindex="-1"><?php esc_html_e( 'Almost done - tap send on WhatsApp', 'nura-experience' ); ?></h3>
+					<p class="nwo-done__text"><?php esc_html_e( 'WhatsApp has opened with your order already written. Tap send and a NURA stylist will confirm availability, delivery and payment within minutes.', 'nura-experience' ); ?></p>
+					<p class="nwo-done__ref"><?php esc_html_e( 'Your order reference', 'nura-experience' ); ?> <strong data-nwo-ref></strong></p>
+					<a class="nwo-submit nwo-done__wa" data-nwo-again href="#" target="_blank" rel="noopener nofollow"><?php echo self::wa_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Open WhatsApp again', 'nura-experience' ); ?></span></a>
 					<button type="button" class="nwo-done__close" data-nwo-close><?php esc_html_e( 'Continue shopping', 'nura-experience' ); ?></button>
 				</div>
 			</div>

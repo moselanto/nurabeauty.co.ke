@@ -3,7 +3,7 @@ Contributors: NURA
 Requires at least: 6.2
 Requires PHP: 7.4
 WC requires at least: 8.0
-Stable tag: 1.43.0
+Stable tag: 1.44.0
 License: GPLv2 or later
 
 NURA's three exclusive features for a luxury wig store.
@@ -45,5 +45,8 @@ Destination number: Settings > NURA Experience > "WhatsApp link or number"
 (falls back to the Customizer WhatsApp link).
 
 == Changelog ==
+= 1.44.0 =
+* Redesigned WhatsApp order pop-up: 3-step progress (Your details, Send on WhatsApp, We confirm & deliver), product card with category, sale price and quantity, +254 phone field, delivery / pick-up and payment option cards, sticky total and Send order button, clearer success screen.
+
 = 1.43.0 =
 * Professional WhatsApp order pop-up (product page, product cards, whole cart) and WooCommerce > WhatsApp Orders admin list.

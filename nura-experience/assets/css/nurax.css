@@ -117,3 +117,7 @@
 .nura-qv-actions{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
 .nura-qv-loading{padding:3rem;text-align:center;color:#888}
 @media(max-width:640px){.nura-qv-grid{grid-template-columns:1fr}.nura-qv-media{max-height:36vh}.nura-qv-media img{max-height:36vh}}
+
+/* v1.47.1 inline links inside AI replies: no indent, never overflow the bubble */
+.nurax-msg .nurax-msg-link--inline{display:inline;margin-left:0;overflow-wrap:anywhere;word-break:break-word;text-decoration:underline;text-underline-offset:2px}
+.nurax-msg{overflow-wrap:anywhere}

@@ -107,6 +107,14 @@ class NURAX_AI_Stylist {
 		$last      = end( $clean );
 		$last_text = isset( $last['content'] ) ? $last['content'] : '';
 
+		// NURA AI Commerce (n8n): the shared website + WhatsApp brain with live WooCommerce
+		// search, conversation memory, checkout links and lead tracking. Any failure falls
+		// through to the existing paths below, so the widget never goes silent.
+		$n8n = $this->call_n8n( $last_text, $req );
+		if ( is_array( $n8n ) ) {
+			return rest_ensure_response( $n8n );
+		}
+
 		// Prefer the multi-provider NURA AI brain (Gemini / Groq / OpenAI, keys
 		// in wp-config) when it is enabled and available. Any miss falls through
 		// to the legacy path below, so the widget never regresses.
@@ -133,6 +141,64 @@ class NURAX_AI_Stylist {
 		}
 
 		return rest_ensure_response( array( 'reply' => $reply, 'products' => $this->suggest_products( $last_text ) ) );
+	}
+
+	/**
+	 * Forward the shopper's message to the NURA n8n chat workflow (server-to-server).
+	 * Override the URL with define( 'NURAX_N8N_CHAT_URL', '...' ) in wp-config.php,
+	 * or define it as an empty string to switch the n8n brain off.
+	 *
+	 * @return array|null Widget response, or null to fall back to the legacy paths.
+	 */
+	private function call_n8n( $text, WP_REST_Request $req ) {
+		$url = defined( 'NURAX_N8N_CHAT_URL' ) ? NURAX_N8N_CHAT_URL : 'https://nurabeauty.app.n8n.cloud/webhook/nura-chat';
+		$url = (string) apply_filters( 'nurax_n8n_chat_url', $url );
+		if ( '' === $url ) {
+			return null;
+		}
+		$sid = substr( preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $req->get_param( 'session_id' ) ), 0, 64 );
+		if ( '' === $sid ) {
+			return null; // Cached old script without a session id - use the legacy assistant.
+		}
+		$utm = $req->get_param( 'utm' );
+		$utm = is_array( $utm ) ? $utm : array();
+		$pick = function ( $k, $len = 120 ) use ( $utm ) {
+			return isset( $utm[ $k ] ) ? substr( sanitize_text_field( (string) $utm[ $k ] ), 0, $len ) : '';
+		};
+		$body = array(
+			'message'      => $text,
+			'sessionId'    => $sid,
+			'source'       => $pick( 'source', 60 ) ? $pick( 'source', 60 ) : 'website',
+			'utm_campaign' => $pick( 'campaign' ),
+			'utm_content'  => $pick( 'content' ),
+		);
+		$user = wp_get_current_user();
+		if ( $user && $user->exists() ) {
+			$body['name']  = $user->first_name ? $user->first_name : $user->display_name;
+			$body['email'] = $user->user_email;
+		}
+		$resp = wp_remote_post( $url, array(
+			'timeout' => 30,
+			'headers' => array(
+				'Content-Type' => 'application/json',
+				'Origin'       => untrailingslashit( home_url() ),
+			),
+			'body'    => wp_json_encode( $body ),
+		) );
+		if ( is_wp_error( $resp ) || 200 !== (int) wp_remote_retrieve_response_code( $resp ) ) {
+			return null;
+		}
+		$data = json_decode( wp_remote_retrieve_body( $resp ), true );
+		if ( !is_array( $data ) || empty( $data['ok'] ) || '' === trim( (string) ( isset( $data['reply'] ) ? $data['reply'] : '' ) ) ) {
+			return null;
+		}
+		return array(
+			'reply'        => (string) $data['reply'],
+			'products'     => array(),
+			'checkout_url' => isset( $data['checkout_url'] ) ? esc_url_raw( (string) $data['checkout_url'] ) : '',
+			'needs_human'  => !empty( $data['needs_human'] ),
+			'engine'       => 'nura-ai',
+		);
 	}
 
 	/** Build the system prompt with a live catalog snapshot. */

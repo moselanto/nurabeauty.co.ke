@@ -176,8 +176,62 @@ r(function(){
 	function fmt(text){var t=String(text==null?"":text).replace(/\r/g,"").replace(/[ \t]+\n/g,"\n").replace(/\n[ \t]+/g,"\n").replace(/\n{3,}/g,"\n\n").trim();return esc(t).replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]])/g,function(u){var label=/\/checkout\b/.test(u)?"Checkout now":(/\/product\//.test(u)?"View product":u.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,""));return '<a href="'+u+'" target="_blank" rel="noopener" class="nurax-msg-link nurax-msg-link--inline">'+label+'</a>';});}function addMsg(role,text){var el=d.createElement("div");el.className="nurax-msg nurax-msg--"+(role==="user"?"user":"bot");el.innerHTML=(role==="user")?esc(text):fmt(text);log.appendChild(el);log.scrollTop=log.scrollHeight;return el;}function addCheckout(url){if(!url||!/^https?:\/\//.test(url)){return;}var w=d.createElement("div");w.className="nurax-msg nurax-msg--bot";var a=d.createElement("a");a.href=url;a.className="nura-btn nura-btn--gold";a.textContent="Checkout now";w.appendChild(a);log.appendChild(w);log.scrollTop=log.scrollHeight;}function sid(){var k="nurax_sid",v="";try{v=localStorage.getItem(k)||"";if(!v){v="w"+Date.now().toString(36)+Math.random().toString(36).slice(2,10);localStorage.setItem(k,v);}}catch(e){v=v||("w"+Date.now().toString(36));}return v;}function utm(){var k="nurax_utm",o={};try{o=JSON.parse(localStorage.getItem(k)||"{}")||{};var q=new URLSearchParams(window.location.search);if(q.get("utm_source")&&!o.source){o={source:q.get("utm_source"),campaign:q.get("utm_campaign")||"",content:q.get("utm_content")||""};localStorage.setItem(k,JSON.stringify(o));}else if(q.get("fbclid")&&!o.source){o={source:"facebook",campaign:"",content:""};localStorage.setItem(k,JSON.stringify(o));}}catch(e){}return o;}
 	function addProducts(items){if(!items||!items.length){return;}var wrap=d.createElement("div");wrap.className="nurax-msg nurax-msg--bot nurax-msg--cards";items.forEach(function(pr){var a=d.createElement("a");a.className="nurax-chip";a.href=pr.url||"#";a.target="_blank";a.rel="noopener";a.innerHTML='<img src="'+esc(pr.img)+'" alt="" loading="lazy"><span>'+esc(pr.name)+'<b>'+esc(pr.price)+'</b></span>';wrap.appendChild(a);});log.appendChild(wrap);log.scrollTop=log.scrollHeight;}
 	function typing(on){var t=log.querySelector(".nurax-typing");if(on){if(t){return;}var el=d.createElement("div");el.className="nurax-msg nurax-msg--bot nurax-typing";el.innerHTML="<span></span><span></span><span></span>";log.appendChild(el);log.scrollTop=log.scrollHeight;}else if(t){t.parentNode.removeChild(t);}}
+	var bookingOpen=false;
+	function isBooking(t){return /\b(book|booking|appointment|schedule|reserve|consultation|consult|fitting|kuweka miadi)\b/i.test(t||"")&&!/\b(how much|price|cost|bei)\b/i.test(t||"");}
+	function pad(n){return (n<10?"0":"")+n;}
+	function todayStr(){var t=new Date();return t.getFullYear()+"-"+pad(t.getMonth()+1)+"-"+pad(t.getDate());}
+	function showBookingForm(){
+		var existing=log.querySelector("[data-nurax-booking]:not(.is-done)");
+		if(existing){existing.scrollIntoView({behavior:"smooth",block:"nearest"});var f0=existing.querySelector("input");if(f0){f0.focus();}return;}
+		var wrap=d.createElement("div");wrap.className="nurax-msg nurax-msg--bot nurax-booking";wrap.setAttribute("data-nurax-booking","");
+		wrap.innerHTML=
+			'<form class="nurax-booking__form" novalidate>'+
+			'<p class="nurax-booking__title">Book your appointment</p>'+
+			'<label>Full name*<input name="name" type="text" autocomplete="name" required maxlength="80"></label>'+
+			'<label>Phone (WhatsApp)*<input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0712 345 678" required></label>'+
+			'<label>Service*<select name="service" required><option value="consultation">Free 15-minute consultation</option><option value="fitting">Wig fitting</option><option value="installation">Wig installation</option><option value="bridal">Bridal / occasion styling</option></select></label>'+
+			'<label>How would you like to meet?*<select name="type" required><option value="studio">Nairobi studio visit</option><option value="video">Video call</option><option value="whatsapp">WhatsApp chat</option></select></label>'+
+			'<div class="nurax-booking__row"><label>Date*<input name="date" type="date" required min="'+todayStr()+'"></label><label>Time*<input name="time" type="time" required step="900"></label></div>'+
+			'<label>Notes (optional)<textarea name="notes" rows="2" maxlength="300" placeholder="e.g. the wig you like, occasion"></textarea></label>'+
+			'<input name="website" type="text" tabindex="-1" autocomplete="off" class="nurax-booking__hp" aria-hidden="true">'+
+			'<p class="nurax-booking__err" data-booking-err hidden></p>'+
+			'<button type="submit" class="nurax-booking__submit">Continue to WhatsApp</button>'+
+			'<p class="nurax-booking__note">We will confirm your slot on WhatsApp.</p>'+
+			'</form>';
+		log.appendChild(wrap);log.scrollTop=log.scrollHeight;bookingOpen=true;
+		var form=wrap.querySelector("form"),err=wrap.querySelector("[data-booking-err]"),btn=wrap.querySelector(".nurax-booking__submit");
+		var nm=form.querySelector('[name="name"]');if(nm){nm.focus();}
+		function fail(m){err.textContent=m;err.hidden=false;}
+		form.addEventListener("submit",function(e){
+			e.preventDefault();err.hidden=true;
+			var v=function(n){var el=form.querySelector('[name="'+n+'"]');return el?String(el.value||"").trim():"";};
+			var data={name:v("name"),phone:v("phone"),service:v("service"),type:v("type"),date:v("date"),time:v("time"),notes:v("notes"),website:v("website"),session_id:sid()};
+			var digits=data.phone.replace(/\D/g,"");
+			if(data.name.length<2){return fail("Please enter your name.");}
+			if(!/^(0[17]\d{8}|[17]\d{8}|254[17]\d{8})$/.test(digits)){return fail("Please enter a valid Kenyan phone number, e.g. 0712 345 678.");}
+			if(!data.date||data.date<todayStr()){return fail("Please choose a date from today onwards.");}
+			if(!data.time){return fail("Please choose a preferred time.");}
+			var win=null;try{win=window.open("about:blank","_blank");}catch(x){win=null;}
+			btn.disabled=true;btn.textContent="Sending...";
+			var rest=(window.NURAX&&NURAX.rest)?NURAX.rest:"/wp-json/nurax/v1/";
+			fetch(rest+"stylist-booking",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)})
+				.then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+				.then(function(res){
+					if(!res.ok||!res.j||!res.j.whatsapp_url){if(win){win.close();}btn.disabled=false;btn.textContent="Continue to WhatsApp";return fail((res.j&&res.j.message)?res.j.message:"Sorry, we could not send that. Please try again.");}
+					wrap.classList.add("is-done");bookingOpen=false;
+					form.innerHTML='<p class="nurax-booking__title">Booking details ready</p><p class="nurax-booking__sum">'+esc(data.name)+" &middot; "+esc(data.date)+" "+esc(data.time)+"</p>";
+					addMsg("bot",res.j.reply||"Thank you. Tap below to send your booking on WhatsApp.");
+					history.push({role:"assistant",content:res.j.reply||"Booking form submitted."});
+					var w=d.createElement("div");w.className="nurax-msg nurax-msg--bot";
+					var a=d.createElement("a");a.href=res.j.whatsapp_url;a.target="_blank";a.rel="noopener";a.className="nura-btn nura-btn--gold nurax-booking__wa";a.textContent="Send on WhatsApp";
+					w.appendChild(a);log.appendChild(w);log.scrollTop=log.scrollHeight;
+					if(win){try{win.location.href=res.j.whatsapp_url;}catch(x){}}
+				})
+				.catch(function(){if(win){win.close();}btn.disabled=false;btn.textContent="Continue to WhatsApp";fail("Connection problem. Please try again or tap WhatsApp at the top.");});
+		});
+	}
 	function send(text){
-		if(busy||!text){return;}
+		if(busy||!text){return;}if(isBooking(text)){addMsg("user",text);history.push({role:"user",content:text});if(input){input.value="";}addMsg("bot","Lovely. Please fill in your details below and we will confirm your appointment on WhatsApp.");showBookingForm();return;}
 		busy=true;
 		addMsg("user",text);history.push({role:"user",content:text});
 		if(input){input.value="";}
@@ -189,6 +243,7 @@ r(function(){
 			.catch(function(){typing(false);var el=addMsg("bot","I am having trouble connecting right now. ");if(wa){var a=d.createElement("a");a.href=wa;a.target="_blank";a.rel="noopener";a.textContent="Chat on WhatsApp";a.className="nurax-msg-link";el.appendChild(a);}busy=false;});
 	}
 	if(form){form.addEventListener("submit",function(e){e.preventDefault();send(input?input.value.trim():"");});}
+	[].slice.call(root.querySelectorAll("[data-booking]")).forEach(function(bb){bb.addEventListener("click",function(){if(!root.classList.contains("is-open")){openPanel();}addMsg("bot","Please fill in your details below and we will confirm your appointment on WhatsApp.");showBookingForm();});});
 	[].slice.call(root.querySelectorAll("[data-q]")).forEach(function(qb){qb.addEventListener("click",function(){send(qb.getAttribute("data-q"));});});
 });})();
 

@@ -23,6 +23,11 @@ class NURAX_AI_Stylist {
 	}
 
 	public function routes() {
+		register_rest_route( 'nurax/v1', '/stylist-booking', array(
+			'methods'             => 'POST',
+			'callback'            => array( $this, 'booking' ),
+			'permission_callback' => '__return_true',
+		) );
 		register_rest_route( 'nurax/v1', '/stylist', array(
 			'methods'             => 'POST',
 			'callback'            => array( $this, 'chat' ),
@@ -69,6 +74,7 @@ class NURAX_AI_Stylist {
 					<div class="nurax-msg nurax-msg--bot"><?php echo esc_html( $greeting ); ?></div>
 				</div>
 				<div class="nurax-stylist__quick" data-stylist-quick>
+					<button type="button" class="nurax-chip-book" data-booking><?php esc_html_e( 'Book consultation', 'nura-experience' ); ?></button>
 					<button type="button" data-q="<?php esc_attr_e( 'Show me wigs under KES 5,000', 'nura-experience' ); ?>"><?php esc_html_e( 'Under KSh 5K', 'nura-experience' ); ?></button>
 					<button type="button" data-q="<?php esc_attr_e( 'Show me 100% human hair wigs', 'nura-experience' ); ?>"><?php esc_html_e( 'Human hair', 'nura-experience' ); ?></button>
 					<button type="button" data-q="<?php esc_attr_e( 'I need a wig for my wedding', 'nura-experience' ); ?>"><?php esc_html_e( 'Bridal', 'nura-experience' ); ?></button>
@@ -199,6 +205,127 @@ class NURAX_AI_Stylist {
 			'needs_human'  => !empty( $data['needs_human'] ),
 			'engine'       => 'nura-ai',
 		);
+	}
+
+	/**
+	 * Booking form from the Stylist chat: validate, log it to the NURA AI system (n8n -> Supabase,
+	 * best effort) and return a WhatsApp link pre-filled with the booking so the team can confirm.
+	 */
+	public function booking( WP_REST_Request $req ) {
+		if ( '' !== trim( (string) $req->get_param( 'website' ) ) ) { // Honeypot.
+			return new WP_Error( 'nurax_spam', __( 'Something went wrong. Please try again.', 'nura-experience' ), array( 'status' => 400 ) );
+		}
+		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$key = 'nurax_bk_' . md5( $ip );
+		$hits = (int) get_transient( $key );
+		if ( $hits >= 5 ) {
+			return new WP_Error( 'nurax_rate', __( 'Too many booking requests. Please try again in a few minutes or message us on WhatsApp.', 'nura-experience' ), array( 'status' => 429 ) );
+		}
+		set_transient( $key, $hits + 1, 10 * MINUTE_IN_SECONDS );
+
+		$services = array(
+			'consultation' => __( 'Free 15-minute consultation', 'nura-experience' ),
+			'fitting'      => __( 'Wig fitting', 'nura-experience' ),
+			'installation' => __( 'Wig installation', 'nura-experience' ),
+			'bridal'       => __( 'Bridal / occasion styling', 'nura-experience' ),
+		);
+		$types = array(
+			'studio'   => __( 'Nairobi studio visit', 'nura-experience' ),
+			'video'    => __( 'Video call', 'nura-experience' ),
+			'whatsapp' => __( 'WhatsApp chat', 'nura-experience' ),
+		);
+		$name    = substr( sanitize_text_field( (string) $req->get_param( 'name' ) ), 0, 80 );
+		$digits  = preg_replace( '/\D/', '', (string) $req->get_param( 'phone' ) );
+		if ( 10 === strlen( $digits ) && '0' === $digits[0] ) {
+			$digits = '254' . substr( $digits, 1 );
+		} elseif ( 9 === strlen( $digits ) && in_array( $digits[0], array( '7', '1' ), true ) ) {
+			$digits = '254' . $digits;
+		}
+		$service = (string) $req->get_param( 'service' );
+		$type    = (string) $req->get_param( 'type' );
+		$date    = (string) $req->get_param( 'date' );
+		$time    = (string) $req->get_param( 'time' );
+		$notes   = substr( sanitize_textarea_field( (string) $req->get_param( 'notes' ) ), 0, 300 );
+
+		$tz    = new DateTimeZone( 'Africa/Nairobi' );
+		$today = new DateTime( 'today', $tz );
+		$when  = preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ? DateTime::createFromFormat( 'Y-m-d', $date, $tz ) : false;
+
+		$errors = array();
+		if ( strlen( $name ) < 2 ) {
+			$errors[] = __( 'your name', 'nura-experience' );
+		}
+		if ( !preg_match( '/^254[17]\d{8}$/', $digits ) ) {
+			$errors[] = __( 'a valid Kenyan phone number (e.g. 0712 345 678)', 'nura-experience' );
+		}
+		if ( !isset( $services[ $service ] ) ) {
+			$errors[] = __( 'the service', 'nura-experience' );
+		}
+		if ( !isset( $types[ $type ] ) ) {
+			$errors[] = __( 'how you would like to meet', 'nura-experience' );
+		}
+		if ( !$when || $when->setTime( 0, 0 ) < $today ) {
+			$errors[] = __( 'a date from today onwards', 'nura-experience' );
+		}
+		if ( !preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $time ) ) {
+			$errors[] = __( 'a preferred time', 'nura-experience' );
+		}
+		if ( $errors ) {
+			return new WP_Error( 'nurax_booking_invalid', sprintf( __( 'Please add %s.', 'nura-experience' ), implode( ', ', $errors ) ), array( 'status' => 400 ) );
+		}
+
+		$date_label = $when->format( 'l, j F Y' );
+		$lines = array(
+			__( 'Hello NURA BEAUTY, I would like to book an appointment.', 'nura-experience' ),
+			'',
+			sprintf( __( 'Name: %s', 'nura-experience' ), $name ),
+			sprintf( __( 'Phone: +%s', 'nura-experience' ), $digits ),
+			sprintf( __( 'Service: %s', 'nura-experience' ), $services[ $service ] ),
+			sprintf( __( 'Where: %s', 'nura-experience' ), $types[ $type ] ),
+			sprintf( __( 'Date: %s', 'nura-experience' ), $date_label ),
+			sprintf( __( 'Time: %s', 'nura-experience' ), $time ),
+		);
+		if ( '' !== $notes ) {
+			$lines[] = sprintf( __( 'Notes: %s', 'nura-experience' ), $notes );
+		}
+		$wa_text = implode( "\n", $lines );
+
+		// Log to the NURA AI system so it lands in nura_consultations (best effort, never blocks).
+		$saved = false;
+		$url   = defined( 'NURAX_N8N_CHAT_URL' ) ? NURAX_N8N_CHAT_URL : 'https://nurabeauty.app.n8n.cloud/webhook/nura-chat';
+		$url   = (string) apply_filters( 'nurax_n8n_chat_url', $url );
+		$sid   = substr( preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $req->get_param( 'session_id' ) ), 0, 64 );
+		if ( '' !== $url ) {
+			$msg  = sprintf(
+				'Booking request from the website form: I would like to book a %1$s (%2$s) on %3$s at %4$s. My name is %5$s and my phone is +%6$s.%7$s',
+				$services[ $service ], $type, $date, $time, $name, $digits, $notes ? ' Notes: ' . $notes : ''
+			);
+			$resp = wp_remote_post( $url, array(
+				'timeout' => 20,
+				'headers' => array( 'Content-Type' => 'application/json', 'Origin' => untrailingslashit( home_url() ) ),
+				'body'    => wp_json_encode( array(
+					'message'   => $msg,
+					'sessionId' => $sid ? $sid : 'booking-' . wp_generate_password( 10, false ),
+					'name'      => $name,
+					'phone'     => $digits,
+					'source'    => 'website_booking_form',
+				) ),
+			) );
+			$saved = !is_wp_error( $resp ) && 200 === (int) wp_remote_retrieve_response_code( $resp );
+		}
+
+		$wa = NURAX_Settings::get( 'whatsapp', get_theme_mod( 'nura_whatsapp', '' ) );
+		if ( empty( $wa ) ) {
+			$wa = 'https://wa.me/254714994898';
+		}
+		$wa_url = add_query_arg( 'text', rawurlencode( $wa_text ), $wa );
+
+		return rest_ensure_response( array(
+			'ok'           => true,
+			'saved'        => $saved,
+			'reply'        => sprintf( __( 'Thank you, %1$s. Your %2$s request for %3$s at %4$s is ready. Tap "Send on WhatsApp" so our team can confirm your slot.', 'nura-experience' ), $name, strtolower( $services[ $service ] ), $date_label, $time ),
+			'whatsapp_url' => esc_url_raw( $wa_url ),
+		) );
 	}
 
 	/** Build the system prompt with a live catalog snapshot. */

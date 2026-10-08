@@ -130,3 +130,23 @@
  .nurax-stylist .nurax-stylist__quick{gap:.35rem;padding:.5rem .7rem}
  .nurax-stylist .nurax-stylist__quick button{min-height:34px;padding:.4rem .7rem;font-size:.8rem}
 }
+
+/* v1.48.0 Stylist booking form */
+.nurax-booking{max-width:100%;width:100%;white-space:normal}
+.nurax-booking__form{display:flex;flex-direction:column;gap:.5rem;margin:0}
+.nurax-booking__title{margin:0 0 .1rem;font-weight:700;font-size:.92rem;color:#111}
+.nurax-booking__form label{display:flex;flex-direction:column;gap:.2rem;font-size:.75rem;font-weight:600;color:#444;margin:0}
+.nurax-booking__form input,.nurax-booking__form select,.nurax-booking__form textarea{width:100%;box-sizing:border-box;border:1px solid var(--nura-line,#ddd);border-radius:10px;padding:.5rem .65rem;font-size:.85rem;font-weight:400;line-height:1.3;background:#fff;color:#222;min-height:38px;margin:0}
+.nurax-booking__form textarea{min-height:56px;resize:vertical}
+.nurax-booking__form input:focus,.nurax-booking__form select:focus,.nurax-booking__form textarea:focus{outline:none;border-color:var(--nura-gold,#C9A24B)}
+.nurax-booking__row{display:flex;gap:.5rem}
+.nurax-booking__row label{flex:1 1 0;min-width:0}
+.nurax-booking__hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.nurax-booking__err{margin:0;color:#b42318;font-size:.78rem}
+.nurax-booking__submit{background:#25D366;color:#fff;border:none;border-radius:999px;padding:.65rem 1rem;font-size:.88rem;font-weight:700;cursor:pointer;min-height:42px;line-height:1.2}
+.nurax-booking__submit[disabled]{opacity:.7;cursor:wait}
+.nurax-booking__note{margin:0;font-size:.72rem;color:#777;text-align:center}
+.nurax-booking__sum{margin:0;font-size:.82rem;color:#444}
+.nurax-booking__wa{display:inline-block;background:#25D366;color:#fff;border-radius:999px;padding:.6rem 1.1rem;font-weight:700;text-decoration:none}
+.nurax-stylist .nurax-stylist__quick .nurax-chip-book{background:var(--nura-ink,#0E0E0E);color:var(--nura-gold,#C9A24B);border-color:var(--nura-ink,#0E0E0E)}
+@media(max-width:480px){.nurax-booking__form input,.nurax-booking__form select,.nurax-booking__form textarea{font-size:16px}}

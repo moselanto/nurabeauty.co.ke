@@ -19,10 +19,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function nura_dynamic_fonts_url() {
 	$families = array(
-		nura_opt( 'nura_font_display' ) . ':wght@400;500;600;700;800',
-		nura_opt( 'nura_font_editorial' ) . ':ital,wght@0,400;0,500;0,600;1,400',
-		nura_opt( 'nura_font_body' ) . ':wght@300;400;500;600',
-		nura_opt( 'nura_font_ui' ) . ':wght@300;400;500;600',
+		nura_opt( 'nura_font_display' ) . ':wght@400;600;700',
+		nura_opt( 'nura_font_editorial' ) . ':ital,wght@0,400;0,500;1,400',
+		nura_opt( 'nura_font_body' ) . ':wght@400;500',
+		nura_opt( 'nura_font_ui' ) . ':wght@400;500;600',
 	);
 	$parts = array();
 	foreach ( $families as $f ) {

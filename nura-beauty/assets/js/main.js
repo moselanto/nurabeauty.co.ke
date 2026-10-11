@@ -780,3 +780,21 @@ f.addEventListener("submit",function(e){e.preventDefault();err.hidden=true;
 	}).catch(fallback);
 });
 })(document);
+
+/* ===== NURA v1.40.0 - speed: lazy backgrounds, late hero slides, hover photos on demand ===== */
+(function(d,w){
+	function setBg(el){var u=el.getAttribute("data-bg")||el.getAttribute("data-hero-bg");if(u){el.style.backgroundImage="url('"+u+"')";el.removeAttribute("data-bg");el.removeAttribute("data-hero-bg");}}
+	function run(){
+		var els=[].slice.call(d.querySelectorAll("[data-bg]"));
+		if("IntersectionObserver" in w){var io=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){setBg(e.target);io.unobserve(e.target);}});},{rootMargin:"300px 0px"});els.forEach(function(el){io.observe(el);});}
+		else{els.forEach(setBg);}
+	}
+	if(d.readyState!=="loading"){run();}else{d.addEventListener("DOMContentLoaded",run);}
+	/* Hero slides 2+ after the page has loaded (well before the slider moves on). */
+	function heroes(){[].forEach.call(d.querySelectorAll("[data-hero-bg]"),setBg);}
+	if(d.readyState==="complete"){setTimeout(heroes,800);}else{w.addEventListener("load",function(){setTimeout(heroes,800);});}
+	/* Second product photo: only for mouse users, on first hover. */
+	if(w.matchMedia&&w.matchMedia("(hover:hover) and (pointer:fine)").matches){
+		d.addEventListener("mouseover",function(e){var li=e.target&&e.target.closest?e.target.closest("li.product"):null;if(!li){return;}var im=li.querySelector("img.nura-loop-2nd[data-src]");if(im){im.src=im.getAttribute("data-src");im.removeAttribute("data-src");}},{passive:true});
+	}
+})(document,window);

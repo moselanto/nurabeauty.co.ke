@@ -136,15 +136,18 @@ function nura_loop_second_image() {
 	if ( empty( $ids ) ) {
 		return;
 	}
-	$img = wp_get_attachment_image(
-		$ids[0],
-		'woocommerce_single',
-		false,
-		array( 'class' => 'nura-loop-2nd', 'aria-hidden' => 'true', 'alt' => '', 'loading' => 'lazy' )
-	);
-	if ( $img ) {
-		echo $img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	// v1.40.0: the hover photo is only downloaded when a mouse hovers the card (see main.js),
+	// so phones never pay for an image they cannot see.
+	$src = wp_get_attachment_image_src( $ids[0], 'woocommerce_single' );
+	if ( ! $src ) {
+		return;
 	}
+	printf(
+		'<img class="nura-loop-2nd" data-src="%1$s" width="%2$d" height="%3$d" alt="" aria-hidden="true" decoding="async">',
+		esc_url( $src[0] ),
+		(int) $src[1],
+		(int) $src[2]
+	);
 }
 add_action( 'woocommerce_before_shop_loop_item_title', 'nura_loop_second_image', 11 );
 

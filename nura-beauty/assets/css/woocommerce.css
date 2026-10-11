@@ -309,3 +309,6 @@ html body ul.products li.product .nura-hairtype--empty{min-height:22px}
 @media(max-width:700px){.nura-community{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .nura-reviews-section{background:var(--nura-ivory)}
 .nura-reviews-section .nura-gr{margin:0 auto}
+
+/* v1.40.0 hover photo never shows as an empty box before it loads */
+html body ul.products li.product img.nura-loop-2nd[data-src]{display:none}

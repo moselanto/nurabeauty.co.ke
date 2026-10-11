@@ -982,3 +982,36 @@ body.home .nura-finderbar__inner{padding-block:clamp(12px,1.4vw,16px)}
   body.home .nura-rail-section{padding-block:24px}
   body.home .nura-shead{margin-bottom:14px}
 }
+
+
+/* ===== v1.37.0 Menu row fix: the hairline was drawn through the middle of the links ===== */
+@media(min-width:861px){
+  /* No column gap, so the top border of the menu (cols 1-2) and the Help/Call block (col 3) join into one clean line. */
+  html body .nura-header-inner{column-gap:0;padding-block:16px 0}
+  html body .nura-hsearch{margin-inline:clamp(20px,3vw,48px);width:auto}
+  html body .nura-nav::before{content:none!important;display:none!important}
+  html body .nura-nav,html body .nura-navend{margin-top:16px;height:52px;border-top:1px solid rgba(14,14,14,.09)}
+  html body .nura-nav{position:relative}
+  html body .nura-navend{gap:1.25rem;padding-left:1rem}
+  /* Links: plain text, gold underline sits on the bottom edge of the header, never across the row. */
+  html body .nura-nav>ul>li>a::after,html body .nura-nav .nura-mega>li>a::after{top:auto;bottom:0;height:2px}
+  html body .nura-nav>ul>li>a,html body .nura-nav .nura-mega>li>a{color:var(--nura-ink)}
+  html body .nura-nav>ul>li>a:hover,html body .nura-nav .nura-mega>li>a:hover{color:var(--nura-gold)}
+  html body .nura-nav .sub-menu,html body .nura-nav .nura-mega__panel{top:100%}
+  /* Help: same type as the menu. */
+  html body .nura-help__btn{min-height:52px;padding:0;font-size:.76rem;letter-spacing:.12em;color:var(--nura-ink)}
+  html body .nura-help__btn svg{width:16px;height:16px}
+  html body .nura-help__panel{top:100%}
+  /* Call to order: lighter outlined pill so it balances the logo instead of dominating the row. */
+  html body .nura-callorder{gap:.6rem;padding:.25rem .95rem .25rem .3rem;background:transparent;color:var(--nura-ink);border:1px solid rgba(201,162,75,.55)}
+  html body .nura-callorder:hover{background:var(--nura-ink);color:#fff;border-color:var(--nura-ink)}
+  html body .nura-callorder__ic{width:28px;height:28px;background:var(--nura-gold);color:var(--nura-ink)}
+  html body .nura-callorder__txt small{font-size:.58rem;color:#8a6a1f;opacity:1}
+  html body .nura-callorder:hover .nura-callorder__txt small{color:var(--nura-gold-soft)}
+  html body .nura-callorder__txt strong{font-size:.86rem;font-weight:600}
+}
+@media(min-width:861px) and (max-width:1180px){
+  html body .nura-hsearch{margin-inline:20px}
+  html body .nura-navend{gap:.9rem;padding-left:.6rem}
+  html body .nura-callorder__txt small{display:none}
+}

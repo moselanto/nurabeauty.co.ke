@@ -882,3 +882,42 @@ html body .nura-home-grid ul.products{display:grid!important;grid-template-colum
 .nura-budget__v{font-family:var(--font-ui);font-weight:700;font-size:clamp(1.05rem,1.8vw,1.35rem);line-height:1.25}
 .nura-budget__cta{margin-top:.35rem;font-family:var(--font-ui);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#8a6a1f}
 @media(max-width:700px){.nura-budget{grid-template-columns:repeat(2,minmax(0,1fr))}.nura-budget__card{padding:.9rem 1rem}}
+
+
+/* ===== v1.35.0 Menu row: categories left, Help + Call to order right (desktop) ===== */
+.nura-navend{display:none}
+@media(min-width:861px){
+  .nura-header-inner{grid-template-areas:"logo search actions" "nav nav navend"}
+  .nura-nav{justify-content:flex-start}
+  .nura-nav ul,.nura-nav .nura-mega{justify-content:flex-start;gap:1.8rem}
+  .nura-navend{grid-area:navend;justify-self:end;align-self:center;display:flex;align-items:center;gap:1.2rem;margin-top:.35rem;border-top:1px solid var(--nura-line);padding-block:.25rem}
+}
+@media(min-width:861px) and (max-width:1180px){.nura-nav ul,.nura-nav .nura-mega{gap:1.1rem}.nura-nav ul{font-size:.72rem;letter-spacing:.1em}.nura-callorder__txt small{display:none}}
+.nura-help{position:relative}
+.nura-help__btn{list-style:none;display:inline-flex;align-items:center;gap:.4rem;min-height:40px;padding:0 .2rem;cursor:pointer;font-family:var(--font-ui);font-size:.78rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--nura-ink)}
+.nura-help__btn::-webkit-details-marker{display:none}
+.nura-help__btn::after{content:"";width:5px;height:5px;margin:-3px 0 0 .15rem;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);opacity:.55}
+.nura-help__btn:hover,.nura-help[open] .nura-help__btn{color:var(--nura-gold)}
+.nura-help__panel{position:absolute;right:0;top:calc(100% + 6px);z-index:70;min-width:240px;padding:.5rem 0 .8rem;background:#fff;border:1px solid var(--nura-line);border-top:2px solid var(--nura-gold);border-radius:0 0 8px 8px;box-shadow:0 24px 60px rgba(0,0,0,.14)}
+.nura-help__panel ul{list-style:none;margin:0;padding:0}
+.nura-help__panel li a{display:block;padding:.55rem 1.2rem;font-family:var(--font-ui);font-size:.86rem;color:var(--nura-ink)}
+.nura-help__panel li a:hover{background:rgba(201,162,75,.08);color:var(--nura-gold)}
+.nura-help__wa{display:flex;justify-content:center;margin:.6rem 1.2rem 0;padding:.6rem;border-radius:8px;background:#25D366;color:#fff!important;font-family:var(--font-ui);font-size:.8rem;font-weight:600}
+.nura-help__wa:hover{background:#1ebe5b}
+.nura-help__hours{margin:.5rem 1.2rem 0;font-family:var(--font-ui);font-size:.74rem;color:#777;text-align:center}
+.nura-callorder{display:inline-flex;align-items:center;gap:.55rem;padding:.35rem .9rem .35rem .4rem;border-radius:999px;background:var(--nura-ink);color:#fff;white-space:nowrap;transition:background .2s}
+.nura-callorder:hover{background:var(--nura-gold);color:var(--nura-ink)}
+.nura-callorder__ic{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--nura-gold);color:var(--nura-ink)}
+.nura-callorder:hover .nura-callorder__ic{background:#fff}
+.nura-callorder__txt{display:flex;flex-direction:column;line-height:1.1;font-family:var(--font-ui)}
+.nura-callorder__txt small{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+.nura-callorder__txt strong{font-size:.86rem;font-weight:600;letter-spacing:.02em}
+/* Phone number now lives in the menu row, so the header's own phone text is not repeated on desktop. */
+@media(min-width:861px){.nura-header-actions .nura-contact-link{display:none}}
+
+/* Drawer: Help links + Call to order (phones) */
+.nura-drawer__help{padding:.9rem 1.35rem 0;border-top:1px solid var(--nura-line)}
+.nura-drawer__help-h{margin:0 0 .3rem;font-family:var(--font-ui);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:#8a6a1f}
+.nura-drawer__help ul{list-style:none;margin:0;padding:0}
+.nura-drawer__help a{display:block;padding:.5rem 0;font-family:var(--font-ui);font-size:.92rem;color:var(--nura-ink)}
+.nura-drawer__call{width:100%;justify-content:center}

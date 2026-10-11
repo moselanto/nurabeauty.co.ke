@@ -46,6 +46,49 @@
 			?>
 		</nav>
 
+		<?php
+		// v1.35.0 Desktop menu row, right side (benchmarked on Tabarak): Help dropdown + "Call to order".
+		$nura_nav_phone = function_exists( 'nura_opt' ) ? nura_opt( 'nura_phone' ) : '';
+		if ( ! $nura_nav_phone ) {
+			$nura_nav_phone = '+254 714 994 898';
+		}
+		$nura_nav_tel = preg_replace( '/[^0-9+]/', '', $nura_nav_phone );
+		$nura_nav_wa  = function_exists( 'nura_opt' ) ? nura_opt( 'nura_whatsapp' ) : '';
+		if ( ! $nura_nav_wa ) {
+			$nura_nav_wa = 'https://wa.me/' . ltrim( $nura_nav_tel, '+' );
+		}
+		$nura_help_links = array(
+			array( __( 'Track my order', 'nura-beauty' ), home_url( '/track-order/' ) ),
+			array( __( 'Delivery & shipping', 'nura-beauty' ), home_url( '/shipping-delivery/' ) ),
+			array( __( 'Returns & refunds', 'nura-beauty' ), home_url( '/returns-refunds/' ) ),
+			array( __( 'FAQ', 'nura-beauty' ), home_url( '/faq/' ) ),
+			array( __( 'Help & support', 'nura-beauty' ), home_url( '/help-support/' ) ),
+			array( __( 'Contact us', 'nura-beauty' ), home_url( '/contact-us/' ) ),
+		);
+		$GLOBALS['nura_help_links'] = $nura_help_links;
+		?>
+		<div class="nura-navend">
+			<details class="nura-help" data-nura-help>
+				<summary class="nura-help__btn">
+					<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>
+					<span><?php esc_html_e( 'Help', 'nura-beauty' ); ?></span>
+				</summary>
+				<div class="nura-help__panel">
+					<ul>
+						<?php foreach ( $nura_help_links as $nura_hl ) : ?>
+							<li><a href="<?php echo esc_url( $nura_hl[1] ); ?>"><?php echo esc_html( $nura_hl[0] ); ?></a></li>
+						<?php endforeach; ?>
+					</ul>
+					<a class="nura-help__wa" href="<?php echo esc_url( $nura_nav_wa ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Chat with us on WhatsApp', 'nura-beauty' ); ?></a>
+					<p class="nura-help__hours"><?php esc_html_e( 'Mon - Sat, 9am - 6pm', 'nura-beauty' ); ?></p>
+				</div>
+			</details>
+			<a class="nura-callorder" href="tel:<?php echo esc_attr( $nura_nav_tel ); ?>">
+				<span class="nura-callorder__ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.9.36 1.79.7 2.63a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.45-1.27a2 2 0 0 1 2.11-.45c.84.34 1.73.57 2.63.7A2 2 0 0 1 22 16.92z"/></svg></span>
+				<span class="nura-callorder__txt"><small><?php esc_html_e( 'Call to order', 'nura-beauty' ); ?></small><strong><?php echo esc_html( $nura_nav_phone ); ?></strong></span>
+			</a>
+		</div>
+
 		<form role="search" method="get" class="nura-hsearch" action="<?php echo esc_url( home_url( '/' ) ); ?>" data-nura-hsearch autocomplete="off">
 			<label class="screen-reader-text" for="nura-hsearch-q"><?php esc_html_e( 'Search products', 'nura-beauty' ); ?></label>
 			<span class="nura-hsearch__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></span>
@@ -108,7 +151,17 @@
 		?>
 	</nav>
 
+	<div class="nura-drawer__help">
+		<p class="nura-drawer__help-h"><?php esc_html_e( 'Help', 'nura-beauty' ); ?></p>
+		<ul>
+			<?php foreach ( (array) ( isset( $GLOBALS['nura_help_links'] ) ? $GLOBALS['nura_help_links'] : array() ) as $nura_hl ) : ?>
+				<li><a href="<?php echo esc_url( $nura_hl[1] ); ?>"><?php echo esc_html( $nura_hl[0] ); ?></a></li>
+			<?php endforeach; ?>
+		</ul>
+	</div>
+
 	<div class="nura-drawer__foot">
+		<a class="nura-btn nura-btn--dark nura-drawer__call" href="tel:<?php echo esc_attr( isset( $nura_nav_tel ) ? $nura_nav_tel : '+254714994898' ); ?>"><?php esc_html_e( 'Call to order', 'nura-beauty' ); ?> <?php echo esc_html( isset( $nura_nav_phone ) ? $nura_nav_phone : '+254 714 994 898' ); ?></a>
 		<a class="nura-btn nura-btn--gold nura-drawer__wa" href="<?php echo esc_url( nura_opt( 'nura_whatsapp' ) ); ?>"><?php esc_html_e( 'Chat on WhatsApp', 'nura-beauty' ); ?></a>
 		<a class="nura-drawer__account" href="<?php echo esc_url( function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : home_url( '/my-account/' ) ); ?>"><?php esc_html_e( 'My Account', 'nura-beauty' ); ?></a>
 	</div>

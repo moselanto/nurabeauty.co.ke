@@ -731,3 +731,12 @@ r(function(){[].slice.call(d.querySelectorAll("[data-nura-tabs]")).forEach(funct
 			if(n>-1){e.preventDefault();sel(n);tabs[n].focus();}});
 	});
 });});})(document);
+
+/* ===== NURA v1.35.0 - Help dropdown: close on outside click / Escape; open on hover for mouse users ===== */
+(function(d){var h=d.querySelector("[data-nura-help]");if(!h){return;}
+d.addEventListener("click",function(e){if(h.open&&!h.contains(e.target)){h.removeAttribute("open");}});
+d.addEventListener("keydown",function(e){if(e.key==="Escape"&&h.open){h.removeAttribute("open");var s=h.querySelector("summary");if(s){s.focus();}}});
+if(window.matchMedia&&window.matchMedia("(hover:hover)").matches){var t=null;
+h.addEventListener("mouseenter",function(){clearTimeout(t);h.setAttribute("open","");});
+h.addEventListener("mouseleave",function(){t=setTimeout(function(){h.removeAttribute("open");},180);});}
+})(document);

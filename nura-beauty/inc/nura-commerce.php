@@ -137,7 +137,7 @@ if ( ! function_exists( 'nura_delivery_lines' ) ) {
 			$slots = max( 0, $max - count( $lines ) );
 			foreach ( array_slice( array_values( array_unique( $names ) ), 0, $slots ) as $nm ) {
 				/* translators: %s: shipping zone name, e.g. Nairobi. */
-				$lines[] = sprintf( __( '%s delivery', 'nura-beauty' ), $nm );
+				$lines[] = ( false !== stripos( $nm, 'deliver' ) || false !== stripos( $nm, 'shipping' ) ) ? $nm : sprintf( __( '%s delivery', 'nura-beauty' ), $nm );
 			}
 		}
 		if ( empty( $lines ) ) {

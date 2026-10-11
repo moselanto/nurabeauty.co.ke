@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.33.0' );
+define( 'NURA_VERSION', '1.34.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -41,6 +41,7 @@ nura_require( 'nura-commerce' );
 nura_require( 'nura-filters' );
 nura_require( 'nura-product-ux' );
 nura_require( 'nura-search' );
+nura_require( 'nura-polish' );
 
 // Discoverability.
 nura_require( 'seo-schema' );

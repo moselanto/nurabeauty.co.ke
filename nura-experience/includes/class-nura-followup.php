@@ -94,10 +94,10 @@ final class NURAX_Followup {
 			'review_on'   => 1,
 			'reorder_on'  => 1,
 			'fu1_days'    => 1,
-			'fu2_days'    => 10,
+			'fu2_days'    => 3,
 			'fu3_days'    => 75,
 			'fu1_msg'     => __( 'Hello %1$s, thank you for your NURA order (%2$s). To keep your wig looking flawless: store it on a stand, detangle gently from the ends, wash with cool water and a sulphate-free shampoo, and air dry. Any questions? Just reply and our stylists will help.', 'nura-experience' ),
-			'fu2_msg'     => __( 'Hello %1$s, we hope you are loving your NURA pieces from order %2$s. Would you share a quick review? It helps other clients choose with confidence: %3$s', 'nura-experience' ),
+			'fu2_msg'     => __( 'Hello %1$s, we hope you are loving your NURA pieces from order %2$s. Would you share a quick review? It helps other women choose with confidence: %3$s If you are happy to, send us a photo wearing it - with your OK we would love to feature you on our website.', 'nura-experience' ),
 			'fu3_msg'     => __( 'Hello %1$s, it has been a little while since your last NURA order (%2$s). If you are ready to refresh your look or restock your care essentials, we are here to help: %3$s', 'nura-experience' ),
 		);
 	}
@@ -198,7 +198,10 @@ final class NURAX_Followup {
 			}
 
 			// Stage 2 - review request (marketing; consent gated).
-			if ( ! empty( $s['review_on'] ) && '' === (string) $order->get_meta( self::M_FU2 ) && $now >= $anchor + (int) $s['fu2_days'] * DAY_IN_SECONDS ) {
+			// v1.50.0: timed from delivery (order marked Completed), not payment.
+			$done = $order->get_date_completed();
+			$done = ( $done && is_object( $done ) && method_exists( $done, 'getTimestamp' ) ) ? (int) $done->getTimestamp() : 0;
+			if ( ! empty( $s['review_on'] ) && $done > 0 && '' === (string) $order->get_meta( self::M_FU2 ) && $now >= $done + (int) $s['fu2_days'] * DAY_IN_SECONDS ) {
 				$msg = $this->message( (string) $s['fu2_msg'], $order, $this->review_url( $order ) );
 				if ( '' !== $msg && $this->deliver( $order, $msg, (string) $s['channel'], __( 'How are you loving your NURA pieces?', 'nura-experience' ), true ) ) {
 					$this->mark( $order, self::M_FU2, (string) $now );
@@ -246,6 +249,9 @@ final class NURAX_Followup {
 	}
 
 	private function review_url( $order ): string {
+		if ( class_exists( 'NURAX_Community' ) && '' !== NURAX_Community::google_review_url() ) {
+			return NURAX_Community::google_review_url();
+		}
 		foreach ( $order->get_items() as $item ) {
 			if ( is_object( $item ) && method_exists( $item, 'get_product_id' ) ) {
 				$pid = (int) $item->get_product_id();

@@ -312,12 +312,34 @@ $slides = array(
 		<div class="nura-container nura-reveal">
 			<p class="nura-eyebrow">@nurabeauty</p>
 			<h2><?php esc_html_e( 'Real women. Real crowns.', 'nura-beauty' ); ?></h2>
+			<?php $nura_photos = function_exists( 'nura_community_photo_ids' ) ? nura_community_photo_ids( 8 ) : array(); ?>
+			<?php if ( $nura_photos ) : ?>
+			<p class="nura-lede" style="max-width:640px;margin-inline:auto"><?php esc_html_e( 'Our clients, wearing their NURA crowns. Tag @nurabeauty to be featured.', 'nura-beauty' ); ?></p>
+			<div class="nura-community">
+				<?php foreach ( $nura_photos as $nura_pid ) : ?>
+					<?php $nura_cap = wp_get_attachment_caption( $nura_pid ); ?>
+					<figure class="nura-community__item">
+						<?php echo wp_get_attachment_image( $nura_pid, 'medium_large', false, array( 'loading' => 'lazy', 'alt' => $nura_cap ? $nura_cap : __( 'NURA client wearing her wig', 'nura-beauty' ) ) ); ?>
+						<?php if ( $nura_cap ) : ?><figcaption><?php echo esc_html( $nura_cap ); ?></figcaption><?php endif; ?>
+					</figure>
+				<?php endforeach; ?>
+			</div>
+			<?php else : ?>
 			<p class="nura-lede" style="max-width:640px;margin-inline:auto"><?php esc_html_e( 'Tag @nurabeauty in your crown to be featured here - real women, real hair, real confidence, across Kenya and beyond.', 'nura-beauty' ); ?></p>
+			<?php endif; ?>
 			<p style="margin-top:1.4rem">
 				<a class="nura-btn nura-btn--gold" href="<?php echo esc_url( $ig_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'See the NURA community', 'nura-beauty' ); ?> &#8594;</a>
 			</p>
 		</div>
 	</section>
+
+	<!-- GOOGLE REVIEWS (shows only once the Google Place is connected under WooCommerce > NURA Reviews & Photos) -->
+	<?php
+	$nura_gr = shortcode_exists( 'nura_google_reviews' ) ? do_shortcode( '[nura_google_reviews count="6" min_rating="4" title="Loved by women across Kenya"]' ) : '';
+	if ( $nura_gr ) {
+		echo '<section class="section nura-reviews-section" id="reviews"><div class="nura-container">' . $nura_gr . '</div></section>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the shortcode.
+	}
+	?>
 
 	<!-- BRAND STORY (editorial split, condensed) -->
 	<section class="section section--ivory">

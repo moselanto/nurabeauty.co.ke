@@ -116,17 +116,9 @@ function nura_product_badges() {
 	if ( $created && ( time() - $created ) < ( 30 * DAY_IN_SECONDS ) ) {
 		echo '<span class="nura-badge nura-badge--new">' . esc_html__( 'New', 'nura-beauty' ) . '</span>';
 	}
-	// One category-derived badge (Human Hair / Glueless) where genuinely applicable.
-	$nura_cat_badges = array(
-		'human-hair-wigs'       => __( 'Human Hair', 'nura-beauty' ),
-		'human-hair-blend-wigs' => __( 'Human Hair', 'nura-beauty' ),
-		'glueless-wigs'         => __( 'Glueless', 'nura-beauty' ),
-	);
-	foreach ( $nura_cat_badges as $nura_slug => $nura_label ) {
-		if ( has_term( $nura_slug, 'product_cat', $product->get_id() ) ) {
-			echo '<span class="nura-badge nura-badge--hair">' . esc_html( $nura_label ) . '</span>';
-			break;
-		}
+	// v1.34.0: hair type now shows as a label above the price (inc/nura-polish.php).
+	if ( has_term( 'glueless-wigs', 'product_cat', $product->get_id() ) ) {
+		echo '<span class="nura-badge nura-badge--hair">' . esc_html__( 'Glueless', 'nura-beauty' ) . '</span>';
 	}
 	echo '</div>';
 }

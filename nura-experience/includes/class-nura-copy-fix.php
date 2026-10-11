@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class NURAX_Copy_Fix {
 
-	const OPTION = 'nurax_copyfix_hairtype_v2'; // v2 (1.50.1): looser match for the Warranty and Bulk lines
+	const OPTION = 'nurax_copyfix_hairtype_v3'; // v3 (1.50.2): About opening line and premium-unit trust line
 
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'maybe_run' ) );
@@ -63,6 +63,12 @@ class NURAX_Copy_Fix {
 				=> '<strong>Hair type as labelled:</strong> Your unit is exactly the hair type on its label - ' . $types . '. We never sell a blend or fibre unit as human hair.',
 			'#Verified human hair with provenance and guarantee.*?reputation\.#isu'
 				=> 'Every unit labelled with its true hair type (100% human hair, blend or fibre) - protect your own reputation.',
+			// v3: About opening line implied every wig is human hair.
+			'#premium human(?:-|\s)hair wigs,\s*hand(?:-|\s)crafted in Nairobi#iu'
+				=> 'premium wigs in 100% human hair, human-hair blend and heat-resistant fibre, hand-finished in Nairobi',
+			// v3: About trust bullet - human-hair provenance applies to 100% human hair units only.
+			'#Verified(?:-|\s)origin human hair, a provenance certificate and a longevity guarantee with every premium unit#iu'
+				=> 'Verified-origin human hair, a provenance certificate and a longevity guarantee on every 100% human hair unit',
 			// Generic headline wording on About.
 			'#Kenya(?:&#8217;|\x{2019}|\')s home for premium human hair wigs#iu' => 'Kenya&#8217;s home for premium wigs',
 			'#house of premium <strong>human hair wigs in Kenya</strong>#iu'      => 'house of premium <strong>wigs in Kenya</strong>',
@@ -105,7 +111,7 @@ class NURAX_Copy_Fix {
 		$left = array();
 		foreach ( self::slugs() as $slug ) {
 			$page = get_page_by_path( $slug );
-			if ( $page && preg_match( '#verified human hair|real human hair\?\s*</(?:summary|h3)>\s*<p>\s*Yes#iu', (string) $page->post_content ) ) {
+			if ( $page && preg_match( '#verified human hair|premium human(?:-|\s)hair wigs,\s*hand(?:-|\s)crafted|with every premium unit|real human hair\?\s*</(?:summary|h3)>\s*<p>\s*Yes#iu', (string) $page->post_content ) ) {
 				$left[] = '<a href="' . esc_url( get_edit_post_link( $page->ID ) ) . '">' . esc_html( $page->post_title ) . '</a>';
 			}
 		}

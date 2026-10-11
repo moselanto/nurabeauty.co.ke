@@ -39,7 +39,7 @@ function nura_home_faqs() {
 	return apply_filters( 'nura_home_faqs', array(
 		array(
 			__( 'How much is a wig in Kenya?', 'nura-beauty' ),
-			__( 'At NURA, heat-resistant fibre wigs start from about KSh 1,500, human-hair blend (semi-human) wigs from about KSh 4,500, and 100% human hair lace front wigs from about KSh 7,500 up to around KSh 17,000 for longer lengths. Every price is shown in Kenya Shillings on the product page.', 'nura-beauty' ),
+			__( 'At NURA, heat-resistant fibre wigs start from about KSh 1,500, human-hair blend (semi-human) wigs from about KSh 1,800, and 100% human hair lace front wigs from about KSh 7,500 up to about KSh 17,300 for longer lengths. Every price is shown in Kenya Shillings on the product page.', 'nura-beauty' ),
 		),
 		array(
 			__( 'Where can I buy wigs in Nairobi?', 'nura-beauty' ),

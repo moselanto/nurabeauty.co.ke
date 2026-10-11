@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class NURAX_Copy_Fix {
 
-	const OPTION = 'nurax_copyfix_hairtype_v1';
+	const OPTION = 'nurax_copyfix_hairtype_v2'; // v2 (1.50.1): looser match for the Warranty and Bulk lines
 
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'maybe_run' ) );
@@ -57,6 +57,11 @@ class NURAX_Copy_Fix {
 				=> '<strong>Hair type as labelled:</strong> Your unit is exactly the hair type on its label - ' . $types . '. We never sell a blend or fibre unit as human hair.',
 			// Bulk orders bullet.
 			'#Verified human hair with provenance and guarantee' . $d . 'protect your own reputation\.#iu'
+				=> 'Every unit labelled with its true hair type (100% human hair, blend or fibre) - protect your own reputation.',
+			// v2: tolerant versions (any dash, non-breaking spaces, markup around the label).
+			'#(?:<strong>)?\s*Verified human hair\s*:?\s*(?:</strong>)?\s*:?\s*Your unit is genuine human hair as described.*?sold as human hair\.#isu'
+				=> '<strong>Hair type as labelled:</strong> Your unit is exactly the hair type on its label - ' . $types . '. We never sell a blend or fibre unit as human hair.',
+			'#Verified human hair with provenance and guarantee.*?reputation\.#isu'
 				=> 'Every unit labelled with its true hair type (100% human hair, blend or fibre) - protect your own reputation.',
 			// Generic headline wording on About.
 			'#Kenya(?:&#8217;|\x{2019}|\')s home for premium human hair wigs#iu' => 'Kenya&#8217;s home for premium wigs',

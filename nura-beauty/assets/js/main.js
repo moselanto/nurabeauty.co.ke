@@ -25,13 +25,22 @@
 		function setExpanded(v){ [].forEach.call(burgers, function (b) { b.setAttribute('aria-expanded', v ? 'true' : 'false'); }); }
 		function closeDrawer(){ if(panel){panel.classList.remove('is-open');panel.setAttribute('aria-hidden','true');} if(overlay){overlay.classList.remove('is-open');} d.body.classList.remove('nura-drawer-open'); setExpanded(false); }
 		function openDrawer(){ if(panel){panel.classList.add('is-open');panel.setAttribute('aria-hidden','false');} if(overlay){overlay.classList.add('is-open');} d.body.classList.add('nura-drawer-open'); setExpanded(true); }
-		[].forEach.call(burgers, function (btn) {
-			btn.setAttribute('aria-expanded', 'false');
-			btn.addEventListener('click', function (e) {
-				e.preventDefault();
-				if (panel && panel.classList.contains('is-open')) { closeDrawer(); } else { openDrawer(); }
-			});
-		});
+		// v1.39.0: one delegated handler (capture phase) for every [data-nura-drawer] trigger,
+		// including ones added later; a 400ms guard stops a single tap toggling twice.
+		[].forEach.call(burgers, function (btn) { btn.setAttribute('aria-expanded', 'false'); });
+		var lastToggle = 0;
+		d.addEventListener('click', function (e) {
+			var t = e.target && e.target.closest ? e.target.closest('[data-nura-drawer]') : null;
+			if (!t) { return; }
+			e.preventDefault();
+			var now = Date.now();
+			if (now - lastToggle < 400) { return; }
+			lastToggle = now;
+			if (!panel) { panel = d.querySelector('[data-nura-drawer-panel]'); }
+			if (!overlay) { overlay = d.querySelector('[data-nura-overlay]'); }
+			burgers = d.querySelectorAll('[data-nura-drawer]');
+			if (panel && panel.classList.contains('is-open')) { closeDrawer(); } else { openDrawer(); }
+		}, true);
 		if (overlay) { overlay.addEventListener('click', closeDrawer); }
 		d.addEventListener('keyup', function (e) { if (e.key === 'Escape') { closeDrawer(); } });
 

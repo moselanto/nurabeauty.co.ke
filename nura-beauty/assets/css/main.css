@@ -1128,3 +1128,14 @@ body.home .nura-finderbar__inner{padding-block:clamp(12px,1.4vw,16px)}
 .nura-form input[type=text],.nura-form input[type=email],.nura-form input[type=tel],.nura-form input[type=date],.nura-form select,.nura-form textarea{width:100%;max-width:560px;box-sizing:border-box;min-height:48px;padding:.7rem .85rem;border:1px solid #ddd6cc;border-radius:10px;background:#fff;font-family:var(--font-ui);font-size:16px;color:var(--nura-ink)}
 .nura-form textarea{min-height:110px}
 .nura-form input:focus,.nura-form select:focus,.nura-form textarea:focus{outline:0;border-color:var(--nura-gold);box-shadow:0 0 0 3px rgba(201,162,75,.16)}
+
+/* ===== v1.39.0 Mobile menu: drawer always on top, triggers always tappable ===== */
+.nura-overlay{z-index:100040}
+.nura-drawer{z-index:100045}
+.nura-burger,.nura-bottom-nav .nbn-menu{position:relative;z-index:2;touch-action:manipulation;cursor:pointer;-webkit-tap-highlight-color:transparent}
+@media(max-width:860px){.nura-burger{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}}
+body.nura-drawer-open .nura-bottom-nav,body.nura-drawer-open .nura-wa{visibility:hidden}
+/* Help links inside the dark drawer were dark text on dark. */
+.nura-drawer__help a{color:var(--nura-ivory)}
+.nura-drawer__help a:hover{color:var(--nura-gold)}
+.nura-drawer__help-h{color:var(--nura-gold-soft)}

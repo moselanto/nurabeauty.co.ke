@@ -914,3 +914,98 @@ a.nura-contact-card:hover { transform: translateY(-3px); box-shadow: 0 16px 36px
 	.nura-bottom-nav .is-active { color: var(--nura-ux-gold, #C9A24B); }
 	.nura-bottom-nav .nbn-search { background: none; border: 0; font: inherit; color: inherit; cursor: pointer; }
 }
+
+
+/* ===================== v1.51.0 Mega menu, rebuilt ===================== */
+@media (min-width: 861px) {
+	/* Wide panels anchor to the header, not the menu item, so they line up with the page grid. */
+	html body .nura-header-inner { position: relative; }
+	html body .nura-nav { position: static !important; }
+	html body .nura-nav .nura-mega > li.has-mega--wide { position: static; }
+	html body .nura-nav .nura-mega > li > a[aria-haspopup]::before { content: ""; order: 2; width: 5px; height: 5px; margin: -3px 0 0 .1em; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); opacity: .55; transition: transform .2s ease; }
+	html body .nura-nav .nura-mega > li:hover > a[aria-haspopup]::before,
+	html body .nura-nav .nura-mega > li:focus-within > a[aria-haspopup]::before { transform: rotate(225deg); margin-top: 3px; }
+	html body .nura-nav .nura-mega > li.current-menu-ancestor > a { color: var(--nura-ux-gold); }
+
+	html body .nura-mega__panel {
+		top: 100%; border-top: 0; border-radius: 0 0 14px 14px;
+		box-shadow: 0 28px 60px -18px rgba(14, 14, 14, .28), 0 0 0 1px rgba(14, 14, 14, .06);
+		transform: translateY(6px); opacity: 0; visibility: hidden;
+		transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+		z-index: 65;
+	}
+	/* Small delay before closing so moving the mouse to the panel never drops it. */
+	html body .nura-mega__item:hover > .nura-mega__panel,
+	html body .nura-mega__item:focus-within > .nura-mega__panel {
+		opacity: 1; visibility: visible; transform: translateY(0);
+		transition: opacity .18s ease .08s, transform .18s ease .08s, visibility 0s linear .08s;
+	}
+	html body .nura-mega__panel--wide {
+		left: var(--gutter, 32px); right: var(--gutter, 32px); min-width: 0; padding: 0; background: #fff;
+	}
+	html body .nura-mega__panel--wide::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--nura-ux-gold); }
+	.nura-mega__body { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 2rem; padding: 1.8rem 2rem 1.6rem; }
+	html body .nura-mega__cols { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.4rem 1.6rem; }
+	html body .nura-mega__col { min-width: 0; }
+	html body .nura-mega__h { margin: 0 0 .6rem; padding-bottom: .5rem; border-bottom: 1px solid rgba(14, 14, 14, .08); font-family: var(--nura-font-ui, 'Jost', sans-serif); font-size: .68rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #8a6a1f; }
+	html body .nura-nav .nura-mega__col ul { margin: 0; }
+	html body .nura-mega__col a {
+		display: block; padding: .38rem 0; font-family: var(--nura-font-ui, 'Jost', sans-serif); font-size: .9rem; line-height: 1.35;
+		letter-spacing: 0; text-transform: none; color: #2b2b2b; transition: color .15s ease, transform .15s ease;
+	}
+	html body .nura-mega__col a:hover, html body .nura-mega__col a:focus-visible { color: var(--nura-ux-gold); transform: translateX(3px); }
+
+	/* Feature card */
+	.nura-mega__feature {
+		position: relative; display: flex; flex-direction: column; justify-content: flex-end; gap: .3rem; min-height: 220px; padding: 1.2rem;
+		border-radius: 12px; overflow: hidden; background: var(--nura-ux-ink) center / cover no-repeat; color: #fff; text-decoration: none;
+	}
+	.nura-mega__feature.has-img::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14, 14, 14, .05) 25%, rgba(14, 14, 14, .82)); }
+	.nura-mega__feature > span { position: relative; }
+	.nura-mega__feature-eyebrow { font-family: var(--nura-font-ui, 'Jost', sans-serif); font-size: .64rem; letter-spacing: .14em; text-transform: uppercase; color: #E4C983; }
+	.nura-mega__feature-title { font-family: var(--nura-font-display, 'Playfair Display', serif); font-size: 1.35rem; line-height: 1.2; letter-spacing: 0; text-transform: none; }
+	.nura-mega__feature-cta { margin-top: .35rem; font-family: var(--nura-font-ui, 'Jost', sans-serif); font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+	.nura-mega__feature:hover .nura-mega__feature-cta { color: #E4C983; }
+	html body .nura-nav .nura-mega__feature::after { display: none; }
+
+	/* Budget bar */
+	.nura-mega__foot { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: .9rem 2rem; background: #faf7f2; border-top: 1px solid rgba(14, 14, 14, .06); border-radius: 0 0 14px 14px; }
+	.nura-mega__foot-h { font-family: var(--nura-font-ui, 'Jost', sans-serif); font-size: .68rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #8a6a1f; }
+	html body .nura-nav .nura-mega__chips { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0; padding: 0; list-style: none; height: auto; }
+	html body .nura-nav .nura-mega__chips li { display: block; height: auto; }
+	html body .nura-nav .nura-mega__chips a { display: inline-flex; align-items: center; height: 32px; padding: 0 .85rem; border: 1px solid rgba(14, 14, 14, .14); border-radius: 999px; background: #fff; font-family: var(--nura-font-ui, 'Jost', sans-serif); font-size: .8rem; letter-spacing: 0; text-transform: none; color: #2b2b2b; }
+	html body .nura-nav .nura-mega__chips a:hover { background: var(--nura-ux-ink); border-color: var(--nura-ux-ink); color: #fff; }
+	html body .nura-nav .nura-mega__all { margin-left: auto; font-family: var(--nura-font-ui, 'Jost', sans-serif); font-size: .72rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--nura-ux-ink); height: auto; }
+	html body .nura-nav .nura-mega__all:hover { color: var(--nura-ux-gold); }
+	html body .nura-nav .nura-mega__panel a::after { display: none; }
+
+	/* Simple dropdown (About) */
+	html body .nura-mega__panel--simple { left: -1rem; min-width: 230px; padding: .6rem 0; background: #fff; }
+	html body .nura-mega__panel--simple::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--nura-ux-gold); border-radius: 0; }
+	html body .nura-mega__panel--simple a { display: block; padding: .55rem 1.2rem; font-family: var(--nura-font-ui, 'Jost', sans-serif); font-size: .9rem; letter-spacing: 0; text-transform: none; color: #2b2b2b; }
+	html body .nura-mega__panel--simple a:hover { background: #faf7f2; color: var(--nura-ux-gold); }
+}
+@media (min-width: 861px) and (max-width: 1180px) {
+	.nura-mega__body { grid-template-columns: minmax(0, 1fr); }
+	.nura-mega__feature { display: none; }
+	html body .nura-mega__cols { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Mobile drawer: accordion sections */
+.nura-drawer-menu__group details { border: 0; }
+.nura-drawer-menu__group summary {
+	list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: .8rem;
+	padding: .92rem 1.4rem; font-family: var(--font-display, 'Playfair Display', serif); font-size: 1.16rem; color: var(--nura-ivory, #F3E9DC);
+}
+.nura-drawer-menu__group summary::-webkit-details-marker { display: none; }
+.nura-drawer-menu__group summary::after { content: "+"; font-family: var(--font-ui, 'Jost', sans-serif); font-size: 1.3rem; line-height: 1; color: var(--nura-gold, #C9A24B); }
+.nura-drawer-menu__group details[open] > summary { color: var(--nura-gold, #C9A24B); }
+.nura-drawer-menu__group details[open] > summary::after { content: "\2212"; }
+html body .nura-drawer__nav .nura-drawer-menu__sub { padding: 0 1.4rem .8rem; }
+html body .nura-drawer__nav .nura-drawer-menu__sub ul { margin: 0 0 .5rem; padding: 0; border: 0; }
+html body .nura-drawer__nav .nura-drawer-menu__sub li { border: 0; }
+html body .nura-drawer__nav .nura-drawer-menu__sub a { padding: .45rem 0; font-family: var(--font-ui, 'Jost', sans-serif); font-size: .95rem; letter-spacing: 0; text-transform: none; color: rgba(243, 233, 220, .82); }
+html body .nura-drawer__nav .nura-drawer-menu__sub a::after { content: none; }
+html body .nura-drawer__nav .nura-drawer-menu__sub a:hover { color: var(--nura-gold, #C9A24B); }
+html body .nura-drawer__nav a.nura-drawer-menu__all { margin: .1rem 0 .4rem; font-weight: 600; color: var(--nura-gold, #C9A24B); }
+.nura-drawer-menu__h { margin: .7rem 0 .15rem; font-family: var(--font-ui, 'Jost', sans-serif); font-size: .66rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: rgba(228, 201, 131, .8); }

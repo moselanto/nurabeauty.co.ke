@@ -74,13 +74,14 @@ class NURAX_Mega_Menu {
 				'url'     => $shop,
 				'columns' => array(
 					'Shop Wigs' => array(
-						'Shop All Wigs'     => self::cat_url( 'wigs' ),
+						'All Wigs'          => self::cat_url( 'wigs' ),
 						'New In'            => add_query_arg( 'orderby', 'date', $shop ),
+						'Best Sellers'      => add_query_arg( 'orderby', 'popularity', $shop ),
 						'Bridal & Occasion' => self::cat_url( 'bridal-occasion' ),
 					),
 					'By Hair Type' => array(
-						'Human Hair Wigs'  => self::cat_url( 'human-hair-wigs' ),
-						'Human Hair Blend' => self::cat_url( 'human-hair-blend-wigs' ),
+						'100% Human Hair'  => self::cat_url( 'human-hair-wigs' ),
+						'Human-Hair Blend' => self::cat_url( 'human-hair-blend-wigs' ),
 						'Curly Wigs'       => self::cat_url( 'curly-wigs' ),
 						'Jerry Curl Wigs'  => self::cat_url( 'jerry-curl-wigs' ),
 					),
@@ -96,6 +97,24 @@ class NURAX_Mega_Menu {
 						'Afro Wigs'          => self::cat_url( 'afro-wigs' ),
 						'Bone Straight Wigs' => self::cat_url( 'bone-straight-wigs' ),
 					),
+					'More from NURA' => array(
+						'Hair & Extensions' => self::cat_url( 'hair-extensions' ),
+						'Wig Care'          => self::cat_url( 'wig-care' ),
+						'Beauty'            => self::cat_url( 'beauty' ),
+					),
+				),
+				'feature' => array(
+					'eyebrow' => 'Not sure what suits you?',
+					'title'   => 'Find your perfect wig',
+					'cta'     => 'Take the quick quiz',
+					'url'     => self::page_url( 'ai-wig-finder' ),
+					'img'     => defined( 'NURA_URI' ) ? NURA_URI . 'assets/images/cats/pillar-wigs.webp' : '',
+				),
+				'budget' => array(
+					'Under KSh 3,000'      => add_query_arg( array( 'min_price' => 0, 'max_price' => 3000 ), $shop ),
+					'KSh 3,000 - 7,000'    => add_query_arg( array( 'min_price' => 3000, 'max_price' => 7000 ), $shop ),
+					'KSh 7,000 - 15,000'   => add_query_arg( array( 'min_price' => 7000, 'max_price' => 15000 ), $shop ),
+					'KSh 15,000+'          => add_query_arg( array( 'min_price' => 15000 ), $shop ),
 				),
 			),
 			'Installation' => array(
@@ -146,25 +165,59 @@ class NURAX_Mega_Menu {
 		return ( 'mobile' === $location ) ? $this->render_mobile() : $this->render_desktop();
 	}
 
-	/** Desktop mega menu markup. */
+	/** v1.51.0 True when $url is the page being viewed (or, for sections, an ancestor of it). */
+	private static function is_current( $url, $exact = false ) {
+		$req  = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		$path = (string) wp_parse_url( (string) $url, PHP_URL_PATH );
+		$req  = trailingslashit( $req );
+		$path = trailingslashit( $path );
+		if ( '/' === $path || $exact ) {
+			return $req === $path;
+		}
+		return 0 === strpos( $req, $path );
+	}
+
+	/** v1.51.0 Desktop mega menu: full-width panel, grouped columns, feature card, budget bar. */
 	public function render_desktop() {
 		$html = '<ul id="primary-menu" class="nura-mega">';
 		foreach ( self::structure() as $label => $node ) {
-			$has_panel = ! empty( $node['columns'] ) || ! empty( $node['links'] );
-			$cls = 'nura-mega__item' . ( $has_panel ? ' menu-item-has-children has-mega' : '' );
+			$wide      = ! empty( $node['columns'] );
+			$has_panel = $wide || ! empty( $node['links'] );
+			$cls       = 'nura-mega__item' . ( $has_panel ? ' menu-item-has-children has-mega' : '' ) . ( $wide ? ' has-mega--wide' : '' );
+			if ( self::is_current( $node['url'], 'Home' === $label ) ) {
+				$cls .= ' current-menu-ancestor';
+			}
 			$html .= '<li class="' . esc_attr( $cls ) . '">';
-			$html .= '<a href="' . esc_url( $node['url'] ) . '">' . esc_html( $label ) . '</a>';
+			$html .= '<a href="' . esc_url( $node['url'] ) . '"' . ( $has_panel ? ' aria-haspopup="true"' : '' ) . '>' . esc_html( $label ) . '</a>';
 
-			if ( ! empty( $node['columns'] ) ) {
-				$html .= '<div class="nura-mega__panel"><div class="nura-mega__cols">';
+			if ( $wide ) {
+				$html .= '<div class="nura-mega__panel nura-mega__panel--wide" role="region" aria-label="' . esc_attr( sprintf( '%s menu', $label ) ) . '">';
+				$html .= '<div class="nura-mega__body"><div class="nura-mega__cols">';
 				foreach ( $node['columns'] as $col_title => $links ) {
-					$html .= '<div class="nura-mega__col"><span class="nura-mega__h">' . esc_html( $col_title ) . '</span><ul>';
+					$html .= '<div class="nura-mega__col"><p class="nura-mega__h">' . esc_html( $col_title ) . '</p><ul>';
 					foreach ( $links as $name => $url ) {
 						$html .= '<li><a href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a></li>';
 					}
 					$html .= '</ul></div>';
 				}
-				$html .= '</div></div>';
+				$html .= '</div>';
+				if ( ! empty( $node['feature'] ) ) {
+					$f     = $node['feature'];
+					$style = ! empty( $f['img'] ) ? ' style="background-image:url(\'' . esc_url( $f['img'] ) . '\')"' : '';
+					$html .= '<a class="nura-mega__feature' . ( ! empty( $f['img'] ) ? ' has-img' : '' ) . '" href="' . esc_url( $f['url'] ) . '"' . $style . '>'
+						. '<span class="nura-mega__feature-eyebrow">' . esc_html( $f['eyebrow'] ) . '</span>'
+						. '<span class="nura-mega__feature-title">' . esc_html( $f['title'] ) . '</span>'
+						. '<span class="nura-mega__feature-cta">' . esc_html( $f['cta'] ) . ' &#8594;</span></a>';
+				}
+				$html .= '</div>';
+				if ( ! empty( $node['budget'] ) ) {
+					$html .= '<div class="nura-mega__foot"><span class="nura-mega__foot-h">Shop by budget</span><ul class="nura-mega__chips">';
+					foreach ( $node['budget'] as $name => $url ) {
+						$html .= '<li><a href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a></li>';
+					}
+					$html .= '</ul><a class="nura-mega__all" href="' . esc_url( $node['url'] ) . '">View all products &#8594;</a></div>';
+				}
+				$html .= '</div>';
 			} elseif ( ! empty( $node['links'] ) ) {
 				$html .= '<div class="nura-mega__panel nura-mega__panel--simple"><ul>';
 				foreach ( $node['links'] as $name => $url ) {
@@ -178,27 +231,36 @@ class NURAX_Mega_Menu {
 		return $html;
 	}
 
-	/** Mobile drawer nested menu markup. */
+	/** v1.51.0 Mobile drawer: tap a section to open it; links grouped under the same headings as desktop. */
 	public function render_mobile() {
 		$html = '<ul class="nura-drawer-menu">';
 		foreach ( self::structure() as $label => $node ) {
-			$html .= '<li><a href="' . esc_url( $node['url'] ) . '">' . esc_html( $label ) . '</a>';
-			$children = array();
+			$groups = array();
 			if ( ! empty( $node['columns'] ) ) {
-				foreach ( $node['columns'] as $links ) {
-					$children = $children + $links;
+				$groups = $node['columns'];
+				if ( ! empty( $node['budget'] ) ) {
+					$groups['Shop by budget'] = $node['budget'];
 				}
 			} elseif ( ! empty( $node['links'] ) ) {
-				$children = $node['links'];
+				$groups = array( '' => $node['links'] );
 			}
-			if ( $children ) {
+			if ( ! $groups ) {
+				$html .= '<li><a href="' . esc_url( $node['url'] ) . '">' . esc_html( $label ) . '</a></li>';
+				continue;
+			}
+			$html .= '<li class="nura-drawer-menu__group"><details><summary>' . esc_html( $label ) . '</summary><div class="nura-drawer-menu__sub">';
+			$html .= '<a class="nura-drawer-menu__all" href="' . esc_url( $node['url'] ) . '">' . esc_html( 'Shop' === $label ? 'View all products' : sprintf( 'All of %s', $label ) ) . '</a>';
+			foreach ( $groups as $title => $links ) {
+				if ( '' !== $title ) {
+					$html .= '<p class="nura-drawer-menu__h">' . esc_html( $title ) . '</p>';
+				}
 				$html .= '<ul>';
-				foreach ( $children as $name => $url ) {
+				foreach ( $links as $name => $url ) {
 					$html .= '<li><a href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a></li>';
 				}
 				$html .= '</ul>';
 			}
-			$html .= '</li>';
+			$html .= '</div></details></li>';
 		}
 		$html .= '</ul>';
 		return $html;

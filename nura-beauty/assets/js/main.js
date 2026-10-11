@@ -740,3 +740,34 @@ if(window.matchMedia&&window.matchMedia("(hover:hover)").matches){var t=null;
 h.addEventListener("mouseenter",function(){clearTimeout(t);h.setAttribute("open","");});
 h.addEventListener("mouseleave",function(){t=setTimeout(function(){h.removeAttribute("open");},180);});}
 })(document);
+
+/* ===== NURA v1.38.0 - Book Appointment form ===== */
+(function(d){var f=d.querySelector("[data-nura-book]");if(!f){return;}
+var svc=f.querySelector("input[name=service]"),err=f.querySelector(".nura-bk__err"),btn=f.querySelector(".nura-bk__submit"),done=f.querySelector(".nura-bk__done");
+[].forEach.call(d.querySelectorAll("input[name=nb_service_pick]"),function(r){r.addEventListener("change",function(){if(r.checked){svc.value=r.value;}});});
+var date=f.querySelector("#nb-date");if(date){var t=new Date();t.setMinutes(t.getMinutes()-t.getTimezoneOffset());date.min=t.toISOString().slice(0,10);}
+function val(n){var el=f.querySelector("[name="+n+"]");if(!el){return "";}if(el.type==="radio"){var c=f.querySelector("[name="+n+"]:checked");return c?c.value:"";}return (el.value||"").trim();}
+function show(m){err.textContent=m;err.hidden=false;}
+function phone(){var p=val("phone").replace(/\D/g,"");if(p.length===10&&p.charAt(0)==="0"){p="254"+p.slice(1);}else if(p.length===9){p="254"+p;}return p;}
+var names={consultation:"Free consultation",fitting:"Wig fitting",installation:"Installation & styling",bridal:"Bridal & occasion"},types={studio:"Nairobi studio visit",video:"Video call",whatsapp:"WhatsApp chat"};
+function waLink(){var lines=["Hello NURA, I would like to book an appointment.","","Name: "+val("name"),"Phone: +"+phone(),"Service: "+(names[svc.value]||svc.value),"Where: "+(types[val("type")]||val("type")),"Date: "+val("date"),"Time: "+val("time")];if(val("notes")){lines.push("Notes: "+val("notes"));}var base=f.getAttribute("data-wa")||"https://wa.me/254714994898";return base+(base.indexOf("?")>-1?"&":"?")+"text="+encodeURIComponent(lines.join("\n"));}
+function finish(text,url){done.querySelector(".nura-bk__done-t").textContent=text;done.querySelector(".nura-bk__wa").href=url;done.hidden=false;}
+f.addEventListener("submit",function(e){e.preventDefault();err.hidden=true;
+	[].forEach.call(f.querySelectorAll(".is-invalid"),function(x){x.classList.remove("is-invalid");});
+	var miss=[];
+	if(val("name").length<2){miss.push("your name");f.querySelector("#nb-name").classList.add("is-invalid");}
+	if(!/^254[17]\d{8}$/.test(phone())){miss.push("a valid Kenyan phone number");f.querySelector("#nb-phone").classList.add("is-invalid");}
+	if(!val("date")||(date&&date.min&&val("date")<date.min)){miss.push("a date from today");date.classList.add("is-invalid");}
+	if(!val("time")){miss.push("a time");f.querySelector("#nb-time").classList.add("is-invalid");}
+	if(miss.length){show("Please add "+miss.join(", ")+".");return;}
+	var ep=f.getAttribute("data-endpoint"),body={name:val("name"),phone:phone(),service:svc.value,type:val("type"),date:val("date"),time:val("time"),notes:val("notes"),website:val("website")};
+	btn.disabled=true;
+	var fallback=function(){btn.disabled=false;finish("Your request is ready. Tap below to send it on WhatsApp and we will confirm your slot.",waLink());};
+	if(!ep||!window.fetch){fallback();return;}
+	fetch(ep,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});}).then(function(res){btn.disabled=false;
+		if(res.ok&&res.j&&res.j.whatsapp_url){finish(res.j.reply||"Your request is ready.",res.j.whatsapp_url);}
+		else if(res.j&&res.j.message&&res.j.code&&res.j.code!=="rest_no_route"){show(res.j.message);}
+		else{fallback();}
+	}).catch(fallback);
+});
+})(document);

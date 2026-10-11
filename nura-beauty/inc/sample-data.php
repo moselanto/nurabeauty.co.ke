@@ -220,7 +220,7 @@ function nura_import_products( $cat_ids ) {
 		$product->set_status( 'publish' );
 		$product->set_catalog_visibility( 'visible' );
 		$product->set_short_description( $spec['short'] );
-		$product->set_description( $spec['desc'] . "\n\nVerified human hair. Ships with provenance certificate and written guarantee. Pay with M-Pesa, card, PayPal or on delivery. NURA Flex instalments available." );
+		$product->set_description( $spec['desc'] . "\n\nHair type is shown on the label. Pay with M-Pesa, card, bank transfer or cash on delivery." );
 		$product->set_category_ids( $cat_term_ids );
 		if ( ! empty( $spec['featured'] ) ) {
 			$product->set_featured( true );

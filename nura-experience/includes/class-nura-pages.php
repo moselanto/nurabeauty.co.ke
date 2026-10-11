@@ -45,10 +45,10 @@ class NURAX_Pages {
 
 		$about = <<<HTML
 <h2>The House of Radiant Confidence</h2>
-<p>$biz is a Nairobi-based house of premium human hair wigs in Kenya, built on a simple belief: every woman deserves to wear her crown with confidence. We hand-finish and personally curate each unit, then back it with the kind of concierge service you would expect from a luxury house.</p>
+<p>$biz is a Nairobi-based house of premium wigs in Kenya - 100% human hair, human-hair blend and heat-resistant fibre, each clearly labelled - built on a simple belief: every woman deserves to wear her crown with confidence. We hand-finish and personally curate each unit, then back it with the kind of concierge service you would expect from a luxury house.</p>
 <h3>What we stand for</h3>
 <ul>
-<li><strong>Honest hair.</strong> Our premium units are verified human hair, supplied with a provenance certificate and a written guarantee. We never sell synthetic hair as human hair.</li>
+<li><strong>Honest hair.</strong> Every unit is clearly labelled as 100% human hair, human-hair blend (semi-human) or heat-resistant fibre, so you know exactly what you are paying for. We never sell a blend or fibre unit as human hair.</li>
 <li><strong>Personal service.</strong> From your first consultation to installation and aftercare, our team helps you choose, fit and maintain the right wig for your face shape, lifestyle and budget.</li>
 <li><strong>Made for Kenya.</strong> Same-day delivery in Nairobi, fast countrywide shipping and M-Pesa checkout, designed around how our clients actually shop for wigs in Kenya.</li>
 </ul>

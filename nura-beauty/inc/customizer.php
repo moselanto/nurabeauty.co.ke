@@ -59,13 +59,13 @@ function nura_settings_map() {
 		// ---- Homepage hero ----
 		'nura_hero_eyebrow'  => array( 'default' => 'The House of Radiant Confidence', 'label' => __( 'Hero eyebrow', 'nura-beauty' ), 'section' => 'nura_home' ),
 		'nura_hero_title'    => array( 'default' => 'Luxury Human Hair Wigs, Made for You', 'label' => __( 'Hero title', 'nura-beauty' ), 'section' => 'nura_home' ),
-		'nura_hero_subtitle' => array( 'default' => 'Verified human hair, HD lace and glueless units, hand-crafted in Nairobi and delivered across Kenya.', 'label' => __( 'Hero subtitle', 'nura-beauty' ), 'section' => 'nura_home', 'control' => 'textarea' ),
+		'nura_hero_subtitle' => array( 'default' => 'Human hair, blend and fibre wigs - HD lace and glueless units, clearly labelled, finished in Nairobi and delivered across Kenya.', 'label' => __( 'Hero subtitle', 'nura-beauty' ), 'section' => 'nura_home', 'control' => 'textarea' ),
 		'nura_hero_cta'      => array( 'default' => 'Shop the Collection', 'label' => __( 'Hero primary button', 'nura-beauty' ), 'section' => 'nura_home' ),
 		'nura_hero_cta2'     => array( 'default' => 'Book a Consultation', 'label' => __( 'Hero secondary button', 'nura-beauty' ), 'section' => 'nura_home' ),
 		'nura_hero_image'    => array( 'default' => '', 'label' => __( 'Hero background image', 'nura-beauty' ), 'section' => 'nura_home', 'control' => 'image', 'sanitize' => 'esc_url_raw' ),
 
 		// ---- Trust bar (4 editable promises) ----
-		'nura_trust_1' => array( 'default' => 'Verified human hair', 'label' => __( 'Trust item 1', 'nura-beauty' ), 'section' => 'nura_home' ),
+		'nura_trust_1' => array( 'default' => 'Quality-checked, clearly labelled hair', 'label' => __( 'Trust item 1', 'nura-beauty' ), 'section' => 'nura_home' ),
 		'nura_trust_2' => array( 'default' => 'Same-day Nairobi delivery', 'label' => __( 'Trust item 2', 'nura-beauty' ), 'section' => 'nura_home' ),
 		'nura_trust_3' => array( 'default' => 'M-Pesa, card & pay on delivery', 'label' => __( 'Trust item 3', 'nura-beauty' ), 'section' => 'nura_home' ),
 		'nura_trust_4' => array( 'default' => 'Written longevity guarantee', 'label' => __( 'Trust item 4', 'nura-beauty' ), 'section' => 'nura_home' ),

@@ -921,3 +921,64 @@ html body .nura-home-grid ul.products{display:grid!important;grid-template-colum
 .nura-drawer__help ul{list-style:none;margin:0;padding:0}
 .nura-drawer__help a{display:block;padding:.5rem 0;font-family:var(--font-ui);font-size:.92rem;color:var(--nura-ink)}
 .nura-drawer__call{width:100%;justify-content:center}
+
+
+/* ===== v1.36.0 Balanced header + professional search ===== */
+/* Search: soft field, inset dark button, clear focus ring (all screens). */
+html body .nura-hsearch{height:48px;background:#f6f4f1;border:1px solid #e3ddd4;border-radius:12px;box-shadow:none;padding:4px;overflow:hidden;transition:border-color .2s,box-shadow .2s,background .2s}
+html body .nura-hsearch:hover{border-color:#cfc6b8}
+html body .nura-hsearch:focus-within{background:#fff;border-color:var(--nura-gold);box-shadow:0 0 0 4px rgba(201,162,75,.16)}
+html body .nura-hsearch:has(.nura-hsearch__drop:not([hidden])){overflow:visible}
+html body .nura-hsearch .nura-hsearch__ic{padding:0 .3rem 0 .75rem;color:#8a8178}
+html body .nura-hsearch .nura-hsearch__ic svg{width:19px;height:19px}
+html body .nura-hsearch .nura-hsearch__input{height:100%;padding:0 .6rem!important;font-size:15px!important;color:var(--nura-ink)}
+html body .nura-hsearch .nura-hsearch__input::placeholder{color:#8f877d;opacity:1}
+html body .nura-hsearch .nura-hsearch__btn{height:100%;min-height:0;align-self:stretch;padding:0 1.4rem;border-radius:9px!important;background:var(--nura-ink);color:#fff;font-size:.74rem;font-weight:600;letter-spacing:.12em;transition:background .2s,color .2s}
+html body .nura-hsearch .nura-hsearch__btn:hover{background:var(--nura-gold);color:var(--nura-ink)}
+html body .nura-hsearch .nura-hsearch__drop{left:0;right:0;top:calc(100% + 8px);border-radius:12px}
+@media(max-width:860px){html body .nura-hsearch{height:46px;border-radius:10px}html body .nura-hsearch .nura-hsearch__btn{padding:0 1rem;border-radius:7px!important}}
+
+@media(min-width:861px){
+  /* Row 1: logo | search (centred, up to 720px) | account + cart. Row 2: menu | Help + Call to order. */
+  html body .nura-header-inner{grid-template-columns:minmax(180px,1fr) minmax(380px,720px) minmax(180px,1fr);grid-template-areas:"logo search actions" "nav nav navend";column-gap:clamp(20px,3vw,48px);row-gap:0;padding-block:14px 0;position:relative}
+  html body .nura-logo-wrap{justify-self:start;align-self:center}
+  html body .nura-hsearch{justify-self:stretch;width:100%;max-width:none}
+  html body .nura-header-actions{justify-self:end;align-self:center;gap:1.5rem}
+  html body .nura-header-actions .nura-icon-btn,html body .nura-header-actions .nura-cart-btn{font-size:.8rem;letter-spacing:.02em;gap:.5rem}
+  html body .nura-header-actions svg{width:22px;height:22px}
+  /* Menu row: one continuous hairline across the full width, equal height on both sides. */
+  html body .nura-nav,html body .nura-navend{min-width:0;margin-top:14px;padding:0;border-top:0;height:50px;display:flex;align-items:center}
+  html body .nura-nav::before{content:"";position:absolute;left:var(--gutter);right:var(--gutter);height:1px;background:rgba(14,14,14,.08);margin-top:-1px}
+  html body .nura-nav>ul,html body .nura-nav .nura-mega{display:flex;align-items:center;justify-content:flex-start;gap:clamp(1.1rem,2vw,2.2rem);height:100%;margin:0;flex-wrap:nowrap}
+  html body .nura-nav>ul>li,html body .nura-nav .nura-mega>li{height:100%;display:flex;align-items:center}
+  html body .nura-nav>ul>li>a,html body .nura-nav .nura-mega>li>a{height:100%;padding:0;font-size:.76rem;letter-spacing:.12em;font-weight:500}
+  html body .nura-nav>ul>li>a::after,html body .nura-nav .nura-mega>li>a::after{bottom:-1px;height:2px}
+  html body .nura-navend{justify-self:end;gap:1.1rem;margin-top:14px;border-top:0}
+  html body .nura-help__btn{min-height:50px;font-size:.76rem}
+  html body .nura-callorder{padding:.3rem .95rem .3rem .3rem}
+  html body .nura-callorder__ic{width:28px;height:28px}
+  html body .nura-callorder__txt strong{font-size:.84rem}
+  html body .site-header{background:rgba(255,255,255,.96);border-bottom:1px solid rgba(14,14,14,.08);box-shadow:none}
+  html body .site-header.is-scrolled{box-shadow:0 8px 24px -16px rgba(14,14,14,.25)}
+}
+@media(min-width:861px) and (max-width:1180px){
+  html body .nura-header-inner{grid-template-columns:auto minmax(260px,1fr) auto}
+  html body .nura-nav>ul>li>a,html body .nura-nav .nura-mega>li>a{font-size:.7rem;letter-spacing:.08em}
+}
+
+/* ===== v1.36.0 Homepage spacing: tighter, even rhythm between sections ===== */
+body.home .section{padding-block:clamp(32px,4.2vw,64px)}
+body.home .nura-rail-section{padding-block:clamp(28px,3.6vw,52px)}
+body.home .nura-shop-now{padding-block:clamp(20px,2.6vw,36px) clamp(26px,3.2vw,48px)}
+body.home .nura-shead{margin-bottom:clamp(16px,2.2vw,30px)}
+body.home .nura-shead .nura-eyebrow{margin-bottom:.45rem}
+body.home .nura-shead h2{margin-bottom:0}
+body.home .nura-shead--row{margin-bottom:clamp(12px,1.6vw,22px)}
+body.home .nura-shop-now__more{margin-top:1.2rem}
+body.home .nura-pillars-section+.nura-budget-section{padding-top:0}
+body.home .nura-finderbar__inner{padding-block:clamp(12px,1.4vw,16px)}
+@media(max-width:560px){
+  body.home .section{padding-block:28px}
+  body.home .nura-rail-section{padding-block:24px}
+  body.home .nura-shead{margin-bottom:14px}
+}

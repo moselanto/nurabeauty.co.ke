@@ -265,3 +265,163 @@ if ( function_exists( 'nura_query_rail' ) === false ) {
 		wp_reset_postdata();
 	}
 }
+
+
+if ( function_exists( 'nura_home_product_ids' ) === false ) {
+	/**
+	 * v1.33.0 Product IDs for a homepage grid. In-stock and catalogue-visible only,
+	 * with an optional fallback pool when the primary signal (e.g. sales) is thin.
+	 *
+	 * @param array $args     Extra WP_Query args.
+	 * @param int   $limit    How many IDs to return.
+	 * @param array $fallback Fallback WP_Query args.
+	 * @return int[]
+	 */
+	function nura_home_product_ids( $args, $limit = 8, $fallback = array() ) {
+		$base = array(
+			'post_type'           => 'product',
+			'post_status'         => 'publish',
+			'fields'              => 'ids',
+			'posts_per_page'      => $limit,
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
+			'tax_query'           => array(
+				array(
+					'taxonomy' => 'product_visibility',
+					'field'    => 'slug',
+					'terms'    => array( 'exclude-from-catalog', 'outofstock' ),
+					'operator' => 'NOT IN',
+				),
+			),
+		);
+		$q   = new WP_Query( array_merge( $base, (array) $args ) );
+		$ids = array_map( 'intval', $q->posts );
+		wp_reset_postdata();
+		if ( count( $ids ) < $limit && $fallback ) {
+			$fb  = new WP_Query( array_merge( $base, (array) $fallback, array( 'post__not_in' => $ids, 'posts_per_page' => $limit - count( $ids ) ) ) );
+			$ids = array_merge( $ids, array_map( 'intval', $fb->posts ) );
+			wp_reset_postdata();
+		}
+		return array_slice( array_unique( $ids ), 0, $limit );
+	}
+}
+
+if ( function_exists( 'nura_home_product_grid' ) === false ) {
+	/**
+	 * v1.33.0 Render real WooCommerce product cards in a grid (2 per row on phones,
+	 * 3 on tablets, 4 on desktop). Shown IDs are recorded so later rails never repeat them.
+	 *
+	 * @param int[] $ids Product IDs in display order.
+	 */
+	function nura_home_product_grid( $ids ) {
+		if ( empty( $ids ) || function_exists( 'woocommerce_product_loop_start' ) === false ) {
+			return;
+		}
+		$shown                      = isset( $GLOBALS['nura_rail_shown'] ) ? (array) $GLOBALS['nura_rail_shown'] : array();
+		$GLOBALS['nura_rail_shown'] = array_unique( array_merge( $shown, $ids ) );
+		$loop = new WP_Query( array(
+			'post_type'           => 'product',
+			'post_status'         => 'publish',
+			'post__in'            => $ids,
+			'orderby'             => 'post__in',
+			'posts_per_page'      => count( $ids ),
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
+		) );
+		if ( ! $loop->have_posts() ) {
+			wp_reset_postdata();
+			return;
+		}
+		if ( function_exists( 'wc_set_loop_prop' ) ) {
+			wc_set_loop_prop( 'columns', 4 );
+		}
+		echo '<div class="woocommerce nura-home-grid">';
+		woocommerce_product_loop_start();
+		while ( $loop->have_posts() ) {
+			$loop->the_post();
+			wc_get_template_part( 'content', 'product' );
+		}
+		woocommerce_product_loop_end();
+		echo '</div>';
+		wp_reset_postdata();
+	}
+}
+
+if ( function_exists( 'nura_home_product_tabs' ) === false ) {
+	/**
+	 * v1.33.0 Homepage "Shop now" block: New In / Best Sellers / Under KSh 5,000 tabs.
+	 * All panels are server-rendered (works without JS: the first panel shows and the
+	 * rest stay hidden); main.js switches tabs. Empty tabs are left out.
+	 *
+	 * @param string $shop_url Shop page URL for the "View all" links.
+	 */
+	function nura_home_product_tabs( $shop_url ) {
+		$limit = (int) apply_filters( 'nura_home_grid_count', 8 );
+		$tabs  = array(
+			array(
+				'key'   => 'new',
+				'label' => __( 'New In', 'nura-beauty' ),
+				'ids'   => nura_home_product_ids( array( 'orderby' => 'date', 'order' => 'DESC' ), $limit ),
+				'url'   => add_query_arg( 'orderby', 'date', $shop_url ),
+			),
+			array(
+				'key'   => 'best',
+				'label' => __( 'Best Sellers', 'nura-beauty' ),
+				'ids'   => nura_home_product_ids(
+					array(
+						'meta_key'   => 'total_sales',
+						'orderby'    => 'meta_value_num',
+						'order'      => 'DESC',
+						'meta_query' => array( array( 'key' => 'total_sales', 'value' => 0, 'compare' => '>', 'type' => 'NUMERIC' ) ),
+					),
+					$limit,
+					array( 'orderby' => 'rand' )
+				),
+				'url'   => add_query_arg( 'orderby', 'popularity', $shop_url ),
+			),
+			array(
+				'key'   => 'budget',
+				'label' => __( 'Under KSh 5,000', 'nura-beauty' ),
+				'ids'   => nura_home_product_ids(
+					array(
+						'orderby'    => 'date',
+						'order'      => 'DESC',
+						'meta_query' => array( array( 'key' => '_price', 'value' => 5000, 'compare' => '<=', 'type' => 'NUMERIC' ) ),
+					),
+					$limit
+				),
+				'url'   => add_query_arg( array( 'min_price' => 0, 'max_price' => 5000 ), $shop_url ),
+			),
+		);
+		$tabs = array_values( array_filter( $tabs, function ( $t ) { return ! empty( $t['ids'] ); } ) );
+		if ( empty( $tabs ) ) {
+			return;
+		}
+		echo '<div class="nura-ptabs" data-nura-tabs>';
+		if ( count( $tabs ) > 1 ) {
+			echo '<div class="nura-ptabs__list" role="tablist" aria-label="' . esc_attr__( 'Product collections', 'nura-beauty' ) . '">';
+			foreach ( $tabs as $i => $t ) {
+				printf(
+					'<button type="button" class="nura-ptab%1$s" role="tab" id="nura-ptab-%2$s" aria-controls="nura-ppanel-%2$s" aria-selected="%3$s" tabindex="%4$s" data-viewall="%5$s">%6$s</button>',
+					0 === $i ? ' is-active' : '',
+					esc_attr( $t['key'] ),
+					0 === $i ? 'true' : 'false',
+					0 === $i ? '0' : '-1',
+					esc_url( $t['url'] ),
+					esc_html( $t['label'] )
+				);
+			}
+			echo '</div>';
+		}
+		foreach ( $tabs as $i => $t ) {
+			printf(
+				'<div class="nura-ppanel" role="tabpanel" id="nura-ppanel-%1$s" aria-labelledby="nura-ptab-%1$s"%2$s>',
+				esc_attr( $t['key'] ),
+				0 === $i ? '' : ' hidden'
+			);
+			nura_home_product_grid( $t['ids'] );
+			echo '</div>';
+		}
+		echo '</div>';
+	}
+}

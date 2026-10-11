@@ -716,3 +716,18 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form){return;}
 	w.addEventListener("scroll",function(){if(t){return;}t=setTimeout(function(){t=null;on();},120);},{passive:true});
 	on();
 })(document,window);
+
+/* ===== NURA v1.33.0 - Homepage product tabs (New In / Best Sellers / Under KSh 5,000) ===== */
+(function(d){function r(f){if(d.readyState!=="loading"){f();}else{d.addEventListener("DOMContentLoaded",f);}}
+r(function(){[].slice.call(d.querySelectorAll("[data-nura-tabs]")).forEach(function(w){
+	var tabs=[].slice.call(w.querySelectorAll("[role=tab]")),panels=[].slice.call(w.querySelectorAll("[role=tabpanel]"));
+	if(tabs.length<2){return;}
+	var sec=w.closest("section"),more=sec?sec.querySelector("[data-nura-tabs-viewall]"):null;
+	function sel(i){tabs.forEach(function(t,j){var on=i===j;t.setAttribute("aria-selected",on?"true":"false");t.tabIndex=on?0:-1;t.classList.toggle("is-active",on);if(panels[j]){panels[j].hidden=!on;}});
+		if(more&&tabs[i].getAttribute("data-viewall")){more.href=tabs[i].getAttribute("data-viewall");}}
+	tabs.forEach(function(t,i){
+		t.addEventListener("click",function(){sel(i);});
+		t.addEventListener("keydown",function(e){var k=e.key,n=-1;if(k==="ArrowRight"){n=(i+1)%tabs.length;}else if(k==="ArrowLeft"){n=(i-1+tabs.length)%tabs.length;}else if(k==="Home"){n=0;}else if(k==="End"){n=tabs.length-1;}
+			if(n>-1){e.preventDefault();sel(n);tabs[n].focus();}});
+	});
+});});})(document);

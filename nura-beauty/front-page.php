@@ -1,6 +1,12 @@
 <?php
 /**
- * Homepage - NURA "focused luxury" v1.6.0.
+ * Homepage - NURA "products first" v1.33.0.
+ *
+ * v1.33.0: products sit straight after the slider (tabs: New / Best Sellers /
+ * Under KSh 5,000 with quick type chips), then categories, shop-by-budget, the
+ * Stylist prompt and a trending rail. Earlier notes below.
+ *
+ * Was: NURA "focused luxury" v1.6.0.
  *
  * Deliberately lean. Sections, in order: hero, trust bar, Shop NURA (4 pillars),
  * Fresh Arrivals, Real NURA Women (social proof), House Favourites, brand story,
@@ -136,7 +142,7 @@ $slides = array(
 	</section>
 
 	<!-- TRUST BAR -->
-	<div class="nura-trustbar">
+	<div class="nura-trustbar nura-trustbar--compact">
 		<div class="nura-container">
 			<ul>
 				<li><?php esc_html_e( 'Quality-Verified Wigs', 'nura-beauty' ); ?></li>
@@ -159,21 +165,53 @@ $slides = array(
 		</div>
 	</div>
 
-	<!-- WIG FINDER PROMPT (secondary path for visitors not ready to browse) -->
-	<div class="nura-finderbar">
-		<div class="nura-container nura-finderbar__inner">
-			<p class="nura-finderbar__text"><strong><?php esc_html_e( 'Not sure which wig is right for you?', 'nura-beauty' ); ?></strong> <?php esc_html_e( 'Answer a few quick questions and NURA Stylist will match you.', 'nura-beauty' ); ?></p>
-			<a class="nura-btn nura-btn--gold" href="<?php echo esc_url( $finder_url ); ?>"><?php esc_html_e( 'Find My Wig', 'nura-beauty' ); ?> &#8594;</a>
-		</div>
-	</div>
+	<!-- SHOP PRODUCTS (v1.33.0: products straight after the slider - shoppers in Kenya want to see stock and prices first) -->
+	<?php if ( class_exists( 'WooCommerce' ) && function_exists( 'nura_home_product_tabs' ) ) : ?>
+	<section class="nura-shop-now" id="shop-now" aria-labelledby="nura-shop-now-h">
+		<div class="nura-container">
+			<div class="nura-shop-now__head">
+				<div>
+					<p class="nura-eyebrow"><?php esc_html_e( 'Shop NURA', 'nura-beauty' ); ?></p>
+					<h2 id="nura-shop-now-h"><?php esc_html_e( 'Shop wigs & beauty', 'nura-beauty' ); ?></h2>
+				</div>
+				<a class="nura-rail__viewall" href="<?php echo esc_url( $shop_url ); ?>"><?php esc_html_e( 'View all', 'nura-beauty' ); ?> &#8594;</a>
+			</div>
+			<?php
+			// Quick type chips: one swipeable row on phones, wraps on desktop.
+			$nura_types = array(
+				array( 'label' => __( 'Human Hair', 'nura-beauty' ), 'slug' => 'human-hair-wigs' ),
+				array( 'label' => __( 'Lace Front', 'nura-beauty' ), 'slug' => 'lace-front-wigs' ),
+				array( 'label' => __( 'Closure', 'nura-beauty' ), 'slug' => 'closure-wigs' ),
+				array( 'label' => __( 'Headband', 'nura-beauty' ), 'slug' => 'headband-wigs' ),
+				array( 'label' => __( 'Bob', 'nura-beauty' ), 'slug' => 'bob-wigs' ),
+				array( 'label' => __( 'Curly', 'nura-beauty' ), 'slug' => 'curly-wigs' ),
+				array( 'label' => __( 'Body Wave', 'nura-beauty' ), 'slug' => 'body-wave-wigs' ),
+				array( 'label' => __( 'Jerry Curl', 'nura-beauty' ), 'slug' => 'jerry-curl-wigs' ),
+				array( 'label' => __( 'Wig Care', 'nura-beauty' ), 'slug' => 'wig-care' ),
+				array( 'label' => __( 'Beauty', 'nura-beauty' ), 'slug' => 'beauty' ),
+			);
+			echo '<nav class="nura-quickchips" aria-label="' . esc_attr__( 'Shop by type', 'nura-beauty' ) . '">';
+			echo '<a class="nura-quickchip nura-quickchip--all" href="' . esc_url( $wigs_url ) . '">' . esc_html__( 'All wigs', 'nura-beauty' ) . '</a>';
+			foreach ( $nura_types as $ty ) {
+				echo '<a class="nura-quickchip" href="' . esc_url( nura_home_cat_url( $ty['slug'] ) ) . '">' . esc_html( $ty['label'] ) . '</a>';
+			}
+			echo '</nav>';
 
-	<!-- SHOP NURA - four pillars -->
-	<section class="section" id="shop-nura">
+			nura_home_product_tabs( $shop_url );
+			?>
+			<p class="nura-shop-now__more">
+				<a class="nura-btn nura-btn--gold" data-nura-tabs-viewall href="<?php echo esc_url( $shop_url ); ?>"><?php esc_html_e( 'View all products', 'nura-beauty' ); ?> &#8594;</a>
+			</p>
+		</div>
+	</section>
+	<?php endif; ?>
+
+	<!-- SHOP BY CATEGORY - four pillars -->
+	<section class="section nura-pillars-section" id="shop-nura">
 		<div class="nura-container">
 			<div class="nura-shead nura-reveal">
-				<p class="nura-eyebrow"><?php esc_html_e( 'Shop NURA', 'nura-beauty' ); ?></p>
+				<p class="nura-eyebrow"><?php esc_html_e( 'Shop by category', 'nura-beauty' ); ?></p>
 				<h2><?php esc_html_e( 'Everything for your crown', 'nura-beauty' ); ?></h2>
-				<p><?php esc_html_e( 'Wigs, hair, care and beauty - the complete NURA house.', 'nura-beauty' ); ?></p>
 			</div>
 			<?php
 			nura_home_tiles(
@@ -188,6 +226,48 @@ $slides = array(
 			?>
 		</div>
 	</section>
+
+	<!-- SHOP BY BUDGET (price-first browsing) -->
+	<?php if ( class_exists( 'WooCommerce' ) ) : ?>
+	<section class="section nura-budget-section" id="shop-by-budget">
+		<div class="nura-container">
+			<div class="nura-shead nura-reveal">
+				<p class="nura-eyebrow"><?php esc_html_e( 'Shop by budget', 'nura-beauty' ); ?></p>
+				<h2><?php esc_html_e( 'A crown for every budget', 'nura-beauty' ); ?></h2>
+			</div>
+			<?php
+			$nura_budgets = array(
+				array( 'k' => __( 'Under', 'nura-beauty' ), 'v' => 'KSh 3,000', 'min' => 0, 'max' => 3000 ),
+				array( 'k' => __( 'KSh 3,000 to', 'nura-beauty' ), 'v' => 'KSh 7,000', 'min' => 3000, 'max' => 7000 ),
+				array( 'k' => __( 'KSh 7,000 to', 'nura-beauty' ), 'v' => 'KSh 15,000', 'min' => 7000, 'max' => 15000 ),
+				array( 'k' => __( 'Premium', 'nura-beauty' ), 'v' => 'KSh 15,000+', 'min' => 15000, 'max' => 0 ),
+			);
+			echo '<div class="nura-budget nura-reveal">';
+			foreach ( $nura_budgets as $b ) {
+				$args = array( 'min_price' => $b['min'] );
+				if ( $b['max'] ) {
+					$args['max_price'] = $b['max'];
+				}
+				echo '<a class="nura-budget__card" href="' . esc_url( add_query_arg( $args, $shop_url ) ) . '"><span class="nura-budget__k">' . esc_html( $b['k'] ) . '</span><span class="nura-budget__v">' . esc_html( $b['v'] ) . '</span><span class="nura-budget__cta">' . esc_html__( 'Shop now', 'nura-beauty' ) . ' &#8594;</span></a>';
+			}
+			echo '</div>';
+			?>
+		</div>
+	</section>
+	<?php endif; ?>
+
+	<!-- WIG FINDER PROMPT (secondary path for visitors not ready to browse) -->
+	<div class="nura-finderbar">
+		<div class="nura-container nura-finderbar__inner">
+			<p class="nura-finderbar__text"><strong><?php esc_html_e( 'Not sure which wig is right for you?', 'nura-beauty' ); ?></strong> <?php esc_html_e( 'Answer a few quick questions and NURA Stylist will match you.', 'nura-beauty' ); ?></p>
+			<a class="nura-btn nura-btn--gold" href="<?php echo esc_url( $finder_url ); ?>"><?php esc_html_e( 'Find My Wig', 'nura-beauty' ); ?> &#8594;</a>
+		</div>
+	</div>
+
+	<!-- RAIL: TRENDING (more products, never repeats the grid above) -->
+	<?php if ( class_exists( 'WooCommerce' ) ) : ?>
+	<?php nura_query_rail( __( 'Trending now', 'nura-beauty' ), __( 'You may also love', 'nura-beauty' ), array( 'orderby' => 'rand', 'posts_per_page' => 24 ), 10, $shop_url, __( 'View all', 'nura-beauty' ) ); ?>
+	<?php endif; ?>
 
 	<!-- WHY NURA (value propositions) -->
 	<section class="section section--ivory" id="why-nura">
@@ -226,40 +306,6 @@ $slides = array(
 		</div>
 	</section>
 
-	<!-- SHOP BY WIG TYPE (discovery) -->
-	<section class="section" id="shop-by-type">
-		<div class="nura-container">
-			<div class="nura-shead nura-reveal">
-				<p class="nura-eyebrow"><?php esc_html_e( 'Find your match', 'nura-beauty' ); ?></p>
-				<h2><?php esc_html_e( 'Shop by wig type', 'nura-beauty' ); ?></h2>
-				<p><?php esc_html_e( 'Browse by construction, texture and hair type - however you like to shop.', 'nura-beauty' ); ?></p>
-			</div>
-			<?php
-			$nura_types = array(
-				array( 'label' => __( 'Human Hair', 'nura-beauty' ), 'slug' => 'human-hair-wigs' ),
-				array( 'label' => __( 'Lace Front', 'nura-beauty' ), 'slug' => 'lace-front-wigs' ),
-				array( 'label' => __( 'Closure', 'nura-beauty' ), 'slug' => 'closure-wigs' ),
-				array( 'label' => __( 'Headband', 'nura-beauty' ), 'slug' => 'headband-wigs' ),
-				array( 'label' => __( 'Bob', 'nura-beauty' ), 'slug' => 'bob-wigs' ),
-				array( 'label' => __( 'Curly', 'nura-beauty' ), 'slug' => 'curly-wigs' ),
-				array( 'label' => __( 'Body Wave', 'nura-beauty' ), 'slug' => 'body-wave-wigs' ),
-				array( 'label' => __( 'Jerry Curl', 'nura-beauty' ), 'slug' => 'jerry-curl-wigs' ),
-			);
-			echo '<div class="nura-typegrid nura-reveal">';
-			foreach ( $nura_types as $ty ) {
-				echo '<a class="nura-typechip" href="' . esc_url( nura_home_cat_url( $ty['slug'] ) ) . '">' . esc_html( $ty['label'] ) . '</a>';
-			}
-			echo '<a class="nura-typechip nura-typechip--all" href="' . esc_url( $wigs_url ) . '">' . esc_html__( 'All wigs', 'nura-beauty' ) . ' &#8594;</a>';
-			echo '</div>';
-			?>
-		</div>
-	</section>
-
-	<!-- RAIL: FRESH ARRIVALS (4 products) -->
-	<?php if ( class_exists( 'WooCommerce' ) ) : ?>
-	<?php nura_query_rail( __( 'New in', 'nura-beauty' ), __( 'New Arrivals', 'nura-beauty' ), array( 'orderby' => 'date', 'order' => 'DESC', 'posts_per_page' => 18 ), 10, $shop_url, __( 'View all new arrivals', 'nura-beauty' ) ); ?>
-	<?php endif; ?>
-
 	<!-- REAL NURA WOMEN (social proof, moved high) -->
 	<?php $ig = nura_opt( 'nura_instagram' ); $ig_url = $ig ? $ig : $wa; ?>
 	<section class="section section--ink text-center" id="real-women">
@@ -272,11 +318,6 @@ $slides = array(
 			</p>
 		</div>
 	</section>
-
-	<!-- RAIL: HOUSE FAVOURITES (4 products) -->
-	<?php if ( class_exists( 'WooCommerce' ) ) : ?>
-	<?php nura_query_rail( __( 'Most loved', 'nura-beauty' ), __( 'Best Sellers', 'nura-beauty' ), array( 'meta_key' => 'total_sales', 'orderby' => 'meta_value_num', 'order' => 'DESC', 'posts_per_page' => 18, 'meta_query' => array( array( 'key' => 'total_sales', 'value' => 0, 'compare' => '>', 'type' => 'NUMERIC' ) ), 'nura_fallback' => array( 'orderby' => 'rand', 'posts_per_page' => 18 ) ), 10, $shop_url, __( 'View all', 'nura-beauty' ) ); ?>
-	<?php endif; ?>
 
 	<!-- BRAND STORY (editorial split, condensed) -->
 	<section class="section section--ivory">

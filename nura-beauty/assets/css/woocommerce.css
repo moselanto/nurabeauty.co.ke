@@ -218,3 +218,75 @@ html body ul.products li.product .price{display:block;min-height:1.5em;line-heig
 html body ul.products li.product .button,html body ul.products li.product a.added_to_cart{margin-top:auto !important;align-self:stretch;width:100%;min-height:42px;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;padding:.6rem .8rem;white-space:nowrap}
 html body ul.products li.product a.added_to_cart{margin-top:.4rem !important;min-height:0;padding:.3rem;background:none;color:var(--nura-ink);font-size:.72rem}
 html body ul.products li.product .nura-qv{display:block;width:100%;box-sizing:border-box;margin-top:.45rem;min-height:34px}
+
+
+/* ===== v1.33.0 Product cards, rebuilt for fast mobile shopping =====
+ * Price-first, left-aligned, rounded cards. Image 4:5 so two cards fit per row on
+ * phones without endless scrolling; bold dark price (gold on white was hard to read
+ * in sunlight); Add to cart + Order on WhatsApp as two clear, equal buttons; Quick
+ * view moves onto the photo on desktop and is dropped on touch screens (a tap opens
+ * the product). Applies site-wide: homepage, shop, categories, search, related. */
+html body ul.products li.product{position:relative;text-align:left;background:#fff;border:1px solid rgba(14,14,14,.07);border-radius:12px;overflow:hidden;padding:0 0 12px;container-type:inline-size;transition:box-shadow .25s var(--ease),transform .25s var(--ease)}
+@media(hover:hover){html body ul.products li.product:hover{box-shadow:0 12px 30px rgba(14,14,14,.10);transform:translateY(-2px)}}
+html body ul.products li.product a img,html body ul.products li.product img{aspect-ratio:4/5;border-radius:0;margin:0 0 .1rem;background:#f4efe9}
+html body .woocommerce ul.products li.product .nura-loop-2nd,html body ul.products li.product .nura-loop-2nd{aspect-ratio:4/5;border-radius:0}
+
+/* Title: readable sans, left, two lines. */
+html body .woocommerce-loop-product__title,html body .woocommerce ul.products li.product .woocommerce-loop-product__title{font-family:var(--font-ui);font-weight:500;font-size:.95rem;line-height:1.3;text-align:left;margin:.65rem 12px .25rem;color:var(--nura-ink);letter-spacing:0}
+html body ul.products li.product .nura-swatch-dots{justify-content:flex-start;padding:0 12px;margin:.05rem 0 .35rem}
+
+/* Price: bold, dark, sale price first with the old price struck through. */
+html body ul.products li.product .price{padding:0 12px;margin:0 0 .7rem;color:var(--nura-ink)!important;font-family:var(--font-ui);font-weight:700;font-size:1.02rem;display:flex;flex-wrap:wrap;align-items:baseline;gap:.15rem .45rem}
+html body ul.products li.product .price ins{text-decoration:none;color:var(--nura-ink);order:1}
+html body ul.products li.product .price del{order:2;color:#9a9a9a;font-weight:400;font-size:.8rem;opacity:1}
+html body ul.products li.product .price .woocommerce-Price-currencySymbol{font-weight:600}
+
+/* Buttons */
+html body ul.products li.product .button,html body ul.products li.product a.added_to_cart,html body ul.products li.product .nwo-btn--card,html body ul.products li.product .nura-qv{margin-left:12px!important;margin-right:12px!important;width:auto!important;align-self:stretch}
+html body ul.products li.product .button{min-height:42px;border-radius:8px;padding:.55rem .6rem;font-size:.7rem;letter-spacing:.08em;background:var(--nura-ink);color:#fff}
+html body ul.products li.product .button:hover{background:var(--nura-gold);color:var(--nura-ink)}
+html body ul.products li.product .button.loading{opacity:.7}
+html body ul.products li.product .button.added::after{margin-left:.4em}
+html body ul.products li.product a.added_to_cart{min-height:0;padding:.35rem 0 0;text-align:center;font-size:.72rem;background:none;color:#1a7f45;text-decoration:underline}
+html body ul.products li.product .nwo-btn--card{height:42px;min-height:42px;margin-top:.45rem;border-radius:8px;background:#effaf3;border:1px solid #bfe8cf;color:#0f6b3a;font-size:.66rem;letter-spacing:.06em}
+html body ul.products li.product .nwo-btn--card .nwo-ico{color:#1da851}
+html body ul.products li.product .nwo-btn--card:hover,html body ul.products li.product .nwo-btn--card:focus{background:#25D366;border-color:#25D366;color:#fff}
+html body ul.products li.product .nwo-btn--card:hover .nwo-ico{color:#fff}
+@media(max-width:420px){
+html body ul.products li.product .nwo-btn--card{text-transform:none;letter-spacing:0;font-size:.76rem;gap:.35rem;padding:0 .4rem}
+html body ul.products li.product .button{font-size:.66rem;letter-spacing:.04em}
+}
+
+/* Quick view: a pill on the photo for mouse users; hidden on touch screens. */
+html body ul.products li.product .nura-qv{min-height:34px;border-radius:8px}
+@media(hover:none){html body ul.products li.product .nura-qv{display:none!important}}
+@supports(top:1cqw){@media(hover:hover){
+html body ul.products li.product .nura-qv{position:absolute;z-index:4;left:0;right:0;top:calc(125cqw - 46px);margin-top:0!important;min-height:36px;background:rgba(255,255,255,.95);border:0;box-shadow:0 4px 14px rgba(14,14,14,.14);color:var(--nura-ink);opacity:0;transform:translateY(6px);transition:opacity .25s var(--ease),transform .25s var(--ease)}
+html body ul.products li.product:hover .nura-qv,html body ul.products li.product .nura-qv:focus-visible{opacity:1;transform:none}
+html body ul.products li.product .nura-qv:hover{background:var(--nura-ink);color:#fff}
+}}
+
+/* Try on: small text link, desktop only (keeps phone cards short). */
+html body ul.products li.product .nura-tryon-link{align-self:flex-start;margin:.5rem 12px 0}
+@media(max-width:700px){html body ul.products li.product .nura-tryon-link{display:none}}
+
+/* Badges and wishlist heart */
+html body ul.products li.product .nura-badges{top:10px;left:10px;gap:.3rem;flex-wrap:wrap;max-width:calc(100% - 60px)}
+html body ul.products li.product .nura-badge{border-radius:4px;font-size:.6rem;letter-spacing:.08em;padding:.35em .55em;font-weight:600}
+html body ul.products li.product .nura-badge--sale{background:#c62828;color:#fff}
+html body ul.products li.product .nura-wish{top:8px;right:8px;width:34px;height:34px}
+
+/* Phones: tighter card padding so two cards sit comfortably side by side. */
+@media(max-width:560px){
+html body ul.products li.product{border-radius:10px;padding-bottom:10px}
+html body .woocommerce-loop-product__title,html body .woocommerce ul.products li.product .woocommerce-loop-product__title{font-size:.86rem;margin:.55rem 9px .2rem}
+html body ul.products li.product .nura-swatch-dots,html body ul.products li.product .price{padding:0 9px}
+html body ul.products li.product .price{font-size:.95rem;margin-bottom:.6rem}
+html body ul.products li.product .button,html body ul.products li.product a.added_to_cart,html body ul.products li.product .nwo-btn--card,html body ul.products li.product .nura-qv{margin-left:9px!important;margin-right:9px!important}
+html body ul.products li.product .button,html body ul.products li.product .nwo-btn--card{min-height:40px;height:auto}
+html body ul.products li.product .nwo-btn--card{height:40px}
+html body .woocommerce ul.products,html body .woocommerce-page ul.products{gap:10px!important}
+}
+
+/* Shop and category pages: 4 across on large screens. */
+@media(min-width:1200px){html body.woocommerce-shop ul.products,html body.tax-product_cat ul.products,html body.tax-product_tag ul.products{grid-template-columns:repeat(4,minmax(0,1fr))!important}}

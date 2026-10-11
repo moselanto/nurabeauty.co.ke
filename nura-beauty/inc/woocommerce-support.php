@@ -10,8 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Products per page and columns tuned for a luxury 3-up shop grid.
-add_filter( 'loop_shop_per_page', function () { return 12; }, 20 );
-add_filter( 'loop_shop_columns', function () { return 3; }, 20 );
+add_filter( 'loop_shop_per_page', function () { return 24; }, 20 ); // v1.33.0: fewer page loads on mobile data
+add_filter( 'loop_shop_columns', function () { return 4; }, 20 );
 
 // Related products render 4-up (see the matching grid override in assets/css/woocommerce.css).
 add_filter( 'woocommerce_related_products_args', function ( $args ) {
@@ -107,7 +107,10 @@ function nura_product_badges() {
 	}
 	echo '<div class="nura-badges">';
 	if ( $product->is_on_sale() ) {
-		echo '<span class="nura-badge nura-badge--sale">' . esc_html__( 'Sale', 'nura-beauty' ) . '</span>';
+		// v1.33.0: show the real saving (e.g. -20%) - shoppers compare prices fast.
+		$nura_off = function_exists( 'nura_discount_percent' ) ? nura_discount_percent( $product ) : 0;
+		$nura_txt = $nura_off > 0 ? sprintf( '-%d%%', $nura_off ) : __( 'Sale', 'nura-beauty' );
+		echo '<span class="nura-badge nura-badge--sale">' . esc_html( $nura_txt ) . '</span>';
 	}
 	$created = strtotime( get_the_date( 'c', $product->get_id() ) );
 	if ( $created && ( time() - $created ) < ( 30 * DAY_IN_SECONDS ) ) {
@@ -606,3 +609,35 @@ add_action( 'woocommerce_review_order_before_payment', function () {
 	echo '<li>' . esc_html__( 'We confirm every order by phone or WhatsApp', 'nura-beauty' ) . '</li>';
 	echo '</ul>';
 } );
+
+if ( ! function_exists( 'nura_discount_percent' ) ) {
+	/**
+	 * v1.33.0 Largest percentage saving on a product (simple or variable), rounded.
+	 *
+	 * @param WC_Product $product Product.
+	 * @return int
+	 */
+	function nura_discount_percent( $product ) {
+		if ( ! $product || ! $product->is_on_sale() ) {
+			return 0;
+		}
+		$best = 0;
+		if ( $product->is_type( 'variable' ) ) {
+			$prices = $product->get_variation_prices( true );
+			foreach ( (array) $prices['regular_price'] as $vid => $reg ) {
+				$sale = isset( $prices['sale_price'][ $vid ] ) ? (float) $prices['sale_price'][ $vid ] : 0;
+				$reg  = (float) $reg;
+				if ( $reg > 0 && $sale > 0 && $sale < $reg ) {
+					$best = max( $best, ( $reg - $sale ) / $reg * 100 );
+				}
+			}
+		} else {
+			$reg  = (float) $product->get_regular_price();
+			$sale = (float) $product->get_sale_price();
+			if ( $reg > 0 && $sale > 0 && $sale < $reg ) {
+				$best = ( $reg - $sale ) / $reg * 100;
+			}
+		}
+		return (int) round( $best );
+	}
+}

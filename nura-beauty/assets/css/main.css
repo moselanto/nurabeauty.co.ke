@@ -819,3 +819,66 @@ form.cart .single_add_to_cart_button.disabled,form.cart .single_add_to_cart_butt
 .nura-seo-home__faq h2{font-size:clamp(1.4rem,2.4vw,1.9rem);margin:0 0 .6rem}
 .nura-seo-home__faq details p{color:#4a423b;line-height:1.7;margin:.6rem 0 0}
 @media(max-width:860px){.nura-seo-home__grid{grid-template-columns:1fr}}
+
+
+/* ===== v1.33.0 Products first: compact hero, one-line trust strip, Shop now block, budget cards ===== */
+/* Hero: shorter so the first products peek above the fold on phones. */
+@media(max-width:768px){
+html body .nura-slides,html body .nura-slide{min-height:clamp(340px,58vh,460px)}
+html body .nura-slide__inner{padding-block:2.2rem 3.6rem}
+html body .nura-slide__inner .nura-hero-h{font-size:clamp(1.9rem,8.4vw,2.6rem)}
+html body .nura-slide__inner .nura-lede{font-size:.98rem;line-height:1.5;margin-bottom:0}
+html body .nura-hero__cta{margin-top:1.1rem;gap:.6rem}
+html body .nura-hero__cta .nura-btn{padding:.85em 1.3em;font-size:.72rem}
+html body .nura-slider-dots{bottom:18px}
+}
+@media(min-width:769px){html body .nura-slides,html body .nura-slide{min-height:clamp(420px,62vh,640px)}}
+
+/* Trust strip: one slim row (swipe on phones) instead of a tall 2x2 block. */
+html body .nura-trustbar--compact ul{display:flex;flex-wrap:nowrap;justify-content:center;gap:0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+html body .nura-trustbar--compact ul::-webkit-scrollbar{display:none}
+html body .nura-trustbar--compact li{flex:0 0 auto;padding:.75rem 1.2rem;font-size:.66rem;letter-spacing:.08em;white-space:nowrap;border-left:1px solid var(--nura-line)}
+html body .nura-trustbar--compact li:first-child{border-left:0}
+@media(max-width:860px){html body .nura-trustbar--compact ul{justify-content:flex-start}html body .nura-trustbar--compact li{padding:.65rem .9rem;font-size:.62rem}html body .nura-trustbar--compact li:nth-child(3){border-left:1px solid var(--nura-line)}}
+
+/* Shop now block */
+.nura-shop-now{padding-block:clamp(22px,3.4vw,52px) clamp(30px,4vw,60px);background:#fff}
+.nura-shop-now__head{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:.9rem}
+.nura-shop-now__head .nura-eyebrow{margin:0 0 .25rem}
+.nura-shop-now__head h2{margin:0;font-size:clamp(1.45rem,2.6vw,2.2rem);line-height:1.15}
+.nura-quickchips{display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1rem}
+.nura-quickchip{display:inline-flex;align-items:center;min-height:36px;padding:0 1rem;border:1px solid rgba(14,14,14,.14);border-radius:999px;background:#fff;color:var(--nura-text);font-family:var(--font-ui);font-size:.82rem;white-space:nowrap;text-decoration:none;transition:background .2s,color .2s,border-color .2s}
+.nura-quickchip:hover{background:var(--nura-ink);color:#fff;border-color:var(--nura-ink)}
+.nura-quickchip--all{background:var(--nura-ink);color:#fff;border-color:var(--nura-ink)}
+.nura-quickchip--all:hover{background:var(--nura-gold);border-color:var(--nura-gold);color:var(--nura-ink)}
+@media(max-width:860px){
+.nura-quickchips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-inline:calc(-1 * var(--gutter));padding-inline:var(--gutter);scroll-padding-inline:var(--gutter)}
+.nura-quickchips::-webkit-scrollbar{display:none}
+.nura-quickchip{min-height:34px;padding:0 .9rem;font-size:.8rem}
+}
+.nura-ptabs__list{display:flex;gap:1.4rem;border-bottom:1px solid rgba(14,14,14,.1);margin:0 0 1.1rem;overflow-x:auto;scrollbar-width:none}
+.nura-ptabs__list::-webkit-scrollbar{display:none}
+.nura-ptab{flex:0 0 auto;appearance:none;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:.7rem 0;font-family:var(--font-ui);font-size:.9rem;font-weight:500;letter-spacing:.02em;color:#777;cursor:pointer;min-height:44px}
+.nura-ptab:hover{color:var(--nura-ink)}
+.nura-ptab.is-active{color:var(--nura-ink);border-bottom-color:var(--nura-gold)}
+@media(max-width:560px){.nura-ptabs__list{gap:1.1rem}.nura-ptab{font-size:.86rem}}
+.nura-ppanel[hidden]{display:none!important}
+html body .nura-home-grid ul.products{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:clamp(12px,1.6vw,22px)!important;margin:0!important;padding:0;list-style:none}
+@media(max-width:1024px){html body .nura-home-grid ul.products{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:700px){html body .nura-home-grid ul.products{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}}
+.nura-shop-now__more{text-align:center;margin:1.6rem 0 0}
+@media(max-width:560px){.nura-shop-now__more .nura-btn{display:flex;justify-content:center;width:100%}}
+@media(max-width:560px){.nura-shop-now__head .nura-rail__viewall{font-size:.66rem;letter-spacing:.1em}}
+
+/* Category pillars: tighter on phones. */
+@media(max-width:560px){.nura-pillars-section{padding-block:28px}.nura-pillars-section .nura-tiles{gap:10px}}
+
+/* Shop by budget */
+.nura-budget-section{padding-block:clamp(24px,3.6vw,56px)}
+.nura-budget{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(10px,1.4vw,18px)}
+.nura-budget__card{display:flex;flex-direction:column;gap:.15rem;padding:1.1rem 1.2rem;border:1px solid var(--nura-line);border-radius:10px;background:var(--nura-ivory);color:var(--nura-ink);text-decoration:none;transition:transform .2s,box-shadow .2s,border-color .2s}
+.nura-budget__card:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(14,14,14,.08);border-color:var(--nura-gold)}
+.nura-budget__k{font-family:var(--font-ui);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:#6b5a3a}
+.nura-budget__v{font-family:var(--font-ui);font-weight:700;font-size:clamp(1.05rem,1.8vw,1.35rem);line-height:1.25}
+.nura-budget__cta{margin-top:.35rem;font-family:var(--font-ui);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#8a6a1f}
+@media(max-width:700px){.nura-budget{grid-template-columns:repeat(2,minmax(0,1fr))}.nura-budget__card{padding:.9rem 1rem}}

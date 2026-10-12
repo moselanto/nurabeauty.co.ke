@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.44.0' );
+define( 'NURA_VERSION', '1.45.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -60,3 +60,17 @@ nura_require( 'dynamic-css' );
 // Template helpers.
 nura_require( 'template-tags' );
 nura_require( 'shortcodes' );
+
+/**
+ * Contact page design (v1.45.0): use page-contact.php for the contact page
+ * whatever its slug is (WordPress only matches page-contact.php to "contact").
+ */
+add_filter( 'template_include', function ( $template ) {
+	if ( is_page( array( 'contact', 'contact-us', 'contacts', 'get-in-touch' ) ) && ! is_page_template() ) {
+		$custom = locate_template( 'page-contact.php' );
+		if ( $custom ) {
+			return $custom;
+		}
+	}
+	return $template;
+}, 20 );

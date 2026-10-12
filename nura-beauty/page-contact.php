@@ -1,6 +1,10 @@
 <?php
 /**
- * Contact page (slug: contact) - v1.43.0.
+ * Template Name: NURA Contact
+ *
+ * Contact page - v1.45.0. Used automatically for pages with the slug contact,
+ * contact-us, contacts or get-in-touch (see functions.php), or pick
+ * "NURA Contact" under Page > Template.
  *
  * Replaces the plain text + unstyled Contact Form 7 layout with:
  * dark hero, four quick-contact cards (WhatsApp, call, email, studio),
@@ -47,6 +51,11 @@ $nc_icon = function ( $name ) {
 			<p class="nura-eyebrow"><?php esc_html_e( 'We are here for you', 'nura-beauty' ); ?></p>
 			<h1><?php the_title(); ?></h1>
 			<p class="nura-bk-hero__lede"><?php esc_html_e( 'Questions about an order, choosing the right wig or booking a fitting? Talk to a real NURA stylist - WhatsApp is the fastest way to reach us.', 'nura-beauty' ); ?></p>
+			<ul class="nura-bk-hero__facts">
+				<li><?php esc_html_e( 'Real stylists, not bots', 'nura-beauty' ); ?></li>
+				<li><?php esc_html_e( 'Studio in Nairobi CBD', 'nura-beauty' ); ?></li>
+				<li><?php echo esc_html( $nc_hours ); ?></li>
+			</ul>
 		</div>
 	</section>
 
@@ -89,6 +98,7 @@ $nc_icon = function ( $name ) {
 		<div class="nura-container nura-ct__grid">
 
 			<div class="nura-ct__formcol">
+				<p class="nura-eyebrow nura-ct__eyebrow"><?php esc_html_e( 'Write to us', 'nura-beauty' ); ?></p>
 				<h2 class="nura-ct__h"><?php esc_html_e( 'Send us a message', 'nura-beauty' ); ?></h2>
 				<p class="nura-ct__sub"><?php esc_html_e( 'Tell us what you need and we will get back to you within one business day.', 'nura-beauty' ); ?></p>
 
@@ -99,7 +109,7 @@ $nc_icon = function ( $name ) {
 					</div>
 				<?php endif; ?>
 
-				<form class="nura-ct__form" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+				<form class="nura-ct__form" data-nura-ct novalidate action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 					<input type="hidden" name="action" value="nura_contact">
 					<input type="hidden" name="nura_kind" value="enquiry">
 					<?php wp_nonce_field( 'nura_contact' ); ?>
@@ -124,20 +134,23 @@ $nc_icon = function ( $name ) {
 
 					<div class="nura-ct__row">
 						<div class="nura-bk__f">
-							<label for="nc-name"><?php esc_html_e( 'Your name', 'nura-beauty' ); ?></label>
-							<input id="nc-name" name="nura_name" type="text" autocomplete="name" placeholder="<?php esc_attr_e( 'e.g. Jane Wanjiku', 'nura-beauty' ); ?>" required>
+							<label for="nc-name"><?php esc_html_e( 'Your name', 'nura-beauty' ); ?> <span class="nura-ct__req" aria-hidden="true">*</span></label>
+							<input id="nc-name" name="nura_name" type="text" autocomplete="name" maxlength="80" placeholder="<?php esc_attr_e( 'e.g. Jane Wanjiku', 'nura-beauty' ); ?>" required data-err="<?php esc_attr_e( 'Please enter your name.', 'nura-beauty' ); ?>">
+							<span class="nura-ct__err" aria-live="polite"></span>
 						</div>
 						<div class="nura-bk__f">
-							<label for="nc-contact"><?php esc_html_e( 'Phone / WhatsApp or email', 'nura-beauty' ); ?></label>
-							<input id="nc-contact" name="nura_contact_val" type="text" autocomplete="email" placeholder="<?php esc_attr_e( '0712 345 678 or you@email.com', 'nura-beauty' ); ?>" required>
+							<label for="nc-contact"><?php esc_html_e( 'Phone / WhatsApp or email', 'nura-beauty' ); ?> <span class="nura-ct__req" aria-hidden="true">*</span></label>
+							<input id="nc-contact" name="nura_contact_val" type="text" autocomplete="email" maxlength="120" placeholder="<?php esc_attr_e( '0712 345 678 or you@email.com', 'nura-beauty' ); ?>" required data-kind="contact" data-err="<?php esc_attr_e( 'Enter a Kenyan phone number or an email address.', 'nura-beauty' ); ?>">
+							<span class="nura-ct__err" aria-live="polite"></span>
 						</div>
 					</div>
 					<div class="nura-bk__f">
-						<label for="nc-msg"><?php esc_html_e( 'Your message', 'nura-beauty' ); ?></label>
-						<textarea id="nc-msg" name="nura_message" rows="5" maxlength="2000" placeholder="<?php esc_attr_e( 'e.g. Order number, the wig you are looking at, or the look you want', 'nura-beauty' ); ?>" required></textarea>
+						<label for="nc-msg"><?php esc_html_e( 'Your message', 'nura-beauty' ); ?> <span class="nura-ct__req" aria-hidden="true">*</span></label>
+						<textarea id="nc-msg" name="nura_message" rows="6" maxlength="2000" placeholder="<?php esc_attr_e( 'e.g. Order number, the wig you are looking at, or the look you want', 'nura-beauty' ); ?>" required data-err="<?php esc_attr_e( 'Please write a short message (at least 10 characters).', 'nura-beauty' ); ?>"></textarea>
+						<span class="nura-ct__meta"><span class="nura-ct__err" aria-live="polite"></span><span class="nura-ct__count" data-nura-ct-count>0 / 2000</span></span>
 					</div>
-					<button type="submit" class="nura-bk__submit"><?php esc_html_e( 'Send message', 'nura-beauty' ); ?></button>
-					<p class="nura-bk__small"><?php esc_html_e( 'We only use your details to reply to you.', 'nura-beauty' ); ?></p>
+					<button type="submit" class="nura-bk__submit nura-ct__submit" data-sending="<?php esc_attr_e( 'Sending...', 'nura-beauty' ); ?>"><?php esc_html_e( 'Send message', 'nura-beauty' ); ?> <?php echo $nc_icon( 'arrow' ); // phpcs:ignore ?></button>
+					<p class="nura-ct__privacy"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><?php esc_html_e( 'Your details stay private and are only used to reply to you. No spam, ever.', 'nura-beauty' ); ?></p>
 				</form>
 			</div>
 

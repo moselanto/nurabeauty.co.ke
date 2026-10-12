@@ -798,3 +798,32 @@ f.addEventListener("submit",function(e){e.preventDefault();err.hidden=true;
 		d.addEventListener("mouseover",function(e){var li=e.target&&e.target.closest?e.target.closest("li.product"):null;if(!li){return;}var im=li.querySelector("img.nura-loop-2nd[data-src]");if(im){im.src=im.getAttribute("data-src");im.removeAttribute("data-src");}},{passive:true});
 	}
 })(document,window);
+
+/* ===== NURA v1.45.0 - contact form: inline validation, counter, sending state ===== */
+(function(d){
+	function r(f){if(d.readyState!=="loading"){f();}else{d.addEventListener("DOMContentLoaded",f);}}
+	r(function(){
+		var form=d.querySelector("[data-nura-ct]");if(!form){return;}
+		var msg=form.querySelector("textarea"),count=form.querySelector("[data-nura-ct-count]"),btn=form.querySelector(".nura-ct__submit");
+		function upd(){if(msg&&count){count.textContent=msg.value.length+" / "+(msg.getAttribute("maxlength")||2000);}}
+		if(msg){msg.addEventListener("input",upd);upd();}
+		function errEl(f){var p=f.parentNode;return p?p.querySelector(".nura-ct__err"):null;}
+		function check(f){
+			var v=(f.value||"").trim(),ok=true;
+			if(f.hasAttribute("required")&&!v){ok=false;}
+			if(ok&&f.tagName==="TEXTAREA"&&v.length<10){ok=false;}
+			if(ok&&f.getAttribute("data-kind")==="contact"){var digits=v.replace(/\D/g,"");ok=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)||/^(?:254|0)?[17]\d{8}$/.test(digits);}
+			if(ok&&f.name==="nura_name"&&v.length<2){ok=false;}
+			f.classList.toggle("is-invalid",!ok);f.setAttribute("aria-invalid",ok?"false":"true");
+			var e=errEl(f);if(e){e.textContent=ok?"":(f.getAttribute("data-err")||"");}
+			return ok;
+		}
+		var fields=[].slice.call(form.querySelectorAll("[required]"));
+		fields.forEach(function(f){f.addEventListener("blur",function(){if(f.value){check(f);}});f.addEventListener("input",function(){if(f.classList.contains("is-invalid")){check(f);}});});
+		form.addEventListener("submit",function(e){
+			var first=null;fields.forEach(function(f){if(!check(f)&&!first){first=f;}});
+			if(first){e.preventDefault();first.focus();return;}
+			if(btn){btn.disabled=true;btn.textContent=btn.getAttribute("data-sending")||"Sending...";}
+		});
+	});
+})(document);

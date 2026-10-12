@@ -56,7 +56,7 @@ add_filter( 'script_loader_tag', function ( $tag, $handle ) {
 	if ( ! nura_speed_on() ) {
 		return $tag;
 	}
-	$defer = (array) apply_filters( 'nura_defer_handles', array( 'nurax-wa-order', 'sourcebuster-js', 'wc-order-attribution' ) );
+	$defer = (array) apply_filters( 'nura_defer_handles', array( 'nura-main', 'nurax-wa-order', 'sourcebuster-js', 'wc-order-attribution' ) );
 	if ( in_array( $handle, $defer, true ) && false === strpos( $tag, ' defer' ) && false === strpos( $tag, ' async' ) ) {
 		$tag = str_replace( ' src=', ' defer src=', $tag );
 	}
@@ -89,3 +89,53 @@ add_action( 'wp_enqueue_scripts', function () {
 		wp_dequeue_style( 'wc-blocks-style' );
 	}
 }, 100 );
+
+/* ---------------------------------------------------------------------------
+ * v1.46.0 - image loading and cart request
+ * Live audit: 67 images on the homepage but only 1 lazy-loaded, product cards
+ * asking for 600px-wide files at "100vw" on phones, and an extra uncached
+ * cart AJAX call on every page view.
+ * ------------------------------------------------------------------------- */
+
+/* 5. Product images: lazy after the first two, and the right size for the slot. */
+add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment, $size ) {
+	static $seen = 0;
+	if ( ! nura_speed_on() || is_admin() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		return $attr;
+	}
+	$class   = isset( $attr['class'] ) ? (string) $attr['class'] : '';
+	$is_card = false !== strpos( $class, 'attachment-woocommerce' ) || in_array( $size, array( 'woocommerce_thumbnail', 'woocommerce_single' ), true );
+	if ( ! $is_card ) {
+		return $attr;
+	}
+	// The main gallery image on a product page stays as it is (it is the largest paint).
+	$in_loop = function_exists( 'wc_get_loop_prop' ) && '' !== (string) wc_get_loop_prop( 'name' );
+	if ( function_exists( 'is_product' ) && is_product() && ! $in_loop && ! did_action( 'woocommerce_after_single_product_summary' ) ) {
+		return $attr;
+	}
+	$seen++;
+	if ( $seen > 2 ) {
+		$attr['loading']       = 'lazy';
+		$attr['fetchpriority'] = 'low';
+	}
+	$attr['decoding'] = 'async';
+	if ( ! empty( $attr['srcset'] ) ) {
+		// Cards are 2 per row on phones, 3 on tablets, 4-5 on desktop.
+		$attr['sizes'] = '(max-width: 600px) 50vw, (max-width: 1024px) 33vw, 300px';
+	}
+	return $attr;
+}, 30, 3 );
+
+/* 6. Skip WooCommerce's cart-refresh request when the visitor's cart is empty. */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( ! nura_speed_on() || ! function_exists( 'WC' ) || ! WC()->cart ) {
+		return;
+	}
+	if ( is_cart() || is_checkout() || ! empty( $_COOKIE['woocommerce_items_in_cart'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		return;
+	}
+	if ( WC()->cart->is_empty() && apply_filters( 'nura_skip_cart_fragments', true ) ) {
+		wp_dequeue_script( 'wc-cart-fragments' );
+	}
+}, 110 );
+

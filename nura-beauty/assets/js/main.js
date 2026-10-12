@@ -309,7 +309,7 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form){return;}
 	[].forEach.call(modal.querySelectorAll("[data-nura-search-close]"),function(b){b.addEventListener("click",closeModal);});
 	document.addEventListener("keydown",function(e){if(e.key==="Escape"&&modal.classList.contains("is-open")){closeModal();}});
 
-	function esc(s){var d=document.createElement("div");d.textContent=(s==null)?"":String(s);return d.innerHTML;}
+	function esc(s){var d=document.createElement("div");d.textContent=(s==null)?"":String(s);return d.innerHTML.replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
 
 	function render(data){
 		var q=data.query||"",html="";
@@ -604,7 +604,7 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form){return;}
 	var KEY="nura_recent_searches";
 	function load(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")||[];}catch(e){return [];}}
 	function save(q){q=(q||"").trim();if(q.length<2){return;}var a=load().filter(function(x){return x.toLowerCase()!==q.toLowerCase();});a.unshift(q);try{localStorage.setItem(KEY,JSON.stringify(a.slice(0,6)));}catch(e){}}
-	function esc(s){var t=d.createElement("div");t.textContent=s;return t.innerHTML;}
+	function esc(s){var t=d.createElement("div");t.textContent=s;return t.innerHTML.replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
 	function paintRecent(){
 		if(!recentBox||!recentList){return;}
 		var a=load();
@@ -670,7 +670,7 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form){return;}
 	var drop=form.querySelector(".nura-hsearch__drop");
 	var timer=null, last="", active=-1, ctrl=null;
 	var wa=(window.NURA&&NURA.whatsapp)?NURA.whatsapp:"https://wa.me/254714994898";
-	function esc(t){var e=d.createElement("div");e.textContent=t==null?"":String(t);return e.innerHTML;}
+	function esc(t){var e=d.createElement("div");e.textContent=t==null?"":String(t);return e.innerHTML.replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
 	function hide(){drop.hidden=true;active=-1;input.setAttribute("aria-expanded","false");}
 	function show(){drop.hidden=false;input.setAttribute("aria-expanded","true");}
 	function items(){return drop.querySelectorAll(".nura-hsearch__item");}

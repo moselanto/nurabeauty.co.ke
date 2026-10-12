@@ -85,12 +85,12 @@ function nura_handle_contact() {
 		wp_safe_redirect( home_url( '/' ) );
 		exit;
 	}
-	$name    = sanitize_text_field( wp_unslash( $_POST['nura_name'] ?? '' ) );
-	$contact = sanitize_text_field( wp_unslash( $_POST['nura_contact_val'] ?? '' ) );
-	$message = sanitize_textarea_field( wp_unslash( $_POST['nura_message'] ?? '' ) );
-	$kind    = sanitize_text_field( wp_unslash( $_POST['nura_kind'] ?? 'enquiry' ) );
-	$service = sanitize_text_field( wp_unslash( $_POST['nura_service'] ?? '' ) );
-	$date    = sanitize_text_field( wp_unslash( $_POST['nura_date'] ?? '' ) );
+	$name    = mb_substr( sanitize_text_field( wp_unslash( $_POST['nura_name'] ?? '' ) ), 0, 80 );
+	$contact = mb_substr( sanitize_text_field( wp_unslash( $_POST['nura_contact_val'] ?? '' ) ), 0, 120 );
+	$message = mb_substr( sanitize_textarea_field( wp_unslash( $_POST['nura_message'] ?? '' ) ), 0, 2000 );
+	$kind    = in_array( $_POST['nura_kind'] ?? '', array( 'enquiry', 'booking' ), true ) ? sanitize_key( $_POST['nura_kind'] ) : 'enquiry';
+	$service = mb_substr( sanitize_text_field( wp_unslash( $_POST['nura_service'] ?? '' ) ), 0, 80 );
+	$date    = mb_substr( sanitize_text_field( wp_unslash( $_POST['nura_date'] ?? '' ) ), 0, 40 );
 
 	$body = "New {$kind} from the NURA site:\n\nName: {$name}\nContact: {$contact}\nService: {$service}\nDate: {$date}\n\nMessage:\n{$message}";
 	wp_mail( nura_opt( 'nura_email' ), 'NURA - new ' . $kind, $body );

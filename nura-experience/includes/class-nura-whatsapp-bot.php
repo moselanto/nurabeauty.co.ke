@@ -156,6 +156,12 @@ final class NURAX_WhatsApp_Bot {
 
 		// Signature verification (only when the app secret is configured).
 		$secret = $this->app_secret();
+		// Security (1.53.0): without the app secret anyone could POST fake WhatsApp
+		// messages and make the bot reply/spend AI credits. Unsigned requests are now
+		// ignored unless the owner explicitly opts in with NURAX_WA_ALLOW_UNSIGNED.
+		if ( '' === $secret && ! ( defined( 'NURAX_WA_ALLOW_UNSIGNED' ) && NURAX_WA_ALLOW_UNSIGNED ) ) {
+			return new WP_REST_Response( array( 'ok' => true, 'ignored' => 'app_secret_missing' ), 200 );
+		}
 		if ( '' !== $secret ) {
 			$sig      = (string) $request->get_header( 'x-hub-signature-256' );
 			$expected = 'sha256=' . hash_hmac( 'sha256', $raw, $secret );

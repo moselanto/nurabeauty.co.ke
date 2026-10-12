@@ -71,7 +71,9 @@ class NURAX_Shop_Enhance {
 	public function quickview( WP_REST_Request $req ) {
 		$id      = absint( $req->get_param( 'id' ) );
 		$product = $id ? wc_get_product( $id ) : null;
-		if ( ! $product ) {
+		// Security (1.53.0): only published, non-password-protected products are public.
+		$pub_id = ( $product && $product->get_parent_id() ) ? $product->get_parent_id() : ( $product ? $product->get_id() : 0 );
+		if ( ! $product || 'publish' !== get_post_status( $pub_id ) || post_password_required( $pub_id ) ) {
 			return new WP_REST_Response( array( 'error' => 'not_found' ), 404 );
 		}
 		$img = wp_get_attachment_image_url( $product->get_image_id(), 'large' );

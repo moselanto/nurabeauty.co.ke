@@ -93,6 +93,16 @@ class NURAX_AI_Stylist {
 
 	/** REST chat handler. */
 	public function chat( WP_REST_Request $req ) {
+		// Security (1.53.0): per-IP rate limit so this public endpoint cannot be
+		// flooded (spam, AI cost abuse, database growth).
+		$nx_ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? preg_replace( '/[^0-9a-f:.]/i', '', (string) wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0';
+		$nx_key = 'nurax_rl_chat_' . md5( $nx_ip );
+		$nx_hit = (int) get_transient( $nx_key );
+		if ( $nx_hit >= 40 ) {
+			return new WP_Error( 'nurax_rate', __( 'Too many requests. Please wait a few minutes or message us on WhatsApp.', 'nura-experience' ), array( 'status' => 429 ) );
+		}
+		set_transient( $nx_key, $nx_hit + 1, 10 * MINUTE_IN_SECONDS );
+
 		$messages = $req->get_param( 'messages' );
 		if ( ! is_array( $messages ) ) {
 			$messages = array();

@@ -116,15 +116,25 @@ class NURAX_AI_Wig_Finder {
 
 	/** REST recommender + lead capture. */
 	public function recommend( WP_REST_Request $req ) {
+		// Security (1.53.0): per-IP rate limit so this public endpoint cannot be
+		// flooded (spam, AI cost abuse, database growth).
+		$nx_ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? preg_replace( '/[^0-9a-f:.]/i', '', (string) wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0';
+		$nx_key = 'nurax_rl_wf_' . md5( $nx_ip );
+		$nx_hit = (int) get_transient( $nx_key );
+		if ( $nx_hit >= 20 ) {
+			return new WP_Error( 'nurax_rate', __( 'Too many requests. Please wait a few minutes or message us on WhatsApp.', 'nura-experience' ), array( 'status' => 429 ) );
+		}
+		set_transient( $nx_key, $nx_hit + 1, 10 * MINUTE_IN_SECONDS );
+
 		$face    = sanitize_text_field( (string) $req->get_param( 'face' ) );
 		$texture = sanitize_text_field( (string) $req->get_param( 'texture' ) );
 		$length  = sanitize_text_field( (string) $req->get_param( 'length' ) );
 		$life    = sanitize_text_field( (string) $req->get_param( 'life' ) );
 		$budget  = absint( $req->get_param( 'budget' ) );
-		$name    = sanitize_text_field( (string) $req->get_param( 'name' ) );
-		$phone   = sanitize_text_field( (string) $req->get_param( 'phone' ) );
+		$name    = mb_substr( sanitize_text_field( (string) $req->get_param( 'name' ) ), 0, 80 );
+		$phone   = mb_substr( sanitize_text_field( (string) $req->get_param( 'phone' ) ), 0, 30 );
 		$email   = sanitize_email( (string) $req->get_param( 'email' ) );
-		$concern = sanitize_textarea_field( (string) $req->get_param( 'concern' ) );
+		$concern = mb_substr( sanitize_textarea_field( (string) $req->get_param( 'concern' ) ), 0, 500 );
 		$consent = absint( $req->get_param( 'consent' ) );
 
 		// Hook point for a real AI vision service (returns a face-shape string).

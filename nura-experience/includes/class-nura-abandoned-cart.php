@@ -183,6 +183,14 @@ final class NURAX_Abandoned_Cart {
 		if ( ! wp_verify_nonce( $nonce, 'nurax_cart' ) ) {
 			wp_send_json_error( 'bad_nonce', 403 );
 		}
+		// Security (1.53.0): stop scripted flooding of the cart-recovery table.
+		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? preg_replace( '/[^0-9a-f:.]/i', '', (string) wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0';
+		$rk  = 'nurax_cc_rl_' . md5( $ip );
+		$cnt = (int) get_transient( $rk );
+		if ( $cnt >= 20 ) {
+			wp_send_json_error( 'rate_limited', 429 );
+		}
+		set_transient( $rk, $cnt + 1, HOUR_IN_SECONDS );
 		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 		if ( ! is_email( $email ) && function_exists( 'WC' ) && WC()->customer ) {
 			$maybe = WC()->customer->get_billing_email();
@@ -193,7 +201,7 @@ final class NURAX_Abandoned_Cart {
 		if ( ! is_email( $email ) ) {
 			wp_send_json_error( 'bad_email', 200 );
 		}
-		$phone = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '';
+		$phone = isset( $_POST['phone'] ) ? substr( sanitize_text_field( wp_unslash( $_POST['phone'] ) ), 0, 30 ) : '';
 		$this->capture( $email, '', (int) get_current_user_id(), $phone );
 		wp_send_json_success( 'ok' );
 	}

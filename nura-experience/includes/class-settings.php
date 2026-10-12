@@ -28,7 +28,32 @@ class NURAX_Settings {
 	}
 
 	public function register() {
-		register_setting( 'nurax', self::OPTION );
+		register_setting( 'nurax', self::OPTION, array( 'sanitize_callback' => array( __CLASS__, 'sanitize' ) ) );
+	}
+
+	/**
+	 * Security (1.53.0): clean every saved value. URLs must be http(s); everything
+	 * else is stored as plain text, so no script can be saved into an option.
+	 *
+	 * @param mixed $in Raw submitted values.
+	 * @return array
+	 */
+	public static function sanitize( $in ) {
+		if ( ! is_array( $in ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( $in as $k => $v ) {
+			$k = sanitize_key( $k );
+			if ( is_array( $v ) ) {
+				$out[ $k ] = self::sanitize( $v );
+			} elseif ( preg_match( '/(endpoint|url|link|webhook)$/', $k ) ) {
+				$out[ $k ] = esc_url_raw( trim( (string) $v ), array( 'http', 'https' ) );
+			} else {
+				$out[ $k ] = sanitize_text_field( (string) $v );
+			}
+		}
+		return $out;
 	}
 
 	public static function get( $key, $default = '' ) {

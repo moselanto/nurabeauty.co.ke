@@ -66,16 +66,18 @@
 				fetch((window.NURAX && NURAX.rest ? NURAX.rest : '/wp-json/nurax/v1/') + 'wig-finder', {
 					method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
 				}).then(function (r) { return r.json(); }).then(function (data) {
-					var html = '<p class="nurax-results__note">' + (data && data.note ? data.note : 'Your matches') + '</p>';
+					var nxE = function (v) { var t = document.createElement('div'); t.textContent = v == null ? '' : String(v); return t.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;'); };
+					var nxU = function (u) { u = String(u || ''); return /^(https?:)?\/\//i.test(u) || u.charAt(0) === '/' ? nxE(u) : '#'; };
+					var html = '<p class="nurax-results__note">' + nxE(data && data.note ? data.note : 'Your matches') + '</p>';
 					if (data && data.products && data.products.length) {
 						html += '<div class="nurax-reco">';
 						data.products.forEach(function (pr) {
-							html += '<a href="' + pr.url + '"><img src="' + pr.img + '" alt="' + pr.name + '" loading="lazy"><span>' + pr.name + '<br><b>' + pr.price + '</b></span></a>';
+							html += '<a href="' + nxU(pr.url) + '"><img src="' + nxU(pr.img) + '" alt="' + nxE(pr.name) + '" loading="lazy"><span>' + nxE(pr.name) + '<br><b>' + nxE(pr.price) + '</b></span></a>';
 						});
 						html += '</div>';
 					}
 					html += '<div class="nurax-results__cta">';
-					if (data && data.whatsapp) { html += '<a class="nura-btn nura-btn--gold" href="' + data.whatsapp + '" target="_blank" rel="noopener">Book a fitting on WhatsApp</a>'; }
+					if (data && data.whatsapp) { html += '<a class="nura-btn nura-btn--gold" href="' + nxU(data.whatsapp) + '" target="_blank" rel="noopener">Book a fitting on WhatsApp</a>'; }
 					html += '<a class="nura-btn nura-btn--ghost" href="' + ((window.NURAX && NURAX.shopUrl) ? NURAX.shopUrl : '/shop/') + '">Browse all wigs</a></div>';
 					results.innerHTML = html;
 				}).catch(function () {
@@ -172,7 +174,7 @@ r(function(){
 	var toggle=root.querySelector("[data-stylist-toggle]");
 	if(toggle){toggle.addEventListener("click",function(){if(root.classList.contains("is-open")){closePanel();}else{openPanel();}});}
 	var x=root.querySelector("[data-stylist-close]");if(x){x.addEventListener("click",closePanel);}
-	function esc(s){var e=d.createElement("div");e.textContent=(s==null)?"":String(s);return e.innerHTML;}
+	function esc(s){var e=d.createElement("div");e.textContent=(s==null)?"":String(s);return e.innerHTML.replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
 	function fmt(text){var t=String(text==null?"":text).replace(/\r/g,"").replace(/[ \t]+\n/g,"\n").replace(/\n[ \t]+/g,"\n").replace(/\n{3,}/g,"\n\n").trim();return esc(t).replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]])/g,function(u){var label=/\/checkout\b/.test(u)?"Checkout now":(/\/product\//.test(u)?"View product":u.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,""));return '<a href="'+u+'" target="_blank" rel="noopener" class="nurax-msg-link nurax-msg-link--inline">'+label+'</a>';});}function addMsg(role,text){var el=d.createElement("div");el.className="nurax-msg nurax-msg--"+(role==="user"?"user":"bot");el.innerHTML=(role==="user")?esc(text):fmt(text);log.appendChild(el);log.scrollTop=log.scrollHeight;return el;}function addCheckout(url){if(!url||!/^https?:\/\//.test(url)){return;}var w=d.createElement("div");w.className="nurax-msg nurax-msg--bot";var a=d.createElement("a");a.href=url;a.className="nura-btn nura-btn--gold";a.textContent="Checkout now";w.appendChild(a);log.appendChild(w);log.scrollTop=log.scrollHeight;}function sid(){var k="nurax_sid",v="";try{v=localStorage.getItem(k)||"";if(!v){v="w"+Date.now().toString(36)+Math.random().toString(36).slice(2,10);localStorage.setItem(k,v);}}catch(e){v=v||("w"+Date.now().toString(36));}return v;}function utm(){var k="nurax_utm",o={};try{o=JSON.parse(localStorage.getItem(k)||"{}")||{};var q=new URLSearchParams(window.location.search);if(q.get("utm_source")&&!o.source){o={source:q.get("utm_source"),campaign:q.get("utm_campaign")||"",content:q.get("utm_content")||""};localStorage.setItem(k,JSON.stringify(o));}else if(q.get("fbclid")&&!o.source){o={source:"facebook",campaign:"",content:""};localStorage.setItem(k,JSON.stringify(o));}}catch(e){}return o;}
 	function addProducts(items){if(!items||!items.length){return;}var wrap=d.createElement("div");wrap.className="nurax-msg nurax-msg--bot nurax-msg--cards";items.forEach(function(pr){var a=d.createElement("a");a.className="nurax-chip";a.href=pr.url||"#";a.target="_blank";a.rel="noopener";a.innerHTML='<img src="'+esc(pr.img)+'" alt="" loading="lazy"><span>'+esc(pr.name)+'<b>'+esc(pr.price)+'</b></span>';wrap.appendChild(a);});log.appendChild(wrap);log.scrollTop=log.scrollHeight;}
 	function typing(on){var t=log.querySelector(".nurax-typing");if(on){if(t){return;}var el=d.createElement("div");el.className="nurax-msg nurax-msg--bot nurax-typing";el.innerHTML="<span></span><span></span><span></span>";log.appendChild(el);log.scrollTop=log.scrollHeight;}else if(t){t.parentNode.removeChild(t);}}
@@ -307,7 +309,7 @@ r(function(){
 		var rest=(window.NURAX&&NURAX.rest)?NURAX.rest:"/wp-json/nurax/v1/";
 		fetch(rest+"quickview?id="+encodeURIComponent(id)).then(function(res){return res.json();}).then(function(pr){
 			if(!pr||pr.error){body.innerHTML='<p style="padding:2rem">Sorry, this product could not be loaded.</p>';return;}
-			body.innerHTML='<div class="nura-qv-grid"><div class="nura-qv-media"><img src="'+pr.image+'" alt=""></div><div class="nura-qv-info"><h3>'+pr.title+'</h3><div class="nura-qv-price">'+(pr.price||"")+'</div><div class="nura-qv-desc">'+(pr.excerpt||"")+'</div><div class="nura-qv-actions">'+(pr.add||"")+'<a class="nura-btn nura-btn--ghost" href="'+pr.url+'">Full details</a></div></div></div>';
+			body.innerHTML='<div class="nura-qv-grid"><div class="nura-qv-media"><img src="'+esc(pr.image)+'" alt=""></div><div class="nura-qv-info"><h3>'+esc(pr.title)+'</h3><div class="nura-qv-price">'+(pr.price||"")+'</div><div class="nura-qv-desc">'+(pr.excerpt||"")+'</div><div class="nura-qv-actions">'+(pr.add||"")+'<a class="nura-btn nura-btn--ghost" href="'+esc(pr.url)+'">Full details</a></div></div></div>';
 			if(window.jQuery){window.jQuery(d.body).trigger("wc_fragment_refresh");var $vf=window.jQuery(body).find("form.variations_form");if($vf.length&&$vf.wc_variation_form){try{$vf.wc_variation_form();$vf.trigger("check_variations");}catch(err){}}}
 		}).catch(function(){body.innerHTML='<p style="padding:2rem">Sorry, something went wrong.</p>';});
 	});

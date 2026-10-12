@@ -74,3 +74,26 @@ add_filter( 'template_include', function ( $template ) {
 	}
 	return $template;
 }, 20 );
+
+/**
+ * About and AI Wig Finder page designs (v1.48.0): use the matching templates
+ * whatever the page slug is, unless a template was picked manually.
+ */
+add_filter( 'template_include', function ( $template ) {
+	if ( is_page_template() ) {
+		return $template;
+	}
+	$map = array(
+		'page-about.php'         => array( 'about', 'about-us', 'our-story' ),
+		'page-ai-wig-finder.php' => array( 'ai-wig-finder', 'wig-finder' ),
+	);
+	foreach ( $map as $file => $slugs ) {
+		if ( is_page( $slugs ) ) {
+			$custom = locate_template( $file );
+			if ( $custom ) {
+				return $custom;
+			}
+		}
+	}
+	return $template;
+}, 20 );

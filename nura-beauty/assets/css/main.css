@@ -1276,3 +1276,63 @@ body.nura-drawer-open .nura-bottom-nav,body.nura-drawer-open .nura-wa{visibility
 .nura-in-final .nura-in-btn--line{color:var(--nura-ink,#0e0e0e)}
 @media (max-width:900px){.nura-in-care,.nura-in-faq{grid-template-columns:1fr}}
 @media (max-width:560px){.nura-in-btn{flex:1 1 100%}.nura-in-services{grid-template-columns:1fr}}
+
+/* ===== v1.48.0 About page ===== */
+.nura-ab-page,.nura-wf-page{background:#fff}
+.nura-ab-story{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(24px,5vw,72px);align-items:center}
+.nura-ab-story__media{position:relative;margin:0;border-radius:20px;overflow:hidden;aspect-ratio:4/5;background:#f3e9dc;box-shadow:0 20px 50px rgba(14,14,14,.12)}
+.nura-ab-story__media img{width:100%;height:100%;object-fit:cover;display:block}
+.nura-ab-story__media figcaption{position:absolute;left:16px;bottom:16px}
+.nura-ab-story__media figcaption span{display:inline-block;padding:.45rem .9rem;border-radius:999px;background:rgba(14,14,14,.78);color:#fff;font-family:var(--font-ui);font-size:.78rem;letter-spacing:.06em}
+.nura-ab-story__body .nura-eyebrow{color:var(--nura-gold-deep,#8a6a24);margin:0 0 .4rem}
+.nura-ab-story__body h2{margin:0 0 1rem;font-size:clamp(1.7rem,3.2vw,2.4rem)}
+.nura-ab-story__body p{color:rgba(14,14,14,.74);line-height:1.7}
+.nura-ab-stats{list-style:none;margin:1.6rem 0 0;padding:1.4rem 0 0;border-top:1px solid rgba(14,14,14,.1);display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.nura-ab-stats strong{display:block;font-family:var(--font-display);font-size:clamp(1.3rem,2.4vw,1.7rem);color:var(--nura-gold-deep,#8a6a24);line-height:1.1}
+.nura-ab-stats span{font-family:var(--font-ui);font-size:.8rem;color:rgba(14,14,14,.62)}
+.nura-ab-sub{margin:.6rem 0 0;color:rgba(14,14,14,.68)}
+.nura-ab-why{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.nura-ab-why__card{display:flex;flex-direction:column;gap:.45rem;padding:24px 22px;background:#fff;border:1px solid rgba(14,14,14,.08);border-radius:16px;box-shadow:0 10px 30px rgba(14,14,14,.05);transition:transform .2s ease,border-color .2s ease}
+.nura-ab-why__card:hover{transform:translateY(-3px);border-color:var(--nura-gold,#c9a24b)}
+.nura-ab-why__card h3{margin:0;font-size:1.12rem}
+.nura-ab-why__card p{margin:0;font-size:.9rem;line-height:1.55;color:rgba(14,14,14,.68)}
+.nura-ab-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.nura-ab-links .nura-in-btn--line{color:var(--nura-ink,#0e0e0e)}
+.nura-ab-values__list{list-style:none;margin:1.2rem 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.5rem}
+.nura-ab-values__list li{padding:.4rem .85rem;border:1px solid rgba(228,201,131,.4);border-radius:999px;font-family:var(--font-display);font-style:italic;font-size:.92rem;color:#fff}
+.nura-ab-visit{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:20px;align-items:start}
+.nura-ab-visit .nura-ct__studio{display:grid;grid-template-columns:1fr 1fr}
+.nura-ab-visit .nura-ct__map,.nura-ab-visit .nura-ct__map iframe{height:100%;min-height:300px}
+.nura-ab-visit .nura-ct__line a{color:inherit;text-decoration:none}
+.nura-ab-shop{padding:20px}
+.nura-ab-shop ul{list-style:none;margin:.6rem 0 0;padding:0}
+.nura-ab-shop li a{display:flex;justify-content:space-between;align-items:center;padding:.7rem 0;border-bottom:1px solid rgba(14,14,14,.08);color:var(--nura-ink,#0e0e0e);text-decoration:none;font-family:var(--font-ui);font-size:.92rem}
+.nura-ab-shop li a svg{width:16px;height:16px;color:var(--nura-gold-deep,#8a6a24);transition:transform .2s ease}
+.nura-ab-shop li a:hover svg{transform:translateX(3px)}
+
+/* ===== v1.48.0 AI Wig Finder page ===== */
+.nura-wf-steps li{position:relative}
+.nura-wf-steps__top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem}
+.nura-wf-steps__top .nura-ct-card__ic{margin:0;width:40px;height:40px}
+.nura-wf-tool{max-width:960px;margin:0 auto;background:#fff;border:1px solid rgba(14,14,14,.08);border-radius:22px;box-shadow:0 20px 50px rgba(14,14,14,.08);overflow:hidden}
+.nura-wf-tool__head{padding:clamp(24px,3.4vw,40px) clamp(20px,4vw,48px) 0;text-align:center}
+.nura-wf-tool__head .nura-eyebrow{color:var(--nura-gold-deep,#8a6a24);margin:0 0 .4rem}
+.nura-wf-tool__head h2{margin:0 auto;max-width:620px;font-size:clamp(1.5rem,3vw,2.2rem)}
+.nura-wf-tool__body{padding:clamp(18px,3vw,36px) clamp(16px,4vw,48px)}
+.nura-wf-tool__body>*:first-child{margin-top:0}
+.nura-wf-tool__body [class*="finder"]{background:transparent;box-shadow:none;border:0;padding-inline:0}
+.nura-wf-tool__body select,.nura-wf-tool__body input[type="text"],.nura-wf-tool__body input[type="file"]{width:100%;min-height:48px;border-radius:12px;border:1px solid rgba(14,14,14,.16);background:#fff;padding:10px 14px;font-family:var(--font-ui)}
+.nura-wf-tool__body select:focus,.nura-wf-tool__body input:focus{outline:none;border-color:var(--nura-gold,#c9a24b);box-shadow:0 0 0 3px rgba(201,162,75,.2)}
+.nura-wf-tool__body button,.nura-wf-tool__body input[type="submit"]{min-height:48px;padding:12px 28px;border-radius:999px;border:0;background:var(--nura-ink,#0e0e0e);color:#fff;font-family:var(--font-ui);font-weight:600;letter-spacing:.04em;cursor:pointer;transition:background .15s ease,color .15s ease}
+.nura-wf-tool__body button:hover,.nura-wf-tool__body input[type="submit"]:hover{background:var(--nura-gold,#c9a24b);color:var(--nura-ink,#0e0e0e)}
+.nura-wf-privacy{display:flex;gap:10px;align-items:flex-start;margin:0;padding:16px clamp(16px,4vw,48px);background:#faf6f0;border-top:1px solid rgba(14,14,14,.06);font-size:.85rem;color:rgba(14,14,14,.65)}
+.nura-wf-privacy svg{flex:0 0 18px;width:18px;height:18px;color:var(--nura-gold-deep,#8a6a24)}
+.nura-wf-privacy a{color:var(--nura-gold-deep,#8a6a24)}
+.nura-wf-cards{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+html{scroll-behavior:smooth}
+#nura-finder{scroll-margin-top:90px}
+@media (max-width:1024px){.nura-ab-why{grid-template-columns:repeat(2,1fr)}.nura-ab-visit{grid-template-columns:1fr}}
+@media (max-width:900px){.nura-ab-story{grid-template-columns:1fr}.nura-ab-story__media{aspect-ratio:4/3}}
+@media (max-width:640px){.nura-ab-visit .nura-ct__studio{grid-template-columns:1fr}.nura-ab-visit .nura-ct__map,.nura-ab-visit .nura-ct__map iframe{min-height:220px}}
+@media (max-width:560px){.nura-ab-why{grid-template-columns:1fr}.nura-ab-stats{grid-template-columns:1fr;gap:12px}.nura-wf-cards{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

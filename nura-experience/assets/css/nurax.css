@@ -155,5 +155,5 @@
 .nurax-checkout{display:flex;flex-direction:column;gap:8px;}
 .nurax-checkout__label{margin:0;font-size:13px;opacity:.8;}
 .nurax-checkout .nura-btn{display:block;text-align:center;width:100%;box-sizing:border-box;}
-.nurax-checkout__wa{background:#25D366;color:#fff;border:1px solid #25D366;}
-.nurax-checkout__wa:hover,.nurax-checkout__wa:focus{background:#1ebe5b;color:#fff;}
+.nurax-msg .nura-btn.nurax-checkout__wa,.nurax-msg a.nura-btn.nurax-checkout__wa:visited{background:#25D366 !important;background-color:#25D366 !important;color:#fff !important;border:1px solid #25D366 !important;}
+.nurax-msg .nura-btn.nurax-checkout__wa:hover,.nurax-msg .nura-btn.nurax-checkout__wa:focus{background:#1ebe5b !important;background-color:#1ebe5b !important;color:#fff !important;border-color:#1ebe5b !important;}

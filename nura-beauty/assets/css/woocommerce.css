@@ -312,3 +312,7 @@ html body ul.products li.product .nura-hairtype--empty{min-height:22px}
 
 /* v1.40.0 hover photo never shows as an empty box before it loads */
 html body ul.products li.product img.nura-loop-2nd[data-src]{display:none}
+
+/* v1.42.0 category quick facts */
+.nura-cat-facts{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:14px 0 6px;padding:0}
+.nura-cat-facts li{font-size:13px;line-height:1.2;padding:7px 12px;border:1px solid rgba(0,0,0,.12);border-radius:999px;background:#fff;color:inherit}

@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.41.0' );
+define( 'NURA_VERSION', '1.42.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -49,6 +49,7 @@ nura_require( 'seo-schema' );
 nura_require( 'nura-seo-content' );
 nura_require( 'nura-seo' );
 nura_require( 'nura-seo-fixes' );
+nura_require( 'nura-seo-plus' );
 
 // Admin / onboarding.
 nura_require( 'required-plugins' );

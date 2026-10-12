@@ -214,6 +214,7 @@ class NURAX_AI_Stylist {
 			'products'     => array(),
 			'checkout_url' => $checkout,
 			'whatsapp_url' => self::whatsapp_order_url( $checkout ),
+			'whatsapp_order' => self::whatsapp_order_payload( $checkout ),
 			'needs_human'  => !empty( $data['needs_human'] ),
 			'engine'       => 'nura-ai',
 		);
@@ -224,6 +225,23 @@ class NURAX_AI_Stylist {
 	 * from the checkout URL (nura_product / nura_qty) and returns a wa.me link pre-filled with the
 	 * order, so the customer can choose website checkout or WhatsApp.
 	 */
+	/** Product data for the site's Order on WhatsApp pop-up (same form as product cards). */
+	private static function whatsapp_order_payload( $checkout ) {
+		if ( '' === $checkout || ! function_exists( 'wc_get_product' ) || ! class_exists( 'NURAX_WA_Order' ) ) {
+			return null;
+		}
+		$q = array();
+		parse_str( (string) wp_parse_url( $checkout, PHP_URL_QUERY ), $q );
+		$pid     = isset( $q['nura_product'] ) ? absint( $q['nura_product'] ) : 0;
+		$product = $pid ? wc_get_product( $pid ) : null;
+		$data    = $product ? NURAX_WA_Order::payload_for( $product ) : array();
+		if ( empty( $data['id'] ) ) {
+			return null;
+		}
+		$data['qty'] = isset( $q['nura_qty'] ) ? max( 1, min( 20, absint( $q['nura_qty'] ) ) ) : 1;
+		return $data;
+	}
+
 	private static function whatsapp_order_url( $checkout ) {
 		if ( '' === $checkout || ! function_exists( 'wc_get_product' ) ) {
 			return '';

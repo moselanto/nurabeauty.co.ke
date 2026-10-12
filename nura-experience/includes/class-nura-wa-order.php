@@ -152,6 +152,11 @@ class NURAX_WA_Order {
 	}
 
 	/** JSON payload describing one product for the modal. */
+	/** Pop-up payload for other modules (e.g. the NURA Stylist chat's Order on WhatsApp button). */
+	public static function payload_for( $product ) {
+		return $product instanceof WC_Product ? self::product_payload( $product ) : array();
+	}
+
 	private static function product_payload( $product ) {
 		$img = wp_get_attachment_image_url( $product->get_image_id(), 'woocommerce_thumbnail' );
 		return array(

@@ -435,7 +435,7 @@
       var q = scope ? scope.querySelector('input.qty') : null;
       qtyIn.value = q ? Math.min(20, Math.max(1, parseInt(q.value, 10) || 1)) : 1;
     } else {
-      qtyIn.value = 1;
+      qtyIn.value = Math.min(20, Math.max(1, parseInt(data.qty, 10) || 1));
       if (data.variable) { loadOptions(data); }
     }
     open(btn);

@@ -47,6 +47,10 @@ class NURAX_Schema {
 		$home = home_url( '/' );
 		$seo  = $this->seo_plugin_active();
 
+		// v1.52.0: the business node belongs on the pages about the business, not on
+		// every product and category page (it was repeating site-wide next to Rank Math's).
+		$business_page = is_front_page() || is_page( array( 'contact', 'contact-us', 'about', 'about-us', 'book-appointment' ) );
+
 		// --- Organization + LocalBusiness (site-wide) ---
 		$logo   = '';
 		$log_id = (int) get_theme_mod( 'custom_logo' );
@@ -74,8 +78,8 @@ class NURAX_Schema {
 			'legalName'   => 'NURA CROWN & BEAUTY',
 			'url'         => $home,
 			'description' => get_bloginfo( 'description' ),
-			'email'       => apply_filters( 'nurax_schema_email', 'care@nurabeauty.co.ke' ),
-			'telephone'   => apply_filters( 'nurax_schema_phone', '+254714994898' ),
+			'email'       => apply_filters( 'nurax_schema_email', $this->brand_email() ),
+			'telephone'   => apply_filters( 'nurax_schema_phone', $this->brand_phone() ),
 			'priceRange'  => apply_filters( 'nurax_schema_pricerange', 'KSh 1,500 - KSh 20,000' ),
 			'currenciesAccepted' => 'KES',
 			'paymentAccepted'    => 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash on Delivery',
@@ -118,7 +122,13 @@ class NURAX_Schema {
 		if ( ! empty( $same_as ) ) {
 			$business['sameAs'] = array_values( $same_as );
 		}
-		$this->print_jsonld( $business );
+		if ( $seo ) {
+			// Tie this branch to the Organization Rank Math/Yoast already declares.
+			$business['parentOrganization'] = array( '@id' => $home . '#organization' );
+		}
+		if ( $business_page ) {
+			$this->print_jsonld( $business );
+		}
 
 		// --- WebSite + SearchAction (front page only) ---
 		if ( false === $seo && ( is_front_page() || is_home() ) ) {
@@ -144,6 +154,17 @@ class NURAX_Schema {
 		if ( is_page( 'faq' ) ) {
 			$this->print_jsonld( $this->faq_schema() );
 		}
+	}
+
+	/** Contact details from the theme's Brand settings, so schema, header and footer always agree. */
+	private function brand_email() {
+		$e = function_exists( 'nura_opt' ) ? sanitize_email( (string) nura_opt( 'nura_email' ) ) : '';
+		return is_email( $e ) ? $e : 'care@nurabeauty.co.ke';
+	}
+
+	private function brand_phone() {
+		$p = function_exists( 'nura_opt' ) ? preg_replace( '/[^\d+]/', '', (string) nura_opt( 'nura_phone' ) ) : '';
+		return $p ? $p : '+254714994898';
 	}
 
 	private function faq_schema() {

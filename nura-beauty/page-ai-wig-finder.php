@@ -29,9 +29,9 @@ $nf_page = function ( $slug, $fallback = '' ) {
 $nf_shop = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
 $nf_cat  = function ( $slug, $fallback_path ) {
 	$t = get_term_by( 'slug', $slug, 'product_cat' );
-	if ( $t && \! is_wp_error( $t ) ) {
+	if ( $t && ! is_wp_error( $t ) ) {
 		$l = get_term_link( $t );
-		if ( \! is_wp_error( $l ) ) {
+		if ( ! is_wp_error( $l ) ) {
 			return $l;
 		}
 	}

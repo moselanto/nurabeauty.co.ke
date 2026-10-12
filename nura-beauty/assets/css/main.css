@@ -1139,3 +1139,64 @@ body.nura-drawer-open .nura-bottom-nav,body.nura-drawer-open .nura-wa{visibility
 .nura-drawer__help a{color:var(--nura-ivory)}
 .nura-drawer__help a:hover{color:var(--nura-gold)}
 .nura-drawer__help-h{color:var(--nura-gold-soft)}
+
+
+/* ===== v1.43.0 Contact page ===== */
+.nura-ct-hero{padding-bottom:clamp(70px,8vw,110px)}
+.nura-ct-cards-wrap{margin-top:clamp(-80px,-6vw,-52px);position:relative;z-index:2}
+.nura-ct-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.nura-ct-card{display:flex;flex-direction:column;gap:4px;background:#fff;border:1px solid var(--nura-line,rgba(0,0,0,.1));border-radius:14px;padding:22px 20px 18px;color:var(--nura-ink,#0e0e0e);text-decoration:none;box-shadow:0 10px 30px rgba(14,14,14,.08);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;min-width:0}
+.nura-ct-card:hover,.nura-ct-card:focus-visible{transform:translateY(-3px);box-shadow:0 16px 40px rgba(14,14,14,.12);border-color:var(--nura-gold,#c9a24b);color:var(--nura-ink,#0e0e0e)}
+.nura-ct-card__ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--nura-ivory,#f3e9dc);color:var(--nura-ink,#0e0e0e);margin-bottom:10px}
+.nura-ct-card--wa .nura-ct-card__ic{background:#25d366;color:#fff}
+.nura-ct-card__k{font-family:var(--font-ui);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(14,14,14,.6)}
+.nura-ct-card__v{font-family:var(--font-display);font-size:1.12rem;line-height:1.3;font-weight:600;overflow-wrap:anywhere}
+.nura-ct-card__n{font-size:.86rem;color:rgba(14,14,14,.65)}
+.nura-ct-card__go{margin-top:auto;padding-top:12px;display:inline-flex;align-items:center;gap:6px;font-family:var(--font-ui);font-size:.82rem;font-weight:600;color:var(--nura-gold-deep,#8a6a24)}
+.nura-ct-card__go svg{width:16px;height:16px;transition:transform .2s ease}
+.nura-ct-card:hover .nura-ct-card__go svg{transform:translateX(3px)}
+
+.nura-ct{padding-block:clamp(40px,6vw,80px)}
+.nura-ct__grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:start}
+.nura-ct__h{font-size:clamp(1.6rem,3vw,2.2rem);margin:0 0 .4rem}
+.nura-ct__sub{margin:0 0 1.4rem;color:rgba(14,14,14,.7)}
+.nura-ct__form{display:grid;gap:16px;background:#fff;border:1px solid var(--nura-line,rgba(0,0,0,.1));border-radius:14px;padding:clamp(20px,3vw,32px)}
+.nura-ct__row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.nura-ct__form .nura-bk__f{display:flex;flex-direction:column;gap:6px}
+.nura-ct__form label{font-family:var(--font-ui);font-size:.82rem;font-weight:600}
+.nura-ct__form input[type=text],.nura-ct__form textarea{width:100%;box-sizing:border-box;border:1px solid rgba(14,14,14,.18);border-radius:10px;padding:13px 14px;font-size:16px;background:#fff;color:inherit;transition:border-color .15s ease,box-shadow .15s ease}
+.nura-ct__form input:focus,.nura-ct__form textarea:focus{outline:none;border-color:var(--nura-gold,#c9a24b);box-shadow:0 0 0 3px rgba(201,162,75,.2)}
+.nura-ct__form textarea{min-height:130px;resize:vertical}
+.nura-ct__topics{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.nura-ct__topics legend{font-family:var(--font-ui);font-size:.82rem;font-weight:600;margin-bottom:8px;padding:0}
+.nura-ct__topics label{cursor:pointer;font-weight:500}
+.nura-ct__topics input{position:absolute;opacity:0;pointer-events:none}
+.nura-ct__topics span{display:inline-block;padding:9px 14px;border:1px solid rgba(14,14,14,.18);border-radius:999px;font-size:.85rem;transition:all .15s ease}
+.nura-ct__topics input:checked+span{background:var(--nura-ink,#0e0e0e);border-color:var(--nura-ink,#0e0e0e);color:#fff}
+.nura-ct__topics input:focus-visible+span{box-shadow:0 0 0 3px rgba(201,162,75,.35)}
+.nura-ct__ok{display:flex;flex-direction:column;gap:4px;padding:14px 16px;margin-bottom:16px;border-radius:10px;background:#eef8f1;border:1px solid #bfe3cb;color:#174d2b}
+.nura-ct__ok a{color:inherit;text-decoration:underline}
+
+.nura-ct__aside{display:grid;gap:16px;position:sticky;top:110px}
+.nura-ct__studio,.nura-ct__help,.nura-ct__social{background:#fff;border:1px solid var(--nura-line,rgba(0,0,0,.1));border-radius:14px;overflow:hidden}
+.nura-ct__help,.nura-ct__social{padding:20px}
+.nura-ct__map{aspect-ratio:16/9;background:var(--nura-ivory,#f3e9dc)}
+.nura-ct__map iframe{width:100%;height:100%;border:0;display:block;filter:grayscale(.35)}
+.nura-ct__studio-body{padding:20px}
+.nura-ct__line{display:flex;gap:10px;align-items:flex-start;margin:.4rem 0}
+.nura-ct__line svg{flex:none;width:20px;height:20px;color:var(--nura-gold-deep,#8a6a24);margin-top:2px}
+.nura-ct__note{font-size:.88rem;color:rgba(14,14,14,.68);margin:.6rem 0 0}
+.nura-ct__book{display:inline-flex;align-items:center;justify-content:center;margin-top:14px;padding:12px 20px;border-radius:999px;background:var(--nura-ink,#0e0e0e);color:#fff;font-family:var(--font-ui);font-size:.85rem;font-weight:600;text-decoration:none;min-height:44px}
+.nura-ct__book:hover{background:var(--nura-gold,#c9a24b);color:var(--nura-ink,#0e0e0e)}
+.nura-ct__help ul{list-style:none;margin:.4rem 0 0;padding:0}
+.nura-ct__help li+li{border-top:1px solid rgba(14,14,14,.08)}
+.nura-ct__help a{display:flex;justify-content:space-between;align-items:center;padding:11px 0;color:inherit;text-decoration:none;font-size:.92rem;min-height:44px}
+.nura-ct__help a svg{width:16px;height:16px;color:var(--nura-gold-deep,#8a6a24)}
+.nura-ct__help a:hover{color:var(--nura-gold-deep,#8a6a24)}
+.nura-ct__social-row{display:flex;gap:10px;margin-top:12px}
+.nura-ct__social-row a{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(14,14,14,.15);color:inherit}
+.nura-ct__social-row a:hover{background:var(--nura-ink,#0e0e0e);color:#fff;border-color:var(--nura-ink,#0e0e0e)}
+.nura-ct__social-row svg{width:20px;height:20px}
+
+@media (max-width:1024px){.nura-ct-cards{grid-template-columns:repeat(2,1fr)}.nura-ct__grid{grid-template-columns:1fr}.nura-ct__aside{position:static}}
+@media (max-width:560px){.nura-ct-cards{grid-template-columns:1fr;gap:12px}.nura-ct-card{flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:14px;padding:16px}.nura-ct-card__ic{margin:0}.nura-ct-card__k,.nura-ct-card__v,.nura-ct-card__n{flex-basis:calc(100% - 60px);margin-left:58px}.nura-ct-card__k{margin-top:-46px}.nura-ct-card__go{padding-top:6px;margin-left:58px}.nura-ct__row{grid-template-columns:1fr}}

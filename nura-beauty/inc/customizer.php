@@ -73,9 +73,59 @@ function nura_settings_map() {
 		// ---- Payment badges (comma separated, fully editable) ----
 		'nura_payments' => array( 'default' => 'M-Pesa, Cash on Delivery, Bank Transfer', 'label' => __( 'Payment badges (comma separated)', 'nura-beauty' ), 'section' => 'nura_brand', 'control' => 'textarea' ),
 
+		// ---- Installation page (v1.47.0). Lists: one item per line, parts separated by | ----
+		'nura_inst_eyebrow' => array( 'default' => 'NURA Studio', 'label' => __( 'Eyebrow above the title', 'nura-beauty' ), 'section' => 'nura_install' ),
+		'nura_inst_lede'    => array( 'default' => 'Book your install, styling, colouring or revamp with our atelier. Studio appointments, and at-home service for VIP clients.', 'label' => __( 'Intro text', 'nura-beauty' ), 'section' => 'nura_install', 'control' => 'textarea' ),
+		'nura_inst_facts'   => array( 'default' => 'Studio in Nairobi CBD, At-home service for VIP clients, Mon - Sat 9am - 6pm', 'label' => __( 'Fact chips under the intro (comma separated)', 'nura-beauty' ), 'section' => 'nura_install' ),
+		'nura_inst_cta'     => array( 'default' => 'Book installation', 'label' => __( 'Main button text', 'nura-beauty' ), 'section' => 'nura_install' ),
+		'nura_inst_services_title' => array( 'default' => 'Services & guide prices', 'label' => __( 'Services heading', 'nura-beauty' ), 'section' => 'nura_install' ),
+		'nura_inst_services' => array(
+			'default' => "Wig installation | From KSh 1,500 | A secure, natural-looking install of your NURA unit or your own.\nStyling / restyle | KSh 1,000 - 2,500 | A fresh cut, curls or a new parting to change your look.\nWash & revamp | From KSh 1,500 | Deep wash, condition and restyle to bring a tired unit back to life.\nColouring | KSh 2,500 - 5,000 | Custom colour for human hair units.\nRe-lacing / repair | From KSh 2,000 | New lace or repairs so your unit fits and lasts.",
+			'label'   => __( 'Services - one per line: Name | Price | Short description', 'nura-beauty' ),
+			'section' => 'nura_install',
+			'control' => 'textarea',
+		),
+		'nura_inst_price_note' => array( 'default' => 'Prices are a guide and confirmed at consultation based on length, density and the work required. Members of The NURA Circle enjoy preferential rates and scheduled care.', 'label' => __( 'Note under the prices', 'nura-beauty' ), 'section' => 'nura_install', 'control' => 'textarea' ),
+		'nura_inst_steps_title' => array( 'default' => 'How it works', 'label' => __( 'Steps heading', 'nura-beauty' ), 'section' => 'nura_install' ),
+		'nura_inst_steps' => array(
+			'default' => "Book | Book an appointment for your preferred service and time.\nVisit the studio | Come to the studio, or arrange at-home service if you are a VIP client.\nYour stylist gets to work | We install, style or restore your unit to perfection.\nLeave radiant | Walk out confident and book your next care visit.",
+			'label'   => __( 'Steps - one per line: Title | Text', 'nura-beauty' ),
+			'section' => 'nura_install',
+			'control' => 'textarea',
+		),
+		'nura_inst_care_title' => array( 'default' => 'Aftercare & revamps', 'label' => __( 'Aftercare heading', 'nura-beauty' ), 'section' => 'nura_install' ),
+		'nura_inst_care_text'  => array( 'default' => 'A well-maintained unit lasts far longer. We recommend a wash & revamp every 6-8 weeks of regular wear. Join The NURA Circle for automatic care reminders and priority booking.', 'label' => __( 'Aftercare text', 'nura-beauty' ), 'section' => 'nura_install', 'control' => 'textarea' ),
+		'nura_inst_circle_url' => array( 'default' => '', 'label' => __( 'The NURA Circle link (leave empty to hide the button)', 'nura-beauty' ), 'section' => 'nura_install', 'sanitize' => 'esc_url_raw' ),
+		'nura_inst_faq' => array(
+			'default' => "Can you install a wig I bought elsewhere? | Yes. Tell us about the unit when you book and we will advise what it needs.\nDo you offer at-home service? | Yes, for VIP clients. Message us on WhatsApp to arrange it.\nHow often should I revamp my wig? | We recommend a wash and revamp every 6-8 weeks of regular wear.\nAre the prices fixed? | They are a guide. We confirm the price at consultation based on length, density and the work required.",
+			'label'   => __( 'Questions - one per line: Question | Answer (leave empty to hide)', 'nura-beauty' ),
+			'section' => 'nura_install',
+			'control' => 'textarea',
+		),
+
 		// ---- Default social share image ----
 		'nura_default_share_image' => array( 'default' => '', 'label' => __( 'Default social share image', 'nura-beauty' ), 'section' => 'nura_brand', 'control' => 'image', 'sanitize' => 'esc_url_raw' ),
 	);
+}
+
+/**
+ * Helper: turn a "one item per line, parts separated by |" setting into rows.
+ *
+ * @param string $id    Setting id.
+ * @param int    $parts Number of parts per row (missing parts become '').
+ * @return array[]
+ */
+function nura_lines( $id, $parts = 2 ) {
+	$rows = array();
+	foreach ( preg_split( '/\r\n|\r|\n/', (string) nura_opt( $id ) ) as $line ) {
+		$line = trim( $line );
+		if ( '' === $line ) {
+			continue;
+		}
+		$cells = array_map( 'trim', explode( '|', $line, $parts ) );
+		$rows[] = array_pad( $cells, $parts, '' );
+	}
+	return $rows;
 }
 
 /**
@@ -138,6 +188,7 @@ function nura_customize_register( $wp_customize ) {
 		'nura_type'   => __( 'Typography', 'nura-beauty' ),
 		'nura_brand'  => __( 'Brand & Contact', 'nura-beauty' ),
 		'nura_home'   => __( 'Homepage', 'nura-beauty' ),
+		'nura_install' => __( 'Installation page', 'nura-beauty' ),
 	);
 	foreach ( $sections as $id => $title ) {
 		$wp_customize->add_section( $id, array( 'title' => $title, 'panel' => 'nura_panel' ) );

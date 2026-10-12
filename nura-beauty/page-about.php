@@ -2,7 +2,7 @@
 /**
  * Template Name: NURA About
  *
- * About page - v1.48.0. Used automatically for pages with the slug about,
+ * About page - v1.49.0. Used automatically for pages with the slug about,
  * about-us or our-story (see functions.php), or pick "NURA About" under
  * Page > Template.
  *
@@ -167,6 +167,11 @@ $na_shop_links = array(
 						<p class="nura-in-svc__d"><?php echo esc_html( $svc[1] ); ?></p>
 					</article>
 				<?php endforeach; ?>
+				<a class="nura-in-svc nura-ab-svc-cta" href="<?php echo esc_url( $na_book ); ?>">
+					<h3><?php esc_html_e( 'Not sure what you need?', 'nura-beauty' ); ?></h3>
+					<p class="nura-in-svc__d"><?php esc_html_e( 'Book a free consultation and a stylist will guide you.', 'nura-beauty' ); ?></p>
+					<span class="nura-in-svc__go"><?php esc_html_e( 'Book a consultation', 'nura-beauty' ); ?> <span aria-hidden="true">&rarr;</span></span>
+				</a>
 			</div>
 			<div class="nura-ab-links">
 				<?php if ( $na_install ) : ?>
@@ -200,24 +205,32 @@ $na_shop_links = array(
 	</section>
 
 	<section class="nura-in-section nura-in-section--soft">
-		<div class="nura-container nura-ab-visit">
-			<div class="nura-ct__studio">
-				<div class="nura-ct__map">
+		<div class="nura-container">
+			<div class="nura-in-head">
+				<p class="nura-eyebrow"><?php esc_html_e( 'Visit us', 'nura-beauty' ); ?></p>
+				<h2><?php esc_html_e( 'Our Nairobi studio', 'nura-beauty' ); ?></h2>
+			</div>
+			<div class="nura-ab-studio">
+				<div class="nura-ab-studio__map">
 					<iframe title="<?php esc_attr_e( 'Map to the NURA studio', 'nura-beauty' ); ?>" src="https://www.google.com/maps?q=<?php echo esc_attr( $na_map_q ); ?>&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 				</div>
-				<div class="nura-ct__studio-body">
-					<p class="nura-bk__studio-k"><?php esc_html_e( 'Visit our Nairobi studio', 'nura-beauty' ); ?></p>
-					<p class="nura-ct__line"><?php echo $na_icon( 'pin' ); // phpcs:ignore ?><span><?php echo esc_html( $na_addr ); ?></span></p>
-					<p class="nura-ct__line"><?php echo $na_icon( 'clock' ); // phpcs:ignore ?><span><?php echo esc_html( $na_hours ); ?></span></p>
-					<p class="nura-ct__line"><?php echo $na_icon( 'phone' ); // phpcs:ignore ?><span><a href="tel:<?php echo esc_attr( $na_tel ); ?>"><?php echo esc_html( $na_phone ); ?></a></span></p>
-					<p class="nura-ct__line"><?php echo $na_icon( 'mail' ); // phpcs:ignore ?><span><a href="mailto:<?php echo esc_attr( $na_mail ); ?>"><?php echo esc_html( $na_mail ); ?></a></span></p>
+				<div class="nura-ab-studio__body">
+					<p class="nura-bk__studio-k"><?php esc_html_e( 'The NURA studio', 'nura-beauty' ); ?></p>
+					<ul class="nura-ab-studio__lines">
+						<li><?php echo $na_icon( 'pin' ); // phpcs:ignore ?><span><?php echo esc_html( $na_addr ); ?></span></li>
+						<li><?php echo $na_icon( 'clock' ); // phpcs:ignore ?><span><?php echo esc_html( $na_hours ); ?></span></li>
+						<li><?php echo $na_icon( 'phone' ); // phpcs:ignore ?><a href="tel:<?php echo esc_attr( $na_tel ); ?>"><?php echo esc_html( $na_phone ); ?></a></li>
+						<li><?php echo $na_icon( 'mail' ); // phpcs:ignore ?><a href="mailto:<?php echo esc_attr( $na_mail ); ?>"><?php echo esc_html( $na_mail ); ?></a></li>
+					</ul>
 					<p class="nura-ct__note"><?php esc_html_e( 'Come in for a consultation, fitting, installation or styling. Visits are by appointment so a stylist is ready for you.', 'nura-beauty' ); ?></p>
-					<a class="nura-ct__book" href="<?php echo esc_url( $na_book ); ?>"><?php esc_html_e( 'Book a visit', 'nura-beauty' ); ?></a>
+					<div class="nura-ab-studio__cta">
+						<a class="nura-in-btn nura-in-btn--gold" href="<?php echo esc_url( $na_book ); ?>"><?php esc_html_e( 'Book a visit', 'nura-beauty' ); ?></a>
+						<a class="nura-in-btn nura-in-btn--line" href="https://www.google.com/maps/search/?api=1&amp;query=<?php echo esc_attr( $na_map_q ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Get directions', 'nura-beauty' ); ?></a>
+					</div>
 				</div>
 			</div>
-			<div class="nura-ct__help nura-ab-shop">
+			<div class="nura-ab-shop">
 				<p class="nura-bk__studio-k"><?php esc_html_e( 'Shop wigs in Kenya', 'nura-beauty' ); ?></p>
-				<p class="nura-ct__note"><?php esc_html_e( 'Ready to find your unit? Start with a collection.', 'nura-beauty' ); ?></p>
 				<ul>
 					<?php foreach ( $na_shop_links as $u => $label ) : ?>
 						<li><a href="<?php echo esc_url( $u ); ?>"><?php echo esc_html( $label ); ?><?php echo $na_icon( 'arrow' ); // phpcs:ignore ?></a></li>

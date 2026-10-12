@@ -2,7 +2,7 @@
 /**
  * Template Name: NURA AI Wig Finder
  *
- * AI Wig Finder page - v1.48.0. Used automatically for pages with the slug
+ * AI Wig Finder page - v1.49.0. Used automatically for pages with the slug
  * ai-wig-finder or wig-finder (see functions.php), or pick "NURA AI Wig Finder"
  * under Page > Template.
  *
@@ -113,10 +113,6 @@ $nf_steps = array(
 	<section class="nura-in-section nura-in-section--soft" id="nura-finder">
 		<div class="nura-container">
 			<div class="nura-wf-tool">
-				<div class="nura-wf-tool__head">
-					<p class="nura-eyebrow"><?php esc_html_e( 'NURA Wig Finder', 'nura-beauty' ); ?></p>
-					<h2><?php esc_html_e( 'Answer a few quick questions and meet your match', 'nura-beauty' ); ?></h2>
-				</div>
 				<div class="nura-wf-tool__body">
 					<?php echo do_shortcode( '[nura_ai_wig_finder]' ); // phpcs:ignore ?>
 				</div>

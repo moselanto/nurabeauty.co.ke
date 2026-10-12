@@ -208,13 +208,44 @@ class NURAX_AI_Stylist {
 		if ( !is_array( $data ) || empty( $data['ok'] ) || '' === trim( (string) ( isset( $data['reply'] ) ? $data['reply'] : '' ) ) ) {
 			return null;
 		}
+		$checkout = isset( $data['checkout_url'] ) ? esc_url_raw( (string) $data['checkout_url'] ) : '';
 		return array(
 			'reply'        => (string) $data['reply'],
 			'products'     => array(),
-			'checkout_url' => isset( $data['checkout_url'] ) ? esc_url_raw( (string) $data['checkout_url'] ) : '',
+			'checkout_url' => $checkout,
+			'whatsapp_url' => self::whatsapp_order_url( $checkout ),
 			'needs_human'  => !empty( $data['needs_human'] ),
 			'engine'       => 'nura-ai',
 		);
+	}
+
+	/**
+	 * "Order on WhatsApp" alternative to the chat's checkout link. Reads the product and quantity
+	 * from the checkout URL (nura_product / nura_qty) and returns a wa.me link pre-filled with the
+	 * order, so the customer can choose website checkout or WhatsApp.
+	 */
+	private static function whatsapp_order_url( $checkout ) {
+		if ( '' === $checkout || ! function_exists( 'wc_get_product' ) ) {
+			return '';
+		}
+		$q = array();
+		parse_str( (string) wp_parse_url( $checkout, PHP_URL_QUERY ), $q );
+		$pid = isset( $q['nura_product'] ) ? absint( $q['nura_product'] ) : 0;
+		$qty = isset( $q['nura_qty'] ) ? max( 1, min( 20, absint( $q['nura_qty'] ) ) ) : 1;
+		$product = $pid ? wc_get_product( $pid ) : null;
+		if ( ! $product ) {
+			return '';
+		}
+		$number = class_exists( 'NURAX_WA_Order' ) ? NURAX_WA_Order::whatsapp_number() : '254714994898';
+		$unit   = (float) wc_get_price_to_display( $product );
+		$money  = function ( $v ) {
+			return 'KSh ' . number_format( (float) $v, 0, '.', ',' );
+		};
+		$text   = 'Hi NURA, I would like to order:' . "\n"
+			. wp_strip_all_tags( $product->get_name() ) . ' x ' . $qty . ' = ' . $money( $unit * $qty ) . "\n"
+			. get_permalink( $product->get_id() ) . "\n"
+			. 'Delivery location: ';
+		return 'https://wa.me/' . $number . '?text=' . rawurlencode( $text );
 	}
 
 	/**

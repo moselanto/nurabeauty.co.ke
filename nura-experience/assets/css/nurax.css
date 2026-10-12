@@ -150,3 +150,10 @@
 .nurax-booking__wa{display:inline-block;background:#25D366;color:#fff;border-radius:999px;padding:.6rem 1.1rem;font-weight:700;text-decoration:none}
 .nurax-stylist .nurax-stylist__quick .nurax-chip-book{background:var(--nura-ink,#0E0E0E);color:var(--nura-gold,#C9A24B);border-color:var(--nura-ink,#0E0E0E)}
 @media(max-width:480px){.nurax-booking__form input,.nurax-booking__form select,.nurax-booking__form textarea{font-size:16px}}
+
+/* 1.53.1: chat checkout choice - website checkout or WhatsApp */
+.nurax-checkout{display:flex;flex-direction:column;gap:8px;}
+.nurax-checkout__label{margin:0;font-size:13px;opacity:.8;}
+.nurax-checkout .nura-btn{display:block;text-align:center;width:100%;box-sizing:border-box;}
+.nurax-checkout__wa{background:#25D366;color:#fff;border:1px solid #25D366;}
+.nurax-checkout__wa:hover,.nurax-checkout__wa:focus{background:#1ebe5b;color:#fff;}

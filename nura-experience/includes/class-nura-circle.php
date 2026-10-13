@@ -45,9 +45,14 @@ class NURAX_Circle {
 	}
 
 	public function add_endpoints() {
-		add_rewrite_endpoint( 'nura-circle', EP_ROOT | EP_PAGES );
-		add_rewrite_endpoint( 'care-schedule', EP_ROOT | EP_PAGES );
-		add_rewrite_endpoint( 'warranties', EP_ROOT | EP_PAGES );
+		add_rewrite_endpoint( 'nura-circle', EP_PAGES );
+		add_rewrite_endpoint( 'care-schedule', EP_PAGES );
+		add_rewrite_endpoint( 'warranties', EP_PAGES );
+		// One-time rewrite flush so old root-level endpoint rules (which made /nura-circle/ render the blog index) are removed.
+		if ( get_option( 'nurax_circle_rewrite_ver' ) !== NURAX_VERSION ) {
+			flush_rewrite_rules( false );
+			update_option( 'nurax_circle_rewrite_ver', NURAX_VERSION );
+		}
 	}
 
 	public function menu_items( $items ) {

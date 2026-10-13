@@ -17,7 +17,7 @@
  *    publish.
  *
  * The copy is grounded in NURA's own published details (Nairobi studio,
- * +254 714 994 898, care@nurabeauty.co.ke, M-Pesa/card (Paystack)/bank transfer/COD, same-day Nairobi
+ * +254 714 994 898, care@nurabeautyke.co.ke, M-Pesa/card (Paystack)/bank transfer/COD, same-day Nairobi
  * delivery, 48-hour returns window). A few store-specific values that only the
  * owner can confirm (exact Till number, precise fees) are shown at checkout or
  * left as a clearly marked note rather than invented.
@@ -41,7 +41,7 @@ class NURAX_Pages {
 	public static function defs() {
 		$biz   = get_bloginfo( 'name' );
 		$phone = '+254 714 994 898';
-		$email = 'care@nurabeauty.co.ke';
+		$email = 'care@nurabeautyke.co.ke';
 
 		$about = <<<HTML
 <h2>The House of Radiant Confidence</h2>
@@ -70,7 +70,7 @@ HTML;
 <h3>Visit the studio</h3>
 <p>Come in for a consultation, fitting, installation or styling. So we can give you our full concierge attention, please book an appointment on WhatsApp before visiting.</p>
 <h3>Follow the house</h3>
-<p>See transformations, tutorials and new drops on Instagram and TikTok at <strong>@nurabeauty</strong>.</p>
+<p>See transformations, tutorials and new drops on Instagram and TikTok at <strong>@nurabeautyke</strong>.</p>
 HTML;
 
 		$delivery = <<<HTML

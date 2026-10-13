@@ -227,7 +227,7 @@ add_action( 'woocommerce_archive_description', function () {
 	}
 	$items = array();
 	/* translators: 1: count, 2: category name */
-	$items[] = sprintf( _n( '%1$d %2$s style', '%1$d %2$s styles', $f['count'], 'nura-beauty' ), $f['count'], esc_html( strtolower( $t->name ) ) );
+	$items[] = sprintf( _n( '%1$d %2$s style', '%1$d %2$s styles', $f['count'], 'nura-beauty' ), $f['count'], esc_html( preg_replace( '/wigs$/', 'wig', strtolower( $t->name ) ) ) );
 	if ( $f['min'] && $f['max'] && $f['max'] > $f['min'] ) {
 		$items[] = esc_html( nura_seo_ksh( $f['min'] ) . ' - ' . nura_seo_ksh( $f['max'] ) );
 	} elseif ( $f['min'] ) {

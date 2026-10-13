@@ -314,7 +314,7 @@ class NURAX_WA_Order {
 			$total -= WC()->cart->display_prices_including_tax() ? $disc + (float) WC()->cart->get_discount_tax() : $disc;
 		}
 		$total = max( 0, $total );
-		$text  = __( 'Hi NURA, I would like to order:', 'nura-experience' ) . "\n" . implode( "\n", $plain ) . "\n" . __( 'Total:', 'nura-experience' ) . ' ' . self::money( $total );
+		$text  = __( 'Hi NURA, I would like to order:', 'nura-experience' ) . "\n" . implode( "\n", $plain ) . "\n" . __( 'Subtotal (delivery extra):', 'nura-experience' ) . ' ' . self::money( $total );
 		$data  = array(
 			'items' => $lines,
 			'total' => $total,
@@ -374,7 +374,7 @@ class NURAX_WA_Order {
 									<input type="number" name="qty" class="nwo-qty__input" value="1" min="1" max="20" inputmode="numeric" aria-label="<?php esc_attr_e( 'Quantity', 'nura-experience' ); ?>">
 									<button type="button" class="nwo-qty__btn" data-nwo-qty="1" aria-label="<?php esc_attr_e( 'Increase quantity', 'nura-experience' ); ?>">+</button>
 								</div>
-								<div class="nwo-total"><span><?php esc_html_e( 'Total', 'nura-experience' ); ?></span><strong data-nwo-total aria-live="polite"></strong></div>
+								<div class="nwo-total"><span><?php esc_html_e( 'Subtotal (delivery extra)', 'nura-experience' ); ?></span><strong data-nwo-total aria-live="polite"></strong></div>
 							</div>
 						</div>
 
@@ -458,7 +458,7 @@ class NURAX_WA_Order {
 					<div class="nwo-foot">
 						<p class="nwo-formerr" data-nwo-formerr role="alert" hidden></p>
 						<div class="nwo-foot__row">
-							<div class="nwo-foot__total"><span><?php esc_html_e( 'Order total', 'nura-experience' ); ?></span><strong data-nwo-foottotal></strong></div>
+							<div class="nwo-foot__total"><span><?php esc_html_e( 'Subtotal - delivery fee confirmed on WhatsApp', 'nura-experience' ); ?></span><strong data-nwo-foottotal></strong></div>
 							<button type="submit" class="nwo-submit"><?php echo self::wa_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Send order', 'nura-experience' ); ?></span></button>
 						</div>
 						<p class="nwo-small"><?php esc_html_e( 'WhatsApp opens with your order ready. Just tap send.', 'nura-experience' ); ?></p>

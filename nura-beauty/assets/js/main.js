@@ -501,11 +501,24 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form){return;}
 		});
 	}
 
+	// v1.50.0: always fetch fresh fragments ourselves - wc-cart-fragments is not loaded on
+	// this site, so triggering wc_fragment_refresh alone left drawer line totals stale.
 	function refreshCart(){
-		if(window.jQuery){window.jQuery(d.body).trigger("wc_fragment_refresh");return;}
-		fetch("/?wc-ajax=get_refreshed_fragments",{method:"POST",credentials:"same-origin"}).then(function(r){return r.json();}).then(function(j){
-			if(j&&j.fragments){Object.keys(j.fragments).forEach(function(sel){var el=d.querySelector(sel);if(el){el.outerHTML=j.fragments[sel];}});enhance();}
+		return fetch("/?wc-ajax=get_refreshed_fragments",{method:"POST",credentials:"same-origin"}).then(function(r){return r.json();}).then(function(j){
+			if(j&&j.fragments){Object.keys(j.fragments).forEach(function(sel){[].forEach.call(d.querySelectorAll(sel),function(el){el.outerHTML=j.fragments[sel];});});enhance();syncFoot();
+				if(window.jQuery){window.jQuery(d.body).trigger("wc_fragments_refreshed");}}
 		}).catch(function(){});
+	}
+	// v1.50.0: an empty drawer offers "Shop wigs" instead of a dead-end "Proceed to checkout".
+	function syncFoot(){
+		var dr=d.querySelector("[data-nura-cartdrawer]");if(!dr){return;}
+		var a=dr.querySelector(".nura-cartdrawer__checkout");if(!a){return;}
+		var empty=!dr.querySelector(".woocommerce-mini-cart-item");
+		var want=empty?"shop":"checkout";
+		if(a.getAttribute("data-mode")===want){return;}
+		a.setAttribute("data-mode",want);
+		a.href=a.getAttribute(empty?"data-shop":"data-checkout")||a.href;
+		a.textContent=empty?"Shop wigs":"Proceed to checkout";
 	}
 
 	function busy(wrap,on){
@@ -520,7 +533,8 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form){return;}
 		enhance();
 		if(window.jQuery){window.jQuery(d.body).on("wc_fragments_refreshed wc_fragments_loaded added_to_cart removed_from_cart",function(){enhance();});}
 		var drawer=d.querySelector("[data-nura-cartdrawer]");
-		if(drawer){try{new MutationObserver(function(){enhance();}).observe(drawer,{childList:true,subtree:true});}catch(e){}}
+		if(drawer){try{new MutationObserver(function(){enhance();syncFoot();}).observe(drawer,{childList:true,subtree:true});}catch(e){}}
+		syncFoot();
 
 		d.addEventListener("click",function(e){
 			var btn=(e.target&&e.target.closest)?e.target.closest(".nura-qtystep__btn"):null;
@@ -537,8 +551,8 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form){return;}
 			var op=(next<1)?API.remove(key):API.setQty(key,next);
 			op.then(function(res){
 				if(res&&res.ok&&next>=1){nEl.textContent=String(next);}
-				refreshCart();
-			}).catch(function(){refreshCart();}).then(function(){busy(wrap,false);});
+				return refreshCart();
+			}).catch(function(){return refreshCart();}).then(function(){busy(wrap,false);});
 		});
 	});
 })();
@@ -754,7 +768,7 @@ h.addEventListener("mouseleave",function(){t=setTimeout(function(){h.removeAttri
 (function(d){var f=d.querySelector("[data-nura-book]");if(!f){return;}
 var svc=f.querySelector("input[name=service]"),err=f.querySelector(".nura-bk__err"),btn=f.querySelector(".nura-bk__submit"),done=f.querySelector(".nura-bk__done");
 [].forEach.call(d.querySelectorAll("input[name=nb_service_pick]"),function(r){r.addEventListener("change",function(){if(r.checked){svc.value=r.value;}});});
-var date=f.querySelector("#nb-date");if(date){var t=new Date();t.setMinutes(t.getMinutes()-t.getTimezoneOffset());date.min=t.toISOString().slice(0,10);}
+var date=f.querySelector("#nb-date");if(date){var t=new Date();t.setMinutes(t.getMinutes()-t.getTimezoneOffset());date.min=t.toISOString().slice(0,10);date.addEventListener("change",function(){var v=date.value;var bad=v&&new Date(v+"T12:00:00").getDay()===0;date.setCustomValidity(bad?"We are closed on Sundays. Please pick Monday to Saturday.":"");if(bad){date.reportValidity();date.value="";}});}
 function val(n){var el=f.querySelector("[name="+n+"]");if(!el){return "";}if(el.type==="radio"){var c=f.querySelector("[name="+n+"]:checked");return c?c.value:"";}return (el.value||"").trim();}
 function show(m){err.textContent=m;err.hidden=false;}
 function phone(){var p=val("phone").replace(/\D/g,"");if(p.length===10&&p.charAt(0)==="0"){p="254"+p.slice(1);}else if(p.length===9){p="254"+p;}return p;}

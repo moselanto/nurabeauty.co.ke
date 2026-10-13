@@ -150,7 +150,7 @@
           (it.option ? '<em>' + esc(it.option) + '</em>' : '') + '<small>' + esc(it.qty) + ' x ' + esc(money(it.price)) + '</small></span>' +
           '<span class="nwo-sum__line">' + esc(money(it.line)) + '</span></li>';
       }).join('');
-      sumEl.innerHTML = '<p class="nwo-sum__cat">Your cart &middot; ' + state.items.length + (state.items.length === 1 ? ' item' : ' items') + '</p><ul class="nwo-sum__list">' + rows + '</ul><div class="nwo-sum__total"><span>Cart total</span><strong>' + esc(money(state.total)) + '</strong></div>';
+      sumEl.innerHTML = '<p class="nwo-sum__cat">Your cart &middot; ' + state.items.length + (state.items.length === 1 ? ' item' : ' items') + '</p><ul class="nwo-sum__list">' + rows + '</ul><div class="nwo-sum__total"><span>Subtotal (delivery extra)</span><strong>' + esc(money(state.total)) + '</strong></div>';
       qtyRow.hidden = true;
       if (titleEl) { titleEl.textContent = 'Order your cart'; }
       if (footTotalEl) { footTotalEl.textContent = money(state.total); }
@@ -271,14 +271,14 @@
       state.items.forEach(function (it, i) {
         L.push((i + 1) + '. ' + it.name + (it.option ? ' - ' + it.option : '') + ' x ' + it.qty + ' = ' + money(it.line));
       });
-      L.push('*Total:* ' + money(state.total));
+      L.push('*Subtotal (delivery extra):* ' + money(state.total));
     } else {
       var q = qty(), from = (state.product.variable && !state.option) ? 'From ' : '';
       L.push('*Product:* ' + state.product.name);
       if (state.option) { L.push('*Option:* ' + state.option); }
       if (state.price > 0) { L.push('*Price:* ' + from + money(state.price)); }
       L.push('*Qty:* ' + q);
-      if (state.price > 0) { L.push('*Total:* ' + from + money(state.price * q)); }
+      if (state.price > 0) { L.push('*Subtotal (delivery extra):* ' + from + money(state.price * q)); }
     }
     L.push(SEP);
     L.push('*Customer:* ' + val('name'));

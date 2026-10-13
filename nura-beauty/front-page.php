@@ -29,7 +29,7 @@ $finder_url = home_url( '/ai-wig-finder/' );
 $nura_phone = nura_opt( 'nura_phone' );
 if ( ! $nura_phone ) { $nura_phone = '+254 714 994 898'; }
 $nura_email = nura_opt( 'nura_email' );
-if ( ! $nura_email ) { $nura_email = 'care@nurabeauty.co.ke'; }
+if ( ! $nura_email ) { $nura_email = 'care@nurabeautyke.co.ke'; }
 $nura_tel   = preg_replace( '/[^0-9+]/', '', $nura_phone );
 if ( ! $wa ) { $wa = 'https://wa.me/254714994898'; }
 
@@ -310,11 +310,11 @@ $slides = array(
 	<?php $ig = nura_opt( 'nura_instagram' ); $ig_url = $ig ? $ig : $wa; ?>
 	<section class="section section--ink text-center" id="real-women">
 		<div class="nura-container nura-reveal">
-			<p class="nura-eyebrow">@nurabeauty</p>
+			<p class="nura-eyebrow">@nurabeautyke</p>
 			<h2><?php esc_html_e( 'Real women. Real crowns.', 'nura-beauty' ); ?></h2>
 			<?php $nura_photos = function_exists( 'nura_community_photo_ids' ) ? nura_community_photo_ids( 8 ) : array(); ?>
 			<?php if ( $nura_photos ) : ?>
-			<p class="nura-lede" style="max-width:640px;margin-inline:auto"><?php esc_html_e( 'Our clients, wearing their NURA crowns. Tag @nurabeauty to be featured.', 'nura-beauty' ); ?></p>
+			<p class="nura-lede" style="max-width:640px;margin-inline:auto"><?php esc_html_e( 'Our clients, wearing their NURA crowns. Tag @nurabeautyke to be featured.', 'nura-beauty' ); ?></p>
 			<div class="nura-community">
 				<?php foreach ( $nura_photos as $nura_pid ) : ?>
 					<?php $nura_cap = wp_get_attachment_caption( $nura_pid ); ?>
@@ -325,7 +325,7 @@ $slides = array(
 				<?php endforeach; ?>
 			</div>
 			<?php else : ?>
-			<p class="nura-lede" style="max-width:640px;margin-inline:auto"><?php esc_html_e( 'Tag @nurabeauty in your crown to be featured here - real women, real hair, real confidence, across Kenya and beyond.', 'nura-beauty' ); ?></p>
+			<p class="nura-lede" style="max-width:640px;margin-inline:auto"><?php esc_html_e( 'Tag @nurabeautyke in your crown to be featured here - real women, real hair, real confidence, across Kenya and beyond.', 'nura-beauty' ); ?></p>
 			<?php endif; ?>
 			<p style="margin-top:1.4rem">
 				<a class="nura-btn nura-btn--gold" href="<?php echo esc_url( $ig_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'See the NURA community', 'nura-beauty' ); ?> &#8594;</a>
@@ -383,7 +383,7 @@ $slides = array(
 			<p class="nura-lede" style="max-width:620px;margin-inline:auto"><?php esc_html_e( 'A complete beauty experience, handled end to end by our team.', 'nura-beauty' ); ?></p>
 			<p style="margin:.8rem 0 0;letter-spacing:.16em;text-transform:uppercase;font-size:.8rem;color:var(--nura-gold-soft)"><?php esc_html_e( 'Installation • Revamp • Styling • Consultation', 'nura-beauty' ); ?></p>
 			<p style="margin-top:1.6rem">
-				<a class="nura-btn nura-btn--gold" href="<?php echo esc_url( home_url( '/services/' ) ); ?>"><?php esc_html_e( 'Explore NURA Services', 'nura-beauty' ); ?> &#8594;</a>
+				<a class="nura-btn nura-btn--gold" href="<?php echo esc_url( home_url( '/installation/' ) ); ?>"><?php esc_html_e( 'Explore NURA Services', 'nura-beauty' ); ?> &#8594;</a>
 			</p>
 		</div>
 	</section>

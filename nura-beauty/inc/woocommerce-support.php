@@ -421,7 +421,7 @@ function nura_cart_drawer() {
 			<div class="widget_shopping_cart_content"><?php woocommerce_mini_cart(); ?></div>
 		</div>
 		<div class="nura-cartdrawer__foot">
-			<a class="nura-btn nura-btn--gold nura-cartdrawer__checkout" href="<?php echo esc_url( wc_get_checkout_url() ); ?>"><?php esc_html_e( 'Proceed to checkout', 'nura-beauty' ); ?></a>
+			<a class="nura-btn nura-btn--gold nura-cartdrawer__checkout" href="<?php echo esc_url( wc_get_checkout_url() ); ?>" data-checkout="<?php echo esc_url( wc_get_checkout_url() ); ?>" data-shop="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>"><?php esc_html_e( 'Proceed to checkout', 'nura-beauty' ); ?></a>
 			<button type="button" class="nura-btn nura-btn--ghost" data-nura-cart-close><?php esc_html_e( 'Continue shopping', 'nura-beauty' ); ?></button>
 		</div>
 	</aside>
@@ -633,3 +633,48 @@ if ( ! function_exists( 'nura_discount_percent' ) ) {
 		return (int) round( $best );
 	}
 }
+
+/* -----------------------------------------------------------------------------
+ * v1.50.0 - Cash on Delivery is available in Nairobi only.
+ * Hides COD once a non-Nairobi county is chosen (classic + block checkout both
+ * read available gateways) and blocks it server-side as a safety net.
+ * -------------------------------------------------------------------------- */
+if ( ! function_exists( 'nura_is_nairobi_state' ) ) {
+	function nura_is_nairobi_state( $state ) {
+		$state = strtolower( trim( (string) $state ) );
+		return ( 'ke30' === $state || false !== strpos( $state, 'nairobi' ) );
+	}
+}
+if ( ! function_exists( 'nura_customer_county' ) ) {
+	function nura_customer_county() {
+		if ( ! function_exists( 'WC' ) || ! WC()->customer ) {
+			return '';
+		}
+		$s = (string) WC()->customer->get_shipping_state();
+		if ( '' === $s ) {
+			$s = (string) WC()->customer->get_billing_state();
+		}
+		return $s;
+	}
+}
+add_filter( 'woocommerce_available_payment_gateways', function ( $gateways ) {
+	if ( is_admin() && ! wp_doing_ajax() ) {
+		return $gateways;
+	}
+	if ( isset( $gateways['cod'] ) ) {
+		$county = nura_customer_county();
+		if ( '' !== $county && ! nura_is_nairobi_state( $county ) ) {
+			unset( $gateways['cod'] );
+		}
+	}
+	return $gateways;
+} );
+add_action( 'woocommerce_after_checkout_validation', function ( $data, $errors ) {
+	if ( isset( $data['payment_method'] ) && 'cod' === $data['payment_method'] ) {
+		$county = ( ! empty( $data['ship_to_different_address'] ) && ! empty( $data['shipping_state'] ) ) ? $data['shipping_state'] : ( isset( $data['billing_state'] ) ? $data['billing_state'] : '' );
+		if ( '' !== (string) $county && ! nura_is_nairobi_state( $county ) ) {
+			$errors->add( 'nura_cod', __( 'Cash on Delivery is available in Nairobi only. Please pay with M-Pesa, card or bank transfer.', 'nura-beauty' ) );
+		}
+	}
+}, 10, 2 );
+

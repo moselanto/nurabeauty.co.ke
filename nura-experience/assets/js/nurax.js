@@ -255,6 +255,8 @@ r(function(){
 r(function(){
 	var modal=d.querySelector("[data-qv-modal]");if(!modal){return;}
 	var body=modal.querySelector("[data-qv-body]");
+	// v1.53.4: esc() was missing in this scope, so every Quick View / "Select options" click threw and showed "Sorry, something went wrong."
+	function esc(s){var e=d.createElement("div");e.textContent=(s==null)?"":String(s);return e.innerHTML.replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
 	function openM(){modal.hidden=false;modal.classList.add("is-open");d.body.style.overflow="hidden";}
 	function closeM(){modal.hidden=true;modal.classList.remove("is-open");d.body.style.overflow="";}
 	[].slice.call(modal.querySelectorAll("[data-qv-close]")).forEach(function(x){x.addEventListener("click",closeM);});

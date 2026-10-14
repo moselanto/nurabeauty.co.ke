@@ -143,7 +143,7 @@ add_action( 'init', function () {
 		|| ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
 		return;
 	}
-	$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : '';
+	$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 	if ( '' === $ua ) {
 		return;
 	}
@@ -177,7 +177,7 @@ function nura_subscribe_spam_guard() {
 	$bounce = wp_get_referer() ? wp_get_referer() : home_url( '/' );
 
 	// Honeypot: a hidden field real users never fill.
-	if ( ! empty( $_POST['nura_hp'] ) ) {
+	if ( ! empty( $_POST['nura_hp'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- honeypot check only.
 		wp_safe_redirect( $bounce );
 		exit;
 	}
@@ -188,7 +188,7 @@ function nura_subscribe_spam_guard() {
 		exit;
 	}
 	// Per-IP rate limit: at most 5 submissions per 10 minutes.
-	$ip   = isset( $_SERVER['REMOTE_ADDR'] ) ? preg_replace( '/[^0-9a-f:.]/i', '', $_SERVER['REMOTE_ADDR'] ) : '0';
+	$ip   = isset( $_SERVER['REMOTE_ADDR'] ) ? preg_replace( '/[^0-9a-f:.]/i', '', (string) wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0';
 	$key  = 'nura_sub_rl_' . md5( $ip );
 	$hits = (int) get_transient( $key );
 	if ( $hits >= 5 ) {

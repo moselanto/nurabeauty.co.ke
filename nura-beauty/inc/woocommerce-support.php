@@ -678,3 +678,63 @@ add_action( 'woocommerce_after_checkout_validation', function ( $data, $errors )
 	}
 }, 10, 2 );
 
+
+/**
+ * Instant COD toggle at checkout (UX only; the server-side rules above still decide).
+ * The block checkout refreshes payment methods after a debounce of several seconds,
+ * so Cash on Delivery stayed visible briefly after picking a non-Nairobi county.
+ * This hides it the moment the county changes and switches to another method if
+ * COD was selected. Nairobi = state code KE30 or a label containing "Nairobi".
+ */
+add_action( 'wp_footer', function () {
+	if ( ! function_exists( 'is_checkout' ) || ! is_checkout() || is_order_received_page() ) {
+		return;
+	}
+	?>
+	<script>
+	(function () {
+		var SEL_STATE = '#shipping-state, #billing-state, select[name="shipping_state"], select[name="billing_state"], input[name="shipping_state"], input[name="billing_state"]';
+		function countyValue() {
+			var ship = document.querySelector('#shipping-state, select[name="shipping_state"], input[name="shipping_state"]');
+			var bill = document.querySelector('#billing-state, select[name="billing_state"], input[name="billing_state"]');
+			var sameBox = document.querySelector('.wc-block-checkout__use-address-for-billing input[type="checkbox"]');
+			var shipDiff = document.querySelector('#ship-to-different-address-checkbox');
+			var el = ship;
+			if (shipDiff && !shipDiff.checked) { el = bill; }
+			if (!el || (!el.value && bill)) { el = el && el.value ? el : bill; }
+			if (!el) { return ''; }
+			var v = String(el.value || '');
+			if (el.tagName === 'SELECT' && el.selectedIndex > -1) { v += ' ' + el.options[el.selectedIndex].text; }
+			return v.trim();
+		}
+		function isNairobi(v) { return /(^|\s)KE30(\s|$)/i.test(v) || /nairobi/i.test(v); }
+		function codNodes() {
+			var out = [];
+			document.querySelectorAll('input[value="cod"]').forEach(function (inp) {
+				var row = inp.closest('.wc-block-components-radio-control__option, .wc-block-components-radio-control-accordion-option, li.wc_payment_method, li.payment_method_cod') || inp.parentNode;
+				out.push({ input: inp, row: row });
+			});
+			return out;
+		}
+		function apply() {
+			var v = countyValue();
+			var hide = v !== '' && !isNairobi(v);
+			codNodes().forEach(function (n) {
+				n.row.style.display = hide ? 'none' : '';
+				if (hide && n.input.checked) {
+					var alt = Array.prototype.find.call(document.querySelectorAll('input[name="radio-control-wc-payment-method-options"], input[name="payment_method"]'), function (i) {
+						return i.value !== 'cod' && i.offsetParent !== null;
+					});
+					if (alt) { alt.click(); }
+				}
+			});
+		}
+		document.addEventListener('change', function (e) { if (e.target && e.target.matches && e.target.matches(SEL_STATE)) { apply(); } }, true);
+		document.addEventListener('input', function (e) { if (e.target && e.target.matches && e.target.matches(SEL_STATE)) { apply(); } }, true);
+		var t;
+		new MutationObserver(function () { clearTimeout(t); t = setTimeout(apply, 60); }).observe(document.body, { childList: true, subtree: true });
+		apply();
+	})();
+	</script>
+	<?php
+}, 99 );

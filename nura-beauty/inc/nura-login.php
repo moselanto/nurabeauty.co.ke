@@ -33,7 +33,7 @@ add_action( 'login_enqueue_scripts', function () {
 	:root{--ink:#0E0E0E;--gold:#C9A24B;--gold-soft:#E4C983;--ivory:#F3E9DC;--line:#E7E1D8;--text:#1b1b1b;--muted:#6f6a64}
 	html,body.login{height:100%}
 	body.login{margin:0;display:flex;min-height:100vh;background:#FBF8F4;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;color:var(--text)}
-	.nura-login-brand{position:relative;flex:0 0 52%;max-width:760px;display:flex;flex-direction:column;justify-content:space-between;padding:56px 64px;color:var(--ivory);overflow:hidden;
+	.nura-login-brand{position:relative;flex:0 0 52%;max-width:760px;display:flex;flex-direction:column;justify-content:flex-end;gap:40px;padding:56px 64px;color:var(--ivory);overflow:hidden;
 		background:var(--ink) url(' . esc_url( $bg_url ) . ') center 22%/cover no-repeat}
 	.nura-login-brand:before{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(14,14,14,.55) 0%,rgba(14,14,14,.25) 34%,rgba(14,14,14,.78) 72%,rgba(14,14,14,.94) 100%),linear-gradient(90deg,rgba(14,14,14,.55) 0%,rgba(14,14,14,0) 65%)}
 	.nura-login-brand:after{content:"";position:absolute;inset:24px;z-index:0;border:1px solid rgba(201,162,75,.38);pointer-events:none}
@@ -108,15 +108,8 @@ add_action( 'login_header', function () {
 	}
 	$phone = function_exists( 'nura_opt' ) && nura_opt( 'nura_phone' ) ? nura_opt( 'nura_phone' ) : '+254 714 994 898';
 	$host  = wp_parse_url( home_url(), PHP_URL_HOST );
-	$logo  = nura_login_light_logo_url();
 	?>
 	<aside class="nura-login-brand">
-		<div class="nura-lb-head">
-			<a class="nura-lb-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>">
-				<?php if ( $logo ) : ?><img src="<?php echo esc_url( $logo ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"><?php else : ?><span class="nura-lb-top">NURA Beauty</span><?php endif; ?>
-			</a>
-			<span class="nura-lb-badge"><?php esc_html_e( 'Nairobi &middot; Est. Kenya', 'nura-beauty' ); ?></span>
-		</div>
 		<div class="nura-lb-main">
 			<span class="nura-lb-gold"></span>
 			<div class="nura-lb-top"><?php esc_html_e( 'The House of Radiant Confidence', 'nura-beauty' ); ?></div>

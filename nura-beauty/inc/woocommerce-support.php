@@ -732,7 +732,16 @@ add_action( 'wp_footer', function () {
 					var alt = Array.prototype.find.call(document.querySelectorAll('input[name="radio-control-wc-payment-method-options"], input[name="payment_method"]'), function (i) {
 						return i.value !== 'cod' && i.offsetParent !== null;
 					});
-					if (alt) { alt.click(); }
+					// Defer the switch so it does not race the checkout's own address update
+					// (an immediate click could make the county snap back to Nairobi).
+					if (alt && !window.nuraCodSwitchTimer) {
+						window.nuraCodSwitchTimer = setTimeout(function () {
+							window.nuraCodSwitchTimer = null;
+							var still = countyValue();
+							var codIn = document.querySelector('input[value="cod"]');
+							if (still !== '' && !isNairobi(still) && codIn && codIn.checked && document.body.contains(alt)) { alt.click(); }
+						}, 1500);
+					}
 				}
 			});
 		}

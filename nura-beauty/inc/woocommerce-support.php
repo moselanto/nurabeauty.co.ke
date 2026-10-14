@@ -691,6 +691,12 @@ add_action( 'wp_footer', function () {
 		return;
 	}
 	?>
+	<style id="nura-cod-toggle">
+	html.nura-no-cod .wc-block-components-radio-control-accordion-option:has(input[value="cod"]),
+	html.nura-no-cod .wc-block-components-radio-control__option:has(input[value="cod"]),
+	html.nura-no-cod label:has(> input[value="cod"]),
+	html.nura-no-cod li.payment_method_cod { display: none !important; }
+	</style>
 	<script>
 	(function () {
 		var SEL_STATE = '#shipping-state, #billing-state, select[name="shipping_state"], select[name="billing_state"], input[name="shipping_state"], input[name="billing_state"]';
@@ -719,6 +725,7 @@ add_action( 'wp_footer', function () {
 		function apply() {
 			var v = countyValue();
 			var hide = v !== '' && !isNairobi(v);
+			document.documentElement.classList.toggle('nura-no-cod', hide);
 			codNodes().forEach(function (n) {
 				n.row.style.display = hide ? 'none' : '';
 				if (hide && n.input.checked) {

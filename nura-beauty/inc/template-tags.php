@@ -223,7 +223,9 @@ if ( function_exists( 'nura_query_rail' ) === false ) {
 			return;
 		}
 		shuffle( $ids );
-		$ids  = array_slice( $ids, 0, $show );
+		// v1.55.5: render a larger pool; main.js shows a random $show on every page load
+		// (works even when the page is served from cache).
+		$ids  = array_slice( $ids, 0, $show * 2 );
 		$GLOBALS['nura_rail_shown'] = array_merge( $shown, $ids );
 		$loop = new WP_Query( array(
 			'post_type'           => 'product',
@@ -252,7 +254,7 @@ if ( function_exists( 'nura_query_rail' ) === false ) {
 		echo '</div>';
 		echo '<div class="nura-rail nura-reveal" data-nura-rail>';
 		echo '<button type="button" class="nura-rail__nav nura-rail__nav--prev" data-rail-prev aria-label="' . esc_attr__( 'Scroll left', 'nura-beauty' ) . '">&#8249;</button>';
-		echo '<div class="nura-rail__track"><div class="woocommerce">';
+		echo '<div class="nura-rail__track" data-nura-shuffle data-show="' . esc_attr( $show ) . '"><div class="woocommerce">';
 		woocommerce_product_loop_start();
 		while ( $loop->have_posts() ) {
 			$loop->the_post();
@@ -357,11 +359,12 @@ if ( function_exists( 'nura_home_product_tabs' ) === false ) {
 	 */
 	function nura_home_product_tabs( $shop_url ) {
 		$limit = (int) apply_filters( 'nura_home_grid_count', 8 );
+		$pool  = (int) apply_filters( 'nura_home_grid_pool', $limit + 6 );
 		$tabs  = array(
 			array(
 				'key'   => 'new',
 				'label' => __( 'New In', 'nura-beauty' ),
-				'ids'   => nura_home_product_ids( array( 'orderby' => 'date', 'order' => 'DESC' ), $limit ),
+				'ids'   => nura_home_product_ids( array( 'orderby' => 'date', 'order' => 'DESC' ), $pool ),
 				'url'   => add_query_arg( 'orderby', 'date', $shop_url ),
 			),
 			array(
@@ -374,7 +377,7 @@ if ( function_exists( 'nura_home_product_tabs' ) === false ) {
 						'order'      => 'DESC',
 						'meta_query' => array( array( 'key' => 'total_sales', 'value' => 0, 'compare' => '>', 'type' => 'NUMERIC' ) ),
 					),
-					$limit,
+					$pool,
 					array( 'orderby' => 'rand' )
 				),
 				'url'   => add_query_arg( 'orderby', 'popularity', $shop_url ),
@@ -388,7 +391,7 @@ if ( function_exists( 'nura_home_product_tabs' ) === false ) {
 						'order'      => 'DESC',
 						'meta_query' => array( array( 'key' => '_price', 'value' => 5000, 'compare' => '<=', 'type' => 'NUMERIC' ) ),
 					),
-					$limit
+					$pool
 				),
 				'url'   => add_query_arg( array( 'min_price' => 0, 'max_price' => 5000 ), $shop_url ),
 			),
@@ -419,7 +422,9 @@ if ( function_exists( 'nura_home_product_tabs' ) === false ) {
 				esc_attr( $t['key'] ),
 				0 === $i ? '' : ' hidden'
 			);
+			echo '<div data-nura-shuffle data-show="' . esc_attr( $limit ) . '"' . ( 'new' === $t['key'] ? ' data-keep-order' : '' ) . '>';
 			nura_home_product_grid( $t['ids'] );
+			echo '</div>';
 			echo '</div>';
 		}
 		echo '</div>';

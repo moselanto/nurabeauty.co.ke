@@ -841,3 +841,24 @@ f.addEventListener("submit",function(e){e.preventDefault();err.hidden=true;
 		});
 	});
 })(document);
+
+/* v1.55.5 Fresh products on every homepage load: each [data-nura-shuffle] box holds a
+   larger pool; pick a random set to show (New In keeps newest-first order). */
+(function(d){
+	d.querySelectorAll("[data-nura-shuffle]").forEach(function(box){
+		var ul=box.querySelector("ul.products"); if(!ul){return;}
+		var items=Array.prototype.slice.call(ul.children);
+		var n=parseInt(box.getAttribute("data-show"),10)||items.length;
+		if(items.length<=1){return;}
+		var idx=items.map(function(_,i){return i;});
+		for(var i=idx.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=idx[i];idx[i]=idx[j];idx[j]=t;}
+		var pick=idx.slice(0,n);
+		if(box.hasAttribute("data-keep-order")){pick.sort(function(a,b){return a-b;});}
+		var order=pick.concat(idx.slice(n));
+		order.forEach(function(k,pos){
+			var li=items[k]; li.classList.remove("first","last");
+			if(pos>=n){li.hidden=true;li.style.display="none";}else{li.hidden=false;li.style.display="";}
+			ul.appendChild(li);
+		});
+	});
+})(document);

@@ -142,7 +142,8 @@ function nura_seo_enrich_offer( $offer ) {
 		'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
 		'merchantReturnDays'   => 7,
 		'returnMethod'         => 'https://schema.org/ReturnByMail',
-		'returnFees'           => 'https://schema.org/ReturnShippingFees',
+		'returnFees'           => 'https://schema.org/ReturnFeesCustomerResponsibility',
+		'refundType'           => 'https://schema.org/FullRefund',
 	);
 	return apply_filters( 'nura_seo_offer', $offer );
 }

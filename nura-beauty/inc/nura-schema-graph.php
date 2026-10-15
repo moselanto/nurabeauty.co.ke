@@ -78,6 +78,11 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 			$data[ $key ]['@type']              = $types;
 			$data[ $key ]['legalName']          = 'NURA CROWN & BEAUTY';
 			$data[ $key ]['slogan']             = 'The House of Radiant Confidence';
+			$logo_id = (int) get_theme_mod( 'custom_logo' );
+			$logo    = $logo_id ? wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+			if ( $logo && empty( $data[ $key ]['image'] ) ) {
+				$data[ $key ]['image'] = $logo;
+			}
 			$data[ $key ]['address']            = $addr['node'];
 			$data[ $key ]['priceRange']         = 'KSh 1,500 - KSh 17,300';
 			$data[ $key ]['currenciesAccepted'] = 'KES';

@@ -256,7 +256,8 @@ function nura_seo_return_policy() {
 		'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
 		'merchantReturnDays'   => 7,
 		'returnMethod'         => 'https://schema.org/ReturnByMail',
-		'returnFees'           => 'https://schema.org/ReturnShippingFees',
+		'returnFees'           => 'https://schema.org/ReturnFeesCustomerResponsibility',
+		'refundType'           => 'https://schema.org/FullRefund',
 		'merchantReturnLink'   => $returns ? $returns : null,
 	) );
 }

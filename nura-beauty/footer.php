@@ -28,13 +28,14 @@ if ( ! function_exists( 'nura_footer_menu_list' ) ) {
 if ( ! function_exists( 'nura_footer_shop_menu' ) ) {
 	function nura_footer_shop_menu() {
 		$shop = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
-		nura_footer_menu_list( array(
+		$rows = array(
 			array( __( 'Shop All Wigs', 'nura-beauty' ),      $shop ),
 			array( __( 'Human Hair Wigs', 'nura-beauty' ),    home_url( '/product-category/human-hair-wigs/' ) ),
 			array( __( 'Lace Front Wigs', 'nura-beauty' ),    home_url( '/product-category/lace-front-wigs/' ) ),
 			array( __( 'Hair & Extensions', 'nura-beauty' ),  home_url( '/product-category/hair-extensions/' ) ),
 			array( __( 'Wig Care', 'nura-beauty' ),           home_url( '/product-category/wig-care/' ) ),
-		) );
+		);
+		nura_footer_menu_list( function_exists( 'nura_filter_links' ) ? nura_filter_links( $rows ) : $rows );
 	}
 }
 if ( ! function_exists( 'nura_footer_help_menu' ) ) {

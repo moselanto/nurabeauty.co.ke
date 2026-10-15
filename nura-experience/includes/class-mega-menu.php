@@ -63,7 +63,61 @@ class NURAX_Mega_Menu {
 	/**
 	 * The mega-menu structure with resolved URLs.
 	 */
+	/** True when a product category (or a child) has products. */
+	public static function cat_has_products( $slug ) {
+		if ( function_exists( 'nura_cat_has_products' ) ) {
+			return nura_cat_has_products( $slug );
+		}
+		if ( ! taxonomy_exists( 'product_cat' ) ) {
+			return true;
+		}
+		$term = get_term_by( 'slug', sanitize_title( $slug ), 'product_cat' );
+		if ( ! $term || is_wp_error( $term ) ) {
+			return false;
+		}
+		if ( (int) $term->count > 0 || (int) get_term_meta( $term->term_id, 'product_count_product_cat', true ) > 0 ) {
+			return true;
+		}
+		$kids = get_term_children( $term->term_id, 'product_cat' );
+		if ( ! is_wp_error( $kids ) ) {
+			foreach ( $kids as $cid ) {
+				$c = get_term( $cid, 'product_cat' );
+				if ( $c && ! is_wp_error( $c ) && (int) $c->count > 0 ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/** Remove links to empty categories (and columns left empty) from the Shop mega menu. */
+	public static function prune_empty( $structure ) {
+		if ( empty( $structure['Shop']['columns'] ) || ! is_array( $structure['Shop']['columns'] ) ) {
+			return $structure;
+		}
+		foreach ( $structure['Shop']['columns'] as $col => $links ) {
+			foreach ( $links as $label => $url ) {
+				if ( is_string( $url ) && false !== strpos( $url, '/product-category/' ) ) {
+					$path  = trim( (string) wp_parse_url( $url, PHP_URL_PATH ), '/' );
+					$parts = explode( '/', $path );
+					$slug  = end( $parts );
+					if ( $slug && ! self::cat_has_products( $slug ) ) {
+						unset( $structure['Shop']['columns'][ $col ][ $label ] );
+					}
+				}
+			}
+			if ( empty( $structure['Shop']['columns'][ $col ] ) ) {
+				unset( $structure['Shop']['columns'][ $col ] );
+			}
+		}
+		return $structure;
+	}
+
 	public static function structure() {
+		return self::prune_empty( self::raw_structure() );
+	}
+
+	public static function raw_structure() {
 		$shop = self::shop_url();
 
 		return array(

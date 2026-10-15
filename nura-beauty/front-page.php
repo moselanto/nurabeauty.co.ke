@@ -190,6 +190,9 @@ $slides = array(
 				array( 'label' => __( 'Wig Care', 'nura-beauty' ), 'slug' => 'wig-care' ),
 				array( 'label' => __( 'Beauty', 'nura-beauty' ), 'slug' => 'beauty' ),
 			);
+			if ( function_exists( 'nura_filter_links' ) ) {
+				$nura_types = nura_filter_links( $nura_types );
+			}
 			echo '<nav class="nura-quickchips" aria-label="' . esc_attr__( 'Shop by type', 'nura-beauty' ) . '">';
 			echo '<a class="nura-quickchip nura-quickchip--all" href="' . esc_url( $wigs_url ) . '">' . esc_html__( 'All wigs', 'nura-beauty' ) . '</a>';
 			foreach ( $nura_types as $ty ) {
@@ -214,15 +217,28 @@ $slides = array(
 				<h2><?php esc_html_e( 'Everything for your crown', 'nura-beauty' ); ?></h2>
 			</div>
 			<?php
-			nura_home_tiles(
-				array(
+			$nura_pillars = array(
 					array( 'label' => __( 'Wigs', 'nura-beauty' ),              'sub' => __( 'Human Hair • Lace • Glueless', 'nura-beauty' ), 'url' => nura_home_cat_url( 'wigs' ),            'img' => ( nura_home_cat_img( 'wigs' ) ?: NURA_URI . 'assets/images/cats/pillar-wigs.webp' ) ),
 					array( 'label' => __( 'Hair & Extensions', 'nura-beauty' ), 'sub' => __( 'Bundles • Closures • Frontals', 'nura-beauty' ), 'url' => nura_home_cat_url( 'hair-extensions' ), 'img' => ( nura_home_cat_img( 'hair-extensions' ) ?: NURA_URI . 'assets/images/cats/pillar-hair-extensions.webp' ) ),
 					array( 'label' => __( 'Wig Care', 'nura-beauty' ),          'sub' => __( 'Wash • Treat • Maintain', 'nura-beauty' ),     'url' => nura_home_cat_url( 'wig-care' ),        'img' => ( nura_home_cat_img( 'wig-care' ) ?: NURA_URI . 'assets/images/cats/pillar-wig-care.webp' ) ),
 					array( 'label' => __( 'Beauty', 'nura-beauty' ),            'sub' => __( 'Makeup • Accessories', 'nura-beauty' ),           'url' => nura_home_cat_url( 'beauty' ),          'img' => ( nura_home_cat_img( 'beauty' ) ?: NURA_URI . 'assets/images/cats/pillar-beauty.webp' ) ),
-				),
-				'nura-tiles--4'
 			);
+			if ( function_exists( 'nura_filter_links' ) ) {
+				$nura_pillars = nura_filter_links( $nura_pillars );
+				// Fill empty pillar slots with stocked wig categories so the row stays full.
+				$nura_fills = array(
+					array( 'label' => __( 'Human Hair Wigs', 'nura-beauty' ), 'sub' => __( '100% human hair • Lace front', 'nura-beauty' ), 'slug' => 'human-hair-wigs' ),
+					array( 'label' => __( 'Headband Wigs', 'nura-beauty' ), 'sub' => __( 'No glue • Ready in minutes', 'nura-beauty' ), 'slug' => 'headband-wigs' ),
+					array( 'label' => __( 'Closure Wigs', 'nura-beauty' ), 'sub' => __( '4x4 lace • Natural parting', 'nura-beauty' ), 'slug' => 'closure-wigs' ),
+				);
+				foreach ( $nura_fills as $nura_fill ) {
+					if ( count( $nura_pillars ) >= 4 ) { break; }
+					if ( nura_cat_has_products( $nura_fill['slug'] ) ) {
+						$nura_pillars[] = array( 'label' => $nura_fill['label'], 'sub' => $nura_fill['sub'], 'url' => nura_home_cat_url( $nura_fill['slug'] ), 'img' => nura_home_cat_img( $nura_fill['slug'] ) );
+					}
+				}
+			}
+			nura_home_tiles( $nura_pillars, 'nura-tiles--4' );
 			?>
 		</div>
 	</section>
@@ -356,7 +372,8 @@ $slides = array(
 		</div>
 	</section>
 
-	<!-- WIG CARE (featured: 3 products + CTA) -->
+	<!-- WIG CARE (shown only once wig care is stocked) -->
+	<?php if ( ! function_exists( 'nura_cat_has_products' ) || nura_cat_has_products( 'wig-care' ) ) : ?>
 	<section class="section" id="wig-care">
 		<div class="nura-container">
 			<div class="nura-shead nura-shead--row nura-reveal">
@@ -374,6 +391,7 @@ $slides = array(
 			<?php endif; ?>
 		</div>
 	</section>
+	<?php endif; ?>
 
 	<!-- THE NURA EXPERIENCE (services summary + single CTA) -->
 	<section class="section section--ink text-center" id="services">

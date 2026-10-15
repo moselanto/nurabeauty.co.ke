@@ -180,6 +180,9 @@ function nura_default_menu() {
 		array( __( 'Beauty', 'nura-beauty' ),            home_url( '/product-category/beauty/' ) ),
 		array( __( 'Services', 'nura-beauty' ),          home_url( '/services/' ) ),
 	);
+	if ( function_exists( 'nura_filter_links' ) ) {
+		$items = nura_filter_links( $items );
+	}
 	echo '<ul>';
 	foreach ( $items as $it ) {
 		echo '<li><a href="' . esc_url( $it[1] ) . '">' . esc_html( $it[0] ) . '</a></li>';

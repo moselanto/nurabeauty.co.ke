@@ -33,7 +33,7 @@ $ni_circle   = trim( (string) nura_opt( 'nura_inst_circle_url' ) );
 		<div class="nura-container">
 			<?php nura_breadcrumbs(); ?>
 			<p class="nura-eyebrow"><?php echo esc_html( nura_opt( 'nura_inst_eyebrow' ) ); ?></p>
-			<h1><?php the_title(); ?></h1>
+			<h1><?php echo esc_html( apply_filters( 'nura_installation_h1', __( 'Wig Installation, Revamp &amp; Styling in Nairobi', 'nura-beauty' ) ) ); ?></h1>
 			<p class="nura-bk-hero__lede"><?php echo esc_html( nura_opt( 'nura_inst_lede' ) ); ?></p>
 			<?php if ( $ni_facts ) : ?>
 				<ul class="nura-bk-hero__facts">

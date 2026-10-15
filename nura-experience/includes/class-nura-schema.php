@@ -126,7 +126,9 @@ class NURAX_Schema {
 			// Tie this branch to the Organization Rank Math/Yoast already declares.
 			$business['parentOrganization'] = array( '@id' => $home . '#organization' );
 		}
-		if ( $business_page ) {
+		// v1.55.3: with an SEO plugin active the theme merges these business details into
+		// the plugin's Organization node, so only print a standalone node without one.
+		if ( $business_page && ! $seo ) {
 			$this->print_jsonld( $business );
 		}
 

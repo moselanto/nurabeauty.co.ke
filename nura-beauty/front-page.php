@@ -60,6 +60,33 @@ if ( ! function_exists( 'nura_home_cat_img' ) ) {
 			if ( $id ) {
 				return wp_get_attachment_image_url( $id, 'medium_large' );
 			}
+			// v1.55.7: no category image set - use the photo of an in-stock product in it.
+			$key = 'nura_cat_img_' . $t->term_id;
+			$url = get_transient( $key );
+			if ( false === $url ) {
+				$url = '';
+				$q   = new WP_Query( array(
+					'post_type'           => 'product',
+					'post_status'         => 'publish',
+					'posts_per_page'      => 1,
+					'fields'              => 'ids',
+					'no_found_rows'       => true,
+					'ignore_sticky_posts' => true,
+					'orderby'             => 'date',
+					'order'               => 'DESC',
+					'meta_query'          => array( array( 'key' => '_thumbnail_id', 'compare' => 'EXISTS' ) ),
+					'tax_query'           => array(
+						array( 'taxonomy' => 'product_cat', 'field' => 'term_id', 'terms' => array( (int) $t->term_id ), 'include_children' => true ),
+						array( 'taxonomy' => 'product_visibility', 'field' => 'slug', 'terms' => array( 'exclude-from-catalog', 'outofstock' ), 'operator' => 'NOT IN' ),
+					),
+				) );
+				if ( $q->posts ) {
+					$url = (string) get_the_post_thumbnail_url( (int) $q->posts[0], 'woocommerce_single' );
+				}
+				wp_reset_postdata();
+				set_transient( $key, $url, 6 * HOUR_IN_SECONDS );
+			}
+			return $url;
 		}
 		return '';
 	}

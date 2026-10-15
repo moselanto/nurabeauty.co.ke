@@ -202,5 +202,6 @@ html.nwo-lock,html.nwo-lock body{overflow:hidden!important}
   .nwo-foot{padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px))}
   .nwo-foot__total strong{font-size:1.05rem}
 }
-@media (max-width:360px){.nwo-foot__row{flex-direction:column;align-items:stretch;gap:8px}.nwo-foot__total{flex-direction:row;justify-content:space-between;align-items:center}}
+/* v1.55.4: on phones the long subtotal label pushed the Send button off-screen, so stack them. */
+@media (max-width:640px){.nwo-foot__row{flex-direction:column;align-items:stretch;gap:8px}.nwo-foot__total{flex:none;flex-direction:row;justify-content:space-between;align-items:center;gap:10px;min-width:0}.nwo-foot__total span{white-space:normal;line-height:1.3;font-size:.64rem;letter-spacing:.08em}.nwo-foot__row .nwo-submit{flex:none;width:100%}}
 @media (prefers-reduced-motion:reduce){.nwo__panel,.nwo__overlay,.nwo__close{transition:none}}

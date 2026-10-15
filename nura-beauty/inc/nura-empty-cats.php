@@ -92,3 +92,32 @@ add_filter( 'wp_nav_menu_objects', function ( $items ) {
 add_filter( 'pre_option_woocommerce_checkout_phone_field', function () {
 	return 'required';
 } );
+
+/**
+ * Make the required phone field obvious before the shopper hits "Place order".
+ * Block checkout reads labels from the country locale; classic checkout from
+ * the billing fields.
+ */
+add_filter( 'woocommerce_get_country_locale', function ( $locale ) {
+	$label = __( 'Phone number (required for delivery)', 'nura-beauty' );
+	foreach ( array_keys( $locale ) as $cc ) {
+		$locale[ $cc ]['phone']['label']    = $label;
+		$locale[ $cc ]['phone']['required'] = true;
+	}
+	if ( ! isset( $locale['KE'] ) ) {
+		$locale['KE'] = array( 'phone' => array( 'label' => $label, 'required' => true ) );
+	}
+	return $locale;
+}, 30 );
+add_filter( 'woocommerce_get_country_locale_default', function ( $fields ) {
+	$fields['phone']['label']    = __( 'Phone number (required for delivery)', 'nura-beauty' );
+	$fields['phone']['required'] = true;
+	return $fields;
+}, 30 );
+add_filter( 'woocommerce_billing_fields', function ( $fields ) {
+	if ( isset( $fields['billing_phone'] ) ) {
+		$fields['billing_phone']['label']    = __( 'Phone number', 'nura-beauty' );
+		$fields['billing_phone']['required'] = true;
+	}
+	return $fields;
+}, 30 );

@@ -15,6 +15,7 @@ function nura_category_guides() {
 		'care'      => array( '/human-hair-wig-care-guide/', __( 'How to care for a human hair wig', 'nura-beauty' ) ),
 		'hvs'       => array( '/human-hair-vs-synthetic-wigs-kenya/', __( 'Human hair vs synthetic wigs: which should you buy?', 'nura-beauty' ) ),
 		'beginners' => array( '/best-wigs-for-beginners-kenya/', __( 'Best wigs for beginners in Kenya', 'nura-beauty' ) ),
+		'blend'     => array( '/semi-human-wigs-kenya-guide/', __( 'Semi-human wigs in Kenya: what they are and who they suit', 'nura-beauty' ) ),
 		'nairobi'   => array( '/buying-wigs-in-nairobi-guide/', __( 'Buying wigs in Nairobi: prices, styles and where to shop', 'nura-beauty' ) ),
 	);
 	$map = array(
@@ -29,6 +30,8 @@ function nura_category_guides() {
 		'afro-wigs'          => array( 'beginners', 'hvs' ),
 		'body-wave-wigs'     => array( 'lacefront', 'hvs' ),
 		'bone-straight-wigs' => array( 'lacefront', 'hvs' ),
+		'human-hair-blend-wigs' => array( 'blend', 'hvs' ),
+		'high-fibre-wigs'    => array( 'blend', 'beginners' ),
 		'wigs'               => array( 'nairobi', 'beginners' ),
 	);
 	return array( $g, $map );

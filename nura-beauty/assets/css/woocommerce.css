@@ -319,13 +319,13 @@ html body ul.products li.product img.nura-loop-2nd[data-src]{display:none}
 
 /* ===== v1.55.9 Product cards: full titles (no clipping) and even spacing ===== */
 html body .woocommerce ul.products li.product .woocommerce-loop-product__title,
-html body ul.products li.product .woocommerce-loop-product__title{display:block\!important;-webkit-line-clamp:unset;line-clamp:none;height:auto\!important;max-height:none\!important;min-height:3.9em;overflow:visible\!important;text-overflow:clip;line-height:1.3;padding:0\!important;margin:.8rem 12px .5rem\!important;align-items:initial;justify-content:initial}
-html body ul.products li.product .nura-hairtype{margin:0 0 .6rem\!important;min-height:22px}
-html body ul.products li.product .nura-swatch-dots{margin:0 0 .6rem\!important}
-html body ul.products li.product .price{margin:0 0 .8rem\!important;padding-top:.1rem}
+html body ul.products li.product .woocommerce-loop-product__title{display:block!important;-webkit-line-clamp:unset;line-clamp:none;height:auto!important;max-height:none!important;min-height:3.9em;overflow:visible!important;text-overflow:clip;line-height:1.3;padding:0!important;margin:.8rem 12px .5rem!important;align-items:initial;justify-content:initial}
+html body ul.products li.product .nura-hairtype{margin:0 0 .6rem!important;min-height:22px}
+html body ul.products li.product .nura-swatch-dots{margin:0 0 .6rem!important}
+html body ul.products li.product .price{margin:0 0 .8rem!important;padding-top:.1rem}
 html body .woocommerce ul.products,html body ul.products{row-gap:1.75rem}
 @media(max-width:560px){
 html body .woocommerce ul.products li.product .woocommerce-loop-product__title,
-html body ul.products li.product .woocommerce-loop-product__title{font-size:.86rem;margin:.65rem 9px .45rem\!important;min-height:3.9em}
+html body ul.products li.product .woocommerce-loop-product__title{font-size:.86rem;margin:.65rem 9px .45rem!important;min-height:3.9em}
 html body .woocommerce ul.products,html body ul.products{row-gap:1.25rem}
 }

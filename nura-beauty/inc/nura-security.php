@@ -164,7 +164,11 @@ add_action( 'init', function () {
 /* -----------------------------------------------------------------------------
  * 8. Don't reveal whether a username exists on a failed login.
  * -------------------------------------------------------------------------- */
-add_filter( 'login_errors', function () {
+add_filter( 'login_errors', function ( $error ) {
+	// Keep the lockout notice visible so the owner knows to wait instead of retrying.
+	if ( is_string( $error ) && false !== strpos( $error, 'Too many failed sign-in attempts' ) ) {
+		return $error;
+	}
 	return __( 'Invalid login details.', 'nura-beauty' );
 } );
 

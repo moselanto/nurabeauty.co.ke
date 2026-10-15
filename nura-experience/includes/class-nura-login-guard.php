@@ -55,7 +55,7 @@ class NURAX_Login_Guard {
 	public function __construct() {
 		// 1. Brute-force protection.
 		add_filter( 'authenticate', array( $this, 'block_if_locked' ), 30, 3 );
-		add_action( 'wp_login_failed', array( $this, 'record_failure' ), 10, 1 );
+		add_action( 'wp_login_failed', array( $this, 'record_failure' ), 10, 2 );
 		add_action( 'wp_login', array( $this, 'clear_failures' ), 10, 1 );
 
 		// 2. Bot traps (wp-login.php + WooCommerce forms).
@@ -133,7 +133,15 @@ class NURAX_Login_Guard {
 		return $user;
 	}
 
-	public function record_failure( $username ) {
+	public function record_failure( $username, $error = null ) {
+		// Attempts made while already locked out (or stopped by the bot trap) must not
+		// restart the lockout clock, otherwise a real owner can never get back in.
+		if ( is_wp_error( $error ) && array_intersect( array( 'nurax_locked', 'nurax_bot' ), $error->get_error_codes() ) ) {
+			return;
+		}
+		if ( get_transient( self::ip_key( 'lock' ) ) ) {
+			return;
+		}
 		if ( self::bump( self::ip_key( 'fail' ), self::WINDOW ) >= (int) apply_filters( 'nurax_login_ip_max', self::IP_MAX ) ) {
 			set_transient( self::ip_key( 'lock' ), 1, self::LOCKOUT );
 		}

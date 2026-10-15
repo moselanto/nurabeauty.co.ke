@@ -139,3 +139,39 @@ add_action( 'wp_enqueue_scripts', function () {
 	}
 }, 110 );
 
+
+/* ---------------------------------------------------------------------------
+ * v1.55.6 - logo and script weight
+ * Live audit: the header logo was a 2548x808 PNG (1.7 MB) loaded on every page
+ * at high priority, though it shows at 56px tall. Serve a 400px WebP (33 KB).
+ * ------------------------------------------------------------------------- */
+
+/* 7. Light header logo. */
+add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment ) {
+	if ( ! nura_speed_on() || ! defined( 'NURA_URI' ) || ! defined( 'NURA_DIR' ) ) {
+		return $attr;
+	}
+	$logo_id = (int) get_theme_mod( 'custom_logo' );
+	if ( ! $logo_id || ! $attachment || (int) $attachment->ID !== $logo_id || ! file_exists( NURA_DIR . 'assets/images/nura-logo.webp' ) ) {
+		return $attr;
+	}
+	if ( ! apply_filters( 'nura_light_logo', true ) ) {
+		return $attr;
+	}
+	$attr['src'] = NURA_URI . 'assets/images/nura-logo.webp';
+	unset( $attr['srcset'], $attr['sizes'] );
+	$attr['decoding'] = 'async';
+	return $attr;
+}, 40, 2 );
+
+add_filter( 'get_custom_logo', function ( $html ) {
+	if ( ! nura_speed_on() || false === strpos( $html, 'nura-logo.webp' ) ) {
+		return $html;
+	}
+	return preg_replace( array( '/\swidth="\d+"/', '/\sheight="\d+"/' ), array( ' width="400"', ' height="127"' ), $html, 1 );
+} );
+
+/* 8. Defer the NURA Experience scripts too (they only run after the page is ready). */
+add_filter( 'nura_defer_handles', function ( $handles ) {
+	return array_merge( (array) $handles, array( 'nurax', 'nurax-shop', 'nurax-variations' ) );
+} );

@@ -5,7 +5,8 @@
  * - product card titles clamp neatly to 2 lines (no clipped text under the hair-type tag);
  * - "Order on WhatsApp" card button fits without being cut off;
  * - "Ask NURA Stylist" becomes a compact round button on phones so it never covers photos;
- * - long breadcrumbs stay on one line instead of pushing the product photo down.
+ * - long breadcrumbs stay on one line instead of pushing the product photo down;
+ * - hero 'Find Your Wig' button readable on the dark slide; single Filter & Sort button on the shop.
  *
  * @package NURA_Beauty
  */
@@ -19,6 +20,10 @@ add_action( 'wp_head', function () {
 	?>
 	<style id="nura-mobile-polish-css">
 	.nura-drawer:not(.is-open){box-shadow:none}
+	.nura-hero-slider .nura-btn--ghost,.nura-slide .nura-btn--ghost,.nura-hero .nura-btn--ghost{color:#f3e9dc;border:1px solid rgba(243,233,220,.75);background:rgba(14,14,14,.25)}
+	.nura-hero-slider .nura-btn--ghost:hover,.nura-slide .nura-btn--ghost:hover,.nura-hero .nura-btn--ghost:hover{background:#c9a24b;border-color:#c9a24b;color:#0e0e0e}
+	/* Two filter buttons were showing on the shop page; keep the theme's Filter & Sort only. */
+	.nura-filter-toggle:not(:has(.nura-filter-toggle__icon)){display:none!important}
 	@media (max-width:768px){
 		html body .woocommerce ul.products li.product .woocommerce-loop-product__title,
 		html body ul.products li.product .woocommerce-loop-product__title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;align-items:initial;justify-content:initial;min-height:2.6em;max-height:2.6em;line-height:1.3;padding-top:0;padding-bottom:0}

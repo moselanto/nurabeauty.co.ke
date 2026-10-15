@@ -114,3 +114,33 @@ add_action( 'wp_head', function () {
 	</style>
 	<?php
 }, 30 );
+
+/**
+ * Journal / archive listing cards: keep the title and excerpt fully inside each
+ * card so the footer can never sit on top of them, and tidy the card design.
+ * The image is taken out of the size calculation (absolutely filled inside a
+ * fixed 4:5 frame), the grid aligns cards to the top, and the main area always
+ * contains its content before the footer starts.
+ */
+add_action( 'wp_head', function () {
+	if ( ! ( is_home() || is_archive() || is_search() ) || ( function_exists( 'is_woocommerce' ) && is_woocommerce() ) ) {
+		return;
+	}
+	?>
+	<style id="nura-journal-cards-css">
+	body.blog #primary,body.archive #primary,body.search #primary{display:flow-root;position:relative;z-index:1;padding-bottom:clamp(32px,5vw,72px)}
+	body.blog .site-footer,body.archive .site-footer,body.search .site-footer{position:relative;z-index:0;clear:both;margin-top:0}
+	body.blog .nura-page .nura-grid,body.archive .nura-page .nura-grid,body.search .nura-page .nura-grid{align-items:start;grid-auto-rows:auto}
+	body.blog .nura-page .nura-card,body.archive .nura-page .nura-card,body.search .nura-page .nura-card{display:flex;flex-direction:column;height:auto;overflow:hidden;border:1px solid rgba(201,162,75,.22);border-radius:14px;background:#fff}
+	body.blog .nura-page .nura-card__media,body.archive .nura-page .nura-card__media,body.search .nura-page .nura-card__media{position:relative;display:block;width:100%;height:auto;aspect-ratio:4/5;overflow:hidden;flex:none}
+	body.blog .nura-page .nura-card__media img,body.archive .nura-page .nura-card__media img,body.search .nura-page .nura-card__media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top}
+	body.blog .nura-page .nura-card__body,body.archive .nura-page .nura-card__body,body.search .nura-page .nura-card__body{position:relative;flex:1 1 auto;text-align:left;padding:1.1rem 1.2rem 1.4rem;background:#fff}
+	body.blog .nura-page .nura-card__title,body.archive .nura-page .nura-card__title,body.search .nura-page .nura-card__title{font-size:1.2rem;line-height:1.3;margin:0 0 .55rem}
+	body.blog .nura-page .nura-card__title a,body.archive .nura-page .nura-card__title a,body.search .nura-page .nura-card__title a{color:var(--nura-ink,#0e0e0e);text-decoration:none;transition:color .2s}
+	body.blog .nura-page .nura-card:hover .nura-card__title a,body.archive .nura-page .nura-card:hover .nura-card__title a,body.search .nura-page .nura-card:hover .nura-card__title a{color:#7a5a12}
+	body.blog .nura-page .nura-card__body p,body.archive .nura-page .nura-card__body p,body.search .nura-page .nura-card__body p{color:#555;font-size:.93rem;line-height:1.6;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+	body.blog .nura-page .nura-card:hover,body.archive .nura-page .nura-card:hover,body.search .nura-page .nura-card:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(14,14,14,.10);border-color:rgba(201,162,75,.55)}
+	@media(max-width:600px){body.blog .nura-page .nura-grid,body.archive .nura-page .nura-grid,body.search .nura-page .nura-grid{grid-template-columns:1fr}}
+	</style>
+	<?php
+}, 31 );

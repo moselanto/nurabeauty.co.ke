@@ -65,7 +65,7 @@ HTML;
 <li><strong>WhatsApp &amp; phone:</strong> $phone - fastest for orders, consultations and bookings.</li>
 <li><strong>Email:</strong> $email</li>
 <li><strong>Studio:</strong> Nairobi, Kenya (by appointment)</li>
-<li><strong>Hours:</strong> Monday to Saturday, 9:00am to 6:00pm</li>
+<li><strong>Hours:</strong> Monday to Saturday, 8:00am to 8:00pm</li>
 </ul>
 <h3>Visit the studio</h3>
 <p>Come in for a consultation, fitting, installation or styling. So we can give you our full concierge attention, please book an appointment on WhatsApp before visiting.</p>
@@ -254,7 +254,7 @@ HTML;
 <li>Custom wig making and bridal hair</li>
 </ul>
 <h3>Book your appointment</h3>
-<p>Message us on WhatsApp at <strong>$phone</strong> or email <strong>$email</strong> to book. Studio hours are Monday to Saturday, 9:00am to 6:00pm. We recommend booking ahead so we can reserve dedicated time for you.</p>
+<p>Message us on WhatsApp at <strong>$phone</strong> or email <strong>$email</strong> to book. Studio hours are Monday to Saturday, 8:00am to 8:00pm. We recommend booking ahead so we can reserve dedicated time for you.</p>
 HTML;
 
 		$faq = <<<HTML

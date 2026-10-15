@@ -80,7 +80,7 @@
 						<?php endforeach; ?>
 					</ul>
 					<a class="nura-help__wa" href="<?php echo esc_url( $nura_nav_wa ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Chat with us on WhatsApp', 'nura-beauty' ); ?></a>
-					<p class="nura-help__hours"><?php esc_html_e( 'Mon - Sat, 9am - 6pm', 'nura-beauty' ); ?></p>
+					<p class="nura-help__hours"><?php esc_html_e( 'Mon - Sat, 8am - 8pm', 'nura-beauty' ); ?></p>
 				</div>
 			</details>
 			<a class="nura-callorder" href="tel:<?php echo esc_attr( $nura_nav_tel ); ?>">

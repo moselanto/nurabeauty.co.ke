@@ -44,7 +44,7 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 			<ul class="nura-bk-hero__facts">
 				<li><?php esc_html_e( 'Free 15-minute consultation', 'nura-beauty' ); ?></li>
 				<li><?php esc_html_e( 'Studio, video call or WhatsApp', 'nura-beauty' ); ?></li>
-				<li><?php esc_html_e( 'Mon - Sat, 9am - 6pm', 'nura-beauty' ); ?></li>
+				<li><?php esc_html_e( 'Mon - Sat, 8am - 8pm', 'nura-beauty' ); ?></li>
 			</ul>
 		</div>
 	</section>
@@ -81,7 +81,7 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 					</div>
 					<div>
 						<p class="nura-bk__studio-k"><?php esc_html_e( 'Hours', 'nura-beauty' ); ?></p>
-						<p class="nura-bk__studio-v"><?php esc_html_e( 'Monday - Saturday, 9am - 6pm', 'nura-beauty' ); ?></p>
+						<p class="nura-bk__studio-v"><?php esc_html_e( 'Monday - Saturday, 8am - 8pm', 'nura-beauty' ); ?></p>
 						<p class="nura-bk__studio-n"><a href="https://www.google.com/maps/search/?api=1&amp;query=<?php echo rawurlencode( 'Imenti House, Moi Avenue, Nairobi' ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Get directions', 'nura-beauty' ); ?> &#8594;</a></p>
 					</div>
 				</div>

@@ -110,8 +110,8 @@ class NURAX_Schema {
 				array(
 					'@type'     => 'OpeningHoursSpecification',
 					'dayOfWeek' => array( 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ),
-					'opens'     => '09:00',
-					'closes'    => '18:00',
+					'opens'     => '08:00',
+					'closes'    => '20:00',
 				),
 			),
 		);

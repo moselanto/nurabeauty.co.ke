@@ -21,7 +21,7 @@ $nc_tel   = preg_replace( '/[^0-9+]/', '', $nc_phone );
 $nc_wa    = nura_opt( 'nura_whatsapp' ) ? nura_opt( 'nura_whatsapp' ) : 'https://wa.me/' . ltrim( $nc_tel, '+' );
 $nc_mail  = nura_opt( 'nura_email' ) ? nura_opt( 'nura_email' ) : 'care@nurabeauty.co.ke';
 $nc_addr  = nura_opt( 'nura_address' ) ? nura_opt( 'nura_address' ) : 'Imenti House, Moi Avenue, Nairobi CBD';
-$nc_hours = nura_opt( 'nura_hours' ) ? nura_opt( 'nura_hours' ) : 'Mon-Sat 9:00-18:00';
+$nc_hours = nura_opt( 'nura_hours' ) ? nura_opt( 'nura_hours' ) : 'Mon-Sat 8:00-20:00';
 $nc_map_q = rawurlencode( 'Imenti House, Moi Avenue, Nairobi' );
 $nc_sent  = isset( $_GET['nura_sent'] ); // phpcs:ignore WordPress.Security.NonceVerification
 

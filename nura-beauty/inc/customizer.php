@@ -47,7 +47,7 @@ function nura_settings_map() {
 		'nura_email'       => array( 'default' => 'care@nurabeauty.co.ke', 'label' => __( 'Support email', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'sanitize_email' ),
 		'nura_address'     => array( 'default' => 'Imenti House, Moi Avenue, Nairobi CBD', 'label' => __( 'Store address', 'nura-beauty' ), 'section' => 'nura_brand' ),
 		'nura_city'        => array( 'default' => 'Nairobi', 'label' => __( 'City', 'nura-beauty' ), 'section' => 'nura_brand' ),
-		'nura_hours'       => array( 'default' => 'Mon–Sat 9:00–18:00', 'label' => __( 'Opening hours', 'nura-beauty' ), 'section' => 'nura_brand' ),
+		'nura_hours'       => array( 'default' => 'Mon–Sat 8:00–20:00', 'label' => __( 'Opening hours', 'nura-beauty' ), 'section' => 'nura_brand' ),
 		'nura_instagram'   => array( 'default' => '', 'label' => __( 'Instagram URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
 		'nura_tiktok'      => array( 'default' => '', 'label' => __( 'TikTok URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
 		'nura_facebook'    => array( 'default' => '', 'label' => __( 'Facebook URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
@@ -76,7 +76,7 @@ function nura_settings_map() {
 		// ---- Installation page (v1.47.0). Lists: one item per line, parts separated by | ----
 		'nura_inst_eyebrow' => array( 'default' => 'NURA Studio', 'label' => __( 'Eyebrow above the title', 'nura-beauty' ), 'section' => 'nura_install' ),
 		'nura_inst_lede'    => array( 'default' => 'Book your install, styling, colouring or revamp with our atelier. Studio appointments, and at-home service for VIP clients.', 'label' => __( 'Intro text', 'nura-beauty' ), 'section' => 'nura_install', 'control' => 'textarea' ),
-		'nura_inst_facts'   => array( 'default' => 'Studio in Nairobi CBD, At-home service for VIP clients, Mon - Sat 9am - 6pm', 'label' => __( 'Fact chips under the intro (comma separated)', 'nura-beauty' ), 'section' => 'nura_install' ),
+		'nura_inst_facts'   => array( 'default' => 'Studio in Nairobi CBD, At-home service for VIP clients, Mon - Sat 8am - 8pm', 'label' => __( 'Fact chips under the intro (comma separated)', 'nura-beauty' ), 'section' => 'nura_install' ),
 		'nura_inst_cta'     => array( 'default' => 'Book installation', 'label' => __( 'Main button text', 'nura-beauty' ), 'section' => 'nura_install' ),
 		'nura_inst_services_title' => array( 'default' => 'Services & guide prices', 'label' => __( 'Services heading', 'nura-beauty' ), 'section' => 'nura_install' ),
 		'nura_inst_services' => array(

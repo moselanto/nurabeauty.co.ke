@@ -31,6 +31,7 @@ class NURAX_Desk {
 	const MENU    = 'nurax-desk';
 	const P_PLANS = 'nurax-lmm';
 	const P_APPTS = 'nurax-appts';
+	const P_ORDERS = 'nurax-orders';
 	const P_SET   = 'nurax-desk-settings';
 	const CRON    = 'nurax_desk_daily';
 
@@ -47,6 +48,7 @@ class NURAX_Desk {
 		add_action( 'woocommerce_account_dashboard', array( $this, 'account' ), 20 );
 		NURAX_Desk_Plans::hooks();
 		NURAX_Desk_Appts::hooks();
+		NURAX_Desk_Orders::hooks();
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -367,6 +369,7 @@ class NURAX_Desk {
 	public static function header( $current, $title, $actions = '' ) {
 		$tabs = array(
 			self::MENU    => 'Overview',
+			self::P_ORDERS => 'WhatsApp orders',
 			self::P_PLANS => 'Payment plans',
 			self::P_APPTS => 'Appointments',
 			self::P_SET   => 'Settings',
@@ -399,7 +402,8 @@ class NURAX_Desk {
 		if ( false === $n ) {
 			$k = NURAX_Desk_Plans::kpis();
 			$a = NURAX_Desk_Appts::kpis();
-			$n = (int) $k['overdue'] + (int) $k['requests'] + (int) $a['requests'];
+			$o = NURAX_Desk_Orders::kpis();
+			$n = (int) $k['overdue'] + (int) $k['requests'] + (int) $a['requests'] + (int) $o['new'];
 			set_transient( 'nurax_desk_attn', $n, 10 * MINUTE_IN_SECONDS );
 		}
 		return (int) $n;
@@ -410,6 +414,7 @@ class NURAX_Desk {
 		$title = 'NURA Desk' . ( $n > 0 ? ' <span class="awaiting-mod"><span class="pending-count">' . (int) $n . '</span></span>' : '' );
 		add_menu_page( 'NURA Desk', $title, self::CAP, self::MENU, array( $this, 'overview' ), 'dashicons-store', 56 );
 		add_submenu_page( self::MENU, 'Overview', 'Overview', self::CAP, self::MENU, array( $this, 'overview' ) );
+		add_submenu_page( self::MENU, 'WhatsApp orders', 'WhatsApp orders', self::CAP, self::P_ORDERS, array( 'NURAX_Desk_Orders', 'page' ) );
 		add_submenu_page( self::MENU, 'Payment plans', 'Payment plans', self::CAP, self::P_PLANS, array( 'NURAX_Desk_Plans', 'page' ) );
 		add_submenu_page( self::MENU, 'Appointments', 'Appointments', self::CAP, self::P_APPTS, array( 'NURAX_Desk_Appts', 'page' ) );
 		add_submenu_page( self::MENU, 'Desk settings', 'Settings', self::CAP, self::P_SET, array( $this, 'settings_page' ) );
@@ -417,7 +422,7 @@ class NURAX_Desk {
 
 	public function assets( $hook ) {
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! in_array( $page, array( self::MENU, self::P_PLANS, self::P_APPTS, self::P_SET ), true ) ) {
+		if ( ! in_array( $page, array( self::MENU, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_SET ), true ) ) {
 			return;
 		}
 		wp_enqueue_style( 'nurax-desk', NURAX_URL . 'assets/css/nura-desk.css', array(), NURAX_VERSION );
@@ -449,6 +454,7 @@ class NURAX_Desk {
 		}
 		$k   = NURAX_Desk_Plans::kpis();
 		$a   = NURAX_Desk_Appts::kpis();
+		$o   = NURAX_Desk_Orders::kpis();
 		$act = self::btn( self::url( self::P_PLANS, array( 'action' => 'new' ) ), '+ New payment plan', 'nd-btn--primary' ) .
 			self::btn( self::url( self::P_APPTS, array( 'action' => 'new' ) ), '+ New appointment', 'nd-btn--ghost' );
 		self::header( self::MENU, 'Good ' . ( (int) current_time( 'G' ) < 12 ? 'morning' : ( (int) current_time( 'G' ) < 17 ? 'afternoon' : 'evening' ) ) . ' - ' . self::date_label( self::today(), 'l j F Y' ), $act );
@@ -460,7 +466,8 @@ class NURAX_Desk {
 		self::kpi( 'Due next 7 days', self::money( $k['due7'] ), $k['due7_count'] . ' instalments', '' , self::url( self::P_PLANS, array( 'tab' => 'due_week' ) ) );
 		self::kpi( 'Appointments today', (string) $a['today'], $a['today_confirmed'] . ' confirmed', 'ink', self::url( self::P_APPTS, array( 'tab' => 'today' ) ) );
 		self::kpi( 'Next 7 days', (string) $a['week'], 'appointments booked', '', self::url( self::P_APPTS, array( 'view' => 'week' ) ) );
-		self::kpi( 'Waiting for you', (string) ( $a['requests'] + $k['requests'] ), $a['requests'] . ' bookings, ' . $k['requests'] . ' plan requests', ( $a['requests'] + $k['requests'] ) ? 'amber' : '' );
+		$wait = $a['requests'] + $k['requests'] + $o['new'];
+		self::kpi( 'Waiting for you', (string) $wait, $o['new'] . ' orders, ' . $a['requests'] . ' bookings, ' . $k['requests'] . ' plans', $wait ? 'amber' : '' );
 		self::kpi( 'Ready to release', (string) $k['ready'], 'fully paid wigs', $k['ready'] ? 'green' : '', self::url( self::P_PLANS, array( 'tab' => 'completed' ) ) );
 		echo '</div>';
 
@@ -479,6 +486,7 @@ class NURAX_Desk {
 
 		echo '<div class="nd-grid2">';
 		echo '<section class="nd-card"><header class="nd-card__h"><h2>New requests</h2></header>';
+		NURAX_Desk_Orders::request_list( 6 );
 		NURAX_Desk_Appts::request_list( 6 );
 		NURAX_Desk_Plans::request_list( 6 );
 		echo '</section>';
@@ -487,7 +495,7 @@ class NURAX_Desk {
 		echo '</section>';
 		echo '</div>';
 
-		echo '<p class="nd-foot">Export: <a href="' . esc_url( self::export_url( 'plans' ) ) . '">Payment plans (CSV)</a> &middot; <a href="' . esc_url( self::export_url( 'payments' ) ) . '">Payments ledger (CSV)</a> &middot; <a href="' . esc_url( self::export_url( 'appts' ) ) . '">Appointments (CSV)</a></p>';
+		echo '<p class="nd-foot">Export: <a href="' . esc_url( self::export_url( 'orders' ) ) . '">WhatsApp orders (CSV)</a> &middot; <a href="' . esc_url( self::export_url( 'plans' ) ) . '">Payment plans (CSV)</a> &middot; <a href="' . esc_url( self::export_url( 'payments' ) ) . '">Payments ledger (CSV)</a> &middot; <a href="' . esc_url( self::export_url( 'appts' ) ) . '">Appointments (CSV)</a></p>';
 		self::footer();
 	}
 
@@ -616,7 +624,9 @@ class NURAX_Desk {
 		global $wpdb;
 		$type = isset( $_GET['type'] ) ? sanitize_key( wp_unslash( $_GET['type'] ) ) : 'plans';
 		$rows = array();
-		if ( 'payments' === $type ) {
+		if ( 'orders' === $type ) {
+			$rows = NURAX_Desk_Orders::export_rows();
+		} elseif ( 'payments' === $type ) {
 			$rows[] = array( 'Paid on', 'Plan', 'Customer', 'Phone', 'Amount', 'Method', 'Reference', 'Note', 'Voided', 'Void reason' );
 			$res    = $wpdb->get_results( 'SELECT y.*, p.ref, p.customer_name, p.phone FROM ' . self::t_pay() . ' y LEFT JOIN ' . self::t_plans() . ' p ON p.id = y.plan_id ORDER BY y.paid_at DESC' ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			foreach ( (array) $res as $r ) {
@@ -737,6 +747,7 @@ class NURAX_Desk {
 			echo '<ul style="margin:0;display:grid;grid-template-columns:1fr 1fr;gap:10px">';
 			$cells = array(
 				array( 'Appointments today', $a['today'] ),
+				array( 'New WhatsApp orders', NURAX_Desk_Orders::kpis()['new'] ),
 				array( 'Booking requests', $a['requests'] ),
 				array( 'Collected this month', self::money( $k['month'] ) ),
 				array( 'Overdue plans', $k['overdue'] . ' (' . self::money( $k['arrears'] ) . ')' ),

@@ -964,6 +964,7 @@ class NURAX_WA_Order {
 		<div class="wrap">
 			<h1><?php esc_html_e( 'WhatsApp Orders', 'nura-experience' ); ?></h1>
 			<p class="description"><?php echo esc_html( sprintf( /* translators: %s: phone number */ __( 'Every order sent from the "Order on WhatsApp" pop-up is saved here, even if the customer never presses send in WhatsApp. Orders go to WhatsApp +%s (Settings > NURA Experience > WhatsApp link or number).', 'nura-experience' ), self::whatsapp_number() ) ); ?></p>
+			<?php if ( class_exists( 'NURAX_Desk' ) ) : ?><div class="notice notice-info inline" style="margin:12px 0"><p><?php esc_html_e( 'Tip: these orders are now also managed in NURA Desk, next to appointments and payment plans.', 'nura-experience' ); ?> <a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=nurax-orders' ) ); ?>"><?php esc_html_e( 'Open in NURA Desk', 'nura-experience' ); ?></a></p></div><?php endif; ?>
 			<?php $this->fees_box(); ?>
 			<ul class="subsubsub">
 				<li><a href="<?php echo esc_url( $base ); ?>"<?php echo '' === $filter ? ' class="current"' : ''; ?>><?php esc_html_e( 'All', 'nura-experience' ); ?></a> |</li>

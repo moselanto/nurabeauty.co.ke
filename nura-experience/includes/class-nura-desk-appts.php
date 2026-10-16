@@ -533,6 +533,15 @@ class NURAX_Desk_Appts {
 			'plan_id'       => $a ? (int) $a->plan_id : 0,
 			'notes'         => $a ? $a->notes : '',
 		);
+		if ( ! $a ) { // Prefill from a WhatsApp order.
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
+			$g = wp_unslash( $_GET ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			if ( ! empty( $g['pf_name'] ) ) { $v['customer_name'] = sanitize_text_field( $g['pf_name'] ); }
+			if ( ! empty( $g['pf_phone'] ) ) { $v['phone'] = NURAX_Desk::phone( $g['pf_phone'] ); }
+			if ( ! empty( $g['pf_service'] ) && array_key_exists( $g['pf_service'], self::services() ) ) { $v['service'] = $g['pf_service']; }
+			if ( ! empty( $g['pf_notes'] ) ) { $v['notes'] = sanitize_textarea_field( $g['pf_notes'] ); }
+			// phpcs:enable
+		}
 		$back = $a ? NURAX_Desk::url( NURAX_Desk::P_APPTS, array( 'appt' => $id ) ) : NURAX_Desk::url( NURAX_Desk::P_APPTS );
 		NURAX_Desk::header( NURAX_Desk::P_APPTS, $a ? 'Edit appointment ' . $a->ref : 'New appointment', NURAX_Desk::btn( $back, 'Cancel', 'nd-btn--ghost' ) );
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="nd-form"><input type="hidden" name="action" value="nurax_appt_save"><input type="hidden" name="appt_id" value="' . (int) $id . '">';

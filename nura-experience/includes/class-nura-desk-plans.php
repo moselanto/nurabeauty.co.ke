@@ -877,6 +877,22 @@ class NURAX_Desk_Plans {
 			'notes'         => $p ? $p->notes : '',
 			'wc_order_id'   => $p ? (int) $p->wc_order_id : '',
 		);
+		if ( ! $p ) { // Prefill from a WhatsApp order / appointment.
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
+			$g = wp_unslash( $_GET ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			if ( ! empty( $g['pf_name'] ) ) { $v['customer_name'] = sanitize_text_field( $g['pf_name'] ); }
+			if ( ! empty( $g['pf_phone'] ) ) { $v['phone'] = NURAX_Desk::phone( $g['pf_phone'] ); }
+			if ( ! empty( $g['pf_pid'] ) ) { $v['product_id'] = absint( $g['pf_pid'] ); }
+			if ( ! empty( $g['pf_name2'] ) ) { $v['product_name'] = sanitize_text_field( $g['pf_name2'] ); }
+			if ( ! empty( $g['pf_opts'] ) ) { $v['options'] = sanitize_text_field( $g['pf_opts'] ); }
+			if ( ! empty( $g['pf_fulfil'] ) ) { $v['fulfil'] = sanitize_text_field( $g['pf_fulfil'] ); }
+			if ( ! empty( $g['pf_price'] ) ) {
+				$v['price']   = round( (float) $g['pf_price'] );
+				$v['deposit'] = ceil( $v['price'] * (int) $s['lmm_deposit'] / 100 );
+			}
+			if ( ! empty( $g['pf_order'] ) ) { $v['notes'] = 'From WhatsApp order #' . absint( $g['pf_order'] ); }
+			// phpcs:enable
+		}
 		$back = $p ? NURAX_Desk::url( NURAX_Desk::P_PLANS, array( 'plan' => $id ) ) : NURAX_Desk::url( NURAX_Desk::P_PLANS );
 		NURAX_Desk::header( NURAX_Desk::P_PLANS, $p ? 'Edit ' . $p->ref : 'New payment plan', NURAX_Desk::btn( $back, 'Cancel', 'nd-btn--ghost' ) );
 		$prod_label = '';

@@ -333,6 +333,26 @@ class NURAX_AI_Stylist {
 			return new WP_Error( 'nurax_booking_invalid', sprintf( __( 'Please add %s.', 'nura-experience' ), implode( ', ', $errors ) ), array( 'status' => 400 ) );
 		}
 
+		// v1.57.0: save to NURA Desk (Appointments) and respect slot capacity / open days.
+		$desk_ref = '';
+		if ( class_exists( 'NURAX_Desk_Appts' ) ) {
+			if ( ! NURAX_Desk_Appts::slots( $date ) ) {
+				return new WP_Error( 'nurax_closed', __( 'We are closed on that day. Please choose another date.', 'nura-experience' ), array( 'status' => 409 ) );
+			}
+			if ( NURAX_Desk_Appts::is_full( $date, $time ) ) {
+				return new WP_Error( 'nurax_slot_full', __( 'That time is fully booked. Please choose another time.', 'nura-experience' ), array( 'status' => 409 ) );
+			}
+			$desk_ref = NURAX_Desk_Appts::create_web( array(
+				'name'    => $name,
+				'phone'   => $digits,
+				'service' => $service,
+				'type'    => $type,
+				'date'    => $date,
+				'time'    => $time,
+				'notes'   => $notes,
+			) );
+		}
+
 		$date_label = $when->format( 'l, j F Y' );
 		$lines = array(
 			__( 'Hello NURA BEAUTY, I would like to book an appointment.', 'nura-experience' ),
@@ -346,6 +366,9 @@ class NURAX_AI_Stylist {
 		);
 		if ( '' !== $notes ) {
 			$lines[] = sprintf( __( 'Notes: %s', 'nura-experience' ), $notes );
+		}
+		if ( '' !== $desk_ref ) {
+			$lines[] = sprintf( __( 'Ref: %s', 'nura-experience' ), $desk_ref );
 		}
 		$wa_text = implode( "\n", $lines );
 

@@ -30,6 +30,7 @@
 		var url = box.getAttribute('data-url') || '';
 		var img = box.getAttribute('data-img') || '';
 		var sku = box.getAttribute('data-sku') || '';
+		var pid = box.getAttribute('data-pid') || '', vid = '';
 		var lead = box.querySelector('[data-nura-lmm-lead]');
 		var cta = box.querySelector('[data-nura-lmm-cta]');
 		var form = document.querySelector('form.variations_form');
@@ -66,7 +67,9 @@
 		}
 		function message(p, f) {
 			var opts = options(), lines = [];
-			lines.push('*' + t('msgTitle', 'NURA Beauty - Lipa Mdogo Mdogo plan request') + '*', '');
+			lines.push('*' + t('msgTitle', 'NURA Beauty - Lipa Mdogo Mdogo plan request') + '*');
+			if (f.ref) { lines.push('Ref: ' + f.ref); }
+			lines.push('');
 			lines.push('*Product:* ' + name);
 			if (opts.length) { lines.push('*Options:* ' + opts.join(', ')); }
 			if (sku) { lines.push('*SKU:* ' + sku); }
@@ -78,8 +81,9 @@
 			p.rows.forEach(function (r, i) { lines.push((i + 1) + '. ' + day(r.date) + ' - ' + (r.today ? 'Deposit' : 'Week ' + i) + ' - ' + ksh(r.amt)); });
 			lines.push('*Total payable:* ' + ksh(p.price), '');
 			if (f.name) { lines.push('*Name:* ' + f.name); }
+			if (f.phone) { lines.push('*Phone:* ' + f.phone); }
 			if (f.where) { lines.push('*Delivery:* ' + f.where); }
-			if (f.name || f.where) { lines.push(''); }
+			if (f.name || f.phone || f.where) { lines.push(''); }
 			lines.push(url, '', t('msgAsk', 'Please confirm my plan and share the M-Pesa payment details for the deposit.'));
 			return lines.join('\n');
 		}
@@ -97,16 +101,30 @@
 			if (window.jQuery) {
 				window.jQuery(form).on('found_variation', function (e, v) {
 					if (v && v.sku) { sku = v.sku; }
+					if (v && v.variation_id) { vid = String(v.variation_id); }
 					if (v && v.image && (v.image.thumb_src || v.image.src)) { img = v.image.thumb_src || v.image.src; }
 					setTimeout(update, 80);
-				}).on('reset_data', function () { sku = box.getAttribute('data-sku') || ''; img = box.getAttribute('data-img') || ''; setTimeout(update, 80); });
+				}).on('reset_data', function () { vid = ''; sku = box.getAttribute('data-sku') || ''; img = box.getAttribute('data-img') || ''; setTimeout(update, 80); });
 			}
 		}
 		update();
 		if (!cta || !waOk) { return; }
 
 		/* Plan review pop-up. */
-		var modal = null, lastFocus = null, fields = { name: '', where: '' };
+		var modal = null, lastFocus = null, fields = { name: '', phone: '', where: '', ref: '' };
+		function makeRef() {
+			var d = new Date(), c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = '';
+			for (var i = 0; i < 4; i++) { r += c.charAt(Math.floor(Math.random() * c.length)); }
+			return 'LMM-' + String(d.getFullYear()).slice(2) + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2) + '-' + r;
+		}
+		function save() {
+			if (!L.lmmAjax || !window.fetch || !window.FormData) { return; }
+			var fd = new FormData();
+			fd.append('action', 'nurax_lmm_request'); fd.append('ref', fields.ref); fd.append('product_id', pid); fd.append('variation_id', vid);
+			fd.append('weeks', String(weeksOn())); fd.append('name', fields.name); fd.append('phone', fields.phone); fd.append('fulfil', fields.where);
+			fd.append('options', options().join(', ')); fd.append('website', '');
+			try { fetch(L.lmmAjax, { method: 'POST', body: fd, credentials: 'same-origin', keepalive: true }).catch(function () {}); } catch (x) {}
+		}
 		function build() {
 			modal = document.createElement('div');
 			modal.className = 'nura-plan';
@@ -131,6 +149,7 @@
 				'<div class="nura-plan__label">' + esc(t('sched', 'Payment schedule')) + '</div>' +
 				'<ol class="nura-plan__sched" data-p="sched"></ol>' +
 				'<div class="nura-plan__fields"><label><span>' + esc(t('fName', 'Your name (optional)')) + '</span><input type="text" autocomplete="name" data-f="name" maxlength="60"></label>' +
+				'<label><span>' + esc(t('fPhone', 'WhatsApp number (optional)')) + '</span><input type="tel" autocomplete="tel" inputmode="tel" data-f="phone" maxlength="20" placeholder="0712 345 678"></label>' +
 				'<label><span>' + esc(t('fWhere', 'Collection or delivery (optional)')) + '</span><select data-f="where"><option value="">' + esc(t('choose', 'Choose...')) + '</option>' + where.map(function (w) { return '<option>' + esc(w) + '</option>'; }).join('') + '</select></label></div>' +
 				'<ul class="nura-plan__terms">' +
 				'<li>' + esc(t('t1', 'Your wig is reserved for you as soon as the deposit is received.')) + '</li>' +
@@ -152,7 +171,7 @@
 				el.addEventListener('input', function () { fields[el.getAttribute('data-f')] = el.value.trim(); render(); });
 				el.addEventListener('change', function () { fields[el.getAttribute('data-f')] = el.value.trim(); render(); });
 			});
-			modal.querySelector('[data-p="send"]').addEventListener('click', function () { setTimeout(close, 300); });
+			modal.querySelector('[data-p="send"]').addEventListener('click', function () { save(); setTimeout(close, 300); });
 			modal.addEventListener('keydown', function (e) {
 				if (e.key === 'Escape') { close(); return; }
 				if (e.key !== 'Tab') { return; }
@@ -187,6 +206,7 @@
 			if (e) { e.preventDefault(); }
 			if (!modal) { build(); }
 			lastFocus = document.activeElement;
+			fields.ref = makeRef();
 			render();
 			modal.removeAttribute('hidden');
 			document.documentElement.classList.add('nura-plan-open');
@@ -201,6 +221,23 @@
 		}
 		cta.addEventListener('click', open);
 	});
+
+	/* Booking page: grey out times that are fully booked (NURA Desk). */
+	(function () {
+		var date = document.getElementById('nb-date'), time = document.getElementById('nb-time');
+		if (!date || !time || !L.slots || !window.fetch) { return; }
+		date.addEventListener('change', function () {
+			var v = date.value;
+			Array.prototype.forEach.call(time.options, function (o) { if (o.value) { o.disabled = false; o.textContent = o.textContent.replace(/ - fully booked$/, ''); } });
+			if (!v) { return; }
+			fetch(L.slots + (L.slots.indexOf('?') > -1 ? '&' : '?') + 'date=' + encodeURIComponent(v), { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (res) {
+				if (!res || !res.full) { return; }
+				Array.prototype.forEach.call(time.options, function (o) {
+					if (o.value && res.full.indexOf(o.value) > -1) { o.disabled = true; o.textContent += ' - fully booked'; if (time.value === o.value) { time.value = ''; } }
+				});
+			}).catch(function () {});
+		});
+	})();
 
 	/* TikTok: load the player only when tapped (keeps product pages fast). */
 	each(document.querySelectorAll('[data-nura-tt]'), function (btn) {

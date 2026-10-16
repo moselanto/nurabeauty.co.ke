@@ -1734,3 +1734,7 @@ body .wp-block-woocommerce-checkout .wc-block-components-notice-banner{border-ra
 .woocommerce form .form-row input.input-text,.woocommerce form .form-row select,.woocommerce form .form-row textarea{min-height:50px;font-size:16px;border:1px solid #ddd6cb;border-radius:10px;padding:.65rem .85rem;background:#fff;transition:border-color .15s,box-shadow .15s}
 .woocommerce form .form-row input.input-text:focus,.woocommerce form .form-row select:focus,.woocommerce form .form-row textarea:focus{border-color:var(--nura-gold,#C9A24B);box-shadow:0 0 0 3px rgba(201,162,75,.2);outline:0}
 .woocommerce form .form-row label{font-family:var(--font-ui);font-size:.85rem;font-weight:600;color:var(--nura-ink)}
+
+/* 1.60.3 plan pop-up: phone field */
+.nura-plan__fields label:last-child{grid-column:1/-1}
+@media (max-width:600px){.nura-plan__fields label:last-child{grid-column:auto}}

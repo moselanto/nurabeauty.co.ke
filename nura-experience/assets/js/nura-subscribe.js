@@ -105,6 +105,8 @@
 	var cp = box.querySelector('[data-nhs-copy]');
 	if (cp) { cp.addEventListener('click', function () { var t = box.querySelector('[data-nhs-codeval]').textContent; if (navigator.clipboard) { navigator.clipboard.writeText(t).then(function () { cp.textContent = 'Copied'; }); } }); }
 
+	if (C.preview) { setTimeout(function () { open(true); }, 800); return; }
+
 	/* Triggers: after the delay, or after reading part of the page, or (desktop) when leaving - whichever comes first. */
 	if (state()) { return; }
 	var armed = false;

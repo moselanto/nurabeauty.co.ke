@@ -32,9 +32,16 @@ class NURAX_Desk_Sub {
 		return array( 'human-hair' => 'Human hair', 'bob' => 'Bob wigs', 'curly' => 'Curly & kinky', 'straight' => 'Straight & body wave', 'colour' => 'Colour & blonde', 'bridal' => 'Bridal', 'budget' => 'Under KSh 7,000', 'care' => 'Wig care' );
 	}
 
+	public static function preview() {
+		return isset( $_GET['nura_house'] ) && 'preview' === $_GET['nura_house']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
 	private static function excluded() {
 		if ( is_admin() || wp_doing_ajax() ) {
 			return true;
+		}
+		if ( self::preview() ) {
+			return false; // Preview link: always show, even to staff.
 		}
 		if ( function_exists( 'is_checkout' ) && ( is_checkout() || is_cart() || is_account_page() ) ) {
 			return true;
@@ -54,17 +61,18 @@ class NURAX_Desk_Sub {
 		wp_enqueue_script( 'nurax-sub', NURAX_URL . 'assets/js/nura-subscribe.js', array(), NURAX_VERSION, true );
 		wp_localize_script( 'nurax-sub', 'NURAX_SUB', array(
 			'ajax'   => admin_url( 'admin-ajax.php' ),
-			'popup'  => ( ! empty( $s['sub_popup'] ) && ! self::excluded() ) ? 1 : 0,
+			'popup'  => ( ( ! empty( $s['sub_popup'] ) || self::preview() ) && ! self::excluded() ) ? 1 : 0,
 			'delay'  => max( 4, (int) $s['sub_delay'] ),
 			'scroll' => min( 90, max( 10, (int) $s['sub_scroll'] ) ),
 			'days'   => max( 1, (int) $s['sub_days'] ),
+			'preview' => self::preview() ? 1 : 0,
 		) );
 	}
 
 	/** Pop-up markup (hidden until the script decides to show it). */
 	public static function popup() {
 		$s = NURAX_Desk::settings();
-		if ( empty( $s['sub_popup'] ) || self::excluded() ) {
+		if ( ( empty( $s['sub_popup'] ) && ! self::preview() ) || self::excluded() ) {
 			return;
 		}
 		$coupon = (float) $s['sub_coupon'];

@@ -25,7 +25,7 @@ class NURAX_Desk_Sub {
 		add_action( 'wp_ajax_nurax_subscribe', array( __CLASS__, 'ajax' ) );
 		add_action( 'wp_ajax_nopriv_nurax_subscribe', array( __CLASS__, 'ajax' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'assets' ), 30 );
-		add_action( 'wp_footer', array( __CLASS__, 'popup' ), 40 );
+		add_action( 'wp_footer', array( __CLASS__, 'popup' ), 5 ); // Before footer scripts print (priority 20).
 	}
 
 	public static function interests() {

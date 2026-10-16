@@ -1,6 +1,7 @@
 /* NURA "Join The House" - pop-up + footer form (NURA Experience 1.62.0). */
 (function () {
-	'use strict';
+'use strict';
+function nuraHouseInit() {
 	var C = window.NURAX_SUB || {};
 	var d = document, KEY = 'nura_house', email = '';
 
@@ -122,4 +123,6 @@
 	if (window.matchMedia && window.matchMedia('(pointer:fine)').matches) {
 		d.addEventListener('mouseout', function (e) { if (armed && !e.relatedTarget && e.clientY < 8) { open(false); } });
 	}
+}
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', nuraHouseInit); } else { nuraHouseInit(); }
 })();

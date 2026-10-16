@@ -73,6 +73,7 @@ class NURAX_Desk {
 		NURAX_Desk_Social::hooks();
 		NURAX_Desk_Sub::hooks();
 		NURAX_Vault::hooks();
+		NURAX_Staff::hooks();
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -487,10 +488,10 @@ class NURAX_Desk {
 		add_submenu_page( self::MENU, 'WhatsApp orders', 'WhatsApp orders', self::CAP, self::P_ORDERS, array( 'NURAX_Desk_Orders', 'page' ) );
 		add_submenu_page( self::MENU, 'Payment plans', 'Payment plans', self::CAP, self::P_PLANS, array( 'NURAX_Desk_Plans', 'page' ) );
 		add_submenu_page( self::MENU, 'Appointments', 'Appointments', self::CAP, self::P_APPTS, array( 'NURAX_Desk_Appts', 'page' ) );
-		add_submenu_page( self::MENU, 'Reminders', 'Reminders', self::CAP, self::P_REM, array( 'NURAX_Desk_Remind', 'page' ) );
-		add_submenu_page( self::MENU, 'Marketing', 'Marketing', self::CAP, self::P_MKT, array( 'NURAX_Desk_Mkt', 'page' ) );
-		add_submenu_page( self::MENU, 'Social', 'Social', self::CAP, self::P_SOC, array( 'NURAX_Desk_Social', 'page' ) );
-		add_submenu_page( self::MENU, 'Desk settings', 'Settings', self::CAP, self::P_SET, array( $this, 'settings_page' ) );
+		add_submenu_page( self::MENU, 'Reminders', 'Reminders', NURAX_Staff::page_cap( 'reminders' ), self::P_REM, array( 'NURAX_Desk_Remind', 'page' ) );
+		add_submenu_page( self::MENU, 'Marketing', 'Marketing', NURAX_Staff::page_cap( 'marketing' ), self::P_MKT, array( 'NURAX_Desk_Mkt', 'page' ) );
+		add_submenu_page( self::MENU, 'Social', 'Social', NURAX_Staff::page_cap( 'social' ), self::P_SOC, array( 'NURAX_Desk_Social', 'page' ) );
+		add_submenu_page( self::MENU, 'Desk settings', 'Settings', 'manage_options', self::P_SET, array( $this, 'settings_page' ) );
 	}
 
 	public function assets( $hook ) {
@@ -542,12 +543,22 @@ class NURAX_Desk {
 		$td = NURAX_Desk_POS::today_total();
 		$pk = count( NURAX_Desk_POS::to_pack( 50 ) );
 		echo '<div class="nd-kpis">';
-		self::kpi( 'Money in today', self::money( $td['sum'] ), $td['orders'] . ' paid sales' . ( $td['plan'] > 0 ? ' + plan payments' : '' ), 'ink', self::url( self::P_POS, array( 'view' => 'sales', 'r' => 'today' ) ) );
+		if ( NURAX_Staff::can( 'see_totals' ) ) {
+			self::kpi( 'Money in today', self::money( $td['sum'] ), $td['orders'] . ' paid sales' . ( $td['plan'] > 0 ? ' + plan payments' : '' ), 'ink', self::url( self::P_POS, array( 'view' => 'sales', 'r' => 'today' ) ) );
+		}
 		self::kpi( 'Online orders to pack', (string) $pk, 'paid or on hold', $pk ? 'amber' : '', self::url( self::P_POS, array( 'view' => 'sales', 'pay' => 'pack', 'r' => 'year' ) ) );
-		self::kpi( 'Collected this month', self::money( $k['month'] ), $k['month_count'] . ' payments', 'gold' );
-		self::kpi( 'Outstanding on plans', self::money( $k['outstanding'] ), $k['active'] . ' active plans', '' );
-		self::kpi( 'Overdue', self::money( $k['arrears'] ), $k['overdue'] . ' plans behind', $k['overdue'] ? 'red' : '', self::url( self::P_PLANS, array( 'tab' => 'overdue' ) ) );
-		self::kpi( 'Due next 7 days', self::money( $k['due7'] ), $k['due7_count'] . ' instalments', '' , self::url( self::P_PLANS, array( 'tab' => 'due_week' ) ) );
+		if ( NURAX_Staff::can( 'see_totals' ) ) {
+			self::kpi( 'Collected this month', self::money( $k['month'] ), $k['month_count'] . ' payments', 'gold' );
+		}
+		if ( NURAX_Staff::can( 'see_totals' ) ) {
+			self::kpi( 'Outstanding on plans', self::money( $k['outstanding'] ), $k['active'] . ' active plans', '' );
+		}
+		if ( NURAX_Staff::can( 'see_totals' ) ) {
+			self::kpi( 'Overdue', self::money( $k['arrears'] ), $k['overdue'] . ' plans behind', $k['overdue'] ? 'red' : '', self::url( self::P_PLANS, array( 'tab' => 'overdue' ) ) );
+		}
+		if ( NURAX_Staff::can( 'see_totals' ) ) {
+			self::kpi( 'Due next 7 days', self::money( $k['due7'] ), $k['due7_count'] . ' instalments', '' , self::url( self::P_PLANS, array( 'tab' => 'due_week' ) ) );
+		}
 		self::kpi( 'Appointments today', (string) $a['today'], $a['today_confirmed'] . ' confirmed', 'ink', self::url( self::P_APPTS, array( 'tab' => 'today' ) ) );
 		self::kpi( 'Next 7 days', (string) $a['week'], 'appointments booked', '', self::url( self::P_APPTS, array( 'view' => 'week' ) ) );
 		$wait = $a['requests'] + $k['requests'] + $o['new'];
@@ -838,6 +849,11 @@ class NURAX_Desk {
 			$rows = NURAX_Desk_Mkt::export_rows();
 		} elseif ( 'orders' === $type ) {
 			$rows = NURAX_Desk_Orders::export_rows();
+		} elseif ( 'team' === $type || 'activity' === $type ) {
+			if ( ! NURAX_Staff::is_admin() ) {
+				NURAX_Staff::deny( 'download team reports' );
+			}
+			$rows = NURAX_Staff::export_rows( $type );
 		} elseif ( 'payments' === $type ) {
 			$rows[] = array( 'Paid on', 'Plan', 'Customer', 'Phone', 'Amount', 'Method', 'Reference', 'Note', 'Voided', 'Void reason' );
 			$res    = $wpdb->get_results( 'SELECT y.*, p.ref, p.customer_name, p.phone FROM ' . self::t_pay() . ' y LEFT JOIN ' . self::t_plans() . ' p ON p.id = y.plan_id ORDER BY y.paid_at DESC' ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -863,6 +879,10 @@ class NURAX_Desk {
 		NURAX_Vault::log( 'Report downloaded', ( class_exists( 'NURAX_Xlsx' ) && isset( NURAX_Xlsx::titles()[ $type ] ) ? NURAX_Xlsx::titles()[ $type ] : $type ) . ' (' . strtoupper( 'csv' === $fmt ? 'csv' : 'xlsx' ) . ', ' . max( 0, count( $rows ) - 1 ) . ' rows)' );
 		if ( 'csv' !== $fmt && class_exists( 'NURAX_Xlsx' ) && NURAX_Xlsx::available() ) {
 			$period = '';
+			if ( in_array( $type, array( 'team', 'activity' ), true ) ) {
+				list( $f, $t ) = NURAX_Staff::filters();
+				$period          = 'Period: ' . date_i18n( 'j M Y', strtotime( $f ) ) . ' - ' . date_i18n( 'j M Y', strtotime( $t ) );
+			}
 			if ( in_array( $type, array( 'sales', 'sale_items' ), true ) ) {
 				$f = isset( $_GET['from'] ) ? self::valid_date( wp_unslash( $_GET['from'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				$t = isset( $_GET['to'] ) ? self::valid_date( wp_unslash( $_GET['to'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized

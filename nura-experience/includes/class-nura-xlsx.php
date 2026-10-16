@@ -33,6 +33,8 @@ class NURAX_Xlsx {
 			'payments'   => 'Lipa Mdogo Mdogo payments',
 			'appts'      => 'Appointments',
 			'plans'      => 'Payment plans',
+			'team'       => 'Team performance',
+			'activity'   => 'Team activity log',
 		);
 	}
 

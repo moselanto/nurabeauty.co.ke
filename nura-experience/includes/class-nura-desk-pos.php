@@ -218,6 +218,10 @@ class NURAX_Desk_POS {
 				$p   = isset( $it['id'] ) ? wc_get_product( absint( $it['id'] ) ) : null;
 				$qty = isset( $it['qty'] ) ? max( 1, min( 999, absint( $it['qty'] ) ) ) : 1;
 				$pr  = isset( $it['price'] ) ? max( 0, round( (float) $it['price'], 2 ) ) : 0;
+				if ( $p && ! NURAX_Staff::can( 'edit_price' ) && abs( $pr - (float) wc_get_price_to_display( $p ) ) > 0.5 ) {
+					NURAX_Staff::log( 'blocked', 'Blocked: tried to sell ' . $p->get_name() . ' at ' . NURAX_Desk::money( $pr ) . ' (shop price ' . NURAX_Desk::money( wc_get_price_to_display( $p ) ) . ')', array( 'level' => 'warn' ) );
+					throw new Exception( 'Only the owner can change prices at the till. ' . $p->get_name() . ' must be sold at ' . NURAX_Desk::money( wc_get_price_to_display( $p ) ) . '.' );
+				}
 				if ( $p ) {
 					$order->add_product( $p, $qty, array( 'subtotal' => $pr * $qty, 'total' => $pr * $qty ) );
 					$lines++;
@@ -243,6 +247,10 @@ class NURAX_Desk_POS {
 				$disc = round( $sub * min( 100, max( 0, $disc ) ) / 100 );
 			}
 			$disc = min( $sub, max( 0, round( $disc, 2 ) ) );
+			if ( $disc > 0 && $sub > 0 && $disc / $sub * 100 > NURAX_Staff::max_disc() + 0.01 ) {
+				NURAX_Staff::log( 'blocked', 'Blocked: tried to give a ' . round( $disc / $sub * 100 ) . '% discount (' . NURAX_Desk::money( $disc ) . ')', array( 'level' => 'warn' ) );
+				throw new Exception( 'The highest discount you can give is ' . NURAX_Staff::max_disc() . '%. Ask the owner for a bigger discount.' );
+			}
 			if ( $disc > 0 ) {
 				$f = new WC_Order_Item_Fee();
 				$f->set_name( 'Discount' );
@@ -313,6 +321,7 @@ class NURAX_Desk_POS {
 			NURAX_Desk_Mkt::upsert( array( 'name' => $name, 'phone' => $phone, 'email' => $email, 'user_id' => $uid, 'source' => 'pos', 'consent' => ! empty( $cust['consent'] ), 'spent' => $paid ? $total : 0 ) );
 		}
 		NURAX_Desk::bust();
+		NURAX_Staff::log( 'sale', ( $paid ? 'Sale #' : 'Unpaid invoice #' ) . $order->get_order_number() . ' - ' . ( $name ? $name : 'walk-in' ) . ' - ' . self::methods()[ $method ] . ( $disc > 0 ? ' - discount ' . NURAX_Desk::money( $disc ) : '' ), array( 'object' => 'order', 'object_id' => $order->get_id(), 'amount' => (float) $order->get_total() ) );
 		wp_send_json_success( self::summary( $order ) );
 	}
 
@@ -796,6 +805,12 @@ class NURAX_Desk_POS {
 		list( $from, $to ) = self::range( $r );
 		$all   = self::orders( $from, $to, 3000 );
 		$all   = is_object( $all ) ? $all->orders : (array) $all;
+		if ( ! NURAX_Staff::can( 'view_all_sales' ) ) {
+			$me  = get_current_user_id();
+			$all = array_values( array_filter( $all, function ( $o ) use ( $me ) {
+				return (int) $o->get_meta( '_nura_cashier' ) === $me;
+			} ) );
+		}
 		$k     = array( 'total' => 0, 'count' => 0, 'paid' => 0, 'unpaid' => 0, 'unpaid_n' => 0, 'walk' => 0, 'online' => 0, 'wa' => 0 );
 		$rows  = array();
 		foreach ( $all as $o ) {

@@ -222,6 +222,9 @@ class NURAX_Vault {
 			'd'  => mb_substr( (string) $detail, 0, 200 ),
 		) );
 		update_option( self::AUDIT, array_slice( $log, 0, 500 ), false );
+		if ( class_exists( 'NURAX_Staff' ) ) {
+			NURAX_Staff::log( 0 === strpos( (string) $what, 'Report' ) ? 'export' : 'security', $what . ( $detail ? ': ' . $detail : '' ) );
+		}
 	}
 
 	/* ------------------------------------------------------------------ */

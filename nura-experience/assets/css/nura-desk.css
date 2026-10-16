@@ -506,3 +506,28 @@ a.nd-kpi:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(14,14,14,.
 .nd-code{padding:12px;border-radius:10px;background:#0E0E0E;color:#E4C983;white-space:pre-wrap;word-break:break-all;font-size:12.5px}
 .nd-alert--error{padding:10px 14px;border-radius:10px;background:#fdecea;color:#b3261e;font-weight:600}
 @media (max-width:900px){.nd-sec__grid{grid-template-columns:1fr}}
+
+/* 1.69.0 Team & activity */
+.nd-team{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin:14px 0}
+.nd-staff header{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.nd-staff header small{display:block;color:#6f675d;font-size:12px}
+.nd-staff__big{font-size:24px;font-weight:800;color:#0E0E0E}
+.nd-staff__big small{display:block;font-size:12px;font-weight:500;color:#6f675d}
+.nd-staff__bar{height:6px;margin:10px 0;border-radius:99px;background:#f1ece3;overflow:hidden}
+.nd-staff__bar span{display:block;height:100%;background:linear-gradient(90deg,#C9A24B,#E4C983)}
+.nd-staff__dl{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;margin:0 0 12px}
+.nd-staff__dl div{display:flex;justify-content:space-between;font-size:12.5px;border-bottom:1px dashed #efe7da;padding:3px 0}
+.nd-staff__dl dt{color:#6f675d}.nd-staff__dl dd{margin:0;font-weight:700}
+.nd-team-filter{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.nd-team-filter__f{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.nd-team-filter__f input,.nd-team-filter__f select{min-height:34px;border:1px solid #dcd3c4;border-radius:8px;padding:0 8px}
+.nd-area{display:inline-block;padding:3px 9px;border-radius:99px;background:#f3efe8;font-size:11px;font-weight:700;white-space:nowrap}
+.nd-area--sale,.nd-area--payment{background:#e9f7ef;color:#137a3c}
+.nd-area--blocked,.nd-area--delete,.nd-area--refund{background:#fdecea;color:#b3261e}
+.nd-area--product{background:#fff4dc;color:#8a6a1f}
+.nd-area--login{background:#eef1f7;color:#3b4a6b}
+.nd-feed--warn td{background:#fffaf0}
+.nd-locks{margin:0;padding-left:0;list-style:none}
+.nd-locks li{position:relative;padding:6px 0 6px 24px;border-bottom:1px solid #f4efe6}
+.nd-locks li::before{content:"";position:absolute;left:4px;top:11px;width:10px;height:10px;border-radius:2px;background:#0E0E0E;box-shadow:0 0 0 2px #E4C983}
+.nd-locks--users li::before{border-radius:50%}

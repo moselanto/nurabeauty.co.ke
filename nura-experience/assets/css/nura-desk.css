@@ -411,3 +411,19 @@ a.nd-kpi:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(14,14,14,.
 .nd-phone__chat{min-height:420px;padding:10px;background:#e5ddd5}
 
 @media (max-width:1200px){.pos{grid-template-columns:1fr}.pos__cart{position:static;max-height:none}.nd-plan--mkt{grid-template-columns:1fr}}
+
+/* 1.60.0: keep every column visible - no cut-off on the right */
+.nd-wrap{max-width:100%}
+.nd-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.nd-table{table-layout:auto;min-width:0}
+.nd-table th,.nd-table td{padding:10px 10px}
+.nd-table td small{white-space:normal!important;word-break:break-word}
+.nd-table td small.nd-red,.nd-time+small{white-space:nowrap!important}
+.nd-clip{max-width:200px}
+.nd-col-act{white-space:normal!important;text-align:right;min-width:150px;max-width:230px}
+.nd-col-act .nd-inline,.nd-col-act .nd-ico-btn{display:inline-flex;vertical-align:middle}
+.nd-col-act .nd-ico-btn{margin:2px 0 2px 4px}
+.nd-col-act .nd-ico-btn--danger{opacity:.55}
+.nd-ref{white-space:nowrap}
+@media (max-width:1400px){.nd-clip{max-width:150px}.nd-table th{letter-spacing:.06em}}
+@media (max-width:1100px){.nd-col-act{min-width:120px}}

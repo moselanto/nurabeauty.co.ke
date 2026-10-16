@@ -561,110 +561,190 @@ class NURAX_Staff {
 		}
 		global $wpdb;
 		self::maybe_install();
-		$tab                           = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'team'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$tab    = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'team';
+		$rsel   = isset( $_GET['r'] ) ? sanitize_key( wp_unslash( $_GET['r'] ) ) : ( isset( $_GET['from'] ) ? 'custom' : 'month' );
+		// phpcs:enable
 		list( $from, $to, $uid, $area ) = self::filters();
 		$q     = array( 'from' => $from, 'to' => $to, 'u' => $uid, 'area' => $area );
 		$extra = '&from=' . $from . '&to=' . $to . '&u=' . $uid . '&area=' . $area;
-		$nav   = '<nav class="nd-subnav"><a class="' . ( 'team' === $tab ? 'is-on' : '' ) . '" href="' . esc_url( NURAX_Desk::url( self::PAGE, $q ) ) . '">Team performance</a><a class="' . ( 'log' === $tab ? 'is-on' : '' ) . '" href="' . esc_url( NURAX_Desk::url( self::PAGE, array_merge( $q, array( 'tab' => 'log' ) ) ) ) . '">Activity log</a><a class="' . ( 'perms' === $tab ? 'is-on' : '' ) . '" href="' . esc_url( NURAX_Desk::url( self::PAGE, array( 'tab' => 'perms' ) ) ) . '">Permissions</a></nav>';
+		$tabs  = array( 'team' => 'Performance', 'log' => 'Activity log', 'perms' => 'Permissions' );
 		$exp   = 'perms' === $tab ? '' : NURAX_Desk::export_btns( 'log' === $tab ? 'activity' : 'team', 'log' === $tab ? 'Activity report' : 'Team report', $extra );
-		NURAX_Desk::header( self::PAGE, 'Team & activity', $nav . $exp );
+		NURAX_Desk::header( self::PAGE, 'Team & activity', $exp );
+
+		echo '<div class="nt">';
+		echo '<nav class="nt-tabs" aria-label="Team">';
+		foreach ( $tabs as $k => $l ) {
+			$url = 'perms' === $k ? NURAX_Desk::url( self::PAGE, array( 'tab' => 'perms' ) ) : NURAX_Desk::url( self::PAGE, array_merge( $q, array( 'tab' => $k ) ) );
+			echo '<a class="nt-tab' . ( $k === $tab ? ' is-on' : '' ) . '" href="' . esc_url( $url ) . '">' . esc_html( $l ) . '</a>';
+		}
+		echo '</nav>';
 
 		if ( 'perms' === $tab ) {
 			self::perms_form();
+			echo '</div>';
 			NURAX_Desk::footer();
 			return;
 		}
 
+		/* Filter bar. */
 		$users = self::team_users();
-		echo '<form method="get" class="nd-toolbar nd-team-filter"><input type="hidden" name="page" value="' . esc_attr( self::PAGE ) . '"><input type="hidden" name="tab" value="' . esc_attr( $tab ) . '"><nav class="nd-pills">';
+		echo '<form method="get" class="nt-filter"><input type="hidden" name="page" value="' . esc_attr( self::PAGE ) . '"><input type="hidden" name="tab" value="' . esc_attr( $tab ) . '">';
+		echo '<div class="nt-seg" role="group" aria-label="Period">';
 		foreach ( array( 'today' => 'Today', 'week' => '7 days', 'month' => 'This month', 'last' => 'Last month', 'year' => 'This year' ) as $k => $l ) {
-			echo '<a class="nd-pill" href="' . esc_url( NURAX_Desk::url( self::PAGE, array( 'tab' => $tab, 'r' => $k, 'u' => $uid, 'area' => $area ) ) ) . '">' . esc_html( $l ) . '</a>';
+			echo '<a class="nt-seg__b' . ( $k === $rsel ? ' is-on' : '' ) . '" href="' . esc_url( NURAX_Desk::url( self::PAGE, array( 'tab' => $tab, 'r' => $k, 'u' => $uid, 'area' => $area ) ) ) . '">' . esc_html( $l ) . '</a>';
 		}
-		echo '</nav><span class="nd-team-filter__f"><input type="date" name="from" value="' . esc_attr( $from ) . '"><span>to</span><input type="date" name="to" value="' . esc_attr( $to ) . '"><select name="u"><option value="0">Everyone</option>';
+		echo '</div><div class="nt-filter__f">';
+		echo '<label class="nt-in"><span>From</span><input type="date" name="from" value="' . esc_attr( $from ) . '"></label>';
+		echo '<label class="nt-in"><span>To</span><input type="date" name="to" value="' . esc_attr( $to ) . '"></label>';
+		echo '<label class="nt-in"><span>Team member</span><select name="u"><option value="0">Everyone</option>';
 		foreach ( $users as $u ) {
 			echo '<option value="' . (int) $u->ID . '"' . selected( $uid, $u->ID, false ) . '>' . esc_html( $u->display_name ) . '</option>';
 		}
-		echo '</select>';
+		echo '</select></label>';
 		if ( 'log' === $tab ) {
-			echo '<select name="area"><option value="">All activity</option>';
+			echo '<label class="nt-in"><span>Activity</span><select name="area"><option value="">All activity</option>';
 			foreach ( self::areas() as $k => $l ) {
 				echo '<option value="' . esc_attr( $k ) . '"' . selected( $area, $k, false ) . '>' . esc_html( $l ) . '</option>';
 			}
-			echo '</select>';
+			echo '</select></label>';
 		}
-		echo '<button class="nd-btn nd-btn--ghost">Apply</button></span></form>';
-		echo '<p class="nd-mut nd-small">Showing ' . esc_html( NURAX_Desk::date_label( $from, 'j M Y' ) . ' - ' . NURAX_Desk::date_label( $to, 'j M Y' ) ) . '</p>';
+		echo '<button class="nd-btn nd-btn--primary nt-apply">Apply</button></div></form>';
+		echo '<p class="nt-period">' . esc_html( NURAX_Desk::date_label( $from, 'j M Y' ) . '  -  ' . NURAX_Desk::date_label( $to, 'j M Y' ) ) . '</p>';
+
+		$areas = self::areas();
+		$feed  = function ( $rows, $compact = false ) use ( $areas ) {
+			echo '<div class="nt-table"><table><thead><tr><th>When</th><th>Team member</th><th>Area</th><th>What happened</th><th class="r">Amount</th>' . ( $compact ? '' : '<th>IP address</th>' ) . '</tr></thead><tbody>';
+			foreach ( $rows as $r ) {
+				echo '<tr class="nt-lv--' . esc_attr( $r->level ) . '"><td class="nt-when">' . esc_html( NURAX_Desk::date_label( $r->created_at, 'j M Y' ) ) . '<small>' . esc_html( NURAX_Desk::date_label( $r->created_at, 'H:i' ) ) . '</small></td>';
+				echo '<td><span class="nt-who"><span class="nt-av">' . esc_html( strtoupper( mb_substr( $r->user_name, 0, 1 ) ) ) . '</span><span>' . esc_html( $r->user_name ) . '<small>' . esc_html( $r->role ) . '</small></span></span></td>';
+				echo '<td><span class="nd-area nd-area--' . esc_attr( $r->area ) . '">' . esc_html( isset( $areas[ $r->area ] ) ? $areas[ $r->area ] : $r->area ) . '</span></td><td class="nt-what">' . esc_html( $r->summary ) . '</td>';
+				echo '<td class="r nt-num">' . ( (float) $r->amount ? esc_html( NURAX_Desk::money( $r->amount ) ) : '<span class="nt-mut">-</span>' ) . '</td>' . ( $compact ? '' : '<td class="nt-mut">' . esc_html( $r->ip ) . '</td>' ) . '</tr>';
+			}
+			echo '</tbody></table></div>';
+		};
 
 		if ( 'log' === $tab ) {
 			$paged = isset( $_GET['paged'] ) ? max( 1, absint( $_GET['paged'] ) ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$w     = self::feed_where( $from, $to, $uid, $area );
 			$total = (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . self::t() . ' WHERE ' . $w ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 			$rows  = (array) $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . self::t() . ' WHERE ' . $w . ' ORDER BY id DESC LIMIT 50 OFFSET %d', ( $paged - 1 ) * 50 ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			echo '<section class="nt-card"><header class="nt-card__h"><div><h2>Activity log</h2><p>' . (int) $total . ' recorded actions in this period</p></div></header>';
 			if ( ! $rows ) {
-				echo '<div class="nd-empty"><strong>No activity for this period.</strong><p>Every sale, payment, plan, appointment, price change, refund, deletion and sign-in by your team appears here.</p></div>';
+				echo '<div class="nt-empty"><strong>No activity in this period</strong><p>Sales, payments, plans, appointments, price and stock changes, refunds, deletions, sign-ins and blocked attempts are recorded here automatically.</p></div></section></div>';
 				NURAX_Desk::footer();
 				return;
 			}
-			$areas = self::areas();
-			echo '<div class="nd-table-wrap"><table class="nd-table nd-feed"><thead><tr><th>When</th><th>Who</th><th>Area</th><th>What happened</th><th>Amount</th><th>IP</th></tr></thead><tbody>';
-			foreach ( $rows as $r ) {
-				echo '<tr class="nd-feed--' . esc_attr( $r->level ) . '"><td><small>' . esc_html( NURAX_Desk::date_label( $r->created_at, 'D j M, H:i' ) ) . '</small></td><td><strong>' . esc_html( $r->user_name ) . '</strong><small>' . esc_html( $r->role ) . '</small></td><td><span class="nd-area nd-area--' . esc_attr( $r->area ) . '">' . esc_html( isset( $areas[ $r->area ] ) ? $areas[ $r->area ] : $r->area ) . '</span></td><td>' . esc_html( $r->summary ) . '</td><td>' . ( (float) $r->amount ? esc_html( NURAX_Desk::money( $r->amount ) ) : '' ) . '</td><td><small>' . esc_html( $r->ip ) . '</small></td></tr>';
-			}
-			echo '</tbody></table></div>';
+			$feed( $rows );
+			echo '</section>';
 			NURAX_Desk_Plans::pager( $total, 50, $paged, array_merge( $q, array( 'tab' => 'log' ) ), self::PAGE );
+			echo '</div>';
 			NURAX_Desk::footer();
 			return;
 		}
 
+		/* Performance. */
 		$sum = self::summary( $from, $to );
-		$tot = array( 'sales' => 0, 'total' => 0, 'disc' => 0, 'blocked' => 0 );
-		foreach ( $sum as $s ) {
-			$tot['sales']   += $s['sales'];
-			$tot['total']   += $s['total'];
-			$tot['disc']    += $s['disc'];
-			$tot['blocked'] += $s['blocked'];
+		if ( $uid && isset( $sum[ $uid ] ) ) {
+			$sum = array( $uid => $sum[ $uid ] );
 		}
-		echo '<div class="nd-kpis">';
-		NURAX_Desk::kpi( 'Till sales by the team', NURAX_Desk::money( $tot['total'] ), $tot['sales'] . ' sales', 'ink' );
-		NURAX_Desk::kpi( 'Discounts given', NURAX_Desk::money( $tot['disc'] ), 'across all staff', $tot['disc'] ? 'amber' : '' );
-		NURAX_Desk::kpi( 'Team members', (string) count( $sum ), 'owner + shop managers', 'gold' );
-		NURAX_Desk::kpi( 'Blocked attempts', (string) $tot['blocked'], 'tried something not allowed', $tot['blocked'] ? 'red' : '', NURAX_Desk::url( self::PAGE, array_merge( $q, array( 'tab' => 'log', 'area' => 'blocked' ) ) ) );
-		echo '</div><div class="nd-team">';
+		$tot = array( 'sales' => 0, 'total' => 0.0, 'paid' => 0.0, 'unpaid' => 0.0, 'disc' => 0.0, 'blocked' => 0, 'actions' => 0 );
+		foreach ( $sum as $s ) {
+			foreach ( $tot as $k => $v ) {
+				$tot[ $k ] += $s[ $k ];
+			}
+		}
+		$avg = $tot['sales'] ? $tot['total'] / $tot['sales'] : 0;
+		$mgr = 0;
+		foreach ( $users as $u ) {
+			if ( ! in_array( 'administrator', (array) $u->roles, true ) ) {
+				$mgr++;
+			}
+		}
+
+		echo '<div class="nt-kpis">';
+		$kpi = function ( $l, $v, $s, $tone = '' ) {
+			echo '<div class="nt-kpi' . ( $tone ? ' nt-kpi--' . esc_attr( $tone ) : '' ) . '"><span class="nt-kpi__l">' . esc_html( $l ) . '</span><strong class="nt-kpi__v">' . esc_html( $v ) . '</strong><span class="nt-kpi__s">' . esc_html( $s ) . '</span></div>';
+		};
+		$kpi( 'Till sales', NURAX_Desk::money( $tot['total'] ), $tot['sales'] . ' sales by the team', 'ink' );
+		$kpi( 'Average sale', NURAX_Desk::money( $avg ), 'per till sale' );
+		$kpi( 'Unpaid invoices', NURAX_Desk::money( $tot['unpaid'] ), 'still to collect', $tot['unpaid'] > 0 ? 'amber' : '' );
+		$kpi( 'Discounts given', NURAX_Desk::money( $tot['disc'] ), $tot['total'] > 0 ? round( $tot['disc'] / ( $tot['total'] + $tot['disc'] ) * 100, 1 ) . '% of gross sales' : 'none', $tot['disc'] > 0 ? 'gold' : '' );
+		$kpi( 'Blocked attempts', (string) $tot['blocked'], 'owner-only actions stopped', $tot['blocked'] ? 'red' : '' );
+		echo '</div>';
+
+		if ( ! $mgr ) {
+			echo '<section class="nt-card nt-callout"><div><h2>Add your shop managers</h2><p>Each person needs their own login so their sales and actions are recorded under their name. Go to Users &gt; Add New, enter their name and e-mail, and choose the role <strong>Shop manager</strong>. They will appear here automatically.</p></div><a class="nd-btn nd-btn--primary" href="' . esc_url( admin_url( 'user-new.php' ) ) . '">Add a shop manager</a></section>';
+		}
+
+		/* Leaderboard. */
+		echo '<section class="nt-card"><header class="nt-card__h"><div><h2>Team performance</h2><p>Ranked by till sales. Click a name to see everything they did.</p></div></header>';
+		echo '<div class="nt-table"><table class="nt-board"><thead><tr><th class="c">#</th><th>Team member</th><th class="r">Sales</th><th class="r">Total</th><th class="r">Paid</th><th class="r">Unpaid</th><th class="r">Discounts</th><th class="r">Items</th><th class="r">Plans</th><th class="r">Plan pay.</th><th class="r">Appts</th><th class="r">Edits</th><th class="r">Blocked</th><th>Last active</th></tr></thead><tbody>';
 		$best = 0;
 		foreach ( $sum as $s ) {
 			$best = max( $best, $s['total'] );
 		}
+		$i = 0;
 		foreach ( $sum as $id => $s ) {
+			$i++;
 			$pct = $best > 0 ? round( $s['total'] / $best * 100 ) : 0;
-			echo '<section class="nd-card nd-staff"><header><span class="nd-avatar">' . esc_html( strtoupper( mb_substr( $s['name'], 0, 1 ) ) ) . '</span><div><strong>' . esc_html( $s['name'] ) . '</strong><small>' . esc_html( $s['role'] ) . ( $s['last'] ? ' - last active ' . esc_html( NURAX_Desk::date_label( $s['last'], 'j M, H:i' ) ) : '' ) . '</small></div></header>';
-			echo '<div class="nd-staff__big">' . esc_html( NURAX_Desk::money( $s['total'] ) ) . '<small>' . (int) $s['sales'] . ' sales, ' . (int) $s['items'] . ' items</small></div>';
-			echo '<div class="nd-staff__bar"><span style="width:' . (int) $pct . '%"></span></div>';
-			echo '<dl class="nd-staff__dl"><div><dt>Paid</dt><dd>' . esc_html( NURAX_Desk::money( $s['paid'] ) ) . '</dd></div><div><dt>Unpaid</dt><dd>' . esc_html( NURAX_Desk::money( $s['unpaid'] ) ) . '</dd></div><div><dt>Discounts</dt><dd>' . esc_html( NURAX_Desk::money( $s['disc'] ) ) . '</dd></div><div><dt>Plans</dt><dd>' . (int) $s['plans'] . '</dd></div><div><dt>Plan payments</dt><dd>' . (int) $s['payments'] . '</dd></div><div><dt>Appointments</dt><dd>' . (int) $s['appts'] . '</dd></div><div><dt>Product edits</dt><dd>' . (int) $s['products'] . '</dd></div><div><dt>Blocked</dt><dd' . ( $s['blocked'] ? ' class="nd-red"' : '' ) . '>' . (int) $s['blocked'] . '</dd></div></dl>';
-			echo '<a class="nd-btn nd-btn--ghost nd-btn--block" href="' . esc_url( NURAX_Desk::url( self::PAGE, array( 'tab' => 'log', 'u' => $id, 'from' => $from, 'to' => $to ) ) ) . '">See everything ' . esc_html( strtok( $s['name'], ' ' ) ) . ' did</a></section>';
+			$url = NURAX_Desk::url( self::PAGE, array( 'tab' => 'log', 'u' => $id, 'from' => $from, 'to' => $to ) );
+			echo '<tr><td class="c"><span class="nt-rank' . ( 1 === $i && $s['total'] > 0 ? ' is-top' : '' ) . '">' . (int) $i . '</span></td>';
+			echo '<td><a class="nt-who" href="' . esc_url( $url ) . '"><span class="nt-av">' . esc_html( strtoupper( mb_substr( $s['name'], 0, 1 ) ) ) . '</span><span>' . esc_html( $s['name'] ) . '<small>' . esc_html( $s['role'] ) . '</small></span></a><span class="nt-bar"><span style="width:' . (int) $pct . '%"></span></span></td>';
+			echo '<td class="r nt-num">' . (int) $s['sales'] . '</td><td class="r nt-num"><strong>' . esc_html( NURAX_Desk::money( $s['total'] ) ) . '</strong></td><td class="r nt-num">' . esc_html( NURAX_Desk::money( $s['paid'] ) ) . '</td>';
+			echo '<td class="r nt-num' . ( $s['unpaid'] > 0 ? ' nt-amber' : '' ) . '">' . esc_html( NURAX_Desk::money( $s['unpaid'] ) ) . '</td><td class="r nt-num">' . esc_html( NURAX_Desk::money( $s['disc'] ) ) . '</td><td class="r nt-num">' . (int) $s['items'] . '</td>';
+			echo '<td class="r nt-num">' . (int) $s['plans'] . '</td><td class="r nt-num">' . (int) $s['payments'] . '</td><td class="r nt-num">' . (int) $s['appts'] . '</td><td class="r nt-num">' . (int) $s['products'] . '</td>';
+			echo '<td class="r nt-num' . ( $s['blocked'] ? ' nt-red' : '' ) . '">' . (int) $s['blocked'] . '</td><td class="nt-mut">' . esc_html( $s['last'] ? NURAX_Desk::date_label( $s['last'], 'j M, H:i' ) : 'No activity' ) . '</td></tr>';
 		}
-		echo '</div><p class="nd-mut nd-small">Sales are till sales (Point of sale) made by each person. Online shop orders are not linked to a team member.</p>';
+		echo '</tbody>';
+		if ( count( $sum ) > 1 ) {
+			echo '<tfoot><tr><td></td><td>Team total</td><td class="r nt-num">' . (int) $tot['sales'] . '</td><td class="r nt-num">' . esc_html( NURAX_Desk::money( $tot['total'] ) ) . '</td><td class="r nt-num">' . esc_html( NURAX_Desk::money( $tot['paid'] ) ) . '</td><td class="r nt-num">' . esc_html( NURAX_Desk::money( $tot['unpaid'] ) ) . '</td><td class="r nt-num">' . esc_html( NURAX_Desk::money( $tot['disc'] ) ) . '</td><td colspan="7"></td></tr></tfoot>';
+		}
+		echo '</table></div><p class="nt-foot">Sales are Point of sale (till) sales recorded under the person who made them. Online shop orders are not linked to a team member.</p></section>';
+
+		/* Recent activity. */
+		$recent = (array) $wpdb->get_results( 'SELECT * FROM ' . self::t() . ' WHERE ' . self::feed_where( $from, $to, $uid, '' ) . ' ORDER BY id DESC LIMIT 8' ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		echo '<section class="nt-card"><header class="nt-card__h"><div><h2>Recent activity</h2><p>The latest actions by your team in this period.</p></div><a class="nd-btn nd-btn--ghost" href="' . esc_url( NURAX_Desk::url( self::PAGE, array_merge( $q, array( 'tab' => 'log' ) ) ) ) . '">View full log</a></header>';
+		if ( $recent ) {
+			$feed( $recent, true );
+		} else {
+			echo '<div class="nt-empty"><strong>Nothing recorded yet</strong><p>As your team makes sales, records payments, books appointments or edits products, it appears here.</p></div>';
+		}
+		echo '</section></div>';
 		NURAX_Desk::footer();
 	}
 
 	private static function perms_form() {
-		$p = self::perms();
-		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="nd-form"><input type="hidden" name="action" value="nurax_team_perms">';
+		$p   = self::perms();
+		$grp = array(
+			'Sales & money'      => array( 'view_all_sales', 'see_totals', 'mark_paid', 'edit_price', 'refunds' ),
+			'Tools & pages'      => array( 'reminders', 'marketing', 'social', 'wc_settings' ),
+		);
+		$lab = self::labels();
+		echo '<div class="nt-perms"><form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="nt-perms__main"><input type="hidden" name="action" value="nurax_team_perms">';
 		wp_nonce_field( 'nurax_team_perms' );
-		echo '<section class="nd-card nd-sec"><header class="nd-card__h"><h2>Always owner-only</h2></header><ul class="nd-locks">';
-		foreach ( array( 'Delete or trash anything: products, orders, coupons, customers, plans, appointments, WhatsApp orders, contacts, pages', 'Void payments, cancel payment plans and cancel WhatsApp orders', 'NURA Desk settings, team permissions, data protection and this Team page', 'Plugins, themes, WordPress tools, import / export and adding new users' ) as $l ) {
+		foreach ( $grp as $title => $keys ) {
+			echo '<section class="nt-card"><header class="nt-card__h"><div><h2>' . esc_html( $title ) . '</h2><p>What shop managers are allowed to do.</p></div></header><div class="nt-switches">';
+			foreach ( $keys as $k ) {
+				echo '<label class="nt-switch"><span class="nt-switch__t"><strong>' . esc_html( $lab[ $k ][0] ) . '</strong><small>' . esc_html( $lab[ $k ][1] ) . '</small></span><input type="checkbox" name="' . esc_attr( $k ) . '" value="1"' . checked( ! empty( $p[ $k ] ), true, false ) . '><span class="nt-switch__ui" aria-hidden="true"></span></label>';
+			}
+			if ( 'Sales & money' === $title ) {
+				echo '<label class="nt-switch nt-switch--num"><span class="nt-switch__t"><strong>Highest discount at the till</strong><small>Larger discounts are refused and recorded. 0 = no discounts.</small></span><span class="nt-pct"><input type="number" name="max_disc" min="0" max="100" step="1" value="' . esc_attr( $p['max_disc'] ) . '"><em>%</em></span></label>';
+			}
+			echo '</div></section>';
+		}
+		echo '<div class="nt-save"><button class="nd-btn nd-btn--primary">Save permissions</button><span>Changes apply to every shop manager straight away.</span></div></form>';
+
+		echo '<aside class="nt-perms__side"><section class="nt-card nt-card--ink"><h2>Always owner-only</h2><ul class="nt-locks">';
+		foreach ( array( 'Delete or trash anything - products, orders, coupons, customers, plans, appointments, WhatsApp orders, contacts, pages', 'Void payments and cancel plans or WhatsApp orders', 'NURA Desk settings, data protection and this Team page', 'Plugins, themes, tools, import / export and new users' ) as $l ) {
 			echo '<li>' . esc_html( $l ) . '</li>';
 		}
-		echo '</ul><p class="nd-mut nd-small">Shop managers can add and edit data. If they try something owner-only it is blocked and recorded in the activity log.</p></section>';
-		echo '<section class="nd-card"><header class="nd-card__h"><h2>What shop managers can do</h2></header><div class="nd-fields nd-fields--2">';
-		foreach ( self::labels() as $k => $l ) {
-			echo '<label class="nd-field nd-field--check"><input type="checkbox" name="' . esc_attr( $k ) . '" value="1"' . checked( ! empty( $p[ $k ] ), true, false ) . '><span><strong>' . esc_html( $l[0] ) . '</strong><small>' . esc_html( $l[1] ) . '</small></span></label>';
-		}
-		echo '<label class="nd-field"><span class="nd-label">Highest discount a shop manager can give (%)</span><input type="number" name="max_disc" min="0" max="100" step="1" value="' . esc_attr( $p['max_disc'] ) . '"><small>Applies at the till. 0 = no discounts.</small></label>';
-		echo '</div></section><p><button class="nd-btn nd-btn--primary">Save permissions</button></p></form>';
-		echo '<section class="nd-card"><header class="nd-card__h"><h2>Your team</h2></header><ul class="nd-locks nd-locks--users">';
+		echo '</ul><p>Attempts are blocked and recorded in the activity log.</p></section>';
+		echo '<section class="nt-card"><header class="nt-card__h"><div><h2>Your team</h2></div><a class="nd-btn nd-btn--ghost" href="' . esc_url( admin_url( 'user-new.php' ) ) . '">Add</a></header><ul class="nt-people">';
 		foreach ( self::team_users() as $u ) {
-			echo '<li><strong>' . esc_html( $u->display_name ) . '</strong> - ' . esc_html( $u->user_email ) . ' - ' . esc_html( in_array( 'administrator', (array) $u->roles, true ) ? 'Owner / admin' : 'Shop manager' ) . '</li>';
+			$own = in_array( 'administrator', (array) $u->roles, true );
+			echo '<li><span class="nt-av">' . esc_html( strtoupper( mb_substr( $u->display_name, 0, 1 ) ) ) . '</span><span>' . esc_html( $u->display_name ) . '<small>' . esc_html( $u->user_email ) . '</small></span><em class="' . ( $own ? 'is-own' : '' ) . '">' . esc_html( $own ? 'Owner' : 'Shop manager' ) . '</em></li>';
 		}
-		echo '</ul><p class="nd-mut nd-small">Add a shop manager under Users > Add New and choose the role "Shop manager". Give every person their own login so their work is recorded under their name.</p></section>';
+		echo '</ul><p class="nt-foot">Give every person their own login so their work is recorded under their name.</p></section></aside></div>';
 	}
 }

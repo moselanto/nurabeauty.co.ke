@@ -1564,3 +1564,67 @@ html body ul.products li.product .nura-lmm-chip{display:block;padding:0 12px;mar
 .nura-ref__copy{margin-left:auto;min-height:38px;padding:0 .9rem;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;cursor:pointer}
 .nura-ref__wa{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 1.2rem;border-radius:10px;background:#25D366;color:#fff;font-weight:700;text-decoration:none}
 .nura-ref__earned{margin:.7rem 0 0;font-size:.85rem}
+
+/* ---- 1.60.1 Lipa Mdogo Mdogo plan review pop-up ---- */
+html.nura-plan-open{overflow:hidden}
+.nura-plan{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:24px}
+.nura-plan[hidden]{display:none}
+.nura-plan__backdrop{position:absolute;inset:0;background:rgba(14,14,14,.62);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;transition:opacity .22s ease}
+.nura-plan__panel{position:relative;width:100%;max-width:560px;max-height:calc(100vh - 48px);display:flex;flex-direction:column;background:#fff;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.35);overflow:hidden;transform:translateY(16px) scale(.98);opacity:0;transition:transform .22s ease,opacity .22s ease;outline:none;color:var(--nura-text,#181818)}
+.nura-plan.is-open .nura-plan__backdrop{opacity:1}
+.nura-plan.is-open .nura-plan__panel{transform:none;opacity:1}
+.nura-plan__x{position:absolute;top:12px;right:12px;z-index:2;width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:22px;line-height:1;cursor:pointer}
+.nura-plan__x:hover,.nura-plan__x:focus-visible{background:rgba(255,255,255,.25)}
+.nura-plan__body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 24px 8px}
+.nura-plan__head{margin:0 -24px 18px;padding:26px 24px 22px;background:linear-gradient(135deg,#0E0E0E 0%,#2a1f14 100%);color:#fff}
+.nura-plan__eyebrow{display:inline-block;font-family:var(--font-ui,inherit);font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--nura-gold-soft,#E4C983);border:1px solid rgba(228,201,131,.45);border-radius:999px;padding:.35em .9em}
+.nura-plan__title{margin:.6rem 0 .3rem;font-size:1.55rem;line-height:1.2;color:#fff;font-family:var(--font-display,inherit)}
+.nura-plan__sub{margin:0;font-size:.9rem;line-height:1.5;color:rgba(255,255,255,.78)}
+.nura-plan__product{display:flex;align-items:center;gap:14px;padding:12px;border:1px solid var(--nura-line,rgba(201,162,75,.28));border-radius:12px;background:#fffdf8}
+.nura-plan__img{width:64px;height:64px;flex:0 0 64px;object-fit:cover;border-radius:10px;background:#f3e9dc}
+.nura-plan__img[hidden]{display:none}
+.nura-plan__pinfo{flex:1;min-width:0;display:grid;gap:2px;font-size:.84rem;color:#555}
+.nura-plan__pinfo strong{font-size:.95rem;color:#111;line-height:1.3}
+.nura-plan__sku{font-size:.74rem;color:var(--nura-muted,#8b8b8b);letter-spacing:.04em}
+.nura-plan__price{font-weight:700;font-size:1rem;white-space:nowrap}
+.nura-plan__label{margin:20px 0 8px;font-family:var(--font-ui,inherit);font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#7a6330}
+.nura-plan__weeks{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px}
+.nura-plan__wk{padding:11px 8px;border:1.5px solid #e2d6b8;border-radius:10px;background:#fff;font-weight:600;font-size:.9rem;cursor:pointer;color:#222;transition:border-color .15s,background .15s}
+.nura-plan__wk:hover{border-color:var(--nura-gold,#C9A24B)}
+.nura-plan__wk.is-on{border-color:#0E0E0E;background:#0E0E0E;color:var(--nura-gold-soft,#E4C983)}
+.nura-plan__sum{margin:16px 0 0;padding:4px 16px;border-radius:12px;background:#faf6ee}
+.nura-plan__sum>div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed #e6dcc4;font-size:.92rem}
+.nura-plan__sum>div:last-child{border-bottom:0}
+.nura-plan__sum dt{margin:0;color:#555;font-weight:400}
+.nura-plan__sum dd{margin:0;font-weight:600;text-align:right}
+.nura-plan__sum .is-total dt{color:#111;font-weight:700}
+.nura-plan__sum .is-total dd{font-size:1.08rem;font-weight:800}
+.nura-plan__sched{list-style:none;margin:0;padding:0;border:1px solid #eee;border-radius:12px;overflow:hidden;counter-reset:np}
+.nura-plan__sched li{display:grid;grid-template-columns:1fr auto;grid-template-areas:"dt amt" "what amt";gap:1px 12px;padding:10px 14px;border-bottom:1px solid #f0f0f0;font-size:.88rem}
+.nura-plan__sched li:last-child{border-bottom:0}
+.nura-plan__sched li.is-today{background:#fffaf0}
+.nura-plan__dt{grid-area:dt;font-weight:600;color:#111}
+.nura-plan__what{grid-area:what;font-size:.78rem;color:#777}
+.nura-plan__amt{grid-area:amt;align-self:center;font-weight:700;font-variant-numeric:tabular-nums}
+.nura-plan__fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.nura-plan__fields label{display:grid;gap:5px;font-size:.78rem;color:#555}
+.nura-plan__fields input,.nura-plan__fields select{width:100%;min-height:44px;padding:9px 12px;border:1px solid #ddd;border-radius:10px;font-size:16px;background:#fff;color:#111}
+.nura-plan__fields input:focus,.nura-plan__fields select:focus{outline:none;border-color:var(--nura-gold,#C9A24B);box-shadow:0 0 0 3px rgba(201,162,75,.18)}
+.nura-plan__terms{margin:18px 0 6px;padding:0;list-style:none;display:grid;gap:7px;font-size:.82rem;line-height:1.45;color:#555}
+.nura-plan__terms li{position:relative;padding-left:22px}
+.nura-plan__terms li:before{content:"";position:absolute;left:2px;top:.35em;width:11px;height:6px;border-left:2px solid var(--nura-gold,#C9A24B);border-bottom:2px solid var(--nura-gold,#C9A24B);transform:rotate(-45deg)}
+.nura-plan__foot{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:14px 24px 16px;border-top:1px solid #eee;background:#fff}
+.nura-plan__send{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:50px;padding:0 18px;border-radius:12px;background:#1f9d55;color:#fff!important;font-weight:700;font-size:.98rem;text-decoration:none!important;transition:background .15s}
+.nura-plan__send:hover,.nura-plan__send:focus-visible{background:#17834a}
+.nura-plan__later{min-height:50px;padding:0 16px;border:1px solid #ddd;border-radius:12px;background:#fff;color:#333;font-weight:600;cursor:pointer}
+.nura-plan__hours{grid-column:1/-1;margin:0;text-align:center;font-size:.74rem;color:var(--nura-muted,#8b8b8b)}
+@media (max-width:600px){
+	.nura-plan{padding:0;align-items:flex-end}
+	.nura-plan__panel{max-width:none;max-height:92vh;border-radius:18px 18px 0 0;transform:translateY(40px)}
+	.nura-plan__body{padding:0 18px 8px}
+	.nura-plan__head{margin:0 -18px 16px;padding:22px 18px 18px}
+	.nura-plan__title{font-size:1.3rem}
+	.nura-plan__fields{grid-template-columns:1fr}
+	.nura-plan__foot{padding:12px 18px calc(14px + env(safe-area-inset-bottom))}
+}
+@media (prefers-reduced-motion:reduce){.nura-plan__panel,.nura-plan__backdrop{transition:none}}

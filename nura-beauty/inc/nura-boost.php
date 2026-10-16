@@ -370,7 +370,7 @@ add_action( 'woocommerce_single_product_summary', function () {
 	$max   = max( $weeks );
 	$dep   = ceil( $price * $s['deposit'] / 100 );
 	$wk    = ceil( ( $price - $dep ) / $max );
-	echo '<div class="nura-lmm" data-nura-lmm data-price="' . esc_attr( $price ) . '" data-deposit="' . esc_attr( (int) $s['deposit'] ) . '" data-wa="' . esc_url( $wa ) . '" data-name="' . esc_attr( $product->get_name() ) . '" data-url="' . esc_url( get_permalink( $product->get_id() ) ) . '">';
+	echo '<div class="nura-lmm" data-nura-lmm data-price="' . esc_attr( $price ) . '" data-deposit="' . esc_attr( (int) $s['deposit'] ) . '" data-wa="' . esc_url( $wa ) . '" data-name="' . esc_attr( $product->get_name() ) . '" data-url="' . esc_url( get_permalink( $product->get_id() ) ) . '" data-img="' . esc_url( (string) wp_get_attachment_image_url( $product->get_image_id(), 'woocommerce_thumbnail' ) ) . '" data-sku="' . esc_attr( (string) $product->get_sku() ) . '">';
 	echo '<div class="nura-lmm__head"><span class="nura-lmm__badge">' . esc_html__( 'Lipa Mdogo Mdogo', 'nura-beauty' ) . '</span>';
 	/* translators: 1: deposit, 2: weekly amount, 3: weeks. */
 	echo '<p class="nura-lmm__lead" data-nura-lmm-lead>' . esc_html( sprintf( __( 'Pay %1$s deposit, then %2$s a week for %3$d weeks.', 'nura-beauty' ), nura_boost_ksh( $dep ), nura_boost_ksh( $wk ), $max ) ) . '</p></div>';
@@ -783,5 +783,6 @@ add_action( 'wp_enqueue_scripts', function () {
 		/* translators: 1: product, 2: deposit, 3: weekly, 4: weeks, 5: link. */
 		'waMsg'  => __( 'Hi NURA, I would like to buy %1$s on Lipa Mdogo Mdogo: %2$s deposit, then %3$s a week for %4$s weeks. Colour/length: ____. %5$s', 'nura-beauty' ),
 		'copied' => __( 'Copied', 'nura-beauty' ),
+		'hoursText' => function_exists( 'nura_hours_text' ) ? nura_hours_text() : 'Mon-Sat 8:00-20:00',
 	) );
 }, 21 );

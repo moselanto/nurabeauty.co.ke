@@ -73,7 +73,7 @@ function nura_sample_attributes() {
 		'length'       => array( 'label' => 'Length',       'terms' => array( '10"','12"','14"','16"','18"','20"','22"','24"','26"','28"','30"' ) ),
 		'density'      => array( 'label' => 'Density',      'terms' => array( '130%','150%','180%','200%' ) ),
 		'texture'      => array( 'label' => 'Texture',      'terms' => array( 'Straight','Body Wave','Deep Wave','Loose Wave','Water Wave','Curly','Kinky Curly','Afro Curly' ) ),
-		'color'        => array( 'label' => 'Colour',       'terms' => array( 'Natural Black','1B','Brown','Blonde','Ombre','Burgundy','613' ) ),
+		'color'        => array( 'label' => 'Colour',       'terms' => array( 'Colour 33','Black Colour 1','Redwine/900','Burgundy/99J','Colour 30','613 Blonde','Ginger','Colour 130','Colour 1/900','Colour 1/350','Natural Black','1B' ) ),
 		'cap-size'     => array( 'label' => 'Cap Size',     'terms' => array( 'Small','Medium','Large' ) ),
 		'cap-construction' => array( 'label' => 'Cap Construction', 'terms' => array( '13x4','13x6','360 Lace','HD Lace','Full Lace','Glueless' ) ),
 		'lace-color'   => array( 'label' => 'Lace Colour',  'terms' => array( 'Transparent','HD','Medium Brown','Light Brown' ) ),

@@ -353,3 +353,16 @@ html body ul.products li.product a img{object-position:center top}
 .woocommerce nav.woocommerce-pagination ul li{border:0!important}
 .woocommerce nav.woocommerce-pagination ul li a,.woocommerce nav.woocommerce-pagination ul li span{min-width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid rgba(14,14,14,.12)}
 .woocommerce nav.woocommerce-pagination ul li span.current{background:var(--nura-ink);color:#fff;border-color:var(--nura-ink)}
+
+
+/* ===== v1.57.0 Colour guide under the shade swatches ===== */
+.nura-colour-guide{margin:.75rem 0 1rem;border:1px solid rgba(14,14,14,.1);border-radius:10px;background:#faf6f0;font-family:var(--font-ui)}
+.nura-colour-guide summary{cursor:pointer;list-style:none;padding:.7rem .9rem;font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.nura-colour-guide summary::-webkit-details-marker{display:none}
+.nura-colour-guide summary::after{content:"+";font-size:1rem;font-weight:400}
+.nura-colour-guide[open] summary::after{content:"\2212"}
+.nura-colour-guide ul{list-style:none;margin:0;padding:0 .9rem .4rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.45rem 1rem}
+.nura-colour-guide li{display:grid;grid-template-columns:18px auto;column-gap:.55rem;align-items:center;font-size:.84rem;line-height:1.3}
+.nura-colour-guide li span:last-child{grid-column:2;color:#5c5c5c;font-size:.78rem}
+.nura-colour-guide__dot{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);grid-row:span 2}
+.nura-colour-guide p{margin:0;padding:.3rem .9rem .8rem;font-size:.76rem;color:#6b6b6b}

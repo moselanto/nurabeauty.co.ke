@@ -280,8 +280,11 @@
 	var P = window.NURAX_POS || null;
 	if (P) {
 		$d.on('click', '[data-pos-email]', function () {
-			var $b = $(this), to = window.prompt('Send to e-mail:', '');
+			var $b = $(this), saved = $b.attr('data-email') || '';
+			var to = window.prompt(saved ? 'Send to the e-mail used on this order (edit if needed):' : 'No e-mail on this order. Send to:', saved);
 			if (to === null) { return; }
+			to = $.trim(to);
+			if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) { toast('Please enter a valid e-mail address.', 'err'); return; }
 			$b.addClass('is-loading');
 			$.post(P.ajax, { action: 'nurax_pos_order', nonce: P.nonce, op: 'email', id: $b.attr('data-pos-email'), to: to }).done(function (r) {
 				toast(r && r.data && r.data.message ? r.data.message : (r && r.success ? 'Sent' : 'Not sent'), r && r.success ? 'ok' : 'err');
@@ -420,8 +423,9 @@
 		$d.on('click', '[data-pos-new]', function () { $('[data-pos-done]').removeClass('is-open').prop('hidden', true); $('[data-pos-q]').trigger('focus'); });
 		$d.on('click', '[data-pos-done-email]', function () {
 			if (!last) { return; }
-			var to = window.prompt('E-mail the ' + (last.paid ? 'receipt' : 'invoice') + ' to:', last.email || '');
+			var to = window.prompt('E-mail the ' + (last.paid ? 'receipt' : 'invoice') + ' to' + (last.email ? ' (the customer\'s e-mail on this sale):' : ':'), last.email || '');
 			if (!to) { return; }
+			to = $.trim(to);
 			$.post(P.ajax, { action: 'nurax_pos_order', nonce: P.nonce, op: 'email', id: last.id, to: to }).done(function (r) { toast(r && r.data && r.data.message ? r.data.message : 'Done', r && r.success ? 'ok' : 'err'); });
 		});
 		$d.on('change input', '[data-pos-c]', save);

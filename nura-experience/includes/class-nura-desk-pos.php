@@ -334,23 +334,138 @@ class NURAX_Desk_POS {
 		);
 	}
 
-	public static function wa_text( $order ) {
-		$b    = self::biz();
-		$paid = self::is_paid( $order );
-		$l    = array( '*' . $b['name'] . ' - ' . ( $paid ? 'Receipt' : 'Invoice' ) . ' #' . $order->get_order_number() . '*', '' );
+	/** E-mail-safe (table + inline styles) invoice / receipt for Gmail, Outlook and phones. */
+	public static function email_html( $order ) {
+		$b     = self::biz();
+		$logo  = self::logo_url();
+		$paid  = self::is_paid( $order );
+		$type  = $paid ? 'receipt' : 'invoice';
+		$num   = $order->get_order_number();
+		$date  = $order->get_date_created() ? $order->get_date_created()->date_i18n( 'j F Y' ) : '';
+		$first = trim( $order->get_billing_first_name() );
+		$link  = self::public_url( $order, $type );
+		$meth  = $order->get_payment_method_title();
+		$ref   = $order->get_meta( '_nura_pay_ref' ) ? $order->get_meta( '_nura_pay_ref' ) : $order->get_transaction_id();
+		$mpesa = trim( (string) NURAX_Desk::settings()['mpesa_details'] );
+		$f     = "font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;";
+		$m     = function ( $n ) { return esc_html( NURAX_Desk::money( $n ) ); };
+
+		$rows = '';
 		foreach ( $order->get_items() as $it ) {
-			$l[] = $it->get_name() . ' x ' . $it->get_quantity() . ' - ' . NURAX_Desk::money( $it->get_total() );
+			$meta = array();
+			foreach ( $it->get_formatted_meta_data( '_', true ) as $mm ) {
+				$meta[] = wp_strip_all_tags( $mm->display_key . ': ' . $mm->display_value );
+			}
+			$rows .= '<tr><td style="' . $f . 'padding:14px 0;border-bottom:1px solid #eee6d8;font-size:14px;color:#1b1b1b;"><strong style="font-weight:600;">' . esc_html( $it->get_name() ) . '</strong>' . ( $meta ? '<br><span style="font-size:12px;color:#8a8174;">' . esc_html( implode( ' · ', $meta ) ) . '</span>' : '' ) . '<br><span style="font-size:12px;color:#8a8174;">Qty ' . (int) $it->get_quantity() . '</span></td><td align="right" style="' . $f . 'padding:14px 0;border-bottom:1px solid #eee6d8;font-size:14px;font-weight:600;color:#0E0E0E;white-space:nowrap;">' . $m( $it->get_total() ) . '</td></tr>';
 		}
-		foreach ( $order->get_fees() as $f ) {
-			$l[] = $f->get_name() . ' - ' . NURAX_Desk::money( $f->get_total() );
+		$disc = 0;
+		foreach ( $order->get_fees() as $fe ) {
+			if ( (float) $fe->get_total() < 0 ) {
+				$disc += (float) $fe->get_total();
+				continue;
+			}
+			$rows .= '<tr><td style="' . $f . 'padding:14px 0;border-bottom:1px solid #eee6d8;font-size:14px;"><strong style="font-weight:600;">' . esc_html( $fe->get_name() ) . '</strong></td><td align="right" style="' . $f . 'padding:14px 0;border-bottom:1px solid #eee6d8;font-size:14px;font-weight:600;white-space:nowrap;">' . $m( $fe->get_total() ) . '</td></tr>';
+		}
+		$ln = function ( $l, $v, $strong = false ) use ( $f ) {
+			return '<tr><td style="' . $f . 'padding:4px 0;font-size:' . ( $strong ? '16px;font-weight:700;color:#0E0E0E' : '13px;color:#6f675d' ) . ';">' . $l . '</td><td align="right" style="' . $f . 'padding:4px 0;font-size:' . ( $strong ? '16px;font-weight:700' : '13px;font-weight:600' ) . ';color:#0E0E0E;white-space:nowrap;">' . $v . '</td></tr>';
+		};
+		$tot = $ln( 'Subtotal', $m( $order->get_subtotal() ) );
+		if ( $disc < 0 ) {
+			$tot .= $ln( 'Discount', '- ' . $m( abs( $disc ) ) );
 		}
 		if ( (float) $order->get_shipping_total() > 0 ) {
-			$l[] = 'Delivery - ' . NURAX_Desk::money( $order->get_shipping_total() );
+			$tot .= $ln( 'Delivery', $m( $order->get_shipping_total() ) );
 		}
-		$l[] = '*Total: ' . NURAX_Desk::money( $order->get_total() ) . '*';
-		$l[] = $paid ? 'Paid by ' . $order->get_payment_method_title() . ( $order->get_meta( '_nura_pay_ref' ) ? ' (' . $order->get_meta( '_nura_pay_ref' ) . ')' : '' ) . '. Thank you!' : 'Amount due: ' . NURAX_Desk::money( $order->get_total() ) . ( trim( NURAX_Desk::settings()['mpesa_details'] ) ? "\nPay via M-Pesa: " . NURAX_Desk::settings()['mpesa_details'] : '' );
+		if ( (float) $order->get_total_tax() > 0 ) {
+			$tot .= $ln( 'VAT', $m( $order->get_total_tax() ) );
+		}
+		$tot .= $ln( 'Total', $m( $order->get_total() ), true );
+
+		$band = $paid
+			? '<td style="' . $f . 'padding:16px 20px;background:#e7f4ec;border-radius:10px;"><span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:#1f7a45;">Paid in full</span><br><span style="font-size:13px;color:#1f7a45;">' . esc_html( trim( $meth . ( $ref ? ' · ' . $ref : '' ) ) ) . '</span></td><td align="right" style="' . $f . 'padding:16px 20px;background:#e7f4ec;border-radius:10px;font-size:20px;font-weight:700;color:#1f7a45;white-space:nowrap;">' . $m( $order->get_total() ) . '</td>'
+			: '<td style="' . $f . 'padding:16px 20px;background:#0E0E0E;border-radius:10px 0 0 10px;"><span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:#E4C983;">Amount due</span>' . ( $mpesa ? '<br><span style="font-size:13px;color:#e9e2d6;">M-Pesa: ' . esc_html( $mpesa ) . ' · Ref ' . esc_html( $num ) . '</span>' : '' ) . '</td><td align="right" style="' . $f . 'padding:16px 20px;background:#0E0E0E;border-radius:0 10px 10px 0;font-size:20px;font-weight:700;color:#ffffff;white-space:nowrap;">' . $m( $order->get_total() ) . '</td>';
+
+		$brand = $logo
+			? '<img src="' . esc_url( $logo ) . '" alt="' . esc_attr( $b['name'] ) . '" width="220" style="display:block;margin:0 auto;width:220px;max-width:70%;height:auto;border:0;">'
+			: '<div style="font-family:Georgia,serif;font-size:28px;letter-spacing:8px;font-weight:700;color:#C9A24B;">' . esc_html( strtoupper( $b['name'] ) ) . '</div>';
+		$title = $paid ? 'Your receipt' : 'Your invoice';
+		$intro = $paid
+			? 'Thank you for your purchase' . ( $first ? ', ' . esc_html( $first ) : '' ) . '. Here is your receipt for order #' . esc_html( $num ) . '.'
+			: ( $first ? 'Hi ' . esc_html( $first ) . ', here' : 'Here' ) . ' is your invoice #' . esc_html( $num ) . '. You can pay any time using the details below.';
+
+		$html  = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' . esc_html( $b['name'] . ' ' . $title ) . '</title></head>';
+		$html .= '<body style="margin:0;padding:0;background:#f3eee6;">';
+		$html .= '<div style="display:none;max-height:0;overflow:hidden;">' . esc_html( ( $paid ? 'Receipt' : 'Invoice' ) . ' #' . $num . ' - ' . NURAX_Desk::money( $order->get_total() ) . ( $paid ? ' paid. Thank you!' : ' due.' ) ) . '</div>';
+		$html .= '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3eee6;"><tr><td align="center" style="padding:24px 12px;">';
+		$html .= '<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;border-radius:16px;overflow:hidden;">';
+		$html .= '<tr><td style="height:5px;background:#C9A24B;line-height:5px;font-size:0;">&nbsp;</td></tr>';
+		$html .= '<tr><td align="center" style="padding:30px 24px 22px;background:#0E0E0E;">' . $brand . '</td></tr>';
+		$html .= '<tr><td style="padding:30px 32px 6px;' . $f . '">';
+		$html .= '<p style="margin:0 0 6px;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:700;color:#a07a24;">' . ( $paid ? 'Receipt' : 'Invoice' ) . ' #' . esc_html( $num ) . ' · ' . esc_html( $date ) . '</p>';
+		$html .= '<h1 style="margin:0 0 12px;font-family:Georgia,\'Times New Roman\',serif;font-size:28px;line-height:1.2;font-weight:600;color:#0E0E0E;">' . esc_html( $title ) . '</h1>';
+		$html .= '<p style="margin:0;font-size:15px;line-height:1.6;color:#4a443c;">' . $intro . '</p></td></tr>';
+		$html .= '<tr><td style="padding:18px 32px 0;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">' . $rows . '</table></td></tr>';
+		$html .= '<tr><td style="padding:12px 32px 0;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">' . $tot . '</table></td></tr>';
+		$html .= '<tr><td style="padding:18px 32px 0;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' . $band . '</tr></table></td></tr>';
+		$html .= '<tr><td align="center" style="padding:26px 32px 8px;"><a href="' . esc_url( $link ) . '" style="' . $f . 'display:inline-block;padding:15px 30px;background:#C9A24B;border-radius:999px;color:#0E0E0E;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;">View &amp; download ' . ( $paid ? 'receipt' : 'invoice' ) . '</a></td></tr>';
+		$html .= '<tr><td align="center" style="padding:6px 32px 26px;' . $f . 'font-size:12px;color:#8a8174;">Open the link to print or save it as a PDF.</td></tr>';
+		$html .= '<tr><td style="padding:20px 32px;background:#faf6ef;border-top:1px solid #eee6d8;' . $f . 'font-size:12px;line-height:1.6;color:#6f675d;">' . ( '' !== trim( $b['note'] ) ? esc_html( $b['note'] ) : 'Unworn wigs in their original condition can be returned within 7 days of delivery.' ) . '<br>Questions? WhatsApp or call <strong style="color:#0E0E0E;">' . esc_html( $b['phone'] ) . '</strong> or reply to this e-mail.</td></tr>';
+		$html .= '<tr><td align="center" style="padding:22px 32px;background:#0E0E0E;' . $f . 'font-size:12px;line-height:1.7;color:#cfc6b8;"><span style="font-family:Georgia,serif;font-style:italic;font-size:16px;color:#E4C983;">Thank you for wearing NURA.</span><br>' . esc_html( $b['name'] ) . ' · ' . esc_html( $b['addr'] ) . '<br><a href="' . esc_url( home_url( '/' ) ) . '" style="color:#E4C983;text-decoration:none;">' . esc_html( $b['web'] ) . '</a>' . ( $b['pin'] ? ' · KRA PIN ' . esc_html( $b['pin'] ) : '' ) . '</td></tr>';
+		$html .= '</table></td></tr></table></body></html>';
+		return $html;
+	}
+
+	public static function wa_text( $order ) {
+		$b     = self::biz();
+		$paid  = self::is_paid( $order );
+		$num   = $order->get_order_number();
+		$first = trim( $order->get_billing_first_name() );
+		$mpesa = trim( (string) NURAX_Desk::settings()['mpesa_details'] );
+		$ref   = $order->get_meta( '_nura_pay_ref' ) ? $order->get_meta( '_nura_pay_ref' ) : $order->get_transaction_id();
+		$date  = $order->get_date_created() ? $order->get_date_created()->date_i18n( 'j M Y' ) : '';
+		$l     = array();
+		$l[]   = 'Hi' . ( $first ? ' ' . $first : '' ) . ',';
+		$l[]   = $paid ? 'Thank you for shopping with *' . $b['name'] . '*. Here is your receipt.' : 'Here is your invoice from *' . $b['name'] . '*.';
+		$l[]   = '';
+		$l[]   = '*' . ( $paid ? 'RECEIPT' : 'INVOICE' ) . ' #' . $num . '*' . ( $date ? '  ·  ' . $date : '' );
+		$l[]   = '━━━━━━━━━━━━━━';
+		foreach ( $order->get_items() as $it ) {
+			$l[] = '• ' . $it->get_name() . ( $it->get_quantity() > 1 ? ' × ' . $it->get_quantity() : '' );
+			$l[] = '      ' . NURAX_Desk::money( $it->get_total() );
+		}
+		$disc = 0;
+		foreach ( $order->get_fees() as $f ) {
+			if ( (float) $f->get_total() < 0 ) {
+				$disc += (float) $f->get_total();
+				continue;
+			}
+			$l[] = '• ' . $f->get_name();
+			$l[] = '      ' . NURAX_Desk::money( $f->get_total() );
+		}
+		$l[] = '━━━━━━━━━━━━━━';
+		if ( $disc < 0 ) {
+			$l[] = 'Discount: - ' . NURAX_Desk::money( abs( $disc ) );
+		}
+		if ( (float) $order->get_shipping_total() > 0 ) {
+			$l[] = 'Delivery: ' . NURAX_Desk::money( $order->get_shipping_total() );
+		}
+		$l[] = '*TOTAL: ' . NURAX_Desk::money( $order->get_total() ) . '*';
 		$l[] = '';
-		$l[] = 'View / download: ' . self::public_url( $order, $paid ? 'receipt' : 'invoice' );
+		if ( $paid ) {
+			$l[] = '*PAID*' . ( $order->get_payment_method_title() ? ' via ' . $order->get_payment_method_title() : '' ) . ( $ref ? ' (' . $ref . ')' : '' );
+		} else {
+			$l[] = '*AMOUNT DUE: ' . NURAX_Desk::money( $order->get_total() ) . '*';
+			if ( $mpesa ) {
+				$l[] = 'Pay via M-Pesa: ' . $mpesa;
+				$l[] = 'Reference: ' . $num;
+			}
+		}
+		$l[] = '';
+		$l[] = 'View or download your ' . ( $paid ? 'receipt' : 'invoice' ) . ':';
+		$l[] = self::public_url( $order, $paid ? 'receipt' : 'invoice' );
+		$l[] = '';
+		$l[] = 'Thank you for wearing NURA.';
+		$l[] = '_' . $b['name'] . ' · ' . $b['phone'] . '_';
 		return implode( "\n", $l );
 	}
 
@@ -368,8 +483,13 @@ class NURAX_Desk_POS {
 				wp_send_json_error( array( 'message' => 'No e-mail address for this customer.' ), 400 );
 			}
 			$type = self::is_paid( $order ) ? 'receipt' : 'invoice';
-			$html = self::render( $order, 'invoice', false );
-			$ok   = wp_mail( $to, self::biz()['name'] . ' - ' . ucfirst( $type ) . ' #' . $order->get_order_number(), $html, array( 'Content-Type: text/html; charset=UTF-8' ) );
+			$html = self::email_html( $order );
+			$subj = 'Your ' . self::biz()['name'] . ' ' . $type . ' #' . $order->get_order_number() . ' - ' . NURAX_Desk::money( $order->get_total() ) . ( 'receipt' === $type ? ' paid' : ' due' );
+			$hdrs = array( 'Content-Type: text/html; charset=UTF-8' );
+			if ( is_email( self::biz()['email'] ) ) {
+				$hdrs[] = 'Reply-To: ' . self::biz()['name'] . ' <' . self::biz()['email'] . '>';
+			}
+			$ok   = wp_mail( $to, $subj, $html, $hdrs );
 			if ( $ok ) {
 				$order->add_order_note( ucfirst( $type ) . ' e-mailed to ' . $to . ' from NURA Desk.' );
 			}
@@ -764,9 +884,7 @@ class NURAX_Desk_POS {
 			if ( $phone ) {
 				echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $phone, self::wa_text( $o ) ) ) . '">WhatsApp</a>';
 			}
-			if ( is_email( $o->get_billing_email() ) ) {
-				echo '<button type="button" class="nd-ico-btn" data-pos-email="' . (int) $o->get_id() . '">E-mail</button>';
-			}
+			echo '<button type="button" class="nd-ico-btn" data-pos-email="' . (int) $o->get_id() . '" data-email="' . esc_attr( is_email( $o->get_billing_email() ) ? $o->get_billing_email() : '' ) . '">E-mail</button>';
 			if ( ! $p ) {
 				echo '<button type="button" class="nd-ico-btn nd-ico-btn--ok" data-pos-paid="' . (int) $o->get_id() . '">Mark paid</button>';
 			} elseif ( in_array( $o->get_status(), array( 'processing', 'on-hold' ), true ) ) {

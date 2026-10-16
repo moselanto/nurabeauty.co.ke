@@ -1,4 +1,4 @@
-/* NURA "Join The House" pop-up (NURA Experience 1.62.0) */
+/* NURA "Join The House" pop-up (NURA Experience 1.64.0) */
 html.nhs-lock{overflow:hidden}
 .nhs{position:fixed;inset:0;z-index:100060;display:flex;align-items:center;justify-content:center;padding:20px;font-family:var(--font-body,"Montserrat",Arial,sans-serif)}
 .nhs[hidden]{display:none}
@@ -69,3 +69,49 @@ html.nhs-lock{overflow:hidden}
 	.nhs-tab{left:12px;bottom:12px;padding:10px 14px}
 }
 @media (prefers-reduced-motion:reduce){.nhs__card,.nhs__veil,.nhs-tab,.nhs__step.is-on{transition:none;animation:none}}
+
+/* ---------- 1.64.0 premium refresh ---------- */
+.nhs__veil{background:rgba(10,8,6,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.nhs__card{grid-template-columns:46% 54%;max-width:880px;min-height:540px;border-radius:20px;background:#fffdf9;box-shadow:0 50px 120px rgba(0,0,0,.45),0 0 0 1px rgba(201,162,75,.18)}
+.nhs__art{padding:30px;background:#0E0E0E;overflow:hidden}
+.nhs__photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;transform:scale(1.04);transition:transform 6s ease}
+.nhs.is-open .nhs__photo{transform:scale(1)}
+.nhs__art::after{z-index:0;background:linear-gradient(180deg,rgba(10,8,6,.75) 0%,rgba(10,8,6,0) 32%,rgba(10,8,6,0) 58%,rgba(10,8,6,.88) 100%)}
+.nhs__brand,.nhs__badge,.nhs__trust{position:relative;z-index:1}
+.nhs__brand span{font-size:26px;letter-spacing:.42em}
+.nhs__brand small{margin-top:8px;font-size:9.5px;letter-spacing:.38em;color:rgba(255,255,255,.8)}
+.nhs__badge{margin-top:auto;margin-bottom:14px}
+.nhs__trust{margin:auto 0 0;padding:14px 0 0;list-style:none;display:grid;gap:7px;border-top:1px solid rgba(228,201,131,.35)}
+.nhs__badge+.nhs__trust{margin-top:0}
+.nhs__trust li{position:relative;padding-left:18px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.9)}
+.nhs__trust li::before{content:"";position:absolute;left:0;top:50%;width:6px;height:6px;margin-top:-3px;transform:rotate(45deg);background:#E4C983}
+.nhs__body{padding:52px 46px 30px}
+.nhs__x{top:16px;right:16px;width:36px;height:36px;background:transparent;border:1px solid #e6dccb;color:#3b352e}
+.nhs__eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:10.5px;letter-spacing:.26em;color:#a07a24}
+.nhs__eyebrow::before{content:"";width:26px;height:1px;background:#C9A24B}
+.nhs__title{font-size:36px;font-weight:500;letter-spacing:-.01em;margin-bottom:12px}
+.nhs__text{font-size:14px;line-height:1.65;color:#5a5249;margin-bottom:18px}
+.nhs__perks{gap:9px;margin-bottom:22px;padding:16px 0;border-top:1px solid #efe7da;border-bottom:1px solid #efe7da}
+.nhs__perks li{padding-left:28px;font-size:13.5px;line-height:1.45;color:#2b2622}
+.nhs__perks li::before{left:0;top:.1em;width:18px;height:18px;border:0;border-radius:50%;transform:none;background:#0E0E0E url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l3.8 3.8L18 8' fill='none' stroke='%23E4C983' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/11px no-repeat}
+.nhs__form{gap:12px}
+.nhs__form input[type=text],.nhs__form input[type=email],.nhs__form input[type=tel]{min-height:52px;border:1px solid #e3d9c8;border-radius:10px;background:#fff;font-size:15px}
+.nhs__form input::placeholder{color:#9a9186}
+.nhs__btn{min-height:54px;border-radius:10px;background:linear-gradient(180deg,#1a1712,#0E0E0E);font-size:13px;letter-spacing:.2em;box-shadow:0 10px 24px rgba(14,14,14,.18)}
+.nhs__btn:hover,.nhs__btn:focus-visible{background:linear-gradient(180deg,#d8b45e,#C9A24B);color:#0E0E0E}
+.nhs__legal{text-align:center;font-size:11px;margin-top:14px}
+.nhs__later{margin-top:6px;text-decoration:none;font-size:12px;letter-spacing:.06em;color:#8a8278}
+.nhs__later:hover{color:#0E0E0E;text-decoration:underline}
+@media (max-width:760px){
+	.nhs__card{grid-template-columns:1fr;border-radius:20px 20px 0 0}
+	.nhs__art{min-height:200px;padding:18px 20px;flex-direction:column;align-items:flex-start}
+	.nhs__photo{object-position:50% 42%}
+	.nhs__trust{display:flex;flex-wrap:wrap;gap:6px 14px;padding-top:10px}
+	.nhs__trust li{font-size:9.5px;letter-spacing:.1em;padding-left:13px}
+	.nhs__badge{margin:auto 0 10px}
+	.nhs__body{padding:26px 22px calc(18px + env(safe-area-inset-bottom))}
+	.nhs__title{font-size:28px}
+	.nhs__perks{padding:12px 0;margin-bottom:16px}
+	.nhs__x{background:rgba(255,255,255,.9);border-color:transparent}
+}
+@media (prefers-reduced-motion:reduce){.nhs__photo{transition:none;transform:none}}

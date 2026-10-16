@@ -78,15 +78,19 @@ class NURAX_Desk_Sub {
 		}
 		$coupon = (float) $s['sub_coupon'];
 		$img    = trim( (string) $s['sub_image'] );
+		if ( '' === $img ) {
+			$img = NURAX_URL . 'assets/img/nura-house.jpg';
+		}
 		$perks  = array_filter( array_map( 'trim', explode( "\n", (string) $s['sub_perks'] ) ) );
 		?>
 		<div class="nhs" data-nhs hidden>
 			<div class="nhs__veil" data-nhs-close></div>
 			<div class="nhs__card" role="dialog" aria-modal="true" aria-labelledby="nhs-title" tabindex="-1">
 				<button type="button" class="nhs__x" data-nhs-close aria-label="<?php esc_attr_e( 'Close', 'nura-experience' ); ?>"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-				<div class="nhs__art"<?php echo $img ? ' style="background-image:url(' . esc_url( $img ) . ')"' : ''; ?>>
+				<div class="nhs__art"><img class="nhs__photo" src="<?php echo esc_url( $img ); ?>" alt="" loading="lazy" decoding="async">
 					<div class="nhs__brand"><span>NURA</span><small>Wear your crown</small></div>
 					<?php if ( $coupon > 0 ) : ?><div class="nhs__badge"><small><?php esc_html_e( 'Welcome gift', 'nura-experience' ); ?></small><strong><?php echo esc_html( NURAX_Desk::money( $coupon ) ); ?></strong><small><?php esc_html_e( 'off your first wig', 'nura-experience' ); ?></small></div><?php endif; ?>
+					<ul class="nhs__trust"><li><?php esc_html_e( 'Same-day Nairobi delivery', 'nura-experience' ); ?></li><li><?php esc_html_e( 'Lipa Mdogo Mdogo', 'nura-experience' ); ?></li><li><?php esc_html_e( 'Quality-checked hair', 'nura-experience' ); ?></li></ul>
 				</div>
 				<div class="nhs__body">
 					<div class="nhs__step is-on" data-nhs-step="1">

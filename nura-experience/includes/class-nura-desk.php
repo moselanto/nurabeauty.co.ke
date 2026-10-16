@@ -35,6 +35,7 @@ class NURAX_Desk {
 	const P_REM    = 'nurax-reminders';
 	const P_POS    = 'nurax-pos';
 	const P_MKT    = 'nurax-mkt';
+	const P_SOC    = 'nurax-social';
 	const P_SET   = 'nurax-desk-settings';
 	const CRON    = 'nurax_desk_daily';
 
@@ -69,6 +70,7 @@ class NURAX_Desk {
 		NURAX_Desk_Remind::hooks();
 		NURAX_Desk_POS::hooks();
 		NURAX_Desk_Mkt::hooks();
+		NURAX_Desk_Social::hooks();
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -416,6 +418,7 @@ class NURAX_Desk {
 			self::P_APPTS => 'Appointments',
 			self::P_REM   => 'Reminders',
 			self::P_MKT   => 'Marketing',
+			self::P_SOC   => 'Social',
 			self::P_SET   => 'Settings',
 		);
 		echo '<div class="wrap nd-wrap">';
@@ -465,17 +468,18 @@ class NURAX_Desk {
 		add_submenu_page( self::MENU, 'Appointments', 'Appointments', self::CAP, self::P_APPTS, array( 'NURAX_Desk_Appts', 'page' ) );
 		add_submenu_page( self::MENU, 'Reminders', 'Reminders', self::CAP, self::P_REM, array( 'NURAX_Desk_Remind', 'page' ) );
 		add_submenu_page( self::MENU, 'Marketing', 'Marketing', self::CAP, self::P_MKT, array( 'NURAX_Desk_Mkt', 'page' ) );
+		add_submenu_page( self::MENU, 'Social', 'Social', self::CAP, self::P_SOC, array( 'NURAX_Desk_Social', 'page' ) );
 		add_submenu_page( self::MENU, 'Desk settings', 'Settings', self::CAP, self::P_SET, array( $this, 'settings_page' ) );
 	}
 
 	public function assets( $hook ) {
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! in_array( $page, array( self::MENU, self::P_POS, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_MKT, self::P_SET ), true ) ) {
+		if ( ! in_array( $page, array( self::MENU, self::P_POS, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_MKT, self::P_SOC, self::P_SET ), true ) ) {
 			return;
 		}
 		wp_enqueue_style( 'nurax-desk', NURAX_URL . 'assets/css/nura-desk.css', array(), NURAX_VERSION );
 		$deps = array( 'jquery' );
-		if ( in_array( $page, array( self::P_PLANS, self::P_MKT ), true ) && wp_script_is( 'wc-enhanced-select', 'registered' ) ) {
+		if ( in_array( $page, array( self::P_PLANS, self::P_MKT, self::P_SOC ), true ) && wp_script_is( 'wc-enhanced-select', 'registered' ) ) {
 			wp_enqueue_script( 'wc-enhanced-select' );
 			if ( wp_style_is( 'woocommerce_admin_styles', 'registered' ) ) {
 				wp_enqueue_style( 'woocommerce_admin_styles' );

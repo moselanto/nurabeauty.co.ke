@@ -427,3 +427,28 @@ a.nd-kpi:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(14,14,14,.
 .nd-ref{white-space:nowrap}
 @media (max-width:1400px){.nd-clip{max-width:150px}.nd-table th{letter-spacing:.06em}}
 @media (max-width:1100px){.nd-col-act{min-width:120px}}
+
+/* 1.61.0 Social */
+.nd-bars{display:grid;gap:8px}
+.nd-bar{display:grid;grid-template-columns:190px minmax(0,1fr) 230px;gap:12px;align-items:center}
+.nd-bar__l{font-weight:600}
+.nd-bar__t{height:12px;border-radius:99px;background:#efe9df;overflow:hidden}
+.nd-bar__t span{display:block;height:100%;border-radius:99px;background:#C9A24B}
+.nd-bar--instagram .nd-bar__t span{background:linear-gradient(90deg,#f58529,#dd2a7b,#8134af)}
+.nd-bar--tiktok .nd-bar__t span{background:linear-gradient(90deg,#25f4ee,#000,#fe2c55)}
+.nd-bar--facebook .nd-bar__t span{background:#1877f2}
+.nd-bar--whatsapp .nd-bar__t span{background:#1faa53}
+.nd-bar__v{font-size:12px;color:#6f675d;text-align:right}.nd-bar__v b{color:#111;font-size:13px}
+.nd-steps{margin:10px 0 0 18px;padding:0}.nd-steps li{margin:0 0 6px}
+.nd-copyrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.nd-copyrow>span{min-width:150px;font-weight:600}
+.nd-copyrow input{flex:1;min-width:240px;min-height:36px;padding:0 10px;border:1px solid #dcd3c4;border-radius:9px;background:#faf7f2;font-size:12px}
+.nd-copyrow code{flex:1;white-space:normal;padding:6px 8px;border-radius:8px;background:#faf7f2}
+.nd-kit{display:grid;grid-template-columns:320px minmax(0,1fr);gap:16px;margin-top:14px}
+.nd-kit__imgs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;align-content:start}
+.nd-kit__imgs img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid #e8e1d5}
+.nd-kit__caps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.nd-kit__cap{border:1px solid #e8e1d5;border-radius:12px;overflow:hidden}
+.nd-kit__cap header{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#faf7f2}
+.nd-kit__cap pre{margin:0;padding:10px;white-space:pre-wrap;font:12.5px/1.5 -apple-system,Segoe UI,Arial,sans-serif;max-height:260px;overflow:auto}
+@media (max-width:1100px){.nd-kit{grid-template-columns:1fr}.nd-kit__caps{grid-template-columns:1fr}.nd-bar{grid-template-columns:1fr}.nd-bar__v{text-align:left}}

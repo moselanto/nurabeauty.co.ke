@@ -178,7 +178,7 @@ function nura_product_hair_claim( $product ) {
 		return __( '100% human hair, quality guaranteed', 'nura-beauty' );
 	}
 	if ( false !== strpos( $name, 'synthetic' ) ) {
-		return __( 'Premium synthetic fibre', 'nura-beauty' );
+		return __( 'Premium heat-resistant fibre', 'nura-beauty' );
 	}
 	return '';
 }

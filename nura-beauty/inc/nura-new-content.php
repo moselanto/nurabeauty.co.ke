@@ -32,7 +32,7 @@ add_action( 'admin_init', function () {
 			'slug'  => 'wig-revamp-nairobi',
 			'title' => 'Wig Revamp in Nairobi',
 			'html'  => nura_content_file( 'wig-revamp-nairobi' ) . $cta,
-			'seo'   => array( 'Wig Revamp in Nairobi | Wash & Restyle from KSh 1,500 | NURA Beauty', 'Wig wash, revamp and restyle at our Nairobi CBD studio, from KSh 1,500. Human hair, semi-human and high fibre wigs. Mon-Sat 8am-8pm. Book on WhatsApp.', 'wig revamp nairobi' ),
+			'seo'   => array( 'Wig Revamp in Nairobi | Wash & Restyle from KSh 1,500 | NURA Beauty', 'Wig wash, revamp and restyle at our Nairobi CBD studio, from KSh 1,500. Human hair, semi-human and high fibre wigs. Open Mon–Sat. Book on WhatsApp.', 'wig revamp nairobi' ),
 		),
 		array(
 			'type'  => 'post',

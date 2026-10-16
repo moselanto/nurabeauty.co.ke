@@ -38,7 +38,7 @@ $wa = nura_opt( 'nura_whatsapp' ) ? nura_opt( 'nura_whatsapp' ) : 'https://wa.me
 		</ul>
 
 		<h2><?php esc_html_e( 'Need help?', 'nura-beauty' ); ?></h2>
-		<p><?php esc_html_e( 'Send us your order number on WhatsApp and we will update you, Monday to Saturday, 8am to 8pm.', 'nura-beauty' ); ?></p>
+		<p><?php echo esc_html( sprintf( /* translators: %s: opening hours. */ __( 'Send us your order number on WhatsApp and we will update you (%s).', 'nura-beauty' ), nura_hours_text() ) ); ?></p>
 		<p><a class="nura-btn nura-btn--gold" href="<?php echo esc_url( $wa ); ?>"><?php esc_html_e( 'Chat on WhatsApp', 'nura-beauty' ); ?></a></p>
 	</div>
 	<style>

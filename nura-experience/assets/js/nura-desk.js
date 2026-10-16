@@ -337,8 +337,9 @@
 		function add(p) {
 			var f = null;
 			cart.forEach(function (l) { if (!l.custom && l.id === p.id) { f = l; } });
-			if (f) { f.qty++; } else { cart.push({ id: p.id, name: p.name, opt: p.opt || '', price: Number(p.price) || 0, qty: Number(p.qty) || 1, img: p.img || '', custom: !!p.custom }); }
+			if (f) { f.qty++; } else { cart.push({ id: p.id, name: p.name, opt: p.opt || '', price: Number(p.price) || 0, qty: Number(p.qty) || 1, img: p.img || '', custom: !!p.custom, src: p.src || null }); f = cart[cart.length - 1]; }
 			draw(); save();
+			return cart.indexOf(f);
 		}
 		function totals() {
 			var sub = 0; cart.forEach(function (l) { sub += l.price * l.qty; });
@@ -353,7 +354,8 @@
 			else {
 				$l.html(cart.map(function (l, i) {
 					return '<li class="pos-line"><span class="pos-line__main"><strong>' + esc(l.name) + '</strong>' + (l.opt ? '<small>' + esc(l.opt) + '</small>' : '') +
-						'<label class="pos-line__price">@ <input type="number" min="0" step="1" value="' + l.price + '" data-i="' + i + '" data-f="price"></label></span>' +
+						'<label class="pos-line__price">@ <input type="number" min="0" step="1" value="' + l.price + '" data-i="' + i + '" data-f="price"></label>' +
+						'<button type="button" class="pos-line__src' + (l.src ? ' is-on' : '') + '" data-src="' + i + '">' + (l.src ? 'Sourced - ' + esc(l.src.supplier) + ' - profit ' + ksh((l.price - l.src.cost) * l.qty) : 'Not in stock? Source it') + '</button></span>' +
 						'<span class="pos-line__qty"><button type="button" data-i="' + i + '" data-d="-1" aria-label="Less">&minus;</button><input type="number" min="1" value="' + l.qty + '" data-i="' + i + '" data-f="qty"><button type="button" data-i="' + i + '" data-d="1" aria-label="More">+</button></span>' +
 						'<span class="pos-line__tot">' + ksh(l.price * l.qty) + '</span><button type="button" class="pos-line__x" data-x="' + i + '" aria-label="Remove">&times;</button></li>';
 				}).join(''));
@@ -382,7 +384,7 @@
 			if (paid && method === 'cash' && (Number($('[data-pos-tender]').val()) || 0) > 0 && (Number($('[data-pos-tender]').val()) || 0) < t.total) { toast('Cash received is less than the total.', 'err'); return; }
 			if (!paid && !c.name && !c.phone) { toast('Add the customer name or phone for an invoice.', 'err'); return; }
 			var sale = {
-				items: cart.map(function (l) { return { id: l.custom ? 0 : l.id, qty: l.qty, price: l.price, name: l.name, custom: l.custom ? 1 : 0 }; }),
+				items: cart.map(function (l) { return { id: l.custom ? 0 : l.id, qty: l.qty, price: l.price, name: l.name, custom: l.custom ? 1 : 0, src: l.src || null }; }),
 				customer: { name: c.name, phone: c.phone, email: c.email, consent: c.consent, user_id: $pos.data('uid') || 0 },
 				discount: Number($('[data-pos-disc]').val()) || 0, discount_pct: $('[data-pos-disctype]').val() === 'pct' ? 1 : 0,
 				delivery: t.del, delivery_to: $.trim($('[data-pos-delto]').val()), note: $.trim($('[data-pos-note]').val()),
@@ -401,13 +403,14 @@
 				$m.find('[data-pos-done-invoice]').attr('href', r.data.invoice);
 				$m.find('[data-pos-done-wa]').attr('href', r.data.wa || '#').toggle(!!r.data.wa);
 				$m.prop('hidden', false).addClass('is-open');
+				if (r.data.sourced) { toast(r.data.sourced + ' sourced item(s) are now tracked under Sourced sales.', 'ok'); }
 				reset();
 			}).fail(function () { toast('Network problem - the sale was not saved. Please try again.', 'err'); })
 			.always(function () { $b.removeClass('is-loading'); draw(); });
 		}
 
 		/* Events */
-		$d.on('click', '.pos-tile', function () { var p = JSON.parse($(this).attr('data-p')); if (!p.in && !window.confirm('This item shows as out of stock. Sell it anyway?')) { return; } add(p); $(this).addClass('is-added'); var b = this; setTimeout(function () { $(b).removeClass('is-added'); }, 400); });
+		$d.on('click', '.pos-tile', function () { var p = JSON.parse($(this).attr('data-p')); var ix = add(p); if (!p.in) { openSrc(ix); } $(this).addClass('is-added'); var b = this; setTimeout(function () { $(b).removeClass('is-added'); }, 400); });
 		$d.on('input', '[data-pos-q]', function () { var v = this.value; clearTimeout(qTimer); qTimer = setTimeout(function () { load(v); }, 250); });
 		$d.on('keydown', '[data-pos-q]', function (e) { if (e.key === 'Enter') { var $f = $('.pos-tile').first(); if ($f.length) { e.preventDefault(); $f.trigger('click'); this.select(); } } });
 		$d.on('click', '[data-pos-cats] button', function () { $('[data-pos-cats] button').removeClass('is-on'); $(this).addClass('is-on'); cat = Number($(this).attr('data-cat')) || 0; $('[data-pos-q]').val(''); load(''); });
@@ -429,6 +432,49 @@
 			$.post(P.ajax, { action: 'nurax_pos_order', nonce: P.nonce, op: 'email', id: last.id, to: to }).done(function (r) { toast(r && r.data && r.data.message ? r.data.message : 'Done', r && r.success ? 'ok' : 'err'); });
 		});
 		$d.on('change input', '[data-pos-c]', save);
+
+		/* Sourced items */
+		var $sm = $('[data-pos-src-modal]'), srcIx = -1, where = 'waiting';
+		var sups = P.suppliers || [];
+		$sm.find('#nurax-sup-list').html(sups.map(function (s) { return '<option value="' + esc(s.name) + '">'; }).join(''));
+		function setWhere(w) { where = w; $sm.find('[data-ps-where] button').removeClass('is-on').filter('[data-w="' + w + '"]').addClass('is-on'); $sm.find('[data-ps-eta-wrap]').toggle(w === 'waiting'); }
+		function psProfit() {
+			var c = Number($sm.find('[data-ps="cost"]').val()) || 0, pr = Number($sm.find('[data-ps="price"]').val()) || 0, l = cart[srcIx], q = l ? l.qty : 1, $p = $sm.find('[data-ps-profit]');
+			if (!c) { $p.attr('class', 'ps__profit').text('Enter your cost to see the profit.'); return; }
+			var pf = (pr - c) * q, mg = pr > 0 ? Math.round((pr - c) / pr * 100) : 0;
+			$p.attr('class', 'ps__profit ' + (pf < 0 ? 'is-loss' : (mg < 15 ? 'is-thin' : 'is-good'))).html(pf < 0 ? 'Loss of <b>' + ksh(-pf) + '</b> - check the price.' : 'Profit <b>' + ksh(pf) + '</b> - ' + mg + '% margin' + (mg < 15 ? ' (thin)' : ''));
+		}
+		function openSrc(i) {
+			var l = cart[i]; if (!l) { return; }
+			srcIx = i; var s = l.src || {};
+			$sm.find('[data-ps-item]').text(l.name + (l.opt ? ' - ' + l.opt : ''));
+			$sm.find('[data-ps="supplier"]').val(s.supplier || ''); $sm.find('[data-ps="phone"]').val(s.phone || ''); $sm.find('[data-ps="cost"]').val(s.cost || '');
+			$sm.find('[data-ps="price"]').val(l.price || ''); $sm.find('[data-ps="eta"]').val(s.eta || '').attr('min', P.today || ''); $sm.find('[data-ps="paid"]').prop('checked', !!s.paid); $sm.find('[data-ps="note"]').val(s.note || '');
+			$sm.find('[data-ps-remove]').prop('hidden', !l.src);
+			setWhere(s.status || 'waiting'); psProfit();
+			$sm.prop('hidden', false).addClass('is-open'); $sm.find('[data-ps="supplier"]').trigger('focus');
+		}
+		function closeSrc() { $sm.removeClass('is-open').prop('hidden', true); srcIx = -1; }
+		$d.on('click', '[data-src]', function () { openSrc(Number($(this).attr('data-src'))); });
+		$d.on('click', '[data-ps-close]', closeSrc);
+		$d.on('click', '[data-ps-where] button', function () { setWhere($(this).attr('data-w')); });
+		$d.on('input', '[data-ps="cost"], [data-ps="price"]', psProfit);
+		$d.on('change', '[data-ps="supplier"]', function () { var v = $.trim(this.value).toLowerCase(), ph = $sm.find('[data-ps="phone"]'); sups.forEach(function (s) { if (s.name.toLowerCase() === v && s.phone && !ph.val()) { ph.val(s.phone); } }); });
+		$d.on('click', '[data-ps-remove]', function () { if (cart[srcIx]) { cart[srcIx].src = null; draw(); save(); } closeSrc(); });
+		$d.on('click', '[data-ps-save]', function () {
+			var l = cart[srcIx]; if (!l) { closeSrc(); return; }
+			var sup = $.trim($sm.find('[data-ps="supplier"]').val()), cost = Number($sm.find('[data-ps="cost"]').val()) || 0, pr = Number($sm.find('[data-ps="price"]').val());
+			if (!sup) { toast('Add the supplier name.', 'err'); return; }
+			if (cost <= 0) { toast('Add your cost from the supplier.', 'err'); return; }
+			if (!isNaN(pr) && pr > 0) { l.price = pr; }
+			l.src = { supplier: sup, phone: $.trim($sm.find('[data-ps="phone"]').val()), cost: cost, status: where, eta: where === 'waiting' ? $sm.find('[data-ps="eta"]').val() : '', paid: $sm.find('[data-ps="paid"]').is(':checked') ? 1 : 0, note: $.trim($sm.find('[data-ps="note"]').val()) };
+			draw(); save(); closeSrc();
+		});
+		$d.on('click', '[data-pos-srcnew]', function () {
+			var n = window.prompt('Which wig does the client want? (e.g. Bone straight 24" 1B)');
+			if (!n || !$.trim(n)) { return; }
+			openSrc(add({ id: 'c' + Date.now(), name: $.trim(n), price: 0, custom: true }));
+		});
 
 		/* Custom item */
 		var $cm = $('[data-pos-custom-modal]');

@@ -626,3 +626,63 @@ a.nt-who:hover{color:#a07a24}
 .nt-people em.is-own{background:#0E0E0E;color:#E4C983}
 @media (max-width:1280px){.nt-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.nt-perms{grid-template-columns:1fr}.nt-perms__side{position:static}}
 @media (max-width:782px){.nt-kpis{grid-template-columns:1fr 1fr}.nt-filter{flex-direction:column;align-items:stretch}.nt-seg{overflow-x:auto}.nt-callout{flex-direction:column;align-items:flex-start}}
+
+/* 1.70.0 Sourced sales */
+.ns{display:flex;flex-direction:column;gap:18px;margin-top:6px;font-variant-numeric:tabular-nums}
+.ns-hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:24px;align-items:center;padding:24px 26px;border-radius:18px;background:linear-gradient(135deg,#0E0E0E 0%,#1d1812 100%);color:#d8cfc0}
+.ns-eyebrow{display:block;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#C9A24B}
+.ns-hero h2{margin:6px 0 8px;font-size:22px;color:#fff}
+.ns-hero p{margin:0;font-size:13px;line-height:1.6;max-width:640px}
+.ns-hero strong{color:#E4C983}
+.ns-steps{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0;padding:0;list-style:none}
+.ns-steps li{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid rgba(228,201,131,.2);border-radius:12px;font-size:12.5px;color:#fff}
+.ns-steps b{display:inline-grid;place-items:center;flex:none;width:26px;height:26px;border-radius:50%;background:#C9A24B;color:#0E0E0E;font-size:12px}
+.ns-kpis{grid-template-columns:repeat(5,minmax(0,1fr))}
+.ns-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start}
+.ns-main,.ns-side{display:flex;flex-direction:column;gap:18px;min-width:0}
+.ns-filter{margin:0 0 12px;font-size:12.5px;color:#6f675d}
+.ns .nt-table td small{display:block;margin-top:3px;font-size:11.5px;color:#8a8174}
+.ns-item{color:#0E0E0E}.ns-item em{font-style:normal;color:#a07a24}
+.ns-meta a{color:#a07a24;text-decoration:none}
+.ns-note{font-style:italic}
+.ns-due{padding:1px 6px;border-radius:99px;background:#fdecea;color:#b3261e;font-size:10.5px;font-weight:700}
+.ns-st{display:inline-block;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap}
+.ns-st--waiting{background:#fff4e0;color:#8a5a00}
+.ns-st--arrived{background:#0E0E0E;color:#E4C983}
+.ns-st--handed{background:#e7f4ec;color:#1e7a46}
+.ns-late td:first-child{box-shadow:inset 3px 0 0 #b3261e}
+.ns-red{color:#b3261e!important;font-weight:700}.ns-ok{color:#1e7a46!important}.ns-mut{color:#8a8174}
+.ns-sup{color:#0E0E0E;font-weight:600;text-decoration:none}.ns-sup:hover{color:#a07a24}
+.ns-acts{display:flex;flex-wrap:wrap;gap:6px;min-width:220px}
+.ns-inrow{display:inline-flex;gap:4px;align-items:center;margin:0}
+.ns-ref,.ns-date{min-height:30px;max-width:120px;padding:0 8px;border:1px solid #dcd3c4;border-radius:8px;font-size:12px}
+.ns-bal{margin:0;padding:0;list-style:none}
+.ns-bal li{padding:12px 0;border-top:1px solid rgba(228,201,131,.15)}
+.ns-bal li:first-child{border-top:0}
+.ns-bal__h{display:flex;justify-content:space-between;gap:8px;color:#fff}
+.ns-bal__h b{color:#E4C983}
+.ns-bal small{display:block;margin:2px 0 8px;font-size:11.5px;color:#a89f90}
+.ns-bal__a{display:flex;flex-wrap:wrap;gap:6px}
+.ns-bal .ns-ref{background:#1d1a16;border-color:#3a342b;color:#fff}
+/* Till: sourcing */
+.pos__extra{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pos__custom--src{border-color:#C9A24B!important;background:#fffaf0!important;color:#7a5a12!important}
+.pos-line__src{display:inline-block;margin-top:4px;padding:2px 8px;border:1px dashed #d8c79e;border-radius:99px;background:transparent;font-size:10.5px;font-weight:600;color:#7a5a12;cursor:pointer}
+.pos-line__src.is-on{border-style:solid;border-color:#0E0E0E;background:#0E0E0E;color:#E4C983}
+.ps-box{max-width:560px;width:100%}
+.ps-box header small{display:block;font-weight:500;font-size:12px;color:#8a8174}
+.ps{display:flex;flex-direction:column;gap:12px;padding:16px 20px}
+.ps__lead{margin:0;font-size:12.5px;color:#6f675d}
+.ps__row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ps label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a8174}
+.ps input[type=text],.ps input[type=tel],.ps input[type=number],.ps input[type=date]{min-height:38px;padding:0 10px;border:1px solid #dcd3c4;border-radius:10px;font-size:13px;text-transform:none;letter-spacing:0;font-weight:500;color:#0E0E0E}
+.ps__profit{padding:10px 12px;border-radius:10px;background:#f5f0e7;font-size:13px;color:#5b5348}
+.ps__profit.is-good{background:#e7f4ec;color:#1e7a46}.ps__profit.is-thin{background:#fff4e0;color:#8a5a00}.ps__profit.is-loss{background:#fdecea;color:#b3261e}
+.ps__label{margin:0;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a8174}
+.ps__where{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.ps__where button{padding:10px 8px;border:1px solid #dcd3c4;border-radius:10px;background:#fff;font-size:12px;font-weight:600;line-height:1.3;cursor:pointer}
+.ps__where button.is-on{border-color:#0E0E0E;background:#0E0E0E;color:#E4C983}
+.ps .ps__chk{flex-direction:row;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;font-weight:600;color:#0E0E0E}
+.ps-box footer{display:flex;justify-content:flex-end;gap:8px}
+@media (max-width:1280px){.ns-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.ns-grid{grid-template-columns:1fr}.ns-hero{grid-template-columns:1fr}}
+@media (max-width:782px){.ns-kpis{grid-template-columns:1fr 1fr}.ps__row,.ps__where,.pos__extra{grid-template-columns:1fr}}

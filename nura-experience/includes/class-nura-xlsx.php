@@ -29,6 +29,7 @@ class NURAX_Xlsx {
 			'sales'      => 'Sales report',
 			'sale_items' => 'Sales by item',
 			'contacts'   => 'Customer contacts',
+			'sourcing'   => 'Sourced sales',
 			'orders'     => 'WhatsApp orders',
 			'payments'   => 'Lipa Mdogo Mdogo payments',
 			'appts'      => 'Appointments',

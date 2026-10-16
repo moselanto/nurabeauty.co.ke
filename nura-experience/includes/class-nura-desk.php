@@ -69,6 +69,7 @@ class NURAX_Desk {
 		NURAX_Desk_Orders::hooks();
 		NURAX_Desk_Remind::hooks();
 		NURAX_Desk_POS::hooks();
+		NURAX_Desk_Source::hooks();
 		NURAX_Desk_Mkt::hooks();
 		NURAX_Desk_Social::hooks();
 		NURAX_Desk_Sub::hooks();
@@ -435,6 +436,7 @@ class NURAX_Desk {
 		$tabs = array(
 			self::MENU    => 'Overview',
 			self::P_POS   => 'Point of sale',
+			NURAX_Desk_Source::PAGE => 'Sourced sales',
 			self::P_ORDERS => 'WhatsApp orders',
 			self::P_PLANS => 'Payment plans',
 			self::P_APPTS => 'Appointments',
@@ -455,9 +457,10 @@ class NURAX_Desk {
 		}
 		echo '<div class="wrap nd-wrap">';
 		echo '<div class="nd-top"><div class="nd-brand"><span class="nd-logo">NURA</span><span class="nd-brand__sub">Desk</span></div><nav class="nd-tabs" aria-label="NURA Desk">';
-		$rem = NURAX_Desk_Remind::pending_count();
+		$rem  = NURAX_Desk_Remind::pending_count();
+		$srcn = NURAX_Desk_Source::attention();
 		foreach ( $tabs as $slug => $label ) {
-			echo '<a class="nd-tab' . ( $slug === $current ? ' is-on' : '' ) . '" href="' . esc_url( self::url( $slug ) ) . '">' . esc_html( $label ) . ( self::P_REM === $slug && $rem ? ' <span class="nd-tab__n">' . (int) $rem . '</span>' : '' ) . '</a>';
+			echo '<a class="nd-tab' . ( $slug === $current ? ' is-on' : '' ) . '" href="' . esc_url( self::url( $slug ) ) . '">' . esc_html( $label ) . ( self::P_REM === $slug && $rem ? ' <span class="nd-tab__n">' . (int) $rem . '</span>' : '' ) . ( NURAX_Desk_Source::PAGE === $slug && $srcn ? ' <span class="nd-tab__n">' . (int) $srcn . '</span>' : '' ) . '</a>';
 		}
 		echo '</nav></div>';
 		echo '<div class="nd-head"><h1 class="nd-title">' . esc_html( $title ) . '</h1><div class="nd-head__actions">' . $actions . '</div></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- actions are built from escaped parts.
@@ -495,6 +498,7 @@ class NURAX_Desk {
 		add_menu_page( 'NURA Desk', $title, self::CAP, self::MENU, array( $this, 'overview' ), 'dashicons-store', 56 );
 		add_submenu_page( self::MENU, 'Overview', 'Overview', self::CAP, self::MENU, array( $this, 'overview' ) );
 		add_submenu_page( self::MENU, 'Point of sale', 'Point of sale', self::CAP, self::P_POS, array( 'NURAX_Desk_POS', 'page' ) );
+		add_submenu_page( self::MENU, 'Sourced sales', 'Sourced sales', self::CAP, NURAX_Desk_Source::PAGE, array( 'NURAX_Desk_Source', 'page' ) );
 		add_submenu_page( self::MENU, 'WhatsApp orders', 'WhatsApp orders', self::CAP, self::P_ORDERS, array( 'NURAX_Desk_Orders', 'page' ) );
 		add_submenu_page( self::MENU, 'Payment plans', 'Payment plans', self::CAP, self::P_PLANS, array( 'NURAX_Desk_Plans', 'page' ) );
 		add_submenu_page( self::MENU, 'Appointments', 'Appointments', self::CAP, self::P_APPTS, array( 'NURAX_Desk_Appts', 'page' ) );
@@ -506,7 +510,7 @@ class NURAX_Desk {
 
 	public function assets( $hook ) {
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! in_array( $page, array( self::MENU, self::P_POS, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_MKT, self::P_SOC, self::P_SET, 'nurax-team' ), true ) ) {
+		if ( ! in_array( $page, array( self::MENU, self::P_POS, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_MKT, self::P_SOC, self::P_SET, 'nurax-team', NURAX_Desk_Source::PAGE ), true ) ) {
 			return;
 		}
 		wp_enqueue_style( 'nurax-desk', NURAX_URL . 'assets/css/nura-desk.css', array(), NURAX_VERSION );
@@ -856,6 +860,8 @@ class NURAX_Desk {
 		$rows = array();
 		if ( 'sales' === $type || 'sale_items' === $type ) {
 			$rows = NURAX_Desk_POS::export_rows( $type );
+		} elseif ( 'sourcing' === $type ) {
+			$rows = NURAX_Desk_Source::export_rows();
 		} elseif ( 'contacts' === $type ) {
 			$rows = NURAX_Desk_Mkt::export_rows();
 		} elseif ( 'orders' === $type ) {

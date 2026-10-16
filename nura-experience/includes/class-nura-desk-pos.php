@@ -222,8 +222,12 @@ class NURAX_Desk_POS {
 					NURAX_Staff::log( 'blocked', 'Blocked: tried to sell ' . $p->get_name() . ' at ' . NURAX_Desk::money( $pr ) . ' (shop price ' . NURAX_Desk::money( wc_get_price_to_display( $p ) ) . ')', array( 'level' => 'warn' ) );
 					throw new Exception( 'Only the owner can change prices at the till. ' . $p->get_name() . ' must be sold at ' . NURAX_Desk::money( wc_get_price_to_display( $p ) ) . '.' );
 				}
+				$src = class_exists( 'NURAX_Desk_Source' ) ? NURAX_Desk_Source::clean_line( isset( $it['src'] ) ? $it['src'] : null, $qty ) : null;
 				if ( $p ) {
-					$order->add_product( $p, $qty, array( 'subtotal' => $pr * $qty, 'total' => $pr * $qty ) );
+					$iid = $order->add_product( $p, $qty, array( 'subtotal' => $pr * $qty, 'total' => $pr * $qty ) );
+					if ( $src && $iid ) {
+						wc_update_order_item_meta( $iid, '_nura_sourced', $src );
+					}
 					$lines++;
 				} elseif ( ! empty( $it['custom'] ) && ! empty( $it['name'] ) ) {
 					$item = new WC_Order_Item_Fee();
@@ -231,6 +235,9 @@ class NURAX_Desk_POS {
 					$item->set_amount( $pr * $qty );
 					$item->set_total( $pr * $qty );
 					$item->set_tax_status( 'none' );
+					if ( $src ) {
+						$item->add_meta_data( '_nura_sourced', $src, true );
+					}
 					$order->add_item( $item );
 					$lines++;
 				}
@@ -320,9 +327,13 @@ class NURAX_Desk_POS {
 		if ( class_exists( 'NURAX_Desk_Mkt' ) && ( $phone || $email ) ) {
 			NURAX_Desk_Mkt::upsert( array( 'name' => $name, 'phone' => $phone, 'email' => $email, 'user_id' => $uid, 'source' => 'pos', 'consent' => ! empty( $cust['consent'] ), 'spent' => $paid ? $total : 0 ) );
 		}
+		$sourced = class_exists( 'NURAX_Desk_Source' ) ? NURAX_Desk_Source::record_order( $order ) : 0;
 		NURAX_Desk::bust();
 		NURAX_Staff::log( 'sale', ( $paid ? 'Sale #' : 'Unpaid invoice #' ) . $order->get_order_number() . ' - ' . ( $name ? $name : 'walk-in' ) . ' - ' . self::methods()[ $method ] . ( $disc > 0 ? ' - discount ' . NURAX_Desk::money( $disc ) : '' ), array( 'object' => 'order', 'object_id' => $order->get_id(), 'amount' => (float) $order->get_total() ) );
-		wp_send_json_success( self::summary( $order ) );
+		$sum            = self::summary( $order );
+		$sum['sourced'] = (int) $sourced;
+		$sum['src_url'] = class_exists( 'NURAX_Desk_Source' ) ? NURAX_Desk::url( NURAX_Desk_Source::PAGE ) : '';
+		wp_send_json_success( $sum );
 	}
 
 	/** Data the register needs after a sale / for re-printing. */
@@ -636,6 +647,8 @@ class NURAX_Desk_POS {
 			'channels' => self::channels(),
 			'pre'      => $pre,
 			'mpesa'    => (string) NURAX_Desk::settings()['mpesa_details'],
+			'suppliers' => class_exists( 'NURAX_Desk_Source' ) ? NURAX_Desk_Source::suppliers() : array(),
+			'today'    => NURAX_Desk::today(),
 		) );
 		NURAX_Desk::header( NURAX_Desk::P_POS, 'Point of sale', self::subnav( 'register' ) );
 		$cats = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => true, 'parent' => 0, 'number' => 12 ) );
@@ -653,7 +666,7 @@ class NURAX_Desk_POS {
 					<?php endforeach; ?>
 				</div>
 				<div class="pos__grid" data-pos-grid><p class="pos__hint">Loading products...</p></div>
-				<button type="button" class="pos__custom" data-pos-custom>+ Add a custom item or service (e.g. installation, revamp)</button>
+				<div class="pos__extra"><button type="button" class="pos__custom" data-pos-custom>+ Add a custom item or service (e.g. installation, revamp)</button><button type="button" class="pos__custom pos__custom--src" data-pos-srcnew>+ Sell a wig we do not stock (sourced)</button></div>
 			</section>
 
 			<aside class="pos__cart">
@@ -735,6 +748,35 @@ class NURAX_Desk_POS {
 					<button type="button" class="nd-btn nd-btn--ghost" data-pos-done-email>E-mail</button>
 				</div>
 				<button type="button" class="nd-btn nd-btn--primary nd-btn--block pos-done__new" data-pos-new>New sale</button>
+			</div>
+		</div>
+
+		<div class="nd-modal" data-pos-src-modal hidden>
+			<div class="nd-modal__box ps-box" role="dialog" aria-modal="true" aria-label="Source this item">
+				<header><strong>Source this item <small data-ps-item></small></strong><button type="button" class="nd-modal__x" data-ps-close aria-label="Close">&times;</button></header>
+				<div class="ps">
+					<p class="ps__lead">Not in stock? Sell it anyway. Record where it is coming from and what it costs you. NURA Desk tracks it until the client has it.</p>
+					<div class="ps__row">
+						<label>Supplier<input type="text" list="nurax-sup-list" placeholder="e.g. Mama Wigs, Luthuli Ave" data-ps="supplier" maxlength="80"></label>
+						<label>Supplier phone<input type="tel" placeholder="0712..." data-ps="phone"></label>
+					</div>
+					<datalist id="nurax-sup-list"></datalist>
+					<div class="ps__row">
+						<label>Your cost per item (KSh)<input type="number" min="0" step="1" data-ps="cost"></label>
+						<label>Selling price (KSh)<input type="number" min="0" step="1" data-ps="price"></label>
+					</div>
+					<div class="ps__profit" data-ps-profit>Enter your cost to see the profit.</div>
+					<p class="ps__label">Where is it right now?</p>
+					<div class="ps__where" data-ps-where>
+						<button type="button" data-w="handed">In my hands - client takes it now</button>
+						<button type="button" data-w="arrived">In the shop - client collects later</button>
+						<button type="button" data-w="waiting" class="is-on">Coming from the supplier</button>
+					</div>
+					<label class="ps__eta" data-ps-eta-wrap>Promised to the client by<input type="date" data-ps="eta"></label>
+					<label class="ps__chk"><input type="checkbox" data-ps="paid"> I have already paid the supplier</label>
+					<input type="text" placeholder="Note (optional), e.g. colour 1B, 22 inch, deposit taken" data-ps="note" maxlength="255" class="ps__note">
+				</div>
+				<footer><button type="button" class="nd-btn nd-btn--ghost" data-ps-remove hidden>Not sourced</button><button type="button" class="nd-btn nd-btn--primary" data-ps-save>Save sourcing</button></footer>
 			</div>
 		</div>
 

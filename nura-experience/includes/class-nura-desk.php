@@ -223,6 +223,7 @@ class NURAX_Desk {
 			'biz_phone'     => '',
 			'biz_email'     => '',
 			'invoice_note'  => '',
+			'invoice_logo'  => '',
 			'mkt_from_name' => 'NURA Beauty',
 			'mkt_from_email'=> '',
 			'mkt_soft_optin'=> 1,
@@ -626,6 +627,7 @@ class NURAX_Desk {
 		self::field_text( 'biz_pin', 'KRA PIN (optional)', $s['biz_pin'], 'Printed on invoices when filled in.' );
 		self::field_text( 'biz_phone', 'Phone on invoices', $s['biz_phone'], 'Leave empty to use the site phone number.' );
 		self::field_text( 'biz_email', 'E-mail on invoices', $s['biz_email'], '', 'email' );
+		self::field_text( 'invoice_logo', 'Logo on invoices (image link, optional)', $s['invoice_logo'], 'Leave empty to use your site logo (Appearance > Customize > Site Identity). Best: a PNG with transparent background, about 600 px wide.', 'url' );
 		echo '</div><label class="nd-field"><span class="nd-label">Footer note on invoices and receipts</span><textarea name="invoice_note" rows="2" placeholder="Thank you for choosing NURA Beauty. Unworn wigs can be returned within 7 days with this receipt.">' . esc_textarea( $s['invoice_note'] ) . '</textarea></label></section>';
 
 		echo '<section class="nd-card"><header class="nd-card__h"><h2>Marketing</h2></header><div class="nd-fields nd-fields--2">';
@@ -733,6 +735,7 @@ class NURAX_Desk {
 		foreach ( array( 'biz_email', 'mkt_from_email' ) as $k ) {
 			$out[ $k ] = isset( $in[ $k ] ) && is_email( $in[ $k ] ) ? sanitize_email( $in[ $k ] ) : '';
 		}
+		$out['invoice_logo']   = isset( $in['invoice_logo'] ) ? esc_url_raw( trim( $in['invoice_logo'] ) ) : '';
 		$out['invoice_note']   = isset( $in['invoice_note'] ) ? mb_substr( sanitize_textarea_field( $in['invoice_note'] ), 0, 400 ) : '';
 		$out['mkt_soft_optin'] = empty( $in['mkt_soft_optin'] ) ? 0 : 1;
 		$out['sub_popup']  = empty( $in['sub_popup'] ) ? 0 : 1;

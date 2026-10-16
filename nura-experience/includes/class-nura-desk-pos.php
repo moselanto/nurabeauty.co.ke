@@ -846,34 +846,65 @@ class NURAX_Desk_POS {
 		exit;
 	}
 
+	/** Logo for invoices: Desk setting, then the theme's custom logo, then the site icon. */
+	public static function logo_url() {
+		$s = NURAX_Desk::settings();
+		if ( ! empty( $s['invoice_logo'] ) ) {
+			return (string) $s['invoice_logo'];
+		}
+		$id = (int) get_theme_mod( 'custom_logo' );
+		if ( $id ) {
+			$u = wp_get_attachment_image_url( $id, 'full' );
+			if ( $u ) {
+				return $u;
+			}
+		}
+		$icon = get_site_icon_url( 256 );
+		return $icon ? $icon : '';
+	}
+
 	/** Full HTML page for an invoice or receipt. */
 	public static function render( $order, $type, $print, $public = false ) {
 		$b     = self::biz();
+		$logo  = self::logo_url();
 		$paid  = self::is_paid( $order );
 		$num   = $order->get_order_number();
-		$date  = $order->get_date_created() ? $order->get_date_created()->date_i18n( 'j F Y, H:i' ) : '';
+		$dobj  = $order->get_date_created();
+		$date  = $dobj ? $dobj->date_i18n( 'j F Y' ) : '';
+		$time  = $dobj ? $dobj->date_i18n( 'H:i' ) : '';
+		$pdate = $order->get_date_paid() ? $order->get_date_paid()->date_i18n( 'j F Y' ) : $date;
 		$name  = trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() );
 		$phone = NURAX_Desk::phone_label( NURAX_Desk::phone( $order->get_billing_phone() ) );
-		$addr  = trim( $order->get_billing_address_1() . ' ' . $order->get_billing_city() );
+		$addr  = trim( implode( ', ', array_filter( array( $order->get_billing_address_1(), $order->get_billing_city() ) ) ) );
 		$ref   = $order->get_meta( '_nura_pay_ref' ) ? $order->get_meta( '_nura_pay_ref' ) : $order->get_transaction_id();
 		$cash  = $order->get_meta( '_nura_cashier' ) ? get_userdata( (int) $order->get_meta( '_nura_cashier' ) ) : null;
-		$title = 'receipt' === $type ? 'Receipt' : ( $paid ? 'Tax invoice / receipt' : 'Invoice' );
-		$rows  = '';
+		$title = 'receipt' === $type ? 'Receipt' : ( $paid ? 'Tax Invoice' : 'Invoice' );
+		$chan  = self::channels()[ self::channel( $order ) ] ?? 'Online shop';
+		$meth  = $order->get_payment_method_title();
+		$mpesa = trim( (string) NURAX_Desk::settings()['mpesa_details'] );
+
+		/* Line items. */
+		$rows = '';
+		$i    = 0;
 		foreach ( $order->get_items() as $it ) {
 			$meta = array();
 			foreach ( $it->get_formatted_meta_data( '_', true ) as $m ) {
 				$meta[] = wp_strip_all_tags( $m->display_key . ': ' . $m->display_value );
 			}
+			$sku = '';
+			if ( is_callable( array( $it, 'get_product' ) ) && $it->get_product() && $it->get_product()->get_sku() ) {
+				$sku = 'SKU ' . $it->get_product()->get_sku();
+			}
+			$sub   = array_filter( array( implode( ' · ', $meta ), $sku ) );
 			$unit  = $it->get_quantity() ? (float) $it->get_total() / $it->get_quantity() : 0;
-			$rows .= '<tr><td><strong>' . esc_html( $it->get_name() ) . '</strong>' . ( $meta ? '<small>' . esc_html( implode( ', ', $meta ) ) . '</small>' : '' ) . '</td><td class="c">' . (int) $it->get_quantity() . '</td><td class="r">' . esc_html( NURAX_Desk::money( $unit ) ) . '</td><td class="r">' . esc_html( NURAX_Desk::money( $it->get_total() ) ) . '</td></tr>';
+			$rows .= '<tr><td class="n">' . sprintf( '%02d', ++$i ) . '</td><td><strong>' . esc_html( $it->get_name() ) . '</strong>' . ( $sub ? '<small>' . esc_html( implode( ' · ', $sub ) ) . '</small>' : '' ) . '</td><td class="c">' . (int) $it->get_quantity() . '</td><td class="r">' . esc_html( NURAX_Desk::money( $unit ) ) . '</td><td class="r b">' . esc_html( NURAX_Desk::money( $it->get_total() ) ) . '</td></tr>';
 		}
-		$extra = '';
-		$disc  = 0;
+		$disc = 0;
 		foreach ( $order->get_fees() as $f ) {
 			if ( (float) $f->get_total() < 0 ) {
 				$disc += (float) $f->get_total();
 			} else {
-				$rows .= '<tr><td><strong>' . esc_html( $f->get_name() ) . '</strong></td><td class="c">1</td><td class="r">' . esc_html( NURAX_Desk::money( $f->get_total() ) ) . '</td><td class="r">' . esc_html( NURAX_Desk::money( $f->get_total() ) ) . '</td></tr>';
+				$rows .= '<tr><td class="n">' . sprintf( '%02d', ++$i ) . '</td><td><strong>' . esc_html( $f->get_name() ) . '</strong></td><td class="c">1</td><td class="r">' . esc_html( NURAX_Desk::money( $f->get_total() ) ) . '</td><td class="r b">' . esc_html( NURAX_Desk::money( $f->get_total() ) ) . '</td></tr>';
 			}
 		}
 		$sub = (float) $order->get_subtotal();
@@ -882,110 +913,193 @@ class NURAX_Desk_POS {
 				$sub += (float) $f->get_total();
 			}
 		}
-		$extra .= '<div><span>Subtotal</span><span>' . esc_html( NURAX_Desk::money( $sub ) ) . '</span></div>';
+
+		/* Totals. */
+		$extra = '<div class="ln"><span>Subtotal</span><span>' . esc_html( NURAX_Desk::money( $sub ) ) . '</span></div>';
 		if ( $disc < 0 ) {
-			$extra .= '<div><span>Discount</span><span>- ' . esc_html( NURAX_Desk::money( abs( $disc ) ) ) . '</span></div>';
+			$extra .= '<div class="ln"><span>Discount</span><span>- ' . esc_html( NURAX_Desk::money( abs( $disc ) ) ) . '</span></div>';
 		}
 		if ( (float) $order->get_shipping_total() > 0 ) {
-			$extra .= '<div><span>Delivery</span><span>' . esc_html( NURAX_Desk::money( $order->get_shipping_total() ) ) . '</span></div>';
+			$extra .= '<div class="ln"><span>Delivery' . ( $order->get_shipping_method() ? ' <em>' . esc_html( $order->get_shipping_method() ) . '</em>' : '' ) . '</span><span>' . esc_html( NURAX_Desk::money( $order->get_shipping_total() ) ) . '</span></div>';
 		}
 		if ( (float) $order->get_total_tax() > 0 ) {
-			$extra .= '<div><span>Tax</span><span>' . esc_html( NURAX_Desk::money( $order->get_total_tax() ) ) . '</span></div>';
+			$extra .= '<div class="ln"><span>VAT</span><span>' . esc_html( NURAX_Desk::money( $order->get_total_tax() ) ) . '</span></div>';
 		}
-		$extra .= '<div class="t"><span>Total</span><span>' . esc_html( NURAX_Desk::money( $order->get_total() ) ) . '</span></div>';
+		$extra .= '<div class="ln tot"><span>Total</span><span>' . esc_html( NURAX_Desk::money( $order->get_total() ) ) . '</span></div>';
 		if ( $paid ) {
-			$extra .= '<div><span>Paid (' . esc_html( $order->get_payment_method_title() ) . ( $ref ? ' ' . esc_html( $ref ) : '' ) . ')</span><span>' . esc_html( NURAX_Desk::money( $order->get_total() ) ) . '</span></div>';
+			$extra .= '<div class="ln"><span>Paid' . ( $meth ? ' - ' . esc_html( $meth ) : '' ) . '</span><span>' . esc_html( NURAX_Desk::money( $order->get_total() ) ) . '</span></div>';
 			if ( (float) $order->get_meta( '_nura_tendered' ) > 0 ) {
-				$extra .= '<div><span>Cash received</span><span>' . esc_html( NURAX_Desk::money( $order->get_meta( '_nura_tendered' ) ) ) . '</span></div><div><span>Change</span><span>' . esc_html( NURAX_Desk::money( $order->get_meta( '_nura_change' ) ) ) . '</span></div>';
+				$extra .= '<div class="ln"><span>Cash received</span><span>' . esc_html( NURAX_Desk::money( $order->get_meta( '_nura_tendered' ) ) ) . '</span></div><div class="ln"><span>Change</span><span>' . esc_html( NURAX_Desk::money( $order->get_meta( '_nura_change' ) ) ) . '</span></div>';
 			}
-			$extra .= '<div class="bal"><span>Balance due</span><span>KSh 0</span></div>';
-		} else {
-			$extra .= '<div class="bal due"><span>Amount due</span><span>' . esc_html( NURAX_Desk::money( $order->get_total() ) ) . '</span></div>';
 		}
-		$pay_note = ! $paid && trim( NURAX_Desk::settings()['mpesa_details'] ) ? '<p class="pay"><strong>How to pay:</strong> M-Pesa ' . esc_html( NURAX_Desk::settings()['mpesa_details'] ) . '. Use invoice #' . esc_html( $num ) . ' as the reference.</p>' : '';
-		$note     = $order->get_customer_note() ? '<p class="note"><strong>Note:</strong> ' . esc_html( $order->get_customer_note() ) . '</p>' : '';
-		$footer   = '' !== trim( $b['note'] ) ? esc_html( $b['note'] ) : 'Thank you for choosing ' . esc_html( $b['name'] ) . '. Unworn wigs can be returned within 7 days with this receipt.';
-		$qr_text  = rawurlencode( self::public_url( $order, $type ) );
+		$due_box = $paid
+			? '<div class="due ok"><span>Balance due</span><strong>KSh 0</strong></div>'
+			: '<div class="due"><span>Amount due</span><strong>' . esc_html( NURAX_Desk::money( $order->get_total() ) ) . '</strong></div>';
+
+		$note    = $order->get_customer_note() ? esc_html( $order->get_customer_note() ) : '';
+		$footer  = '' !== trim( $b['note'] ) ? esc_html( $b['note'] ) : 'Thank you for choosing ' . esc_html( $b['name'] ) . '. Unworn wigs in their original condition can be returned within 7 days of delivery with this document.';
+		$qr      = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&color=14-14-14&data=' . rawurlencode( self::public_url( $order, $type ) );
+		$brand   = $logo
+			? '<img class="logo" src="' . esc_url( $logo ) . '" alt="' . esc_attr( $b['name'] ) . '">'
+			: '<div class="word">' . esc_html( strtoupper( $b['name'] ) ) . '<small>Wear your crown</small></div>';
 
 		ob_start();
 		?><!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
 <title><?php echo esc_html( $title . ' #' . $num . ' - ' . $b['name'] ); ?></title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f2eee7;font:13px/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1b1b1b}
-.bar{position:sticky;top:0;display:flex;gap:8px;justify-content:center;padding:10px;background:#0E0E0E}
-.bar button,.bar a{padding:9px 16px;border:0;border-radius:8px;background:#E4C983;color:#0E0E0E;font-weight:700;text-decoration:none;cursor:pointer;font-size:13px}
-.bar a.alt,.bar button.alt{background:#2a2622;color:#fff}
-.doc{margin:24px auto;background:#fff;box-shadow:0 10px 40px rgba(0,0,0,.08)}
-.a4{width:210mm;min-height:270mm;padding:16mm 16mm 14mm}
-.head{display:flex;justify-content:space-between;gap:20px;padding-bottom:16px;border-bottom:3px solid #0E0E0E}
-.brand{font-family:Georgia,"Times New Roman",serif;font-size:30px;letter-spacing:.22em;font-weight:700;line-height:1}
-.brand small{display:block;margin-top:6px;font:600 9px/1.4 -apple-system,Arial,sans-serif;letter-spacing:.24em;color:#a07a24;text-transform:uppercase}
-.biz{text-align:right;font-size:12px;color:#444}
-.title{display:flex;justify-content:space-between;align-items:flex-end;margin:22px 0 18px}
-.title h1{margin:0;font:700 22px/1.1 Georgia,serif;letter-spacing:.02em}
-.stamp{display:inline-block;padding:5px 12px;border:2px solid;border-radius:6px;font-weight:800;letter-spacing:.16em;font-size:12px;transform:rotate(-4deg)}
-.stamp.paid{color:#1f8a4c;border-color:#1f8a4c}.stamp.due{color:#b3261e;border-color:#b3261e}
-.meta{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
-.box{padding:12px 14px;border-radius:8px;background:#faf7f2}
-.box h3{margin:0 0 4px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#8a6a1f}
-table{width:100%;border-collapse:collapse}
-th{padding:9px 8px;background:#0E0E0E;color:#E4C983;text-align:left;font-size:10px;letter-spacing:.14em;text-transform:uppercase}
-td{padding:10px 8px;border-bottom:1px solid #eee;vertical-align:top}
-td small{display:block;color:#777;font-size:11px}
-.c{text-align:center}.r{text-align:right;white-space:nowrap}
-.sum{display:flex;justify-content:flex-end;margin-top:12px}
-.sum>div{width:300px}
-.sum div div{display:flex;justify-content:space-between;padding:5px 0}
-.sum .t{margin-top:4px;padding-top:9px;border-top:2px solid #0E0E0E;font-size:16px;font-weight:800}
-.sum .bal{margin-top:6px;padding:8px 10px;border-radius:6px;background:#eef8f1;font-weight:700;color:#1f8a4c}
-.sum .bal.due{background:#fdecea;color:#b3261e}
-.pay,.note{margin:16px 0 0;padding:10px 12px;border-left:3px solid #C9A24B;background:#fffaf0}
-.foot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-top:28px;padding-top:14px;border-top:1px solid #eee;color:#555;font-size:11px}
-.foot img{width:84px;height:84px}
-.rc{width:80mm;padding:6mm 5mm;font-size:12px}
-.rc .brand{text-align:center;font-size:24px}.rc .brand small{text-align:center}
-.rc .ctr{text-align:center}.rc hr{border:0;border-top:1px dashed #999;margin:8px 0}
-.rc table td,.rc table th{padding:4px 0;border:0;font-size:12px}.rc th{background:none;color:#000;border-bottom:1px dashed #999!important}
-.rc .sum>div{width:100%}.rc .sum .t{font-size:15px}
-.rc .qr{display:block;margin:8px auto 0;width:96px;height:96px}
-@media print{body{background:#fff}.bar{display:none}.doc{margin:0;box-shadow:none}.a4{width:auto;min-height:0;padding:0}@page{margin:12mm}}
-@media print{.rc{width:72mm;padding:0}@page{margin:4mm}}
-@media (max-width:820px){.a4{width:auto;margin:0;padding:18px}.meta{grid-template-columns:1fr}.head{flex-direction:column}.biz{text-align:left}}
+:root{--ink:#0E0E0E;--gold:#C9A24B;--gold2:#E4C983;--cream:#FAF6EF;--line:#ECE4D6;--mut:#6f675d}
+*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{margin:0;background:#ebe5db;font:12.5px/1.55 "Montserrat",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#1b1b1b}
+.bar{position:sticky;top:0;z-index:5;display:flex;gap:8px;justify-content:center;padding:10px;background:var(--ink)}
+.bar button,.bar a{padding:9px 18px;border:0;border-radius:999px;background:var(--gold2);color:var(--ink);font:700 12px/1 "Montserrat",Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;cursor:pointer}
+.bar a.alt{background:#2a2622;color:#fff}
+.doc{position:relative;margin:28px auto;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+/* ---------- A4 ---------- */
+.a4{width:210mm;min-height:297mm;display:flex;flex-direction:column;overflow:hidden}
+.a4 .top{height:6px;background:linear-gradient(90deg,var(--ink) 0 70%,var(--gold) 70% 100%)}
+.a4 .pad{padding:14mm 15mm 0;flex:1;display:flex;flex-direction:column}
+.hd{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+.logo{display:block;max-height:78px;max-width:230px;width:auto;height:auto;object-fit:contain}
+.word{font:700 30px/1 "Playfair Display",Georgia,serif;letter-spacing:.28em;color:var(--ink)}
+.word small{display:block;margin-top:8px;font:600 8.5px/1 "Montserrat",Arial,sans-serif;letter-spacing:.34em;color:var(--gold)}
+.doc-t{text-align:right}
+.doc-t h1{margin:0;font:600 34px/1 "Playfair Display",Georgia,serif;letter-spacing:.04em;color:var(--ink)}
+.doc-t .no{margin-top:8px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.doc-t .no b{color:var(--ink)}
+.pill{display:inline-block;margin-top:10px;padding:5px 12px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+.pill.paid{background:#e7f4ec;color:#1f7a45}.pill.due{background:#fbeae7;color:#a8321f}
+.rule{display:flex;align-items:center;gap:12px;margin:22px 0 20px}
+.rule::before,.rule::after{content:"";flex:1;height:1px;background:var(--line)}
+.rule span{width:7px;height:7px;transform:rotate(45deg);background:var(--gold)}
+.parties{display:grid;grid-template-columns:1.1fr 1.1fr 1fr;gap:14px}
+.cell{padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.cell.dark{background:var(--ink);border-color:var(--ink);color:#e9e2d6}
+.cell h3{margin:0 0 8px;font-size:9px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+.cell strong{display:block;font-size:13px;color:var(--ink);margin-bottom:2px}
+.cell.dark strong{color:#fff}
+.cell p{margin:0;color:var(--mut);font-size:11.5px;line-height:1.6}.cell.dark p{color:#cfc6b8}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:11.5px}
+.kv dt{color:#a99d8a}.kv dd{margin:0;text-align:right;color:#fff;font-weight:600}
+table{width:100%;border-collapse:separate;border-spacing:0;margin-top:22px}
+thead th{padding:11px 12px;background:var(--ink);color:var(--gold2);text-align:left;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+thead th:first-child{border-radius:8px 0 0 8px}thead th:last-child{border-radius:0 8px 8px 0}
+tbody td{padding:13px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:nth-child(even) td{background:#fdfbf7}
+td strong{font-weight:600;color:var(--ink)}
+td small{display:block;margin-top:3px;color:#8a8174;font-size:10.5px}
+td.n{width:34px;color:#b4a58a;font-weight:600}
+.c{text-align:center}.r{text-align:right;white-space:nowrap}.b{font-weight:700;color:var(--ink)}
+.lower{display:grid;grid-template-columns:1fr 290px;gap:26px;margin-top:20px;align-items:start}
+.info{display:grid;gap:12px}
+.box{padding:14px 16px;border-radius:10px;background:var(--cream);border:1px solid var(--line)}
+.box h4{margin:0 0 6px;font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#8a6a1f}
+.box p{margin:0;color:#4a443c;font-size:11.5px}
+.box.pay{border-left:3px solid var(--gold)}
+.totals .ln{display:flex;justify-content:space-between;gap:10px;padding:6px 2px;color:#4a443c}
+.totals .ln em{font-style:normal;color:#9a9083;font-size:10.5px}
+.totals .ln span:last-child{color:var(--ink);font-weight:600;white-space:nowrap}
+.totals .tot{margin-top:6px;padding-top:11px;border-top:1.5px solid var(--ink);font-size:14px}
+.totals .tot span{font-weight:700;color:var(--ink)}
+.due{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:14px 16px;border-radius:10px;background:var(--ink);color:var(--gold2)}
+.due span{font-size:9.5px;font-weight:700;letter-spacing:.22em;text-transform:uppercase}
+.due strong{font:700 20px/1 "Playfair Display",Georgia,serif;color:#fff}
+.due.ok{background:#e7f4ec;color:#1f7a45}.due.ok strong{color:#1f7a45}
+.stamp{position:absolute;right:22mm;top:118mm;padding:8px 18px;border:3px double #1f7a45;border-radius:8px;color:#1f7a45;font:700 22px/1 "Playfair Display",Georgia,serif;letter-spacing:.2em;transform:rotate(-12deg);opacity:.16;pointer-events:none}
+.sign{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-top:auto;padding:24px 0 16px}
+.qr{display:flex;align-items:center;gap:12px;color:var(--mut);font-size:10.5px;line-height:1.5}
+.qr img{width:74px;height:74px;padding:5px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.thanks{text-align:right}
+.thanks b{display:block;font:italic 600 20px/1.2 "Playfair Display",Georgia,serif;color:var(--ink)}
+.thanks span{font-size:10.5px;color:var(--mut)}
+.ft{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 15mm;background:var(--ink);color:#cfc6b8;font-size:10px;letter-spacing:.04em}
+.ft b{color:var(--gold2);font-weight:600}
+.terms{margin:0 0 10px;color:#8a8174;font-size:10px;line-height:1.5}
+/* ---------- 80 mm receipt ---------- */
+.rc{width:80mm;padding:7mm 5mm;font-size:11.5px;color:#111}
+.rc .logo{margin:0 auto;max-height:58px;max-width:52mm}
+.rc .word{text-align:center;font-size:22px}.rc .word small{text-align:center}
+.rc .ctr{text-align:center;margin:6px 0}
+.rc .tt{margin:8px 0 2px;text-align:center;font:700 13px/1.2 "Montserrat",Arial,sans-serif;letter-spacing:.24em;text-transform:uppercase}
+.rc hr{border:0;border-top:1px dashed #9a9a9a;margin:9px 0}
+.rc table{margin:0}.rc thead th{background:none;color:#111;padding:4px 0;border-bottom:1px solid #111;font-size:9px;border-radius:0!important}
+.rc tbody td{padding:5px 0;border:0;background:none!important;font-size:11.5px}
+.rc .totals .ln{padding:3px 0;color:#111}.rc .totals .ln span:last-child{color:#111}
+.rc .totals .tot{font-size:14px;border-top:1px solid #111}
+.rc .due{margin-top:8px;padding:8px 10px;border-radius:6px}
+.rc .due strong{font-size:16px}
+.rc .qrc{display:block;margin:10px auto 2px;width:92px;height:92px}
+.rc .small{font-size:10px;color:#444}
+@media print{
+  body{background:#fff}.bar{display:none}.doc{margin:0;box-shadow:none}
+  .a4{width:auto;min-height:calc(297mm - 0.1mm)}
+  @page{size:A4;margin:0}
+}
+<?php if ( 'receipt' === $type ) : ?>@media print{.rc{width:72mm;padding:0 1mm}@page{size:80mm auto;margin:3mm}.rc .logo{filter:grayscale(1) contrast(1.4)}}<?php endif; ?>
+@media (max-width:820px){.a4{width:auto;min-height:0;margin:0}.a4 .pad{padding:20px}.hd{flex-direction:column}.doc-t{text-align:left}.parties,.lower{grid-template-columns:1fr}.ft{padding:12px 20px}.stamp{display:none}}
 </style></head><body>
-<div class="bar"><button type="button" onclick="window.print()">Print / Save as PDF</button><?php if ( ! $public ) : ?><a class="alt" href="<?php echo esc_url( self::doc_url( $order, 'receipt' === $type ? 'invoice' : 'receipt', false ) ); ?>"><?php echo 'receipt' === $type ? 'Show A4 invoice' : 'Show 80 mm receipt'; ?></a><?php endif; ?></div>
+<div class="bar"><button type="button" onclick="window.print()">Print / Save as PDF</button><?php if ( ! $public ) : ?><a class="alt" href="<?php echo esc_url( self::doc_url( $order, 'receipt' === $type ? 'invoice' : 'receipt', false ) ); ?>"><?php echo 'receipt' === $type ? 'A4 invoice' : '80 mm receipt'; ?></a><?php endif; ?></div>
 <?php if ( 'receipt' === $type ) : ?>
 <div class="doc rc">
-	<div class="brand"><?php echo esc_html( strtoupper( $b['name'] ) ); ?><small>Wear your crown</small></div>
-	<p class="ctr"><?php echo esc_html( $b['addr'] ); ?><br><?php echo esc_html( $b['phone'] ); ?><?php echo $b['pin'] ? '<br>PIN: ' . esc_html( $b['pin'] ) : ''; ?></p>
-	<hr><p class="ctr"><strong><?php echo esc_html( strtoupper( $paid ? 'Receipt' : 'Invoice' ) . ' #' . $num ); ?></strong><br><?php echo esc_html( $date ); ?><?php echo $cash ? '<br>Served by ' . esc_html( $cash->display_name ) : ''; ?><?php echo $name ? '<br>Customer: ' . esc_html( $name ) : ''; ?></p><hr>
+	<?php echo $brand; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+	<p class="ctr small"><?php echo esc_html( $b['addr'] ); ?><br><?php echo esc_html( $b['phone'] ); ?> · <?php echo esc_html( $b['web'] ); ?><?php echo $b['pin'] ? '<br>KRA PIN: ' . esc_html( $b['pin'] ) : ''; ?></p>
+	<p class="tt"><?php echo esc_html( $paid ? 'Receipt' : 'Invoice' ); ?></p>
+	<p class="ctr small">#<?php echo esc_html( $num ); ?> · <?php echo esc_html( $date . ' ' . $time ); ?><?php echo $cash ? '<br>Served by ' . esc_html( $cash->display_name ) : ''; ?><?php echo $name ? '<br>Customer: ' . esc_html( $name ) : ''; ?></p>
+	<hr>
 	<table><thead><tr><th>Item</th><th class="c">Qty</th><th class="r">Amount</th></tr></thead><tbody>
 	<?php foreach ( $order->get_items() as $it ) : ?><tr><td><?php echo esc_html( $it->get_name() ); ?></td><td class="c"><?php echo (int) $it->get_quantity(); ?></td><td class="r"><?php echo esc_html( NURAX_Desk::money( $it->get_total() ) ); ?></td></tr><?php endforeach; ?>
 	<?php foreach ( $order->get_fees() as $f ) : if ( (float) $f->get_total() < 0 ) { continue; } ?><tr><td><?php echo esc_html( $f->get_name() ); ?></td><td class="c">1</td><td class="r"><?php echo esc_html( NURAX_Desk::money( $f->get_total() ) ); ?></td></tr><?php endforeach; ?>
 	</tbody></table><hr>
-	<div class="sum"><div><?php echo $extra; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></div><hr>
-	<?php echo $pay_note; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-	<p class="ctr"><?php echo $footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><br><?php echo esc_html( $b['web'] ); ?></p>
-	<img class="qr" alt="" src="https://api.qrserver.com/v1/create-qr-code/?size=192x192&amp;margin=0&amp;data=<?php echo esc_attr( $qr_text ); ?>">
+	<div class="totals"><?php echo $extra; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+	<?php echo $due_box; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+	<?php if ( ! $paid && $mpesa ) : ?><p class="ctr small"><strong>Pay via M-Pesa:</strong> <?php echo esc_html( $mpesa ); ?><br>Reference: <?php echo esc_html( $num ); ?></p><?php endif; ?>
+	<hr>
+	<p class="ctr small"><?php echo $footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+	<img class="qrc" alt="" src="<?php echo esc_url( $qr ); ?>">
+	<p class="ctr small">Scan to view online</p>
 </div>
 <?php else : ?>
 <div class="doc a4">
-	<div class="head">
-		<div class="brand"><?php echo esc_html( strtoupper( $b['name'] ) ); ?><small>East Africa's house of radiant confidence</small></div>
-		<div class="biz"><strong><?php echo esc_html( $b['name'] ); ?></strong><br><?php echo esc_html( $b['addr'] ); ?><br><?php echo esc_html( $b['phone'] . ' - ' . $b['email'] ); ?><br><?php echo esc_html( $b['web'] ); ?><?php echo $b['pin'] ? '<br>KRA PIN: ' . esc_html( $b['pin'] ) : ''; ?></div>
+	<div class="top"></div>
+	<?php if ( $paid ) : ?><div class="stamp">PAID</div><?php endif; ?>
+	<div class="pad">
+		<div class="hd">
+			<div><?php echo $brand; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+			<div class="doc-t"><h1><?php echo esc_html( $title ); ?></h1><div class="no">No. <b><?php echo esc_html( $num ); ?></b></div><span class="pill <?php echo $paid ? 'paid' : 'due'; ?>"><?php echo $paid ? 'Paid' : 'Payment due'; ?></span></div>
+		</div>
+		<div class="rule"><span></span></div>
+		<div class="parties">
+			<div class="cell"><h3>From</h3><strong><?php echo esc_html( $b['name'] ); ?></strong><p><?php echo esc_html( $b['addr'] ); ?><br><?php echo esc_html( $b['phone'] ); ?><br><?php echo esc_html( $b['email'] ); ?><?php echo $b['pin'] ? '<br>KRA PIN: ' . esc_html( $b['pin'] ) : ''; ?></p></div>
+			<div class="cell"><h3>Billed to</h3><strong><?php echo esc_html( $name ? $name : 'Walk-in customer' ); ?></strong><p><?php echo $phone ? esc_html( $phone ) . '<br>' : ''; ?><?php echo $order->get_billing_email() ? esc_html( $order->get_billing_email() ) . '<br>' : ''; ?><?php echo $addr ? esc_html( $addr ) : ''; ?></p></div>
+			<div class="cell dark"><h3>Details</h3><dl class="kv">
+				<dt>Issued</dt><dd><?php echo esc_html( $date ); ?></dd>
+				<dt><?php echo $paid ? 'Paid on' : 'Due'; ?></dt><dd><?php echo esc_html( $paid ? $pdate : 'On receipt' ); ?></dd>
+				<dt>Channel</dt><dd><?php echo esc_html( $chan ); ?></dd>
+				<?php if ( $meth ) : ?><dt>Payment</dt><dd><?php echo esc_html( $meth ); ?></dd><?php endif; ?>
+				<?php if ( $paid && $ref ) : ?><dt>Ref.</dt><dd><?php echo esc_html( $ref ); ?></dd><?php endif; ?>
+				<?php if ( $cash ) : ?><dt>Served by</dt><dd><?php echo esc_html( $cash->display_name ); ?></dd><?php endif; ?>
+			</dl></div>
+		</div>
+		<table><thead><tr><th>#</th><th>Description</th><th class="c">Qty</th><th class="r">Unit price</th><th class="r">Amount</th></tr></thead><tbody><?php echo $rows; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></tbody></table>
+		<div class="lower">
+			<div class="info">
+				<?php if ( ! $paid ) : ?><div class="box pay"><h4>How to pay</h4><p><?php echo $mpesa ? 'M-Pesa: <strong>' . esc_html( $mpesa ) . '</strong><br>' : ''; ?>Use invoice number <strong><?php echo esc_html( $num ); ?></strong> as your reference. Card and bank transfer also accepted - ask us on WhatsApp <?php echo esc_html( $b['phone'] ); ?>.</p></div><?php endif; ?>
+				<?php if ( $note ) : ?><div class="box"><h4>Note</h4><p><?php echo $note; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p></div><?php endif; ?>
+				<div class="box"><h4>Terms</h4><p><?php echo $footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> All prices in Kenya Shillings (KES).</p></div>
+			</div>
+			<div class="totals"><?php echo $extra; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php echo $due_box; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+		</div>
+		<div class="sign">
+			<div class="qr"><img alt="" src="<?php echo esc_url( $qr ); ?>"><div><strong>Scan to view or download</strong><br>this <?php echo esc_html( strtolower( $title ) ); ?> online.</div></div>
+			<div class="thanks"><b>Thank you for wearing NURA.</b><span>East Africa's house of radiant confidence</span></div>
+		</div>
 	</div>
-	<div class="title"><div><h1><?php echo esc_html( $title ); ?></h1><span>#<?php echo esc_html( $num ); ?> - <?php echo esc_html( $date ); ?></span></div><span class="stamp <?php echo $paid ? 'paid' : 'due'; ?>"><?php echo $paid ? 'PAID' : 'UNPAID'; ?></span></div>
-	<div class="meta">
-		<div class="box"><h3>Billed to</h3><strong><?php echo esc_html( $name ? $name : 'Walk-in customer' ); ?></strong><?php echo $phone ? '<br>' . esc_html( $phone ) : ''; ?><?php echo $order->get_billing_email() ? '<br>' . esc_html( $order->get_billing_email() ) : ''; ?><?php echo $addr ? '<br>' . esc_html( $addr ) : ''; ?></div>
-		<div class="box"><h3>Details</h3>Invoice no: <?php echo esc_html( $num ); ?><br>Date: <?php echo esc_html( $date ); ?><br>Channel: <?php echo esc_html( self::channels()[ self::channel( $order ) ] ?? 'Online shop' ); ?><?php echo $cash ? '<br>Served by: ' . esc_html( $cash->display_name ) : ''; ?></div>
-	</div>
-	<table><thead><tr><th>Description</th><th class="c">Qty</th><th class="r">Unit price</th><th class="r">Amount</th></tr></thead><tbody><?php echo $rows; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></tbody></table>
-	<div class="sum"><div><?php echo $extra; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></div>
-	<?php echo $pay_note . $note; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-	<div class="foot"><div><?php echo $footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><br>Prices in Kenya Shillings (KES).</div><img alt="" src="https://api.qrserver.com/v1/create-qr-code/?size=168x168&amp;margin=0&amp;data=<?php echo esc_attr( $qr_text ); ?>"></div>
+	<div class="ft"><span><b><?php echo esc_html( $b['name'] ); ?></b> · <?php echo esc_html( $b['addr'] ); ?></span><span><?php echo esc_html( $b['phone'] ); ?> · <?php echo esc_html( $b['email'] ); ?> · <?php echo esc_html( $b['web'] ); ?></span></div>
 </div>
 <?php endif; ?>
-<?php if ( $print ) : ?><script>window.addEventListener('load',function(){setTimeout(function(){window.print();},350);});</script><?php endif; ?>
+<?php if ( $print ) : ?><script>window.addEventListener('load',function(){var go=function(){setTimeout(function(){window.print();},300);};if(document.fonts&&document.fonts.ready){document.fonts.ready.then(go);}else{go();}});</script><?php endif; ?>
 </body></html>
 		<?php
 		return (string) ob_get_clean();

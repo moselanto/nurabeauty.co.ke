@@ -538,6 +538,7 @@ class NURAX_Desk_POS {
 					<button type="button" class="pos__clear" data-pos-clear>Clear</button>
 				</header>
 
+				<div class="pos__body">
 				<div class="pos__cust" data-pos-cust>
 					<div class="pos__cust-search">
 						<input type="search" placeholder="Customer: search name or phone, or type a new one" data-pos-cq autocomplete="off">
@@ -553,12 +554,18 @@ class NURAX_Desk_POS {
 
 				<ul class="pos__lines" data-pos-lines><li class="pos__empty">Tap a product to add it.</li></ul>
 
+				<details class="pos__more" data-pos-more>
+				<summary>Discount, delivery &amp; note <span data-pos-more-sum></span></summary>
 				<div class="pos__adj">
 					<label>Discount <span class="pos__disc"><input type="number" min="0" step="1" value="0" data-pos-disc><select data-pos-disctype><option value="amt">KSh</option><option value="pct">%</option></select></span></label>
 					<label>Delivery fee <input type="number" min="0" step="1" value="0" data-pos-del></label>
 					<input type="text" placeholder="Deliver to (optional)" data-pos-delto class="pos__wide">
 					<textarea rows="2" placeholder="Note on invoice (optional)" data-pos-note class="pos__wide"></textarea>
 				</div>
+				</details>
+				</div>
+
+				<div class="pos__foot">
 
 				<dl class="pos__totals">
 					<div><dt>Subtotal</dt><dd data-pos-sub>KSh 0</dd></div>
@@ -568,6 +575,7 @@ class NURAX_Desk_POS {
 				</dl>
 
 				<div class="pos__pay">
+					<p class="pos__paylabel">How is the customer paying?</p>
 					<div class="pos__methods" data-pos-methods>
 						<?php $i = 0; foreach ( self::methods() as $k => $l ) : ?>
 							<button type="button" data-m="<?php echo esc_attr( $k ); ?>" class="<?php echo 0 === $i++ ? 'is-on' : ''; ?>"><?php echo esc_html( $l ); ?></button>
@@ -579,7 +587,8 @@ class NURAX_Desk_POS {
 					</div>
 					<p class="pos__change" data-pos-change hidden></p>
 					<button type="button" class="pos__charge" data-pos-charge disabled>Charge KSh 0</button>
-					<button type="button" class="pos__invoice" data-pos-invoice disabled>Save as unpaid invoice</button>
+					<button type="button" class="pos__invoice" data-pos-invoice disabled>Save as unpaid invoice (pay later)</button>
+				</div>
 				</div>
 			</aside>
 		</div>

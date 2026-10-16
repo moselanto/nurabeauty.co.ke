@@ -463,3 +463,22 @@ a.nd-kpi:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(14,14,14,.
 .nd-logo__status{margin:0;font-weight:600;color:#2b2622}
 .nd-logo__btns{display:flex;gap:8px;flex-wrap:wrap}
 .nd-logo [hidden]{display:none!important}
+
+/* 1.65.2 POS: totals + Complete sale button always visible */
+.pos__cart{max-height:calc(100vh - 56px)}
+.pos__body{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column}
+.pos__body .pos__lines{flex:1 0 auto;overflow:visible;min-height:90px}
+.pos__more{border-top:1px solid #f1ece3}
+.pos__more summary{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;font-size:12px;font-weight:700;color:#5b5348;cursor:pointer;list-style:none}
+.pos__more summary::-webkit-details-marker{display:none}
+.pos__more summary::before{content:"+";display:inline-grid;place-items:center;width:18px;height:18px;margin-right:6px;border-radius:50%;background:#0E0E0E;color:#E4C983;font-size:12px}
+.pos__more[open] summary::before{content:"-"}
+.pos__more summary span{margin-left:auto;color:#a07a24;font-weight:600}
+.pos__more .pos__adj{border-top:0;padding-top:0}
+.pos__foot{flex:none;border-top:1px solid #e8e1d5;box-shadow:0 -10px 24px rgba(14,14,14,.05);background:#fff}
+.pos__foot .pos__totals{border-top:0;padding-top:10px}
+.pos__paylabel{margin:0 0 6px;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8a6a1f}
+.pos__methods{grid-template-columns:repeat(auto-fit,minmax(70px,1fr))}
+.pos__charge{min-height:58px;font-size:15.5px;box-shadow:0 10px 22px rgba(31,138,76,.25)}
+.pos__charge:disabled{background:#9bb9a6;box-shadow:none}
+@media (max-width:1200px){.pos__cart{max-height:none}.pos__body{overflow:visible}.pos__foot{position:sticky;bottom:0;z-index:5}}

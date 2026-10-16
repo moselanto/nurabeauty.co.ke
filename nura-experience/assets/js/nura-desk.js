@@ -357,7 +357,8 @@
 			}
 			var t = totals();
 			$('[data-pos-sub]').text(ksh(t.sub)); $('[data-pos-dsc]').text('- ' + ksh(t.disc)); $('[data-pos-dl]').text(ksh(t.del)); $('[data-pos-total]').text(ksh(t.total));
-			$('[data-pos-charge]').prop('disabled', !cart.length).text('Charge ' + ksh(t.total) + ' - ' + P.methods[method]);
+			$('[data-pos-charge]').prop('disabled', !cart.length).text(cart.length ? 'Complete sale  ·  ' + ksh(t.total) + '  ·  ' + P.methods[method] : 'Add a wig to start the sale');
+			var ms = []; if (t.disc > 0) { ms.push('- ' + ksh(t.disc)); } if (t.del > 0) { ms.push('+ ' + ksh(t.del) + ' delivery'); } $('[data-pos-more-sum]').text(ms.join(', '));
 			$('[data-pos-invoice]').prop('disabled', !cart.length);
 			change();
 		}

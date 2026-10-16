@@ -282,8 +282,12 @@ class NURAX_Desk_Mkt {
 	public static function where( $seg, $val, $channel ) {
 		global $wpdb;
 		$s = NURAX_Desk::settings();
-		$w = 'email' === $channel ? "email <> '' AND email_ok = 1" : "phone <> '' AND wa_ok = 1";
-		if ( empty( $s['mkt_soft_optin'] ) ) {
+		if ( 'any' === $channel ) {
+			$w = '1=1';
+		} else {
+			$w = 'email' === $channel ? "email <> '' AND email_ok = 1" : "phone <> '' AND wa_ok = 1";
+		}
+		if ( 'any' !== $channel && empty( $s['mkt_soft_optin'] ) ) {
 			$w .= ' AND consent = 1';
 		}
 		switch ( $seg ) {
@@ -789,7 +793,7 @@ class NURAX_Desk_Mkt {
 		unset( $segs['tag'] );
 		$w = '1=1';
 		if ( 'all' !== $seg && isset( $segs[ $seg ] ) ) {
-			$w = '(' . str_replace( array( "email <> '' AND email_ok = 1", "phone <> '' AND wa_ok = 1" ), '1=1', self::where( $seg, '', 'email' ) ) . ')';
+			$w = '(' . self::where( $seg, '', 'any' ) . ')';
 		}
 		if ( '' !== $q ) {
 			$like = '%' . $wpdb->esc_like( $q ) . '%';

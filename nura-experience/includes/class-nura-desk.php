@@ -43,6 +43,9 @@ class NURAX_Desk {
 		add_action( 'init', array( $this, 'schedule' ) );
 		add_action( self::CRON, array( $this, 'daily' ) );
 		add_action( 'admin_menu', array( $this, 'menu' ), 56 );
+		add_action( 'admin_menu', function () {
+			remove_submenu_page( 'woocommerce', 'nurax-wa-orders' );
+		}, 999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ), 20 );
 		add_action( 'admin_post_nurax_desk_settings', array( $this, 'save_settings' ) );
 		add_action( 'admin_post_nurax_desk_export', array( $this, 'export' ) );
@@ -493,9 +496,14 @@ class NURAX_Desk {
 		$o   = NURAX_Desk_Orders::kpis();
 		$act = self::btn( self::url( self::P_POS ), '+ New sale', 'nd-btn--primary' ) . self::btn( self::url( self::P_PLANS, array( 'action' => 'new' ) ), '+ New payment plan', 'nd-btn--ghost' ) .
 			self::btn( self::url( self::P_APPTS, array( 'action' => 'new' ) ), '+ New appointment', 'nd-btn--ghost' );
+		wp_localize_script( 'nurax-desk', 'NURAX_POS', array( 'ajax' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 'nurax_pos' ), 'methods' => NURAX_Desk_POS::methods() ) );
 		self::header( self::MENU, 'Good ' . ( (int) current_time( 'G' ) < 12 ? 'morning' : ( (int) current_time( 'G' ) < 17 ? 'afternoon' : 'evening' ) ) . ' - ' . self::date_label( self::today(), 'l j F Y' ), $act );
 
+		$td = NURAX_Desk_POS::today_total();
+		$pk = count( NURAX_Desk_POS::to_pack( 50 ) );
 		echo '<div class="nd-kpis">';
+		self::kpi( 'Money in today', self::money( $td['sum'] ), $td['orders'] . ' paid sales' . ( $td['plan'] > 0 ? ' + plan payments' : '' ), 'ink', self::url( self::P_POS, array( 'view' => 'sales', 'r' => 'today' ) ) );
+		self::kpi( 'Online orders to pack', (string) $pk, 'paid or on hold', $pk ? 'amber' : '', self::url( self::P_POS, array( 'view' => 'sales', 'pay' => 'pack', 'r' => 'year' ) ) );
 		self::kpi( 'Collected this month', self::money( $k['month'] ), $k['month_count'] . ' payments', 'gold' );
 		self::kpi( 'Outstanding on plans', self::money( $k['outstanding'] ), $k['active'] . ' active plans', '' );
 		self::kpi( 'Overdue', self::money( $k['arrears'] ), $k['overdue'] . ' plans behind', $k['overdue'] ? 'red' : '', self::url( self::P_PLANS, array( 'tab' => 'overdue' ) ) );
@@ -523,6 +531,10 @@ class NURAX_Desk {
 		echo '</div>';
 
 		echo '<div class="nd-grid2">';
+		echo '<section class="nd-card"><header class="nd-card__h"><h2>Online orders to pack</h2>' . self::btn( self::url( self::P_POS, array( 'view' => 'sales', 'pay' => 'pack', 'r' => 'year' ) ), 'All', 'nd-btn--link' ) . '</header>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		NURAX_Desk_POS::pack_list( 8 );
+		echo '</section>';
+		echo '</div><div class="nd-grid2">';
 		echo '<section class="nd-card"><header class="nd-card__h"><h2>New requests</h2></header>';
 		NURAX_Desk_Orders::request_list( 6 );
 		NURAX_Desk_Appts::request_list( 6 );
@@ -582,6 +594,7 @@ class NURAX_Desk {
 		self::field_text( 'staff', 'Stylists / team', $s['staff'], 'Comma separated names to assign appointments, e.g. Faith, Wanjiru' );
 		echo '</div></section>';
 
+		echo '<section class="nd-card"><header class="nd-card__h"><h2>Delivery fees</h2></header><p class="nd-mut">The WhatsApp order pop-up uses your WooCommerce shipping zones first, then these fallback fees.</p>' . self::btn( admin_url( 'admin.php?page=nurax-wa-orders&nwo_fees=1' ), 'Edit delivery fees', 'nd-btn--ghost' ) . '</section>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<section class="nd-card"><header class="nd-card__h"><h2>Business details (invoices and receipts)</h2></header><div class="nd-fields nd-fields--2">';
 		self::field_text( 'biz_name', 'Business name', $s['biz_name'], '' );
 		self::field_text( 'biz_pin', 'KRA PIN (optional)', $s['biz_pin'], 'Printed on invoices when filled in.' );

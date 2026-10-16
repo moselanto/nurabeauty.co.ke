@@ -39,7 +39,7 @@ class NURAX_Desk_POS {
 	}
 
 	public static function channels() {
-		return array( 'walk-in' => 'Walk-in', 'whatsapp' => 'WhatsApp', 'phone' => 'Phone', 'instagram' => 'Instagram / TikTok', 'online' => 'Online shop' );
+		return array( 'walk-in' => 'Walk-in', 'whatsapp' => 'WhatsApp', 'phone' => 'Phone', 'instagram' => 'Instagram / TikTok', 'online' => 'Online shop', 'admin' => 'Added in WooCommerce' );
 	}
 
 	public static function channel( $order ) {
@@ -47,7 +47,8 @@ class NURAX_Desk_POS {
 		if ( '' !== $c ) {
 			return $c;
 		}
-		return 'nura_pos' === $order->get_created_via() ? 'walk-in' : 'online';
+		$v = $order->get_created_via();
+		return 'nura_pos' === $v ? 'walk-in' : ( 'admin' === $v ? 'admin' : 'online' );
 	}
 
 	public static function is_paid( $order ) {
@@ -389,7 +390,65 @@ class NURAX_Desk_POS {
 			NURAX_Desk::bust();
 			wp_send_json_success( self::summary( $order ) );
 		}
+		if ( 'complete' === $op ) {
+			$order->set_status( 'completed', 'Marked fulfilled (packed / delivered) at NURA Desk.' );
+			$order->save();
+			NURAX_Desk::bust();
+			wp_send_json_success( array( 'message' => 'Order #' . $order->get_order_number() . ' fulfilled' ) );
+		}
 		wp_send_json_error( array( 'message' => 'Unknown action.' ), 400 );
+	}
+
+	/** Online orders that are paid / on hold and still need packing or delivery. */
+	public static function to_pack( $limit = 20 ) {
+		if ( ! function_exists( 'wc_get_orders' ) ) {
+			return array();
+		}
+		return (array) wc_get_orders( array( 'limit' => $limit, 'type' => 'shop_order', 'status' => array( 'wc-processing', 'wc-on-hold' ), 'orderby' => 'date', 'order' => 'ASC' ) );
+	}
+
+	/** Overview panel: online orders to pack. */
+	public static function pack_list( $limit = 8 ) {
+		$rows = self::to_pack( $limit );
+		if ( ! $rows ) {
+			echo '<p class="nd-empty-s">No online orders waiting to be packed.</p>';
+			return;
+		}
+		echo '<ul class="nd-list">';
+		foreach ( $rows as $o ) {
+			$items = array();
+			foreach ( $o->get_items() as $it ) {
+				$items[] = ( $it->get_quantity() > 1 ? $it->get_quantity() . ' x ' : '' ) . $it->get_name();
+			}
+			$name  = trim( $o->get_billing_first_name() . ' ' . $o->get_billing_last_name() );
+			$phone = NURAX_Desk::phone( $o->get_billing_phone() );
+			echo '<li><a class="nd-list__main" href="' . esc_url( $o->get_edit_order_url() ) . '"><strong>#' . esc_html( $o->get_order_number() . ' ' . $name ) . '</strong><small>' . esc_html( implode( ', ', $items ) ) . '</small></a>';
+			echo '<span class="nd-list__meta"><b>' . esc_html( NURAX_Desk::money( $o->get_total() ) ) . '</b><small>' . esc_html( ( self::is_paid( $o ) ? 'Paid' : 'On hold' ) . ' - ' . ( $o->get_date_created() ? $o->get_date_created()->date_i18n( 'D j M, H:i' ) : '' ) ) . '</small></span>';
+			echo '<span class="nd-list__acts"><a class="nd-ico-btn" target="_blank" rel="noopener" href="' . esc_url( self::doc_url( $o, 'invoice' ) ) . '">Invoice</a>';
+			if ( $phone ) {
+				echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $phone, self::wa_text( $o ) ) ) . '">WhatsApp</a>';
+			}
+			echo '<button type="button" class="nd-ico-btn nd-ico-btn--ok" data-pos-complete="' . (int) $o->get_id() . '">Fulfilled</button></span></li>';
+		}
+		echo '</ul>';
+	}
+
+	/** Money in today across every channel (paid WooCommerce orders + Lipa Mdogo payments). */
+	public static function today_total() {
+		global $wpdb;
+		$t   = NURAX_Desk::today();
+		$sum = 0;
+		$n   = 0;
+		if ( function_exists( 'wc_get_orders' ) ) {
+			foreach ( (array) self::orders( $t, $t, -1 ) as $o ) {
+				if ( self::is_paid( $o ) ) {
+					$sum += (float) $o->get_total();
+					$n++;
+				}
+			}
+		}
+		$plan = (float) $wpdb->get_var( $wpdb->prepare( 'SELECT COALESCE(SUM(amount),0) FROM ' . NURAX_Desk::t_pay() . ' WHERE voided = 0 AND paid_at >= %s', $t . ' 00:00:00' ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return array( 'sum' => $sum + $plan, 'orders' => $n, 'plan' => $plan );
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -630,7 +689,7 @@ class NURAX_Desk_POS {
 				$k['walk'] += $t;
 			}
 			$okc = 'all' === $ch || ( 'shop' === $ch ? 'online' === $c : ( 'store' === $ch ? 'online' !== $c : $ch === $c ) );
-			$okp = 'all' === $pay || ( 'paid' === $pay ? $p : ! $p );
+			$okp = 'all' === $pay || ( 'pack' === $pay ? in_array( $o->get_status(), array( 'processing', 'on-hold' ), true ) : ( 'paid' === $pay ? $p : ! $p ) );
 			if ( $okc && $okp ) {
 				$rows[] = $o;
 			}
@@ -651,7 +710,9 @@ class NURAX_Desk_POS {
 		NURAX_Desk::kpi( 'Walk-in & phone', NURAX_Desk::money( $k['walk'] ), 'in the studio' );
 		NURAX_Desk::kpi( 'Online shop', NURAX_Desk::money( $k['online'] ), 'website checkout' );
 		NURAX_Desk::kpi( 'WhatsApp', NURAX_Desk::money( $k['wa'] ), 'from WhatsApp orders' );
-		NURAX_Desk::kpi( 'Period', NURAX_Desk::date_label( $from, 'j M' ) . ' - ' . NURAX_Desk::date_label( $to, 'j M' ), NURAX_Desk::date_label( $to, 'Y' ) );
+		global $wpdb;
+		$lmm = $wpdb->get_row( $wpdb->prepare( 'SELECT COALESCE(SUM(amount),0) s, COUNT(*) c FROM ' . NURAX_Desk::t_pay() . ' WHERE voided = 0 AND paid_at >= %s AND paid_at <= %s', $from . ' 00:00:00', $to . ' 23:59:59' ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		NURAX_Desk::kpi( 'Lipa Mdogo collected', NURAX_Desk::money( $lmm ? $lmm->s : 0 ), ( $lmm ? (int) $lmm->c : 0 ) . ' instalments (not in sales above)', '', NURAX_Desk::url( NURAX_Desk::P_PLANS ) );
 		echo '</div>';
 
 		$ranges = array( 'today' => 'Today', 'week' => '7 days', 'month' => 'This month', 'lastmonth' => 'Last month', 'last30' => '30 days', 'year' => 'This year' );
@@ -664,7 +725,7 @@ class NURAX_Desk_POS {
 		foreach ( $chs as $kk => $l ) {
 			echo '<option value="' . esc_attr( $kk ) . '"' . selected( $ch, $kk, false ) . '>' . esc_html( $l ) . '</option>';
 		}
-		echo '</select><select name="pay"><option value="all">Paid and unpaid</option><option value="paid"' . selected( $pay, 'paid', false ) . '>Paid</option><option value="unpaid"' . selected( $pay, 'unpaid', false ) . '>Unpaid</option></select><input type="search" placeholder="Filter this page" data-nd-local><button class="nd-btn nd-btn--ghost" type="submit">Apply</button></form></div>';
+		echo '</select><select name="pay"><option value="all">Paid and unpaid</option><option value="paid"' . selected( $pay, 'paid', false ) . '>Paid</option><option value="unpaid"' . selected( $pay, 'unpaid', false ) . '>Unpaid</option><option value="pack"' . selected( $pay, 'pack', false ) . '>To pack / deliver</option></select><input type="search" placeholder="Filter this page" data-nd-local><button class="nd-btn nd-btn--ghost" type="submit">Apply</button></form></div>';
 
 		if ( ! $rows ) {
 			echo '<div class="nd-empty"><strong>No sales in this period.</strong><p>Ring up a walk-in sale under "New sale". Online orders appear here automatically.</p>' . NURAX_Desk::btn( NURAX_Desk::url( NURAX_Desk::P_POS ), 'New sale', 'nd-btn--primary' ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -699,6 +760,8 @@ class NURAX_Desk_POS {
 			}
 			if ( ! $p ) {
 				echo '<button type="button" class="nd-ico-btn nd-ico-btn--ok" data-pos-paid="' . (int) $o->get_id() . '">Mark paid</button>';
+			} elseif ( in_array( $o->get_status(), array( 'processing', 'on-hold' ), true ) ) {
+				echo '<button type="button" class="nd-ico-btn nd-ico-btn--ok" data-pos-complete="' . (int) $o->get_id() . '">Fulfilled</button>';
 			}
 			echo '<a class="nd-ico-btn" href="' . esc_url( $o->get_edit_order_url() ) . '">Open</a>';
 			echo '</td></tr>';

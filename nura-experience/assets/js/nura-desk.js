@@ -294,6 +294,14 @@
 				if (r && r.success) { toast('Invoice marked paid', 'ok'); setTimeout(function () { window.location.reload(); }, 600); } else { toast('Could not update', 'err'); }
 			});
 		});
+		$d.on('click', '[data-pos-complete]', function () {
+			var $b = $(this);
+			if (!window.confirm('Mark this order as fulfilled (packed / delivered)?')) { return; }
+			$b.addClass('is-loading');
+			$.post(P.ajax, { action: 'nurax_pos_order', nonce: P.nonce, op: 'complete', id: $b.attr('data-pos-complete') }).done(function (r) {
+				if (r && r.success) { toast(r.data.message, 'ok'); $b.closest('li, tr').fadeOut(250); } else { toast('Could not update', 'err'); $b.removeClass('is-loading'); }
+			});
+		});
 		$d.on('input', '[data-nd-local]', function () {
 			var v = $.trim(this.value).toLowerCase();
 			$('.nd-table tr[data-nd-search]').each(function () { $(this).toggle(!v || $(this).attr('data-nd-search').indexOf(v) > -1); });

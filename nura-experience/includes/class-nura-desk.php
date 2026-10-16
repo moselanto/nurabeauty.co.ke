@@ -498,6 +498,10 @@ class NURAX_Desk {
 			}
 			$deps[] = 'wc-enhanced-select';
 		}
+		if ( self::P_SET === $page && function_exists( 'wp_enqueue_media' ) ) {
+			wp_enqueue_media(); // Logo picker on Settings.
+			$deps[] = 'media-editor';
+		}
 		wp_enqueue_script( 'nurax-desk', NURAX_URL . 'assets/js/nura-desk.js', $deps, NURAX_VERSION, true );
 		wp_localize_script( 'nurax-desk', 'NURAX_DESK', array(
 			'ajax'      => admin_url( 'admin-ajax.php' ),
@@ -627,7 +631,7 @@ class NURAX_Desk {
 		self::field_text( 'biz_pin', 'KRA PIN (optional)', $s['biz_pin'], 'Printed on invoices when filled in.' );
 		self::field_text( 'biz_phone', 'Phone on invoices', $s['biz_phone'], 'Leave empty to use the site phone number.' );
 		self::field_text( 'biz_email', 'E-mail on invoices', $s['biz_email'], '', 'email' );
-		self::field_text( 'invoice_logo', 'Logo on invoices (image link, optional)', $s['invoice_logo'], 'Leave empty to use your site logo (Appearance > Customize > Site Identity). Best: a PNG with transparent background, about 600 px wide.', 'url' );
+		self::logo_field( $s['invoice_logo'] );
 		echo '</div><label class="nd-field"><span class="nd-label">Footer note on invoices and receipts</span><textarea name="invoice_note" rows="2" placeholder="Thank you for choosing NURA Beauty. Unworn wigs can be returned within 7 days with this receipt.">' . esc_textarea( $s['invoice_note'] ) . '</textarea></label></section>';
 
 		echo '<section class="nd-card"><header class="nd-card__h"><h2>Marketing</h2></header><div class="nd-fields nd-fields--2">';
@@ -680,6 +684,31 @@ class NURAX_Desk {
 
 	private static function field_num( $k, $label, $v, $help ) {
 		echo '<label class="nd-field"><span class="nd-label">' . esc_html( $label ) . '</span><input type="number" min="0" step="1" name="' . esc_attr( $k ) . '" value="' . esc_attr( $v ) . '">' . ( $help ? '<small>' . esc_html( $help ) . '</small>' : '' ) . '</label>';
+	}
+
+	/** Invoice logo picker: upload or choose from the Media Library, live preview, remove. */
+	private static function logo_field( $v ) {
+		$site = '';
+		$id   = (int) get_theme_mod( 'custom_logo' );
+		if ( $id ) {
+			$site = (string) wp_get_attachment_image_url( $id, 'full' );
+		}
+		$show = $v ? $v : $site;
+		echo '<div class="nd-field nd-field--wide nd-logo" data-nd-logo data-site="' . esc_attr( $site ) . '">';
+		echo '<span class="nd-label">Logo on invoices and receipts</span>';
+		echo '<div class="nd-logo__row">';
+		echo '<div class="nd-logo__preview' . ( $show ? ' has-img' : '' ) . '" data-nd-logo-prev>';
+		echo '<img src="' . esc_url( $show ) . '" alt=""' . ( $show ? '' : ' hidden' ) . '>';
+		echo '<span class="nd-logo__empty"' . ( $show ? ' hidden' : '' ) . '><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>No logo yet</span>';
+		echo '</div>';
+		echo '<div class="nd-logo__side">';
+		echo '<p class="nd-logo__status" data-nd-logo-status>' . esc_html( $v ? 'Using your uploaded invoice logo.' : ( $site ? 'Using your site logo. Upload a different one for invoices if you like.' : 'Upload your logo to show it on every invoice and receipt.' ) ) . '</p>';
+		echo '<div class="nd-logo__btns"><button type="button" class="nd-btn nd-btn--primary" data-nd-logo-pick>' . ( $v ? 'Change logo' : 'Upload logo' ) . '</button>';
+		echo '<button type="button" class="nd-btn nd-btn--ghost" data-nd-logo-remove' . ( $v ? '' : ' hidden' ) . '>Remove</button></div>';
+		echo '<small>PNG or SVG with a transparent background works best, about 600 px wide. Click <strong>Save settings</strong> after choosing.</small>';
+		echo '</div></div>';
+		echo '<input type="hidden" name="invoice_logo" value="' . esc_attr( $v ) . '" data-nd-logo-input>';
+		echo '</div>';
 	}
 
 	private static function field_text( $k, $label, $v, $help, $type = 'text' ) {

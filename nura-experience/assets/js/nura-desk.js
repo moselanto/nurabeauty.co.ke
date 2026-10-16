@@ -542,4 +542,33 @@
 			$(this).text(left ? 'Send next (' + left + ' left)' : 'All sent');
 		});
 	}
+
+	/* ---------- Invoice logo picker (Settings) ---------- */
+	$('[data-nd-logo]').each(function () {
+		var $w = $(this), $in = $w.find('[data-nd-logo-input]'), $prev = $w.find('[data-nd-logo-prev]'),
+			$img = $prev.find('img'), $empty = $prev.find('.nd-logo__empty'), $st = $w.find('[data-nd-logo-status]'),
+			$pick = $w.find('[data-nd-logo-pick]'), $rm = $w.find('[data-nd-logo-remove]'), site = $w.data('site') || '', frame;
+		function show(url, own) {
+			if (url) { $img.attr('src', url).prop('hidden', false); $empty.prop('hidden', true); $prev.addClass('has-img'); }
+			else { $img.attr('src', '').prop('hidden', true); $empty.prop('hidden', false); $prev.removeClass('has-img'); }
+			$rm.prop('hidden', !own);
+			$pick.text(own ? 'Change logo' : 'Upload logo');
+			$st.text(own ? 'New logo selected - click Save settings to apply.' : (site ? 'Using your site logo. Click Save settings to apply.' : 'No logo - invoices will show the NURA wordmark.'));
+		}
+		$pick.on('click', function (e) {
+			e.preventDefault();
+			if (!window.wp || !wp.media) { var u = window.prompt('Paste the image link of your logo:', $in.val()); if (u) { $in.val(u); show(u, true); } return; }
+			if (!frame) {
+				frame = wp.media({ title: 'Choose your invoice logo', button: { text: 'Use this logo' }, library: { type: 'image' }, multiple: false });
+				frame.on('select', function () {
+					var a = frame.state().get('selection').first().toJSON();
+					var url = (a.sizes && a.sizes.large ? a.sizes.large.url : a.url);
+					if (a.mime === 'image/svg+xml' || !a.sizes) { url = a.url; }
+					$in.val(url); show(url, true);
+				});
+			}
+			frame.open();
+		});
+		$rm.on('click', function (e) { e.preventDefault(); $in.val(''); show(site, false); });
+	});
 })(jQuery);

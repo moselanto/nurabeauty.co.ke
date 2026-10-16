@@ -452,3 +452,14 @@ a.nd-kpi:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(14,14,14,.
 .nd-kit__cap header{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#faf7f2}
 .nd-kit__cap pre{margin:0;padding:10px;white-space:pre-wrap;font:12.5px/1.5 -apple-system,Segoe UI,Arial,sans-serif;max-height:260px;overflow:auto}
 @media (max-width:1100px){.nd-kit{grid-template-columns:1fr}.nd-kit__caps{grid-template-columns:1fr}.nd-bar{grid-template-columns:1fr}.nd-bar__v{text-align:left}}
+
+/* Invoice logo picker (1.65.1) */
+.nd-logo__row{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.nd-logo__preview{display:grid;place-items:center;width:240px;height:120px;padding:14px;border:1.5px dashed #d9cdb6;border-radius:14px;background:#fff repeating-conic-gradient(#f6f2ea 0 25%,#fff 0 50%) 0 0/16px 16px;box-sizing:border-box}
+.nd-logo__preview.has-img{border-style:solid;border-color:#e6dccb}
+.nd-logo__preview img{max-width:100%;max-height:92px;object-fit:contain}
+.nd-logo__empty{display:flex;flex-direction:column;align-items:center;gap:6px;color:#9a8f7e;font-size:12px}
+.nd-logo__side{flex:1;min-width:220px;display:flex;flex-direction:column;gap:8px}
+.nd-logo__status{margin:0;font-weight:600;color:#2b2622}
+.nd-logo__btns{display:flex;gap:8px;flex-wrap:wrap}
+.nd-logo [hidden]{display:none!important}

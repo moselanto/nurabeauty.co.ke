@@ -273,6 +273,7 @@ class NURAX_Desk_Mkt {
 			'appointment'=> 'Appointment clients',
 			'whatsapp'   => 'WhatsApp order customers',
 			'account'    => 'Registered on the website',
+			'newsletter' => 'Join The House subscribers',
 			'consent'    => 'Opted in to offers',
 			'tag'        => 'Has tag...',
 		);
@@ -307,6 +308,7 @@ class NURAX_Desk_Mkt {
 			case 'appointment':
 			case 'whatsapp':
 			case 'account':
+			case 'newsletter':
 				$w .= $wpdb->prepare( ' AND sources LIKE %s', '%' . $wpdb->esc_like( $seg ) . '%' );
 				break;
 			case 'consent':
@@ -667,6 +669,8 @@ class NURAX_Desk_Mkt {
 		NURAX_Desk::kpi( 'Audience', (string) $all, 'contacts in total', 'ink', NURAX_Desk::url( NURAX_Desk::P_MKT, array( 'view' => 'contacts' ) ) );
 		NURAX_Desk::kpi( 'Reachable by e-mail', (string) $em, 'subscribed' );
 		NURAX_Desk::kpi( 'Reachable on WhatsApp', (string) $wa, 'with a phone number' );
+		$ss = NURAX_Desk_Sub::stats();
+		NURAX_Desk::kpi( 'Join The House', (string) $ss['total'], '+' . $ss['week'] . ' this week, ' . $ss['wa'] . ' with WhatsApp', 'gold', NURAX_Desk::url( NURAX_Desk::P_MKT, array( 'view' => 'contacts', 'seg' => 'newsletter' ) ) );
 		NURAX_Desk::kpi( 'Average open rate', ( $st && $st->s ? round( $st->o / $st->s * 100 ) : 0 ) . '%', 'across e-mail campaigns', 'gold' );
 		echo '</div>';
 		if ( ! $all ) {

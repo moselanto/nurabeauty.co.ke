@@ -105,7 +105,11 @@ add_action( 'admin_post_nura_contact', 'nura_handle_contact' );
 function nura_handle_subscribe() {
 	$email = sanitize_email( wp_unslash( $_POST['nura_email'] ?? '' ) );
 	if ( is_email( $email ) ) {
-		wp_mail( nura_opt( 'nura_email' ), 'NURA - newsletter signup', $email );
+		if ( class_exists( 'NURAX_Desk_Sub' ) ) {
+			NURAX_Desk_Sub::save( array( 'email' => $email ) );
+		} else {
+			wp_mail( nura_opt( 'nura_email' ), 'NURA - newsletter signup', $email );
+		}
 	}
 	wp_safe_redirect( add_query_arg( 'nura_sub', '1', wp_get_referer() ?: home_url( '/' ) ) );
 	exit;

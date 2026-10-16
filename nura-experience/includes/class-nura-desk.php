@@ -71,6 +71,7 @@ class NURAX_Desk {
 		NURAX_Desk_POS::hooks();
 		NURAX_Desk_Mkt::hooks();
 		NURAX_Desk_Social::hooks();
+		NURAX_Desk_Sub::hooks();
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -227,6 +228,16 @@ class NURAX_Desk {
 			'mkt_soft_optin'=> 1,
 			'mkt_vip'       => 20000,
 			'mkt_winback'   => 60,
+			'sub_popup'     => 1,
+			'sub_delay'     => 12,
+			'sub_scroll'    => 40,
+			'sub_days'      => 21,
+			'sub_title'     => 'Join The House',
+			'sub_text'      => 'Be first to see new wigs, restocks and members-only offers. Calm, useful e-mails - unsubscribe anytime.',
+			'sub_perks'     => "First look at new drops and restocks\nMembers-only offers and Lipa Mdogo Mdogo deals\nWig care tips from our stylists",
+			'sub_coupon'    => 0,
+			'sub_min'       => 0,
+			'sub_image'     => '',
 		) + NURAX_Desk_Remind::template_defaults();
 	}
 
@@ -626,6 +637,17 @@ class NURAX_Desk {
 		self::field_check( 'mkt_soft_optin', 'Include past customers who have not unsubscribed', $s['mkt_soft_optin'], 'Untick to message only people who explicitly agreed to offers. Every e-mail has an unsubscribe link and every WhatsApp has "Reply STOP to opt out".' );
 		echo '</section>';
 
+		echo '<section class="nd-card" id="nd-house"><header class="nd-card__h"><h2>Join The House - subscribe pop-up</h2></header><div class="nd-fields nd-fields--2">';
+		self::field_check( 'sub_popup', 'Show the pop-up to new visitors', $s['sub_popup'], 'Once per visitor. Never on cart, checkout or account pages, never to staff, never over another pop-up.' );
+		self::field_num( 'sub_delay', 'Show after (seconds)', $s['sub_delay'], 'Or earlier if she scrolls far or (on computers) moves to leave.' );
+		self::field_num( 'sub_scroll', 'Or after scrolling (% of page)', $s['sub_scroll'], '' );
+		self::field_num( 'sub_days', 'If closed, ask again after (days)', $s['sub_days'], 'Subscribers never see it again.' );
+		self::field_text( 'sub_title', 'Headline', $s['sub_title'], '' );
+		self::field_text( 'sub_image', 'Side image URL (optional)', $s['sub_image'], 'A portrait photo of a model in a NURA wig works best. Leave empty for the black and gold design.', 'url' );
+		self::field_num( 'sub_coupon', 'Welcome code value (KSh, 0 = none)', $s['sub_coupon'], 'Creates a single-use code locked to her e-mail, valid 30 days, only for people who have never bought.' );
+		self::field_num( 'sub_min', 'Welcome code minimum spend (KSh)', $s['sub_min'], '' );
+		echo '</div><label class="nd-field"><span class="nd-label">Short text</span><textarea name="sub_text" rows="2">' . esc_textarea( $s['sub_text'] ) . '</textarea></label><label class="nd-field"><span class="nd-label">Benefits (one per line, up to 4)</span><textarea name="sub_perks" rows="4">' . esc_textarea( $s['sub_perks'] ) . '</textarea></label></section>';
+
 		echo '<section class="nd-card" id="nd-templates"><header class="nd-card__h"><h2>WhatsApp reminders</h2></header><div class="nd-fields">';
 		self::field_text( 'mpesa_details', 'M-Pesa payment details', $s['mpesa_details'], 'Shown in payment reminders, e.g. Till 123456 (NURA Beauty) or Paybill 222111, Account NURA' );
 		self::field_check( 'auto_wa', 'Send reminders automatically every morning', $s['auto_wa'], NURAX_Desk_Remind::api_ready() ? 'WhatsApp Business API is connected. Each customer gets at most one reminder every 2 days.' : 'Needs the WhatsApp Business API (Settings > NURA Experience > WhatsApp). Until then use the one-tap Send buttons on the Reminders page.' );
@@ -713,6 +735,16 @@ class NURAX_Desk {
 		}
 		$out['invoice_note']   = isset( $in['invoice_note'] ) ? mb_substr( sanitize_textarea_field( $in['invoice_note'] ), 0, 400 ) : '';
 		$out['mkt_soft_optin'] = empty( $in['mkt_soft_optin'] ) ? 0 : 1;
+		$out['sub_popup']  = empty( $in['sub_popup'] ) ? 0 : 1;
+		$out['sub_delay']  = isset( $in['sub_delay'] ) ? max( 4, absint( $in['sub_delay'] ) ) : 12;
+		$out['sub_scroll'] = isset( $in['sub_scroll'] ) ? min( 90, max( 10, absint( $in['sub_scroll'] ) ) ) : 40;
+		$out['sub_days']   = isset( $in['sub_days'] ) ? max( 1, absint( $in['sub_days'] ) ) : 21;
+		$out['sub_title']  = isset( $in['sub_title'] ) ? mb_substr( sanitize_text_field( $in['sub_title'] ), 0, 80 ) : 'Join The House';
+		$out['sub_text']   = isset( $in['sub_text'] ) ? mb_substr( sanitize_textarea_field( $in['sub_text'] ), 0, 300 ) : '';
+		$out['sub_perks']  = isset( $in['sub_perks'] ) ? mb_substr( sanitize_textarea_field( $in['sub_perks'] ), 0, 400 ) : '';
+		$out['sub_image']  = isset( $in['sub_image'] ) ? esc_url_raw( $in['sub_image'] ) : '';
+		$out['sub_coupon'] = isset( $in['sub_coupon'] ) ? absint( $in['sub_coupon'] ) : 0;
+		$out['sub_min']    = isset( $in['sub_min'] ) ? absint( $in['sub_min'] ) : 0;
 		$out['mkt_vip']        = isset( $in['mkt_vip'] ) ? absint( $in['mkt_vip'] ) : 20000;
 		$out['mkt_winback']    = isset( $in['mkt_winback'] ) ? max( 1, absint( $in['mkt_winback'] ) ) : 60;
 		foreach ( array_keys( NURAX_Desk_Remind::template_defaults() ) as $k ) {

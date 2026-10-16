@@ -21,6 +21,10 @@
   var qtyIn = form.elements.qty;
   var totalEl = modal.querySelector('[data-nwo-total]');
   var footTotalEl = modal.querySelector('[data-nwo-foottotal]');
+  var billSub = modal.querySelector('[data-nwo-bsub]');
+  var billShip = modal.querySelector('[data-nwo-bship]');
+  var shipBox = modal.querySelector('[data-nwo-ship]');
+  var ship = null, shipKey = '', shipTimer = null;
   var titleEl = modal.querySelector('[data-nwo-title]');
   var doneEl = modal.querySelector('[data-nwo-done]');
   var deliveryEl = modal.querySelector('[data-nwo-delivery]');
@@ -150,10 +154,10 @@
           (it.option ? '<em>' + esc(it.option) + '</em>' : '') + '<small>' + esc(it.qty) + ' x ' + esc(money(it.price)) + '</small></span>' +
           '<span class="nwo-sum__line">' + esc(money(it.line)) + '</span></li>';
       }).join('');
-      sumEl.innerHTML = '<p class="nwo-sum__cat">Your cart &middot; ' + state.items.length + (state.items.length === 1 ? ' item' : ' items') + '</p><ul class="nwo-sum__list">' + rows + '</ul><div class="nwo-sum__total"><span>Subtotal (delivery extra)</span><strong>' + esc(money(state.total)) + '</strong></div>';
+      sumEl.innerHTML = '<p class="nwo-sum__cat">Your cart &middot; ' + state.items.length + (state.items.length === 1 ? ' item' : ' items') + '</p><ul class="nwo-sum__list">' + rows + '</ul><div class="nwo-sum__total"><span>Subtotal</span><strong>' + esc(money(state.total)) + '</strong></div>';
       qtyRow.hidden = true;
       if (titleEl) { titleEl.textContent = 'Order your cart'; }
-      if (footTotalEl) { footTotalEl.textContent = money(state.total); }
+      refreshShip();
       return;
     }
     var p = state.product;
@@ -175,7 +179,62 @@
     var t = state.price * qty();
     var tt = state.price > 0 ? ((state.product.variable && !state.option) ? 'From ' + money(t) : money(t)) : 'To be confirmed';
     totalEl.textContent = tt;
-    if (footTotalEl) { footTotalEl.textContent = tt; }
+    refreshShip();
+  }
+
+  /* ---------- delivery fee + totals (v1.56.0) ---------- */
+  function subtotal() { return state ? (state.mode === 'cart' ? Number(state.total) || 0 : (state.price || 0) * qty()) : 0; }
+  function isFrom() { return !!(state && state.mode !== 'cart' && state.product && state.product.variable && !state.option); }
+  function shipKnown() { return !!(ship && !ship.loading && ship.known); }
+  function refreshShip() {
+    if (!state) { return; }
+    if (val('fulfil') === 'pickup') { shipKey = 'pickup'; ship = { known: true, fee: 0, pickup: true }; renderBill(); return; }
+    var c = val('location');
+    if (!c) { shipKey = ''; ship = null; renderBill(); return; }
+    var sub = Math.round(subtotal()), key = c + '|' + sub;
+    if (key === shipKey && ship && !ship.loading) { renderBill(); return; }
+    shipKey = key; ship = { loading: true }; renderBill();
+    clearTimeout(shipTimer);
+    shipTimer = setTimeout(function () {
+      var url = (C.ajax || '/wp-admin/admin-ajax.php') + '?action=nurax_wa_ship&county=' + encodeURIComponent(c) + '&subtotal=' + sub;
+      var fail = function () { if (shipKey === key) { ship = { known: false }; renderBill(); } };
+      if (!window.fetch) { fail(); return; }
+      fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (res) {
+        if (shipKey !== key) { return; }
+        ship = (res && res.success && res.data) ? res.data : { known: false };
+        ship.fee = Number(ship.fee) || 0; ship.free_over = Number(ship.free_over) || 0;
+        renderBill();
+      }).catch(fail);
+    }, 150);
+  }
+  function renderBill() {
+    if (!state) { return; }
+    var sub = subtotal(), from = isFrom() ? 'From ' : '', pick = val('fulfil') === 'pickup';
+    if (billSub) { billSub.textContent = sub > 0 ? from + money(sub) : 'To be confirmed'; }
+    var shipTxt;
+    if (pick) { shipTxt = 'Free (pick-up)'; }
+    else if (!ship) { shipTxt = 'Select your county'; }
+    else if (ship.loading) { shipTxt = 'Calculating...'; }
+    else { shipTxt = ship.known ? (ship.fee > 0 ? money(ship.fee) : 'Free') : 'Confirmed on WhatsApp'; }
+    if (billShip) {
+      billShip.textContent = shipTxt;
+      billShip.classList.toggle('is-free', pick || (shipKnown() && !(ship.fee > 0)));
+      billShip.classList.toggle('is-pending', !pick && !shipKnown());
+    }
+    if (footTotalEl) {
+      var known = pick || shipKnown();
+      footTotalEl.textContent = sub > 0 ? from + money(sub + (known && !pick ? ship.fee : 0)) + (known ? '' : ' + delivery') : 'To be confirmed';
+    }
+    if (shipBox) {
+      if (!pick && ship && !ship.loading && val('location')) {
+        var h = '<span class="nwo-ship__ico" aria-hidden="true"></span><span class="nwo-ship__txt"><strong>' + esc(val('location')) + ' County</strong>' +
+          (ship.known ? ' &middot; Delivery ' + esc(ship.fee > 0 ? money(ship.fee) : 'free') : ' &middot; Delivery fee confirmed on WhatsApp') +
+          (ship.eta ? '<small>' + esc(ship.eta) + '</small>' : '');
+        if (ship.known && ship.fee > 0 && ship.free_over > sub) { h += '<small class="nwo-ship__up">Add ' + esc(money(ship.free_over - sub)) + ' more for free delivery.</small>'; }
+        shipBox.innerHTML = h + '</span>';
+        shipBox.hidden = false;
+      } else { shipBox.hidden = true; }
+    }
   }
 
   /* ---------- variation helpers ---------- */
@@ -271,15 +330,18 @@
       state.items.forEach(function (it, i) {
         L.push((i + 1) + '. ' + it.name + (it.option ? ' - ' + it.option : '') + ' x ' + it.qty + ' = ' + money(it.line));
       });
-      L.push('*Subtotal (delivery extra):* ' + money(state.total));
+      L.push('*Subtotal:* ' + money(state.total));
     } else {
       var q = qty(), from = (state.product.variable && !state.option) ? 'From ' : '';
       L.push('*Product:* ' + state.product.name);
       if (state.option) { L.push('*Option:* ' + state.option); }
       if (state.price > 0) { L.push('*Price:* ' + from + money(state.price)); }
       L.push('*Qty:* ' + q);
-      if (state.price > 0) { L.push('*Subtotal (delivery extra):* ' + from + money(state.price * q)); }
+      if (state.price > 0) { L.push('*Subtotal:* ' + from + money(state.price * q)); }
     }
+    var pick = val('fulfil') === 'pickup', sk = pick || shipKnown(), sub = subtotal();
+    L.push('*Delivery fee:* ' + (pick ? 'Free (pick-up)' : (sk ? (ship.fee > 0 ? money(ship.fee) : 'Free') : 'To be confirmed')));
+    if (sub > 0 && sk) { L.push('*Total:* ' + (isFrom() ? 'From ' : '') + money(sub + (pick ? 0 : ship.fee))); }
     L.push(SEP);
     L.push('*Customer:* ' + val('name'));
     L.push('*Phone:* +' + normPhone(val('phone')));
@@ -294,7 +356,7 @@
     if (val('note')) { L.push('*Note:* ' + val('note')); }
     L.push(SEP);
     if (state.mode !== 'cart' && state.product.url) { L.push(state.product.url); }
-    L.push('Please confirm availability and delivery cost. Thank you.');
+    L.push(sk ? 'Please confirm availability. Thank you.' : 'Please confirm availability and the delivery fee. Thank you.');
     return L.join('\n');
   }
   function waUrl(text) { return 'https://wa.me/' + (C.wa || '') + '?text=' + encodeURIComponent(text); }
@@ -317,6 +379,7 @@
     fd.append('source', state.mode);
     fd.append('page', location.href);
     fd.append('items', JSON.stringify(orderItems()));
+    fd.append('ship', val('fulfil') === 'pickup' ? '0' : (shipKnown() ? String(Math.round(ship.fee)) : ''));
     ['name', 'phone', 'location', 'town', 'area', 'fulfil', 'payment', 'note', 'website'].forEach(function (k) { fd.append(k, val(k)); });
     var url = C.ajax || '/wp-admin/admin-ajax.php';
     try {
@@ -465,6 +528,7 @@
   optsEl.addEventListener('change', onOptionChange);
   form.addEventListener('change', function (e) {
     if (e.target.name === 'fulfil') { syncFulfil(); }
+    if (e.target.name === 'fulfil' || e.target.name === 'location') { refreshShip(); }
     if (e.target.name === 'location' && e.target.value) { setErr(e.target, ''); }
   });
   form.addEventListener('input', function (e) {

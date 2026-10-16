@@ -54,6 +54,9 @@ class NURAX_WA_Order {
 		add_action( 'wp_ajax_nopriv_nurax_wa_order', array( $this, 'ajax_lead' ) );
 		add_action( 'wp_ajax_nurax_wa_product', array( $this, 'ajax_product' ) );
 		add_action( 'wp_ajax_nopriv_nurax_wa_product', array( $this, 'ajax_product' ) );
+		add_action( 'wp_ajax_nurax_wa_ship', array( $this, 'ajax_ship' ) );
+		add_action( 'wp_ajax_nopriv_nurax_wa_ship', array( $this, 'ajax_ship' ) );
+		add_action( 'admin_post_nurax_wa_fees', array( $this, 'save_fees' ) );
 
 		// Admin list.
 		add_action( 'admin_menu', array( $this, 'menu' ), 55 );
@@ -222,6 +225,209 @@ class NURAX_WA_Order {
 	/* Front end                                                           */
 	/* ------------------------------------------------------------------ */
 
+	/* ------------------------------------------------------------------ */
+	/* Delivery fee quote (v1.56.0)                                        */
+	/* ------------------------------------------------------------------ */
+
+	const FEES = 'nurax_wo_fees';
+
+	/** Manual fallback fees (used only where WooCommerce zones give no price). */
+	private static function fee_table() {
+		$d = array( 'nairobi' => '', 'nearby' => '', 'rest' => '', 'free_over' => '' );
+		$o = get_option( self::FEES, array() );
+		return array_merge( $d, is_array( $o ) ? $o : array() );
+	}
+
+	private static function nearby_counties() {
+		return (array) apply_filters( 'nurax_wa_order_nearby_counties', array( 'Kiambu', 'Kajiado', 'Machakos', "Murang'a" ) );
+	}
+
+	private static function eta( $county ) {
+		if ( 'Nairobi' === $county ) {
+			return __( 'Same-day delivery when ordered before 5 PM', 'nura-experience' );
+		}
+		if ( in_array( $county, self::nearby_counties(), true ) ) {
+			return __( 'Next-day delivery', 'nura-experience' );
+		}
+		return __( 'Delivered in 1-3 business days', 'nura-experience' );
+	}
+
+	/** WooCommerce state code for a county name (KE01...KE47). */
+	private static function state_code( $county ) {
+		if ( ! function_exists( 'WC' ) || ! WC() || empty( WC()->countries ) ) {
+			return '';
+		}
+		$norm = static function ( $s ) {
+			return preg_replace( '/[^a-z]/', '', str_replace( 'county', '', strtolower( remove_accents( (string) $s ) ) ) );
+		};
+		$want = $norm( $county );
+		foreach ( (array) WC()->countries->get_states( 'KE' ) as $code => $name ) {
+			if ( $norm( $name ) === $want ) {
+				return (string) $code;
+			}
+		}
+		return '';
+	}
+
+	/** Price from the shop's own WooCommerce shipping zones, or null. */
+	private static function wc_quote( $county, $sub ) {
+		if ( ! class_exists( 'WC_Shipping_Zones' ) ) {
+			return null;
+		}
+		$package = array(
+			'contents'        => array(),
+			'contents_cost'   => $sub,
+			'cart_subtotal'   => $sub,
+			'applied_coupons' => array(),
+			'user'            => array( 'ID' => get_current_user_id() ),
+			'destination'     => array(
+				'country'   => 'KE',
+				'state'     => self::state_code( $county ),
+				'postcode'  => '',
+				'city'      => '',
+				'address'   => '',
+				'address_1' => '',
+				'address_2' => '',
+			),
+		);
+		$best = null;
+		$free = false;
+		$over = 0;
+		try {
+			$zone = WC_Shipping_Zones::get_zone_matching_package( $package );
+			if ( ! $zone ) {
+				return null;
+			}
+			foreach ( $zone->get_shipping_methods( true ) as $m ) {
+				$id = isset( $m->id ) ? (string) $m->id : '';
+				if ( in_array( $id, array( 'local_pickup', 'pickup_location' ), true ) ) {
+					continue;
+				}
+				if ( 'free_shipping' === $id ) {
+					$req = (string) $m->get_option( 'requires', '' );
+					$min = (float) $m->get_option( 'min_amount', 0 );
+					if ( '' === $req ) {
+						$free = true;
+					} elseif ( in_array( $req, array( 'min_amount', 'either' ), true ) ) {
+						if ( $sub >= $min ) {
+							$free = true;
+						} elseif ( $min > 0 ) {
+							$over = $over > 0 ? min( $over, $min ) : $min;
+						}
+					}
+					continue;
+				}
+				$cost = null;
+				$raw  = trim( (string) $m->get_option( 'cost', '' ) );
+				if ( '' !== $raw && is_numeric( $raw ) ) {
+					$cost = (float) $raw;
+				} elseif ( method_exists( $m, 'get_rates_for_package' ) ) {
+					foreach ( (array) $m->get_rates_for_package( $package ) as $r ) {
+						if ( is_object( $r ) && method_exists( $r, 'get_cost' ) ) {
+							$c    = (float) $r->get_cost();
+							$cost = null === $cost ? $c : min( $cost, $c );
+						}
+					}
+				}
+				if ( null !== $cost ) {
+					$best = null === $best ? $cost : min( $best, $cost );
+				}
+			}
+		} catch ( \Throwable $e ) {
+			return null;
+		}
+		if ( $free ) {
+			return array( 'known' => true, 'fee' => 0, 'free_over' => 0 );
+		}
+		if ( null === $best ) {
+			return null;
+		}
+		return array( 'known' => true, 'fee' => max( 0, $best ), 'free_over' => $over );
+	}
+
+	/** Price from the manual fallback table, or null. */
+	private static function table_quote( $county, $sub ) {
+		$t   = self::fee_table();
+		$key = 'Nairobi' === $county ? 'nairobi' : ( in_array( $county, self::nearby_counties(), true ) ? 'nearby' : 'rest' );
+		if ( '' === (string) $t[ $key ] ) {
+			return null;
+		}
+		$fee  = max( 0, (float) $t[ $key ] );
+		$over = '' === (string) $t['free_over'] ? 0 : max( 0, (float) $t['free_over'] );
+		if ( $over > 0 && $sub >= $over ) {
+			$fee = 0;
+		}
+		return array( 'known' => true, 'fee' => $fee, 'free_over' => $fee > 0 ? $over : 0 );
+	}
+
+	/** Delivery quote for a county + subtotal. */
+	public static function ship_quote( $county, $sub ) {
+		$q = self::wc_quote( $county, $sub );
+		if ( null === $q ) {
+			$q = self::table_quote( $county, $sub );
+		}
+		if ( null === $q ) {
+			$q = array( 'known' => false, 'fee' => 0, 'free_over' => 0 );
+		}
+		$q['county'] = $county;
+		$q['eta']    = self::eta( $county );
+		$q['free']   = $q['known'] && $q['fee'] <= 0;
+		return apply_filters( 'nurax_wa_order_shipping', $q, $county, $sub );
+	}
+
+	/** AJAX: delivery quote (public, read-only, no nonce so cached pages work). */
+	public function ajax_ship() {
+		$county = isset( $_GET['county'] ) ? sanitize_text_field( wp_unslash( $_GET['county'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$sub    = isset( $_GET['subtotal'] ) ? min( 10000000, max( 0, (float) $_GET['subtotal'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! in_array( $county, self::counties(), true ) ) {
+			wp_send_json_error( array( 'message' => 'county' ), 400 );
+		}
+		wp_send_json_success( self::ship_quote( $county, $sub ) );
+	}
+
+	/** Admin: fallback delivery fees box on the WhatsApp Orders page. */
+	private function fees_box() {
+		$t      = self::fee_table();
+		$fields = array(
+			'nairobi'   => __( 'Nairobi', 'nura-experience' ),
+			'nearby'    => implode( ', ', self::nearby_counties() ),
+			'rest'      => __( 'Rest of Kenya', 'nura-experience' ),
+			'free_over' => __( 'Free delivery on orders from', 'nura-experience' ),
+		);
+		$open = isset( $_GET['nwo_fees'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		echo '<details style="max-width:760px;margin:14px 0;padding:10px 16px;background:#fff;border:1px solid #dcdcde;border-radius:6px"' . ( $open ? ' open' : '' ) . '>';
+		echo '<summary style="cursor:pointer;font-weight:600">' . esc_html__( 'Delivery fees shown in the order pop-up', 'nura-experience' ) . '</summary>';
+		if ( $open ) {
+			echo '<p style="color:#008a20">' . esc_html__( 'Delivery fees saved.', 'nura-experience' ) . '</p>';
+		}
+		echo '<p class="description">' . esc_html__( 'The pop-up uses your WooCommerce shipping zones first (WooCommerce > Settings > Shipping). These amounts are only used for counties your zones do not price. Leave a box empty to show "Confirmed on WhatsApp" instead.', 'nura-experience' ) . '</p>';
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="nurax_wa_fees">';
+		wp_nonce_field( 'nurax_wa_fees' );
+		echo '<table class="form-table" role="presentation">';
+		foreach ( $fields as $k => $label ) {
+			echo '<tr><th scope="row"><label for="nwo-fee-' . esc_attr( $k ) . '">' . esc_html( $label ) . '</label></th><td>KSh <input type="number" min="0" step="1" class="regular-text" style="max-width:140px" id="nwo-fee-' . esc_attr( $k ) . '" name="fees[' . esc_attr( $k ) . ']" value="' . esc_attr( $t[ $k ] ) . '"></td></tr>';
+		}
+		echo '</table>';
+		submit_button( __( 'Save delivery fees', 'nura-experience' ), 'secondary' );
+		echo '</form></details>';
+	}
+
+	public function save_fees() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Sorry, you are not allowed to do that.', 'nura-experience' ) );
+		}
+		check_admin_referer( 'nurax_wa_fees' );
+		$in  = isset( $_POST['fees'] ) && is_array( $_POST['fees'] ) ? wp_unslash( $_POST['fees'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$out = array();
+		foreach ( array( 'nairobi', 'nearby', 'rest', 'free_over' ) as $k ) {
+			$v         = isset( $in[ $k ] ) ? trim( (string) $in[ $k ] ) : '';
+			$out[ $k ] = '' === $v ? '' : (string) max( 0, (int) $v );
+		}
+		update_option( self::FEES, $out, false );
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::PAGE . '&nwo_fees=1' ) );
+		exit;
+	}
+
 	public function assets() {
 		if ( is_admin() ) {
 			return;
@@ -374,10 +580,11 @@ class NURAX_WA_Order {
 									<input type="number" name="qty" class="nwo-qty__input" value="1" min="1" max="20" inputmode="numeric" aria-label="<?php esc_attr_e( 'Quantity', 'nura-experience' ); ?>">
 									<button type="button" class="nwo-qty__btn" data-nwo-qty="1" aria-label="<?php esc_attr_e( 'Increase quantity', 'nura-experience' ); ?>">+</button>
 								</div>
-								<div class="nwo-total"><span><?php esc_html_e( 'Subtotal (delivery extra)', 'nura-experience' ); ?></span><strong data-nwo-total aria-live="polite"></strong></div>
+								<div class="nwo-total"><span><?php esc_html_e( 'Subtotal', 'nura-experience' ); ?></span><strong data-nwo-total aria-live="polite"></strong></div>
 							</div>
 						</div>
 
+						<h3 class="nwo-sec"><span aria-hidden="true">1</span><?php esc_html_e( 'Contact details', 'nura-experience' ); ?></h3>
 						<div class="nwo-f">
 							<label for="nwo-name"><?php esc_html_e( 'Full name', 'nura-experience' ); ?> <span class="nwo-req" aria-hidden="true">*</span></label>
 							<input id="nwo-name" name="name" type="text" autocomplete="name" maxlength="80" placeholder="<?php esc_attr_e( 'e.g. Jane Wanjiku', 'nura-experience' ); ?>" required aria-describedby="nwo-err-name">
@@ -393,6 +600,7 @@ class NURAX_WA_Order {
 							<p class="nwo-err" id="nwo-err-phone"></p>
 						</div>
 
+						<h3 class="nwo-sec"><span aria-hidden="true">2</span><?php esc_html_e( 'Delivery', 'nura-experience' ); ?></h3>
 						<div class="nwo-row2">
 							<div class="nwo-f">
 								<label for="nwo-location"><?php esc_html_e( 'County', 'nura-experience' ); ?> <span class="nwo-req" aria-hidden="true">*</span></label>
@@ -428,7 +636,9 @@ class NURAX_WA_Order {
 							</div>
 						</div>
 						<p class="nwo-pickup" data-nwo-pickup hidden><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span><?php echo esc_html( self::pickup_text() ); ?></span></p>
+						<div class="nwo-ship" data-nwo-ship aria-live="polite" hidden></div>
 
+						<h3 class="nwo-sec"><span aria-hidden="true">3</span><?php esc_html_e( 'Payment', 'nura-experience' ); ?></h3>
 						<fieldset class="nwo-f nwo-choice">
 							<legend><?php esc_html_e( 'How will you pay?', 'nura-experience' ); ?></legend>
 							<div class="nwo-cards">
@@ -457,8 +667,12 @@ class NURAX_WA_Order {
 
 					<div class="nwo-foot">
 						<p class="nwo-formerr" data-nwo-formerr role="alert" hidden></p>
+						<dl class="nwo-bill">
+							<div><dt><?php esc_html_e( 'Subtotal', 'nura-experience' ); ?></dt><dd data-nwo-bsub></dd></div>
+							<div><dt><?php esc_html_e( 'Delivery', 'nura-experience' ); ?></dt><dd data-nwo-bship><?php esc_html_e( 'Select your county', 'nura-experience' ); ?></dd></div>
+						</dl>
 						<div class="nwo-foot__row">
-							<div class="nwo-foot__total"><span><?php esc_html_e( 'Subtotal - delivery fee confirmed on WhatsApp', 'nura-experience' ); ?></span><strong data-nwo-foottotal></strong></div>
+							<div class="nwo-foot__total"><span><?php esc_html_e( 'Total', 'nura-experience' ); ?></span><strong data-nwo-foottotal aria-live="polite"></strong></div>
 							<button type="submit" class="nwo-submit"><?php echo self::wa_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Send order', 'nura-experience' ); ?></span></button>
 						</div>
 						<p class="nwo-small"><?php esc_html_e( 'WhatsApp opens with your order ready. Just tap send.', 'nura-experience' ); ?></p>
@@ -649,6 +863,7 @@ class NURAX_WA_Order {
 			'county'   => $location,
 			'town'     => $town,
 			'payment'  => $payment,
+			'ship'     => isset( $in['ship'] ) && '' !== (string) $in['ship'] ? (int) $in['ship'] : '',
 			'note'     => self::cut( sanitize_textarea_field( $note ), 300 ),
 			'source'   => $source,
 			'page'     => $page,
@@ -749,6 +964,7 @@ class NURAX_WA_Order {
 		<div class="wrap">
 			<h1><?php esc_html_e( 'WhatsApp Orders', 'nura-experience' ); ?></h1>
 			<p class="description"><?php echo esc_html( sprintf( /* translators: %s: phone number */ __( 'Every order sent from the "Order on WhatsApp" pop-up is saved here, even if the customer never presses send in WhatsApp. Orders go to WhatsApp +%s (Settings > NURA Experience > WhatsApp link or number).', 'nura-experience' ), self::whatsapp_number() ) ); ?></p>
+			<?php $this->fees_box(); ?>
 			<ul class="subsubsub">
 				<li><a href="<?php echo esc_url( $base ); ?>"<?php echo '' === $filter ? ' class="current"' : ''; ?>><?php esc_html_e( 'All', 'nura-experience' ); ?></a> |</li>
 				<?php $last = array_key_last( $statuses ); ?>

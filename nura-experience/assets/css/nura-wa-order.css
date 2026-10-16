@@ -205,3 +205,24 @@ html.nwo-lock,html.nwo-lock body{overflow:hidden!important}
 /* v1.55.4: on phones the long subtotal label pushed the Send button off-screen, so stack them. */
 @media (max-width:640px){.nwo-foot__row{flex-direction:column;align-items:stretch;gap:8px}.nwo-foot__total{flex:none;flex-direction:row;justify-content:space-between;align-items:center;gap:10px;min-width:0}.nwo-foot__total span{white-space:normal;line-height:1.3;font-size:.64rem;letter-spacing:.08em}.nwo-foot__row .nwo-submit{flex:none;width:100%}}
 @media (prefers-reduced-motion:reduce){.nwo__panel,.nwo__overlay,.nwo__close{transition:none}}
+
+/* v1.56.0: sectioned, international-style order form + live delivery fee */
+.nwo-sec{display:flex;align-items:center;gap:10px;margin:22px 0 14px;padding-top:18px;border-top:1px solid #efeae2;font-family:var(--nwo-ui);font-size:.74rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--nwo-ink)}
+.nwo-card+.nwo-sec{margin-top:4px;padding-top:0;border-top:0}
+.nwo-sec span{display:inline-flex;align-items:center;justify-content:center;flex:none;width:24px;height:24px;border-radius:50%;background:var(--nwo-ink);color:var(--nwo-gold-soft);font-size:.72rem;letter-spacing:0}
+.nwo .nwo-f input,.nwo .nwo-f select,.nwo .nwo-f textarea{transition:border-color .15s,box-shadow .15s}
+.nwo .nwo-f input:focus,.nwo .nwo-f select:focus,.nwo .nwo-f textarea:focus{border-color:var(--nwo-gold);box-shadow:0 0 0 3px rgba(201,162,75,.18);outline:none}
+.nwo-ship{display:flex;gap:10px;align-items:flex-start;margin:0 0 18px;padding:12px 14px;border:1px solid #cfe9d8;border-radius:12px;background:var(--nwo-gbg);color:#1d5e36;font-size:.86rem;line-height:1.45}
+.nwo-ship[hidden]{display:none!important}
+.nwo-ship__ico{flex:none;width:20px;height:20px;margin-top:1px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 7h11v9H3zM14 10h4l3 3v3h-7z' fill='none' stroke='%231faa53' stroke-width='1.8' stroke-linejoin='round'/%3E%3Ccircle cx='7' cy='17.5' r='1.7' fill='none' stroke='%231faa53' stroke-width='1.8'/%3E%3Ccircle cx='17' cy='17.5' r='1.7' fill='none' stroke='%231faa53' stroke-width='1.8'/%3E%3C/svg%3E") center/20px no-repeat}
+.nwo-ship__txt{display:grid;gap:2px}
+.nwo-ship__txt small{font-size:.78rem;color:#4b6b57}
+.nwo-ship__txt .nwo-ship__up{color:#a07a24;font-weight:600}
+.nwo-bill{margin:0 0 10px;padding:0 0 10px;border-bottom:1px dashed #e6dcc4}
+.nwo-bill>div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:2px 0;font-size:.86rem}
+.nwo-bill dt{margin:0;color:var(--nwo-mut);font-weight:400}
+.nwo-bill dd{margin:0;font-weight:600;color:var(--nwo-ink);text-align:right;font-variant-numeric:tabular-nums}
+.nwo-bill dd.is-free{color:var(--nwo-g)}
+.nwo-bill dd.is-pending{color:var(--nwo-mut);font-weight:500;font-style:italic}
+.nwo-foot__total strong{font-variant-numeric:tabular-nums}
+@media (max-width:640px){.nwo-bill{margin-bottom:8px;padding-bottom:8px}.nwo-bill>div{font-size:.82rem}}

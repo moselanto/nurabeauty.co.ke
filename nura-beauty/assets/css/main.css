@@ -1486,3 +1486,25 @@ html body .nura-logo-wrap img,html body .nura-logo-wrap .custom-logo{display:blo
   html body .nura-nav>ul>li:nth-last-child(-n+2) .sub-menu{left:auto;right:0}
   html body .nura-help__panel{right:0;left:auto}
 }
+
+
+/* ===== v1.59.2 Dropdown menus (About, Shop): reliable on mouse, touch and keyboard =====
+ * The primary nav must never clip its dropdowns (no overflow on .nura-nav). Small dropdowns
+ * (About) anchor to their menu item; the wide Shop panel anchors to the header. */
+@media(min-width:861px){
+  html body .nura-nav,html body .nura-nav>ul,html body .nura-nav .nura-mega{overflow:visible!important}
+  html body .nura-nav .nura-mega>li:not(.has-mega--wide),html body .nura-nav>ul>li{position:relative}
+  html body .nura-mega__panel{z-index:80}
+  /* Opened by tap or keyboard (JS adds .is-open). */
+  html body .nura-mega__item.is-open>.nura-mega__panel,
+  html body .nura-nav>ul>li.is-open>.sub-menu{opacity:1;visibility:visible;transform:translateY(0);transition:opacity .18s ease,transform .18s ease,visibility 0s}
+  html body .nura-nav .nura-mega>li.is-open>a[aria-haspopup]::before{transform:rotate(225deg);margin-top:3px}
+  html body .nura-nav .nura-mega>li.is-open>a{color:var(--nura-gold)}
+  /* Invisible bridge so the dropdown stays open while the mouse moves down into it. */
+  html body .nura-mega__panel--simple::after,html body .nura-nav .sub-menu::after{content:"";position:absolute;left:0;right:0;top:-14px;height:14px}
+  /* Simple dropdown: tidy, readable, never off-screen. */
+  html body .nura-mega__panel--simple{left:-1rem;right:auto;min-width:230px;max-width:min(320px,calc(100vw - 32px));border-radius:0 0 12px 12px}
+  html body .nura-nav .nura-mega>li:nth-last-child(-n+2)>.nura-mega__panel--simple{left:auto;right:-1rem}
+  html body .nura-mega__panel--simple a{min-height:40px;display:flex;align-items:center}
+  html body .nura-mega__panel--simple a:focus-visible{outline:2px solid var(--nura-gold);outline-offset:-2px;background:#faf7f2}
+}

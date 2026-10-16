@@ -188,6 +188,7 @@ add_action( 'woocommerce_after_shop_loop', function () {
 
 add_action( 'wp_enqueue_scripts', function () {
 	wp_enqueue_script( 'nura-growth', NURA_URI . 'assets/js/nura-growth.js', array(), NURA_VERSION, true );
+	wp_enqueue_script( 'nura-menu', NURA_URI . 'assets/js/nura-menu.js', array(), NURA_VERSION, true );
 	wp_localize_script( 'nura-growth', 'nuraGrowth', array(
 		'sameDay'  => __( 'Order within %s for same-day delivery in Nairobi.', 'nura-beauty' ),
 		'nextDay'  => __( 'Order now for next-day delivery in Nairobi. Countrywide in 1-3 days.', 'nura-beauty' ),

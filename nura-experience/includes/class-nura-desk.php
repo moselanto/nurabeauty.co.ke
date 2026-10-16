@@ -506,7 +506,7 @@ class NURAX_Desk {
 
 	public function assets( $hook ) {
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! in_array( $page, array( self::MENU, self::P_POS, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_MKT, self::P_SOC, self::P_SET ), true ) ) {
+		if ( ! in_array( $page, array( self::MENU, self::P_POS, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_MKT, self::P_SOC, self::P_SET, 'nurax-team' ), true ) ) {
 			return;
 		}
 		wp_enqueue_style( 'nurax-desk', NURAX_URL . 'assets/css/nura-desk.css', array(), NURAX_VERSION );

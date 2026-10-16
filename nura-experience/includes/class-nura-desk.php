@@ -443,6 +443,16 @@ class NURAX_Desk {
 			self::P_SOC   => 'Social',
 			self::P_SET   => 'Settings',
 		);
+		if ( current_user_can( 'manage_options' ) ) {
+			$tabs['nurax-team'] = 'Team';
+		} else {
+			unset( $tabs[ self::P_SET ] );
+			foreach ( array( 'marketing' => self::P_MKT, 'social' => self::P_SOC, 'reminders' => self::P_REM ) as $perm => $slug ) {
+				if ( class_exists( 'NURAX_Staff' ) && ! NURAX_Staff::can( $perm ) ) {
+					unset( $tabs[ $slug ] );
+				}
+			}
+		}
 		echo '<div class="wrap nd-wrap">';
 		echo '<div class="nd-top"><div class="nd-brand"><span class="nd-logo">NURA</span><span class="nd-brand__sub">Desk</span></div><nav class="nd-tabs" aria-label="NURA Desk">';
 		$rem = NURAX_Desk_Remind::pending_count();
@@ -699,6 +709,7 @@ class NURAX_Desk {
 		echo '</div></section>';
 
 		echo '<p><button type="submit" class="nd-btn nd-btn--primary">Save settings</button></p></form>';
+		echo '<section class="nd-card nd-sec"><header class="nd-card__h"><h2>Team &amp; permissions</h2></header><p>Choose what shop managers can see and do, the highest discount they can give, and see each person\'s sales and activity.</p>' . self::btn( self::url( 'nurax-team', array( 'tab' => 'perms' ) ), 'Open team permissions', 'nd-btn--primary' ) . ' ' . self::btn( self::url( 'nurax-team' ), 'Team performance', 'nd-btn--ghost' ) . '</section>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		NURAX_Vault::card();
 		echo '<p><button type="submit" form="nd-settings-form" class="nd-btn nd-btn--primary">Save settings</button></p>';
 		self::footer();

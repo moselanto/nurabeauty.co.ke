@@ -262,3 +262,276 @@
 		});
 	});
 })(jQuery);
+
+/* NURA Desk 1.60.0 - Point of sale + marketing. */
+(function ($) {
+	'use strict';
+	var $d = $(document);
+	function ksh(n) { return 'KSh ' + Math.round(Number(n) || 0).toLocaleString('en-KE'); }
+	function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+	function toast(msg, tone) {
+		var $w = $('.nd-toasts'); if (!$w.length) { $w = $('<div class="nd-toasts"></div>').appendTo('body'); }
+		var $t = $('<div class="nd-toast"></div>').addClass(tone ? 'nd-toast--' + tone : '').text(msg).appendTo($w);
+		setTimeout(function () { $t.addClass('is-in'); }, 10);
+		setTimeout(function () { $t.removeClass('is-in'); setTimeout(function () { $t.remove(); }, 300); }, 3500);
+	}
+
+	/* ================= Sales list actions (also used after a sale) ================= */
+	var P = window.NURAX_POS || null;
+	if (P) {
+		$d.on('click', '[data-pos-email]', function () {
+			var $b = $(this), to = window.prompt('Send to e-mail:', '');
+			if (to === null) { return; }
+			$b.addClass('is-loading');
+			$.post(P.ajax, { action: 'nurax_pos_order', nonce: P.nonce, op: 'email', id: $b.attr('data-pos-email'), to: to }).done(function (r) {
+				toast(r && r.data && r.data.message ? r.data.message : (r && r.success ? 'Sent' : 'Not sent'), r && r.success ? 'ok' : 'err');
+			}).always(function () { $b.removeClass('is-loading'); });
+		});
+		$d.on('click', '[data-pos-paid]', function () {
+			var $b = $(this), ref = window.prompt('Mark as paid. M-Pesa code (optional):', '');
+			if (ref === null) { return; }
+			$.post(P.ajax, { action: 'nurax_pos_order', nonce: P.nonce, op: 'paid', id: $b.attr('data-pos-paid'), method: 'mpesa', ref: ref }).done(function (r) {
+				if (r && r.success) { toast('Invoice marked paid', 'ok'); setTimeout(function () { window.location.reload(); }, 600); } else { toast('Could not update', 'err'); }
+			});
+		});
+		$d.on('input', '[data-nd-local]', function () {
+			var v = $.trim(this.value).toLowerCase();
+			$('.nd-table tr[data-nd-search]').each(function () { $(this).toggle(!v || $(this).attr('data-nd-search').indexOf(v) > -1); });
+		});
+	}
+
+	/* ================= Register ================= */
+	var $pos = $('[data-pos]');
+	if ($pos.length && P) {
+		var cart = [], method = 'mpesa', waOrder = 0, last = null, custTimer, qTimer, cat = 0;
+		var KEY = 'nurax_pos_cart';
+		function save() { try { sessionStorage.setItem(KEY, JSON.stringify({ cart: cart, cust: cust(), waOrder: waOrder })); } catch (e) {} }
+		function cust() { var c = {}; $('[data-pos-c]').each(function () { var k = $(this).attr('data-pos-c'); c[k] = this.type === 'checkbox' ? this.checked : $.trim(this.value); }); return c; }
+		function setCust(c) { c = c || {}; $('[data-pos-c=name]').val(c.name || ''); $('[data-pos-c=phone]').val(c.phone ? (String(c.phone).indexOf('+') === 0 ? c.phone : '+' + c.phone) : ''); $('[data-pos-c=email]').val(c.email || ''); $('[data-pos-c=consent]').prop('checked', !!c.consent); $pos.data('uid', c.user_id || 0); }
+
+		function load(q) {
+			var $g = $('[data-pos-grid]').addClass('is-busy');
+			$.get(P.ajax, { action: 'nurax_pos_search', nonce: P.nonce, q: q || '', cat: cat }).done(function (r) {
+				var list = r && r.success ? r.data : [];
+				if (!list.length) { $g.html('<p class="pos__hint">No products found. Try another word, or add a custom item.</p>'); return; }
+				$g.html(list.map(function (p) {
+					var low = p.stock !== null && p.stock <= 2;
+					return '<button type="button" class="pos-tile' + (p.in ? '' : ' is-out') + '" data-p=\'' + esc(JSON.stringify(p)) + '\'>' +
+						'<span class="pos-tile__img" style="background-image:url(' + esc(p.img) + ')"></span>' +
+						'<span class="pos-tile__name">' + esc(p.name) + '</span>' + (p.opt ? '<span class="pos-tile__opt">' + esc(p.opt) + '</span>' : '') +
+						'<span class="pos-tile__row"><b>' + ksh(p.price) + '</b>' + (p.stock !== null ? '<em class="' + (low ? 'is-low' : '') + '">' + (p.in ? p.stock + ' left' : 'Out of stock') + '</em>' : (p.in ? '' : '<em class="is-low">Out of stock</em>')) + '</span></button>';
+				}).join(''));
+			}).always(function () { $g.removeClass('is-busy'); });
+		}
+		function add(p) {
+			var f = null;
+			cart.forEach(function (l) { if (!l.custom && l.id === p.id) { f = l; } });
+			if (f) { f.qty++; } else { cart.push({ id: p.id, name: p.name, opt: p.opt || '', price: Number(p.price) || 0, qty: Number(p.qty) || 1, img: p.img || '', custom: !!p.custom }); }
+			draw(); save();
+		}
+		function totals() {
+			var sub = 0; cart.forEach(function (l) { sub += l.price * l.qty; });
+			var dv = Number($('[data-pos-disc]').val()) || 0, pct = $('[data-pos-disctype]').val() === 'pct';
+			var disc = Math.min(sub, pct ? Math.round(sub * Math.min(100, dv) / 100) : dv);
+			var del = Math.max(0, Number($('[data-pos-del]').val()) || 0);
+			return { sub: sub, disc: disc, del: del, total: Math.max(0, sub - disc + del) };
+		}
+		function draw() {
+			var $l = $('[data-pos-lines]');
+			if (!cart.length) { $l.html('<li class="pos__empty">Tap a product to add it.</li>'); }
+			else {
+				$l.html(cart.map(function (l, i) {
+					return '<li class="pos-line"><span class="pos-line__main"><strong>' + esc(l.name) + '</strong>' + (l.opt ? '<small>' + esc(l.opt) + '</small>' : '') +
+						'<label class="pos-line__price">@ <input type="number" min="0" step="1" value="' + l.price + '" data-i="' + i + '" data-f="price"></label></span>' +
+						'<span class="pos-line__qty"><button type="button" data-i="' + i + '" data-d="-1" aria-label="Less">&minus;</button><input type="number" min="1" value="' + l.qty + '" data-i="' + i + '" data-f="qty"><button type="button" data-i="' + i + '" data-d="1" aria-label="More">+</button></span>' +
+						'<span class="pos-line__tot">' + ksh(l.price * l.qty) + '</span><button type="button" class="pos-line__x" data-x="' + i + '" aria-label="Remove">&times;</button></li>';
+				}).join(''));
+			}
+			var t = totals();
+			$('[data-pos-sub]').text(ksh(t.sub)); $('[data-pos-dsc]').text('- ' + ksh(t.disc)); $('[data-pos-dl]').text(ksh(t.del)); $('[data-pos-total]').text(ksh(t.total));
+			$('[data-pos-charge]').prop('disabled', !cart.length).text('Charge ' + ksh(t.total) + ' - ' + P.methods[method]);
+			$('[data-pos-invoice]').prop('disabled', !cart.length);
+			change();
+		}
+		function change() {
+			var t = totals(), cash = method === 'cash', v = Number($('[data-pos-tender]').val()) || 0;
+			$('[data-pos-tender]').prop('hidden', !cash); $('[data-pos-ref]').prop('hidden', cash);
+			var $c = $('[data-pos-change]');
+			if (cash && v > 0) { $c.prop('hidden', false).toggleClass('is-short', v < t.total).text(v < t.total ? 'Short by ' + ksh(t.total - v) : 'Change to give: ' + ksh(v - t.total)); } else { $c.prop('hidden', true); }
+		}
+		function reset() {
+			cart = []; waOrder = 0; setCust({}); $('[data-pos-disc]').val(0); $('[data-pos-del]').val(0); $('[data-pos-delto], [data-pos-note], [data-pos-ref], [data-pos-tender], [data-pos-cq]').val('');
+			try { sessionStorage.removeItem(KEY); } catch (e) {}
+			draw();
+		}
+		function submit(paid) {
+			var t = totals(), c = cust();
+			if (!cart.length) { return; }
+			if (paid && method === 'cash' && (Number($('[data-pos-tender]').val()) || 0) > 0 && (Number($('[data-pos-tender]').val()) || 0) < t.total) { toast('Cash received is less than the total.', 'err'); return; }
+			if (!paid && !c.name && !c.phone) { toast('Add the customer name or phone for an invoice.', 'err'); return; }
+			var sale = {
+				items: cart.map(function (l) { return { id: l.custom ? 0 : l.id, qty: l.qty, price: l.price, name: l.name, custom: l.custom ? 1 : 0 }; }),
+				customer: { name: c.name, phone: c.phone, email: c.email, consent: c.consent, user_id: $pos.data('uid') || 0 },
+				discount: Number($('[data-pos-disc]').val()) || 0, discount_pct: $('[data-pos-disctype]').val() === 'pct' ? 1 : 0,
+				delivery: t.del, delivery_to: $.trim($('[data-pos-delto]').val()), note: $.trim($('[data-pos-note]').val()),
+				channel: $('[data-pos-channel]').val(), wa_order: waOrder,
+				payment: { method: method, paid: paid ? 1 : 0, ref: $.trim($('[data-pos-ref]').val()), tendered: Number($('[data-pos-tender]').val()) || 0 }
+			};
+			var $b = $(paid ? '[data-pos-charge]' : '[data-pos-invoice]').prop('disabled', true).addClass('is-loading');
+			$.post(P.ajax, { action: 'nurax_pos_sale', nonce: P.nonce, sale: JSON.stringify(sale) }).done(function (r) {
+				if (!r || !r.success) { toast((r && r.data && r.data.message) || 'Could not save the sale.', 'err'); return; }
+				last = r.data;
+				var $m = $('[data-pos-done]');
+				$m.find('[data-pos-done-title]').text((r.data.paid ? 'Sale complete' : 'Invoice saved') + ' - #' + r.data.number);
+				$m.find('[data-pos-done-amt]').text(ksh(r.data.total) + (r.data.paid ? ' paid' : ' due'));
+				$m.find('[data-pos-done-chg]').prop('hidden', !(r.data.change > 0)).text('Change: ' + ksh(r.data.change));
+				$m.find('[data-pos-done-receipt]').attr('href', r.data.receipt);
+				$m.find('[data-pos-done-invoice]').attr('href', r.data.invoice);
+				$m.find('[data-pos-done-wa]').attr('href', r.data.wa || '#').toggle(!!r.data.wa);
+				$m.prop('hidden', false).addClass('is-open');
+				reset();
+			}).fail(function () { toast('Network problem - the sale was not saved. Please try again.', 'err'); })
+			.always(function () { $b.removeClass('is-loading'); draw(); });
+		}
+
+		/* Events */
+		$d.on('click', '.pos-tile', function () { var p = JSON.parse($(this).attr('data-p')); if (!p.in && !window.confirm('This item shows as out of stock. Sell it anyway?')) { return; } add(p); $(this).addClass('is-added'); var b = this; setTimeout(function () { $(b).removeClass('is-added'); }, 400); });
+		$d.on('input', '[data-pos-q]', function () { var v = this.value; clearTimeout(qTimer); qTimer = setTimeout(function () { load(v); }, 250); });
+		$d.on('keydown', '[data-pos-q]', function (e) { if (e.key === 'Enter') { var $f = $('.pos-tile').first(); if ($f.length) { e.preventDefault(); $f.trigger('click'); this.select(); } } });
+		$d.on('click', '[data-pos-cats] button', function () { $('[data-pos-cats] button').removeClass('is-on'); $(this).addClass('is-on'); cat = Number($(this).attr('data-cat')) || 0; $('[data-pos-q]').val(''); load(''); });
+		$d.on('click', '.pos-line__qty button', function () { var l = cart[$(this).attr('data-i')]; l.qty = Math.max(1, l.qty + Number($(this).attr('data-d'))); draw(); save(); });
+		$d.on('change', '.pos-line input', function () { var l = cart[$(this).attr('data-i')], f = $(this).attr('data-f'); l[f] = f === 'qty' ? Math.max(1, parseInt(this.value, 10) || 1) : Math.max(0, Number(this.value) || 0); draw(); save(); });
+		$d.on('click', '[data-x]', function () { cart.splice(Number($(this).attr('data-x')), 1); draw(); save(); });
+		$d.on('input change', '[data-pos-disc], [data-pos-disctype], [data-pos-del]', draw);
+		$d.on('input', '[data-pos-tender]', change);
+		$d.on('click', '[data-pos-methods] button', function () { $('[data-pos-methods] button').removeClass('is-on'); $(this).addClass('is-on'); method = $(this).attr('data-m'); draw(); });
+		$d.on('click', '[data-pos-clear]', function () { if (!cart.length || window.confirm('Clear this sale?')) { reset(); } });
+		$d.on('click', '[data-pos-charge]', function () { submit(true); });
+		$d.on('click', '[data-pos-invoice]', function () { submit(false); });
+		$d.on('click', '[data-pos-new]', function () { $('[data-pos-done]').removeClass('is-open').prop('hidden', true); $('[data-pos-q]').trigger('focus'); });
+		$d.on('click', '[data-pos-done-email]', function () {
+			if (!last) { return; }
+			var to = window.prompt('E-mail the ' + (last.paid ? 'receipt' : 'invoice') + ' to:', last.email || '');
+			if (!to) { return; }
+			$.post(P.ajax, { action: 'nurax_pos_order', nonce: P.nonce, op: 'email', id: last.id, to: to }).done(function (r) { toast(r && r.data && r.data.message ? r.data.message : 'Done', r && r.success ? 'ok' : 'err'); });
+		});
+		$d.on('change input', '[data-pos-c]', save);
+
+		/* Custom item */
+		var $cm = $('[data-pos-custom-modal]');
+		$d.on('click', '[data-pos-custom]', function () { $cm.prop('hidden', false).addClass('is-open'); $cm.find('[data-pos-cname]').trigger('focus'); });
+		$d.on('click', '[data-pos-custom-close]', function () { $cm.removeClass('is-open').prop('hidden', true); });
+		$d.on('click', '.pos-custom__quick button', function () { $cm.find('[data-pos-cname]').val($(this).attr('data-q')); $cm.find('[data-pos-cprice]').trigger('focus'); });
+		$d.on('click', '[data-pos-cadd]', function () {
+			var n = $.trim($cm.find('[data-pos-cname]').val()), pr = Number($cm.find('[data-pos-cprice]').val()) || 0;
+			if (!n) { toast('Add a description.', 'err'); return; }
+			add({ id: 'c' + Date.now(), name: n, price: pr, custom: true });
+			$cm.find('input').val(''); $cm.removeClass('is-open').prop('hidden', true);
+		});
+
+		/* Customer search */
+		var $cl = $('[data-pos-clist]');
+		$d.on('input', '[data-pos-cq]', function () {
+			var v = $.trim(this.value); clearTimeout(custTimer);
+			if (v.length < 2) { $cl.prop('hidden', true); return; }
+			custTimer = setTimeout(function () {
+				$.get(P.ajax, { action: 'nurax_pos_customers', nonce: P.nonce, q: v }).done(function (r) {
+					var list = r && r.success ? r.data : [];
+					var digits = v.replace(/\D/g, ''), isPhone = digits.length >= 9;
+					var html = list.map(function (c, i) { return '<li><button type="button" data-ci="' + i + '"><strong>' + esc(c.name || '(no name)') + '</strong><small>' + esc([c.phone ? '+' + c.phone : '', c.email, c.orders ? c.orders + ' orders - ' + ksh(c.spent) : ''].filter(Boolean).join(' - ')) + '</small></button></li>'; }).join('');
+					html += '<li><button type="button" data-cnew><strong>+ New customer: ' + esc(v) + '</strong><small>Fill in the details below</small></button></li>';
+					$cl.data('list', list).data('q', v).data('phone', isPhone).html(html).prop('hidden', false);
+				});
+			}, 250);
+		});
+		$d.on('click', '[data-ci]', function () { var c = $cl.data('list')[$(this).attr('data-ci')]; setCust(c); $cl.prop('hidden', true); $('[data-pos-cq]').val(''); save(); });
+		$d.on('click', '[data-cnew]', function () { var v = $cl.data('q'); setCust($cl.data('phone') ? { phone: v } : { name: v }); $cl.prop('hidden', true); $('[data-pos-cq]').val(''); $('[data-pos-c=' + ($cl.data('phone') ? 'name' : 'phone') + ']').trigger('focus'); });
+		$d.on('click', function (e) { if (!$(e.target).closest('.pos__cust-search').length) { $cl.prop('hidden', true); } });
+		$d.on('keydown', function (e) { if (e.key === '/' && !$(e.target).is('input, textarea, select')) { e.preventDefault(); $('[data-pos-q]').trigger('focus'); } if (e.key === 'F9' && cart.length) { e.preventDefault(); submit(true); } });
+
+		/* Start */
+		if (P.pre && P.pre.items) {
+			cart = []; P.pre.items.forEach(function (p) { add(p); });
+			setCust(P.pre.customer); $('[data-pos-del]').val(P.pre.delivery || 0); $('[data-pos-delto]').val(P.pre.delivery_to || '');
+			$('[data-pos-channel]').val('whatsapp'); waOrder = P.pre.wa_order || 0; $('[data-pos-note]').val(P.pre.ref ? 'WhatsApp order ' + P.pre.ref : '');
+			toast('WhatsApp order loaded - check and charge.', 'ok');
+		} else {
+			try { var s = JSON.parse(sessionStorage.getItem(KEY) || 'null'); if (s && s.cart) { cart = s.cart; setCust(s.cust); waOrder = s.waOrder || 0; } } catch (e) {}
+		}
+		draw(); load('');
+	}
+
+	/* ================= Marketing ================= */
+	var M = window.NURAX_MKT || null;
+	if (M) {
+		var $f = $('[data-mkt-form]');
+		if ($f.length) {
+			var pt;
+			var count = function () {
+				$.post(M.ajax, { action: 'nurax_mkt', nonce: M.nonce, op: 'count', segment: $f.find('[name=segment]').val(), seg_value: $f.find('[name=seg_value]').val(), channel: M.channel }).done(function (r) {
+					var n = r && r.success ? r.data.count : 0;
+					$('[data-mkt-count]').text(n + ' ' + (M.channel === 'email' ? 'e-mail' : 'WhatsApp') + ' recipients').data('n', n);
+				});
+			};
+			var preview = function () {
+				if (M.channel === 'whatsapp') {
+					var t = String($f.find('[name=body]').val() || '').replace(/\{first\}/g, 'Wanjiku').replace(/\{name\}/g, 'Wanjiku Kamau');
+					var bt = $f.find('[name=btn_text]').val(), bu = $f.find('[name=btn_url]').val();
+					if (bu) { t += '\n\n' + (bt ? bt + ': ' : '') + bu; }
+					$('[data-mkt-wa]').text($.trim(t) + '\n\nReply STOP to opt out.');
+					return;
+				}
+				clearTimeout(pt);
+				pt = setTimeout(function () {
+					var d = { action: 'nurax_mkt', nonce: M.nonce, op: 'preview', products: ($f.find('[data-mkt-prods]').val() || []).join(',') };
+					['subject', 'heading', 'body', 'btn_text', 'btn_url', 'image'].forEach(function (k) { d[k] = $f.find('[name=' + k + ']').val() || ''; });
+					$.post(M.ajax, d).done(function (r) { if (r && r.success) { var fr = $('[data-mkt-frame]')[0]; if (fr) { fr.srcdoc = r.data.html; } } });
+				}, 450);
+			};
+			$f.on('change', '[name=segment], [name=seg_value]', function () { $('[data-mkt-tag]').prop('hidden', $f.find('[name=segment]').val() !== 'tag'); count(); });
+			$f.on('input change', '[data-mkt-in], [data-mkt-prods], [name=btn_text], [name=btn_url]', preview);
+			$f.on('click', '[data-mkt-btn]', function (e) {
+				var op = $(this).attr('data-mkt-btn');
+				if (op === 'send') {
+					var n = $('[data-mkt-count]').data('n') || 0;
+					if (!n) { e.preventDefault(); toast('Nobody matches this audience yet.', 'err'); return; }
+					if (!window.confirm('Send this ' + (M.channel === 'email' ? 'e-mail' : 'WhatsApp message') + ' to ' + n + ' people now?')) { e.preventDefault(); return; }
+				}
+				$f.find('[data-mkt-do]').val(op);
+			});
+			$d.on('click', '[data-mkt-media]', function () {
+				if (!window.wp || !wp.media) { return; }
+				var fr = wp.media({ title: 'Choose banner image', multiple: false, library: { type: 'image' } });
+				fr.on('select', function () { var a = fr.state().get('selection').first().toJSON(); $f.find('[data-mkt-img]').val(a.url).trigger('change'); });
+				fr.open();
+			});
+			count(); preview();
+		}
+		/* Sending progress (e-mail / API). */
+		if (M.run) {
+			var step = function () {
+				$.post(M.ajax, { action: 'nurax_mkt', nonce: M.nonce, op: 'tick', id: M.run }).done(function (r) {
+					if (!r || !r.success) { return; }
+					var d = r.data, pct = d.total ? Math.round((d.sent + d.failed) / d.total * 100) : 100;
+					$('[data-mkt-ring]').css('--p', pct); $('[data-mkt-pct]').text(pct + '%'); $('[data-mkt-sent]').text(d.sent); $('[data-mkt-failed]').text(d.failed);
+					$('[data-mkt-status]').text(d.left ? 'Sending' : 'Sent');
+					if (d.left) { setTimeout(step, 800); } else { toast('Campaign sent', 'ok'); }
+				}).fail(function () { setTimeout(step, 5000); });
+			};
+			step();
+		}
+		/* WhatsApp one-by-one. */
+		var mark = function (sid) {
+			$.post(M.ajax, { action: 'nurax_mkt', nonce: M.nonce, op: 'wa_mark', sid: sid });
+			$('[data-mkt-item="' + sid + '"]').addClass('is-done').find('[data-mkt-st]').text('Sent');
+		};
+		$d.on('click', '[data-mkt-wa-send]', function () { mark($(this).attr('data-mkt-wa-send')); });
+		$d.on('click', '[data-mkt-next]', function () {
+			var $a = $('[data-mkt-item]').not('.is-done').first().find('[data-mkt-wa-send]');
+			if (!$a.length) { toast('Everyone has been messaged.', 'ok'); return; }
+			window.open($a.attr('href'), '_blank', 'noopener'); mark($a.attr('data-mkt-wa-send'));
+			var left = $('[data-mkt-item]').not('.is-done').length;
+			$(this).text(left ? 'Send next (' + left + ' left)' : 'All sent');
+		});
+	}
+})(jQuery);

@@ -371,6 +371,12 @@ class NURAX_Desk_Orders {
 			$pf['pf_opts']  = isset( $first_item['option'] ) ? $first_item['option'] : '';
 			$pf['pf_fulfil'] = 'pickup' === $d['fulfil'] ? 'Pick up at the studio' : $d['delivery'];
 		}
+		$wc = (int) get_post_meta( $id, '_nwo_wc_order', true );
+		if ( $wc && function_exists( 'wc_get_order' ) && wc_get_order( $wc ) ) {
+			echo NURAX_Desk::btn( NURAX_Desk_POS::doc_url( wc_get_order( $wc ), 'invoice' ), 'Print invoice #' . wc_get_order( $wc )->get_order_number(), 'nd-btn--primary nd-btn--block', 'target="_blank" rel="noopener"' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		} else {
+			echo NURAX_Desk::btn( NURAX_Desk::url( NURAX_Desk::P_POS, array( 'from_wa' => $id ) ), 'Ring up sale / create invoice', 'nd-btn--primary nd-btn--block' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
 		echo NURAX_Desk::btn( NURAX_Desk::url( NURAX_Desk::P_PLANS, $pf ), 'Turn into a Lipa Mdogo Mdogo plan', 'nd-btn--ghost nd-btn--block' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo NURAX_Desk::btn( NURAX_Desk::url( NURAX_Desk::P_APPTS, array( 'action' => 'new', 'pf_name' => $d['name'], 'pf_phone' => $d['phone'], 'pf_service' => 'pickup' === $d['fulfil'] ? 'collection' : 'fitting', 'pf_notes' => 'From WhatsApp order ' . $d['ref'] . ': ' . self::items_line( $d ) ) ), 'Book a fitting / collection', 'nd-btn--ghost nd-btn--block' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</div></section>';

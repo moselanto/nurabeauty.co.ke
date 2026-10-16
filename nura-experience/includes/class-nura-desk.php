@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class NURAX_Desk {
 
-	const DBV     = '1.1.0';
+	const DBV     = '1.2.0';
 	const DBV_OPT = 'nurax_desk_db';
 	const OPT     = 'nurax_desk';
 	const CAP     = 'manage_woocommerce';
@@ -33,6 +33,8 @@ class NURAX_Desk {
 	const P_APPTS = 'nurax-appts';
 	const P_ORDERS = 'nurax-orders';
 	const P_REM    = 'nurax-reminders';
+	const P_POS    = 'nurax-pos';
+	const P_MKT    = 'nurax-mkt';
 	const P_SET   = 'nurax-desk-settings';
 	const CRON    = 'nurax_desk_daily';
 
@@ -51,6 +53,8 @@ class NURAX_Desk {
 		NURAX_Desk_Appts::hooks();
 		NURAX_Desk_Orders::hooks();
 		NURAX_Desk_Remind::hooks();
+		NURAX_Desk_POS::hooks();
+		NURAX_Desk_Mkt::hooks();
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -170,6 +174,7 @@ class NURAX_Desk {
   KEY phone (phone)
 ) $c;" );
 
+		NURAX_Desk_Mkt::install( $c );
 		update_option( self::DBV_OPT, self::DBV, true );
 	}
 
@@ -196,6 +201,16 @@ class NURAX_Desk {
 			'staff'         => '',
 			'mpesa_details' => '',
 			'auto_wa'       => 0,
+			'biz_name'      => 'NURA Beauty',
+			'biz_pin'       => '',
+			'biz_phone'     => '',
+			'biz_email'     => '',
+			'invoice_note'  => '',
+			'mkt_from_name' => 'NURA Beauty',
+			'mkt_from_email'=> '',
+			'mkt_soft_optin'=> 1,
+			'mkt_vip'       => 20000,
+			'mkt_winback'   => 60,
 		) + NURAX_Desk_Remind::template_defaults();
 	}
 
@@ -368,6 +383,8 @@ class NURAX_Desk {
 			'full'      => array( 'warning', 'Saved, but this time slot is now over its capacity.' ),
 			'notfound'  => array( 'error', 'That record could not be found.' ),
 			'deleted'   => array( 'success', 'Deleted.' ),
+			'synced'    => array( 'success', 'Audience refreshed from the shop, accounts, WhatsApp orders, plans and appointments.' ),
+			'tested'    => array( 'success', 'Test e-mail sent. Check your inbox (and spam folder).' ),
 		);
 		$k = isset( $_GET['nd_msg'] ) ? sanitize_key( wp_unslash( $_GET['nd_msg'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $map[ $k ] ) ) {
@@ -379,10 +396,12 @@ class NURAX_Desk {
 	public static function header( $current, $title, $actions = '' ) {
 		$tabs = array(
 			self::MENU    => 'Overview',
+			self::P_POS   => 'Point of sale',
 			self::P_ORDERS => 'WhatsApp orders',
 			self::P_PLANS => 'Payment plans',
 			self::P_APPTS => 'Appointments',
 			self::P_REM   => 'Reminders',
+			self::P_MKT   => 'Marketing',
 			self::P_SET   => 'Settings',
 		);
 		echo '<div class="wrap nd-wrap">';
@@ -426,21 +445,23 @@ class NURAX_Desk {
 		$title = 'NURA Desk' . ( $n > 0 ? ' <span class="awaiting-mod"><span class="pending-count">' . (int) $n . '</span></span>' : '' );
 		add_menu_page( 'NURA Desk', $title, self::CAP, self::MENU, array( $this, 'overview' ), 'dashicons-store', 56 );
 		add_submenu_page( self::MENU, 'Overview', 'Overview', self::CAP, self::MENU, array( $this, 'overview' ) );
+		add_submenu_page( self::MENU, 'Point of sale', 'Point of sale', self::CAP, self::P_POS, array( 'NURAX_Desk_POS', 'page' ) );
 		add_submenu_page( self::MENU, 'WhatsApp orders', 'WhatsApp orders', self::CAP, self::P_ORDERS, array( 'NURAX_Desk_Orders', 'page' ) );
 		add_submenu_page( self::MENU, 'Payment plans', 'Payment plans', self::CAP, self::P_PLANS, array( 'NURAX_Desk_Plans', 'page' ) );
 		add_submenu_page( self::MENU, 'Appointments', 'Appointments', self::CAP, self::P_APPTS, array( 'NURAX_Desk_Appts', 'page' ) );
 		add_submenu_page( self::MENU, 'Reminders', 'Reminders', self::CAP, self::P_REM, array( 'NURAX_Desk_Remind', 'page' ) );
+		add_submenu_page( self::MENU, 'Marketing', 'Marketing', self::CAP, self::P_MKT, array( 'NURAX_Desk_Mkt', 'page' ) );
 		add_submenu_page( self::MENU, 'Desk settings', 'Settings', self::CAP, self::P_SET, array( $this, 'settings_page' ) );
 	}
 
 	public function assets( $hook ) {
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! in_array( $page, array( self::MENU, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_SET ), true ) ) {
+		if ( ! in_array( $page, array( self::MENU, self::P_POS, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_MKT, self::P_SET ), true ) ) {
 			return;
 		}
 		wp_enqueue_style( 'nurax-desk', NURAX_URL . 'assets/css/nura-desk.css', array(), NURAX_VERSION );
 		$deps = array( 'jquery' );
-		if ( self::P_PLANS === $page && wp_script_is( 'wc-enhanced-select', 'registered' ) ) {
+		if ( in_array( $page, array( self::P_PLANS, self::P_MKT ), true ) && wp_script_is( 'wc-enhanced-select', 'registered' ) ) {
 			wp_enqueue_script( 'wc-enhanced-select' );
 			if ( wp_style_is( 'woocommerce_admin_styles', 'registered' ) ) {
 				wp_enqueue_style( 'woocommerce_admin_styles' );
@@ -470,7 +491,7 @@ class NURAX_Desk {
 		$k   = NURAX_Desk_Plans::kpis();
 		$a   = NURAX_Desk_Appts::kpis();
 		$o   = NURAX_Desk_Orders::kpis();
-		$act = self::btn( self::url( self::P_PLANS, array( 'action' => 'new' ) ), '+ New payment plan', 'nd-btn--primary' ) .
+		$act = self::btn( self::url( self::P_POS ), '+ New sale', 'nd-btn--primary' ) . self::btn( self::url( self::P_PLANS, array( 'action' => 'new' ) ), '+ New payment plan', 'nd-btn--ghost' ) .
 			self::btn( self::url( self::P_APPTS, array( 'action' => 'new' ) ), '+ New appointment', 'nd-btn--ghost' );
 		self::header( self::MENU, 'Good ' . ( (int) current_time( 'G' ) < 12 ? 'morning' : ( (int) current_time( 'G' ) < 17 ? 'afternoon' : 'evening' ) ) . ' - ' . self::date_label( self::today(), 'l j F Y' ), $act );
 
@@ -561,6 +582,22 @@ class NURAX_Desk {
 		self::field_text( 'staff', 'Stylists / team', $s['staff'], 'Comma separated names to assign appointments, e.g. Faith, Wanjiru' );
 		echo '</div></section>';
 
+		echo '<section class="nd-card"><header class="nd-card__h"><h2>Business details (invoices and receipts)</h2></header><div class="nd-fields nd-fields--2">';
+		self::field_text( 'biz_name', 'Business name', $s['biz_name'], '' );
+		self::field_text( 'biz_pin', 'KRA PIN (optional)', $s['biz_pin'], 'Printed on invoices when filled in.' );
+		self::field_text( 'biz_phone', 'Phone on invoices', $s['biz_phone'], 'Leave empty to use the site phone number.' );
+		self::field_text( 'biz_email', 'E-mail on invoices', $s['biz_email'], '', 'email' );
+		echo '</div><label class="nd-field"><span class="nd-label">Footer note on invoices and receipts</span><textarea name="invoice_note" rows="2" placeholder="Thank you for choosing NURA Beauty. Unworn wigs can be returned within 7 days with this receipt.">' . esc_textarea( $s['invoice_note'] ) . '</textarea></label></section>';
+
+		echo '<section class="nd-card"><header class="nd-card__h"><h2>Marketing</h2></header><div class="nd-fields nd-fields--2">';
+		self::field_text( 'mkt_from_name', 'E-mails come from (name)', $s['mkt_from_name'], '' );
+		self::field_text( 'mkt_from_email', 'E-mails come from (address)', $s['mkt_from_email'], 'Use an address on your own domain, e.g. offers@nurabeauty.co.ke. For reliable delivery install an SMTP plugin.', 'email' );
+		self::field_num( 'mkt_vip', 'Top customer = spent at least (KSh)', $s['mkt_vip'], '' );
+		self::field_num( 'mkt_winback', 'Win-back after (days without buying)', $s['mkt_winback'], '' );
+		echo '</div>';
+		self::field_check( 'mkt_soft_optin', 'Include past customers who have not unsubscribed', $s['mkt_soft_optin'], 'Untick to message only people who explicitly agreed to offers. Every e-mail has an unsubscribe link and every WhatsApp has "Reply STOP to opt out".' );
+		echo '</section>';
+
 		echo '<section class="nd-card" id="nd-templates"><header class="nd-card__h"><h2>WhatsApp reminders</h2></header><div class="nd-fields">';
 		self::field_text( 'mpesa_details', 'M-Pesa payment details', $s['mpesa_details'], 'Shown in payment reminders, e.g. Till 123456 (NURA Beauty) or Paybill 222111, Account NURA' );
 		self::field_check( 'auto_wa', 'Send reminders automatically every morning', $s['auto_wa'], NURAX_Desk_Remind::api_ready() ? 'WhatsApp Business API is connected. Each customer gets at most one reminder every 2 days.' : 'Needs the WhatsApp Business API (Settings > NURA Experience > WhatsApp). Until then use the one-tap Send buttons on the Reminders page.' );
@@ -640,6 +677,16 @@ class NURAX_Desk {
 		$out['staff']      = isset( $in['staff'] ) ? sanitize_text_field( $in['staff'] ) : '';
 		$out['mpesa_details'] = isset( $in['mpesa_details'] ) ? sanitize_text_field( $in['mpesa_details'] ) : '';
 		$out['auto_wa']       = empty( $in['auto_wa'] ) ? 0 : 1;
+		foreach ( array( 'biz_name', 'biz_pin', 'biz_phone', 'mkt_from_name' ) as $k ) {
+			$out[ $k ] = isset( $in[ $k ] ) ? mb_substr( sanitize_text_field( $in[ $k ] ), 0, 120 ) : '';
+		}
+		foreach ( array( 'biz_email', 'mkt_from_email' ) as $k ) {
+			$out[ $k ] = isset( $in[ $k ] ) && is_email( $in[ $k ] ) ? sanitize_email( $in[ $k ] ) : '';
+		}
+		$out['invoice_note']   = isset( $in['invoice_note'] ) ? mb_substr( sanitize_textarea_field( $in['invoice_note'] ), 0, 400 ) : '';
+		$out['mkt_soft_optin'] = empty( $in['mkt_soft_optin'] ) ? 0 : 1;
+		$out['mkt_vip']        = isset( $in['mkt_vip'] ) ? absint( $in['mkt_vip'] ) : 20000;
+		$out['mkt_winback']    = isset( $in['mkt_winback'] ) ? max( 1, absint( $in['mkt_winback'] ) ) : 60;
 		foreach ( array_keys( NURAX_Desk_Remind::template_defaults() ) as $k ) {
 			$out[ $k ] = isset( $in[ $k ] ) ? trim( sanitize_textarea_field( $in[ $k ] ) ) : '';
 		}
@@ -665,7 +712,11 @@ class NURAX_Desk {
 		global $wpdb;
 		$type = isset( $_GET['type'] ) ? sanitize_key( wp_unslash( $_GET['type'] ) ) : 'plans';
 		$rows = array();
-		if ( 'orders' === $type ) {
+		if ( 'sales' === $type || 'sale_items' === $type ) {
+			$rows = NURAX_Desk_POS::export_rows( $type );
+		} elseif ( 'contacts' === $type ) {
+			$rows = NURAX_Desk_Mkt::export_rows();
+		} elseif ( 'orders' === $type ) {
 			$rows = NURAX_Desk_Orders::export_rows();
 		} elseif ( 'payments' === $type ) {
 			$rows[] = array( 'Paid on', 'Plan', 'Customer', 'Phone', 'Amount', 'Method', 'Reference', 'Note', 'Voided', 'Void reason' );

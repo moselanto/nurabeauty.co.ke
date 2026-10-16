@@ -11,10 +11,80 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class NURAX_Desk_Plans {
 
+	/** Price used for the plan minimum (lowest variation price for variable wigs). */
+	public static function plan_price( $p ) {
+		if ( ! $p ) {
+			return 0;
+		}
+		if ( $p->is_type( 'variable' ) ) {
+			return (float) $p->get_variation_price( 'max', true );
+		}
+		return (float) wc_get_price_to_display( $p );
+	}
+
+	/** Product search for the plan form: only wigs at or above the Lipa Mdogo Mdogo minimum. */
+	public static function ajax_products() {
+		if ( ! current_user_can( NURAX_Desk::CAP ) ) {
+			wp_send_json( array() );
+		}
+		$term = isset( $_GET['term'] ) ? wc_clean( wp_unslash( $_GET['term'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		wp_send_json( self::eligible( $term ) );
+	}
+
+	/** id => label for every published wig (and variation) at or above the plan minimum. */
+	public static function eligible( $term = '' ) {
+		if ( ! function_exists( 'wc_get_products' ) ) {
+			return array();
+		}
+		$min  = (float) NURAX_Desk::settings()['lmm_min'];
+		if ( '' !== $term && class_exists( 'WC_Data_Store' ) ) {
+			$ids = WC_Data_Store::load( 'product' )->search_products( $term, '', true, false, 60 );
+		} else {
+			$ids = wc_get_products( array( 'status' => 'publish', 'limit' => 300, 'orderby' => 'meta_value_num', 'meta_key' => '_price', 'order' => 'DESC', 'return' => 'ids', 'type' => array( 'simple', 'variable' ) ) );
+			$more = array();
+			foreach ( $ids as $pid ) {
+				$pp = wc_get_product( $pid );
+				if ( $pp && $pp->is_type( 'variable' ) ) {
+					$more = array_merge( $more, $pp->get_children() );
+				}
+			}
+			$ids = array_merge( $ids, $more );
+		}
+		$out = array();
+		foreach ( array_unique( array_filter( array_map( 'absint', (array) $ids ) ) ) as $id ) {
+			$p = wc_get_product( $id );
+			if ( ! $p || 'publish' !== get_post_status( $p->is_type( 'variation' ) ? $p->get_parent_id() : $id ) ) {
+				continue;
+			}
+			if ( $p->is_type( 'variable' ) ) {
+				$price = (float) $p->get_variation_price( 'max', true );
+			} else {
+				$price = (float) wc_get_price_to_display( $p );
+			}
+			if ( $price <= 0 || $price < $min ) {
+				continue;
+			}
+			$label = wp_strip_all_tags( $p->get_formatted_name() );
+			$label = preg_replace( '/\s*\(#\d+\)\s*$/', '', $label );
+			if ( $p->is_type( 'variable' ) ) {
+				$lo    = (float) $p->get_variation_price( 'min', true );
+				$label .= ' - ' . ( $lo < $min ? 'from ' . NURAX_Desk::money( $min ) . ' options' : NURAX_Desk::money( $lo ) . ( $lo < $price ? ' to ' . NURAX_Desk::money( $price ) : '' ) );
+			} else {
+				$label .= ' - ' . NURAX_Desk::money( $price );
+			}
+			$out[ $id ] = $label;
+			if ( count( $out ) >= 400 ) {
+				break;
+			}
+		}
+		return $out;
+	}
+
 	public static function hooks() {
 		add_action( 'wp_ajax_nurax_lmm_request', array( __CLASS__, 'ajax_request' ) );
 		add_action( 'wp_ajax_nopriv_nurax_lmm_request', array( __CLASS__, 'ajax_request' ) );
 		add_action( 'wp_ajax_nurax_lmm_price', array( __CLASS__, 'ajax_price' ) );
+		add_action( 'wp_ajax_nurax_lmm_products', array( __CLASS__, 'ajax_products' ) );
 		add_action( 'admin_post_nurax_lmm_save', array( __CLASS__, 'h_save' ) );
 		add_action( 'admin_post_nurax_lmm_pay', array( __CLASS__, 'h_pay' ) );
 		add_action( 'admin_post_nurax_lmm_void', array( __CLASS__, 'h_void' ) );
@@ -906,11 +976,17 @@ class NURAX_Desk_Plans {
 		echo '</div></section>';
 
 		echo '<section class="nd-card"><header class="nd-card__h"><h2>Wig</h2></header><div class="nd-fields nd-fields--2">';
-		echo '<label class="nd-field nd-field--wide"><span class="nd-label">Product</span><select class="wc-product-search" name="product_id" data-placeholder="Search for a wig..." data-action="woocommerce_json_search_products_and_variations" data-allow_clear="true" style="width:100%" data-nd-product>';
-		if ( $v['product_id'] ) {
+		$min_l = NURAX_Desk::money( NURAX_Desk::settings()['lmm_min'] );
+		$elig  = self::eligible();
+		echo '<label class="nd-field nd-field--wide"><span class="nd-label">Product <em class="nd-mut">(' . esc_html( count( $elig ) ) . ' wigs from ' . esc_html( $min_l ) . ')</em></span><select class="wc-enhanced-select" name="product_id" data-placeholder="' . esc_attr( 'Choose a wig (' . $min_l . ' and above)' ) . '" data-allow_clear="true" style="width:100%" data-nd-product>';
+		echo '<option value=""></option>';
+		if ( $v['product_id'] && ! isset( $elig[ (int) $v['product_id'] ] ) ) {
 			echo '<option value="' . (int) $v['product_id'] . '" selected>' . esc_html( $prod_label ? $prod_label : $v['product_name'] ) . '</option>';
 		}
-		echo '</select><small>Pick the exact length/colour (variation) when you can, so stock is reserved correctly.</small></label>';
+		foreach ( $elig as $eid => $el ) {
+			echo '<option value="' . (int) $eid . '"' . selected( (int) $v['product_id'], (int) $eid, false ) . '>' . esc_html( $el ) . '</option>';
+		}
+		echo '</select><small>Only wigs from ' . esc_html( $min_l ) . ' are listed (change this under Settings > Lipa Mdogo Mdogo). Pick the exact length/colour when you can, so stock is reserved correctly.</small></label>';
 		echo '<label class="nd-field"><span class="nd-label">Name on statement</span><input type="text" name="product_name" maxlength="255" value="' . esc_attr( $v['product_name'] ) . '" data-nd-pname></label>';
 		echo '<label class="nd-field"><span class="nd-label">Options</span><input type="text" name="options" maxlength="255" value="' . esc_attr( $v['options'] ) . '" placeholder="e.g. 18 inch, Natural black" data-nd-popts></label>';
 		echo '</div></section>';
@@ -970,6 +1046,11 @@ class NURAX_Desk_Plans {
 				$pid = (int) $pp->get_parent_id();
 			} elseif ( ! $pp ) {
 				$pid = 0;
+			}
+			$chk = $vid ? wc_get_product( $vid ) : ( $pid ? wc_get_product( $pid ) : null );
+			if ( $chk && self::plan_price( $chk ) < (float) NURAX_Desk::settings()['lmm_min'] ) {
+				wp_safe_redirect( add_query_arg( 'nd_msg', 'lmm_min', $back ) );
+				exit;
 			}
 		}
 		$s       = NURAX_Desk::settings();

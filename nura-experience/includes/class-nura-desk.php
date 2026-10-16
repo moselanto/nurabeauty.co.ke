@@ -408,6 +408,7 @@ class NURAX_Desk {
 			'over'      => array( 'error', 'The amount is more than the balance on this plan. Nothing was saved.' ),
 			'amount'    => array( 'error', 'Please enter an amount greater than zero.' ),
 			'invalid'   => array( 'error', 'Please complete the required fields (name, a valid phone number, price, date).' ),
+			'lmm_min'   => array( 'error', 'Payment plans are only for wigs from ' . self::money( self::settings()['lmm_min'] ) . ' and above. Please choose another wig.' ),
 			'full'      => array( 'warning', 'Saved, but this time slot is now over its capacity.' ),
 			'notfound'  => array( 'error', 'That record could not be found.' ),
 			'deleted'   => array( 'success', 'Deleted.' ),

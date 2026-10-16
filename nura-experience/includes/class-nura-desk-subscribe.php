@@ -66,6 +66,7 @@ class NURAX_Desk_Sub {
 			'scroll' => min( 90, max( 10, (int) $s['sub_scroll'] ) ),
 			'days'   => max( 1, (int) $s['sub_days'] ),
 			'preview' => self::preview() ? 1 : 0,
+			'debug'   => self::preview() ? 1 : 0,
 		) );
 	}
 

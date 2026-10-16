@@ -48,10 +48,12 @@
 	var card = box.querySelector('.nhs__card'), opened = false, lastFocus = null;
 
 	function step(n) { Array.prototype.forEach.call(box.querySelectorAll('[data-nhs-step]'), function (s) { s.classList.toggle('is-on', s.getAttribute('data-nhs-step') === String(n)); }); }
-	function busy() { return !!d.querySelector('.nwo.is-open, .nura-plan.is-open, .pos-done.is-open, [aria-modal="true"]:not(.nhs__card)') && !!d.querySelector('.is-open'); }
+	function busy() { return !!d.querySelector('.nwo.is-open, .nura-plan.is-open') || d.documentElement.classList.contains('nwo-lock') || d.documentElement.classList.contains('nura-plan-open'); }
 	function open(force) {
 		if (opened && !force) { return; }
-		if (!force && (state() || busy())) { return; }
+		if (C.debug && window.console) { console.log('[NURA House] open', { force: !!force, state: state(), busy: busy() }); }
+		if (!force && state()) { return; }
+		if (!force && busy()) { setTimeout(function () { open(false); }, 8000); return; }
 		opened = true; lastFocus = d.activeElement;
 		box.hidden = false; d.documentElement.classList.add('nhs-lock');
 		requestAnimationFrame(function () { box.classList.add('is-open'); var i = box.querySelector('[name=name]'); setTimeout(function () { (i || card).focus({ preventScroll: true }); }, 250); });

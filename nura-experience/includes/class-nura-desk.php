@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class NURAX_Desk {
 
-	const DBV     = '1.2.0';
+	const DBV     = '1.3.0';
 	const DBV_OPT = 'nurax_desk_db';
 	const OPT     = 'nurax_desk';
 	const CAP     = 'manage_woocommerce';
@@ -72,6 +72,7 @@ class NURAX_Desk {
 		NURAX_Desk_Mkt::hooks();
 		NURAX_Desk_Social::hooks();
 		NURAX_Desk_Sub::hooks();
+		NURAX_Vault::hooks();
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -227,6 +228,8 @@ class NURAX_Desk {
 			'mkt_from_name' => 'NURA Beauty',
 			'mkt_from_email'=> '',
 			'mkt_soft_optin'=> 1,
+			'staff_export'  => 0,
+			'cart_days'     => 30,
 			'mkt_vip'       => 20000,
 			'mkt_winback'   => 60,
 			'sub_popup'     => 1,
@@ -404,6 +407,11 @@ class NURAX_Desk {
 			'voided'    => array( 'success', 'Payment voided. Balances have been recalculated.' ),
 			'status'    => array( 'success', 'Status updated.' ),
 			'settings'  => array( 'success', 'Settings saved.' ),
+			'vault_done'     => array( 'success', 'Data protection updated.' ),
+			'vault_backup'   => array( 'error', 'Please confirm you have a full, recent backup before encrypting.' ),
+			'vault_confirm'  => array( 'error', 'Tick the box to confirm you want to decrypt every contact.' ),
+			'vault_nocrypto' => array( 'error', 'Your server is missing OpenSSL AES-256-GCM. Ask your host to enable the PHP OpenSSL extension.' ),
+			'noexport'       => array( 'error', 'Only administrators can download customer reports. An administrator can allow shop managers under Settings > Security & customer data.' ),
 			'dup'       => array( 'error', 'That payment reference is already recorded on another payment. Nothing was saved.' ),
 			'over'      => array( 'error', 'The amount is more than the balance on this plan. Nothing was saved.' ),
 			'amount'    => array( 'error', 'Please enter an amount greater than zero.' ),
@@ -598,7 +606,7 @@ class NURAX_Desk {
 		}
 		$s = self::settings();
 		self::header( self::P_SET, 'Desk settings' );
-		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="nd-form">';
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="nd-form" id="nd-settings-form">';
 		echo '<input type="hidden" name="action" value="nurax_desk_settings">';
 		wp_nonce_field( 'nurax_desk_settings' );
 
@@ -680,6 +688,8 @@ class NURAX_Desk {
 		echo '</div></section>';
 
 		echo '<p><button type="submit" class="nd-btn nd-btn--primary">Save settings</button></p></form>';
+		NURAX_Vault::card();
+		echo '<p><button type="submit" form="nd-settings-form" class="nd-btn nd-btn--primary">Save settings</button></p>';
 		self::footer();
 	}
 
@@ -768,6 +778,13 @@ class NURAX_Desk {
 		$out['invoice_logo']   = isset( $in['invoice_logo'] ) ? esc_url_raw( trim( $in['invoice_logo'] ) ) : '';
 		$out['invoice_note']   = isset( $in['invoice_note'] ) ? mb_substr( sanitize_textarea_field( $in['invoice_note'] ), 0, 400 ) : '';
 		$out['mkt_soft_optin'] = empty( $in['mkt_soft_optin'] ) ? 0 : 1;
+		if ( current_user_can( 'manage_options' ) ) {
+			$out['staff_export'] = empty( $in['staff_export'] ) ? 0 : 1;
+			$out['cart_days']    = isset( $in['cart_days'] ) ? min( 365, max( 7, absint( $in['cart_days'] ) ) ) : 30;
+		} else {
+			$out['staff_export'] = (int) $d['staff_export'];
+			$out['cart_days']    = (int) $d['cart_days'];
+		}
 		$out['sub_popup']  = empty( $in['sub_popup'] ) ? 0 : 1;
 		$out['sub_delay']  = isset( $in['sub_delay'] ) ? max( 4, absint( $in['sub_delay'] ) ) : 12;
 		$out['sub_scroll'] = isset( $in['sub_scroll'] ) ? min( 90, max( 10, absint( $in['sub_scroll'] ) ) ) : 40;
@@ -808,6 +825,10 @@ class NURAX_Desk {
 			wp_die( esc_html__( 'Sorry, you are not allowed to do that.', 'nura-experience' ) );
 		}
 		check_admin_referer( 'nurax_desk_export' );
+		if ( ! NURAX_Vault::can_export() ) {
+			wp_safe_redirect( self::url( self::MENU, array( 'nd_msg' => 'noexport' ) ) );
+			exit;
+		}
 		global $wpdb;
 		$type = isset( $_GET['type'] ) ? sanitize_key( wp_unslash( $_GET['type'] ) ) : 'plans';
 		$rows = array();
@@ -839,6 +860,7 @@ class NURAX_Desk {
 			}
 		}
 		$fmt = isset( $_GET['fmt'] ) ? sanitize_key( wp_unslash( $_GET['fmt'] ) ) : 'xlsx';
+		NURAX_Vault::log( 'Report downloaded', ( class_exists( 'NURAX_Xlsx' ) && isset( NURAX_Xlsx::titles()[ $type ] ) ? NURAX_Xlsx::titles()[ $type ] : $type ) . ' (' . strtoupper( 'csv' === $fmt ? 'csv' : 'xlsx' ) . ', ' . max( 0, count( $rows ) - 1 ) . ' rows)' );
 		if ( 'csv' !== $fmt && class_exists( 'NURAX_Xlsx' ) && NURAX_Xlsx::available() ) {
 			$period = '';
 			if ( in_array( $type, array( 'sales', 'sale_items' ), true ) ) {
@@ -887,6 +909,7 @@ class NURAX_Desk {
 		}
 		update_option( 'nurax_desk_last_daily', $today, false );
 		self::bust();
+		NURAX_Vault::retention();
 		$s = self::settings();
 
 		NURAX_Desk_Plans::customer_reminders();

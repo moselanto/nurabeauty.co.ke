@@ -36,8 +36,10 @@ class NURAX_Desk_Mkt {
 		dbDelta( "CREATE TABLE $a (
   id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   name varchar(120) NOT NULL DEFAULT '',
-  email varchar(120) NOT NULL DEFAULT '',
-  phone varchar(20) NOT NULL DEFAULT '',
+  email varchar(255) NOT NULL DEFAULT '',
+  phone varchar(100) NOT NULL DEFAULT '',
+  email_h varchar(40) NOT NULL DEFAULT '',
+  phone_h varchar(40) NOT NULL DEFAULT '',
   user_id bigint(20) unsigned NOT NULL DEFAULT 0,
   sources varchar(120) NOT NULL DEFAULT '',
   tags varchar(255) NOT NULL DEFAULT '',
@@ -53,6 +55,8 @@ class NURAX_Desk_Mkt {
   PRIMARY KEY  (id),
   KEY email (email),
   KEY phone (phone),
+  KEY email_h (email_h),
+  KEY phone_h (phone_h),
   KEY token (token)
 ) $c;" );
 		dbDelta( "CREATE TABLE $b (
@@ -119,9 +123,35 @@ class NURAX_Desk_Mkt {
 	public static function find( $q, $limit = 10 ) {
 		global $wpdb;
 		$t    = self::t_c();
+		return NURAX_Vault::rows( $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $t WHERE " . self::search_where( $q ) . ' ORDER BY spent DESC LIMIT %d', $limit ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL
+	}
+
+	/** Search: exact phone / e-mail via the secure index, name and tags by text. */
+	public static function search_where( $q ) {
+		global $wpdb;
+		$q    = trim( (string) $q );
 		$like = '%' . $wpdb->esc_like( $q ) . '%';
-		$ph   = NURAX_Desk::phone( $q );
-		return (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $t WHERE name LIKE %s OR email LIKE %s OR phone LIKE %s ORDER BY spent DESC LIMIT %d", $like, $like, $ph ? '%' . substr( $ph, -9 ) . '%' : $like, $limit ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$w    = $wpdb->prepare( '(name LIKE %s OR tags LIKE %s', $like, $like );
+		if ( is_email( $q ) ) {
+			$w .= $wpdb->prepare( ' OR email_h = %s OR email = %s', NURAX_Vault::idx( $q, 'email' ), strtolower( $q ) );
+		}
+		$ph = strlen( preg_replace( '/\D/', '', $q ) ) >= 9 ? NURAX_Desk::phone( $q ) : '';
+		if ( $ph ) {
+			$w .= $wpdb->prepare( ' OR phone_h = %s OR phone = %s', NURAX_Vault::idx( $ph, 'phone' ), $ph );
+		}
+		return $w . ')';
+	}
+
+	/** Raw row by e-mail / phone (works before and after encryption). */
+	public static function by( $kind, $v ) {
+		global $wpdb;
+		$t = self::t_c();
+		$v = NURAX_Vault::norm( $v, $kind );
+		if ( '' === $v ) {
+			return null;
+		}
+		$col = 'email' === $kind ? 'email' : 'phone';
+		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $t WHERE {$col}_h = %s OR $col = %s LIMIT 1", NURAX_Vault::idx( $v, $kind ), $v ) ); // phpcs:ignore WordPress.DB.PreparedSQL
 	}
 
 	/** Insert or merge a contact by e-mail, then phone. */
@@ -135,20 +165,20 @@ class NURAX_Desk_Mkt {
 		}
 		$row = null;
 		if ( $email ) {
-			$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $t WHERE email = %s LIMIT 1", $email ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$row = self::by( 'email', $email );
 		}
 		if ( ! $row && $phone ) {
-			$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $t WHERE phone = %s LIMIT 1", $phone ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$row = self::by( 'phone', $phone );
 		}
 		$now = current_time( 'mysql' );
 		$src = isset( $a['source'] ) ? sanitize_key( $a['source'] ) : '';
 		if ( $row ) {
 			$d = array( 'updated_at' => $now );
 			if ( $email && ! $row->email ) {
-				$d['email'] = $email;
+				$d = array_merge( $d, NURAX_Vault::cols( $email, null ) );
 			}
 			if ( $phone && ! $row->phone ) {
-				$d['phone'] = $phone;
+				$d = array_merge( $d, NURAX_Vault::cols( null, $phone ) );
 			}
 			if ( ! empty( $a['name'] ) && ! $row->name ) {
 				$d['name'] = mb_substr( sanitize_text_field( $a['name'] ), 0, 120 );
@@ -170,10 +200,8 @@ class NURAX_Desk_Mkt {
 			$wpdb->update( $t, $d, array( 'id' => $row->id ) );
 			return (int) $row->id;
 		}
-		$wpdb->insert( $t, array(
+		$wpdb->insert( $t, array_merge( NURAX_Vault::cols( $email, $phone ), array(
 			'name'       => isset( $a['name'] ) ? mb_substr( sanitize_text_field( $a['name'] ), 0, 120 ) : '',
-			'email'      => $email,
-			'phone'      => $phone,
 			'user_id'    => isset( $a['user_id'] ) ? (int) $a['user_id'] : 0,
 			'sources'    => $src,
 			'consent'    => empty( $a['consent'] ) ? 0 : 1,
@@ -183,7 +211,7 @@ class NURAX_Desk_Mkt {
 			'token'      => wp_generate_password( 24, false, false ),
 			'created_at' => $now,
 			'updated_at' => $now,
-		) );
+		) ) );
 		return (int) $wpdb->insert_id;
 	}
 
@@ -426,7 +454,7 @@ class NURAX_Desk_Mkt {
 		}
 		$s    = NURAX_Desk::settings();
 		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT s.id AS sid, c.* FROM ' . self::t_s() . ' s JOIN ' . self::t_c() . " c ON c.id = s.contact_id WHERE s.campaign_id = %d AND s.status = 'queued' LIMIT %d", $id, $n ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		foreach ( (array) $rows as $c ) {
+		foreach ( NURAX_Vault::rows( $rows ) as $c ) {
 			if ( 'email' === $k->channel ) {
 				$from = is_email( $s['mkt_from_email'] ) ? $s['mkt_from_email'] : get_option( 'admin_email' );
 				$hdr  = array( 'Content-Type: text/html; charset=UTF-8', 'From: ' . ( $s['mkt_from_name'] ? $s['mkt_from_name'] : 'NURA Beauty' ) . ' <' . $from . '>', 'List-Unsubscribe: <' . add_query_arg( 'nura_unsub', $c->token, home_url( '/' ) ) . '>' );
@@ -773,6 +801,7 @@ class NURAX_Desk_Mkt {
 		echo '<section class="nd-card nd-remhero"><div class="nd-ring nd-ring--sm" style="--p:' . (int) $pct . '" data-mkt-ring><div><strong data-mkt-pct>' . (int) $pct . '%</strong><span>sent</span></div></div><div><h2>' . esc_html( 'email' === $k->channel ? $k->subject : 'WhatsApp campaign' ) . '</h2><p class="nd-mut"><span data-mkt-sent>' . (int) $k->sent . '</span> of ' . (int) $k->total . ' sent' . ( 'email' === $k->channel ? ' - ' . (int) $k->opened . ' opened' : '' ) . ' - <span data-mkt-failed>' . (int) $k->failed . '</span> failed - <span data-mkt-status>' . esc_html( ucfirst( $k->status ) ) . '</span></p>' . ( 'email' === $k->channel && 'sending' === $k->status ? '<p class="nd-small nd-mut">Keep this page open for the fastest sending. If you close it, the rest goes out in the background every 5 minutes.</p>' : '' ) . '</div></section>';
 		if ( 'whatsapp' === $k->channel && ! NURAX_Desk_Remind::api_ready() ) {
 			$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT s.id AS sid, s.status AS sst, c.* FROM ' . self::t_s() . ' s JOIN ' . self::t_c() . ' c ON c.id = s.contact_id WHERE s.campaign_id = %d ORDER BY s.status DESC, c.name ASC LIMIT 1000', $id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$rows = NURAX_Vault::rows( $rows );
 			echo '<section class="nd-card"><header class="nd-card__h"><h2>Send to each customer</h2><button type="button" class="nd-btn nd-btn--wa" data-mkt-next>Send next</button></header><ul class="nd-remlist">';
 			foreach ( (array) $rows as $c ) {
 				$done = 'queued' !== $c->sst;
@@ -800,14 +829,14 @@ class NURAX_Desk_Mkt {
 			$w = '(' . self::where( $seg, '', 'any' ) . ')';
 		}
 		if ( '' !== $q ) {
-			$like = '%' . $wpdb->esc_like( $q ) . '%';
-			$w   .= $wpdb->prepare( ' AND (name LIKE %s OR email LIKE %s OR phone LIKE %s OR tags LIKE %s)', $like, $like, $like, $like );
+			$w .= ' AND ' . self::search_where( $q );
 		}
 		$per   = 50;
 		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM $t WHERE $w" ); // phpcs:ignore WordPress.DB.PreparedSQL
 		$rows  = (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $t WHERE $w ORDER BY spent DESC, id DESC LIMIT %d OFFSET %d", $per, ( $paged - 1 ) * $per ) ); // phpcs:ignore WordPress.DB.PreparedSQL
+		$rows  = NURAX_Vault::rows( $rows );
 		$sync  = get_option( 'nurax_mkt_synced' );
-		$act   = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="nd-inline"><input type="hidden" name="action" value="nurax_mkt_sync">' . wp_nonce_field( 'nurax_mkt_sync', '_wpnonce', true, false ) . '<button class="nd-btn nd-btn--ghost" title="' . esc_attr( $sync ? 'Last import ' . $sync : 'Never imported' ) . '">Refresh from shop</button></form>' . NURAX_Desk::btn( NURAX_Desk::export_url( 'contacts' ), 'Export CSV', 'nd-btn--ghost' );
+		$act   = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="nd-inline"><input type="hidden" name="action" value="nurax_mkt_sync">' . wp_nonce_field( 'nurax_mkt_sync', '_wpnonce', true, false ) . '<button class="nd-btn nd-btn--ghost" title="' . esc_attr( $sync ? 'Last import ' . $sync : 'Never imported' ) . '">Refresh from shop</button></form>' . ( NURAX_Vault::can_export() ? NURAX_Desk::export_btns( 'contacts' ) : '' );
 		NURAX_Desk::header( NURAX_Desk::P_MKT, 'Audience', self::subnav( 'contacts' ) . $act );
 		echo '<details class="nd-card"><summary class="nd-sum">+ Add a contact</summary><form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="nd-form" style="margin-top:12px"><input type="hidden" name="action" value="nurax_mkt_contact"><input type="hidden" name="op" value="add">';
 		wp_nonce_field( 'nurax_mkt_contact' );
@@ -816,7 +845,7 @@ class NURAX_Desk_Mkt {
 		foreach ( array_merge( array( 'all' => 'All' ), array_slice( $segs, 1, null, true ) ) as $sk => $sl ) {
 			echo '<a class="nd-pill' . ( $sk === $seg ? ' is-on' : '' ) . '" href="' . esc_url( NURAX_Desk::url( NURAX_Desk::P_MKT, array( 'view' => 'contacts', 'seg' => $sk ) ) ) . '">' . esc_html( preg_replace( '/ \(.*\)$/', '', $sl ) ) . '</a>';
 		}
-		echo '</nav><form method="get" class="nd-search"><input type="hidden" name="page" value="' . esc_attr( NURAX_Desk::P_MKT ) . '"><input type="hidden" name="view" value="contacts"><input type="hidden" name="seg" value="' . esc_attr( $seg ) . '"><input type="search" name="s" value="' . esc_attr( $q ) . '" placeholder="Search name, phone, e-mail or tag"><button class="nd-btn nd-btn--ghost">Search</button></form></div>';
+		echo '</nav><form method="get" class="nd-search"><input type="hidden" name="page" value="' . esc_attr( NURAX_Desk::P_MKT ) . '"><input type="hidden" name="view" value="contacts"><input type="hidden" name="seg" value="' . esc_attr( $seg ) . '"><input type="search" name="s" value="' . esc_attr( $q ) . '" placeholder="Name, tag, full phone or full e-mail"><button class="nd-btn nd-btn--ghost">Search</button></form></div>';
 		if ( ! $rows ) {
 			echo '<div class="nd-empty"><strong>No contacts yet.</strong><p>Click "Refresh from shop" to import your customers.</p></div>';
 			NURAX_Desk::footer();
@@ -827,7 +856,7 @@ class NURAX_Desk_Mkt {
 			return '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="nd-inline"' . ( $confirm ? ' data-nd-confirm="' . esc_attr( $confirm ) . '"' : '' ) . '><input type="hidden" name="action" value="nurax_mkt_contact"><input type="hidden" name="op" value="' . esc_attr( $op ) . '"><input type="hidden" name="id" value="' . (int) $id . '">' . wp_nonce_field( 'nurax_mkt_contact', '_wpnonce', true, false ) . '<button class="' . esc_attr( $cls ) . '">' . esc_html( $label ) . '</button></form>';
 		};
 		foreach ( $rows as $c ) {
-			echo '<tr><td><strong>' . esc_html( $c->name ? $c->name : '-' ) . '</strong><small>' . esc_html( trim( NURAX_Desk::phone_label( $c->phone ) . '  ' . $c->email ) ) . '</small>' . ( $c->tags ? '<small>Tags: ' . esc_html( $c->tags ) . '</small>' : '' ) . '</td>';
+			echo '<tr><td><strong>' . esc_html( $c->name ? $c->name : '-' ) . '</strong><small>' . esc_html( trim( NURAX_Vault::show( NURAX_Desk::phone_label( $c->phone ), 'phone' ) . '  ' . NURAX_Vault::show( $c->email, 'email' ) ) ) . '</small>' . ( $c->tags ? '<small>Tags: ' . esc_html( $c->tags ) . '</small>' : '' ) . '</td>';
 			echo '<td><small>' . esc_html( str_replace( ',', ', ', $c->sources ) ) . '</small></td><td>' . (int) $c->orders . '</td><td>' . esc_html( NURAX_Desk::money( $c->spent ) ) . '</td><td><small>' . esc_html( $c->last_order ? NURAX_Desk::date_label( $c->last_order, 'j M Y' ) : '-' ) . '</small></td>';
 			echo '<td>' . ( $c->email ? $form( 'toggle_email', $c->id, $c->email_ok ? 'Subscribed' : 'Unsubscribed', 'nd-ico-btn' . ( $c->email_ok ? ' nd-ico-btn--wa' : '' ) ) : '<span class="nd-mut">-</span>' ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '<td>' . ( $c->phone ? $form( 'toggle_wa', $c->id, $c->wa_ok ? 'Yes' : 'Opted out', 'nd-ico-btn' . ( $c->wa_ok ? ' nd-ico-btn--wa' : '' ) ) : '<span class="nd-mut">-</span>' ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -841,8 +870,8 @@ class NURAX_Desk_Mkt {
 	public static function export_rows() {
 		global $wpdb;
 		$rows = array( array( 'Name', 'Phone', 'E-mail', 'Sources', 'Tags', 'Orders', 'Spent', 'Last order', 'E-mail subscribed', 'WhatsApp OK', 'Consent' ) );
-		foreach ( (array) $wpdb->get_results( 'SELECT * FROM ' . self::t_c() . ' ORDER BY spent DESC' ) as $c ) { // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$rows[] = array( $c->name, $c->phone, $c->email, $c->sources, $c->tags, $c->orders, $c->spent, $c->last_order, $c->email_ok ? 'Yes' : 'No', $c->wa_ok ? 'Yes' : 'No', $c->consent ? 'Yes' : 'No' );
+		foreach ( NURAX_Vault::rows( $wpdb->get_results( 'SELECT * FROM ' . self::t_c() . ' ORDER BY spent DESC' ) ) as $c ) { // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$rows[] = array( $c->name, NURAX_Vault::show( $c->phone, 'phone' ), NURAX_Vault::show( $c->email, 'email' ), $c->sources, $c->tags, $c->orders, $c->spent, $c->last_order, $c->email_ok ? 'Yes' : 'No', $c->wa_ok ? 'Yes' : 'No', $c->consent ? 'Yes' : 'No' );
 		}
 		return $rows;
 	}

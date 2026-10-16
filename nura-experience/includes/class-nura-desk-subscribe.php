@@ -150,17 +150,17 @@ class NURAX_Desk_Sub {
 			return array( 'ok' => false, 'msg' => __( 'Please enter a valid e-mail address.', 'nura-experience' ) );
 		}
 		$t      = NURAX_Desk_Mkt::t_c();
-		$exists = $email ? $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $t WHERE email = %s LIMIT 1", $email ) ) : null; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$exists = $email ? NURAX_Vault::row( NURAX_Desk_Mkt::by( 'email', $email ) ) : null;
 		$id     = NURAX_Desk_Mkt::upsert( array( 'name' => isset( $a['name'] ) ? $a['name'] : '', 'email' => $email, 'phone' => $phone, 'source' => 'newsletter', 'consent' => 1 ) );
 		if ( ! $id ) {
 			return array( 'ok' => false, 'msg' => __( 'Something went wrong. Please try again.', 'nura-experience' ) );
 		}
-		$row  = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $t WHERE id = %d", $id ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$row  = NURAX_Vault::row( $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $t WHERE id = %d", $id ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$data = array( 'email_ok' => 1, 'consent' => 1, 'updated_at' => current_time( 'mysql' ) );
 		if ( $phone ) {
 			$data['wa_ok'] = 1;
 			if ( $row && ! $row->phone ) {
-				$data['phone'] = $phone;
+				$data = array_merge( $data, NURAX_Vault::cols( null, $phone ) );
 			}
 		}
 		$tags = array_filter( array_map( 'trim', explode( ',', $row ? (string) $row->tags : '' ) ) );

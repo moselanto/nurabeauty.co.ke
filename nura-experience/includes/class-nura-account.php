@@ -317,7 +317,11 @@ class NURAX_Account {
 		if ( ! class_exists( 'NURAX_Desk_Mkt' ) ) {
 			return null;
 		}
-		return $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . NURAX_Desk_Mkt::t_c() . ' WHERE user_id = %d OR email = %s LIMIT 1', $u->ID, strtolower( $u->user_email ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$r = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . NURAX_Desk_Mkt::t_c() . ' WHERE user_id = %d LIMIT 1', $u->ID ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		if ( ! $r ) {
+			$r = NURAX_Desk_Mkt::by( 'email', $u->user_email );
+		}
+		return class_exists( 'NURAX_Vault' ) ? NURAX_Vault::row( $r ) : $r;
 	}
 
 	public function privacy_page() {
@@ -395,7 +399,7 @@ class NURAX_Account {
 					if ( $id ) {
 						$d = array( 'email_ok' => $em ? 1 : 0, 'wa_ok' => $wa ? 1 : 0, 'consent' => ( $em || $wa ) ? 1 : 0, 'updated_at' => current_time( 'mysql' ) );
 						if ( $phone ) {
-							$d['phone'] = $phone;
+							$d = array_merge( $d, NURAX_Vault::cols( null, $phone ) );
 						}
 						$wpdb->update( NURAX_Desk_Mkt::t_c(), $d, array( 'id' => $id ) );
 					}

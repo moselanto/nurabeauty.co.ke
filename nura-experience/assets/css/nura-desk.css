@@ -491,3 +491,18 @@ a.nd-kpi:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(14,14,14,.
 .nd-btn--csv{min-width:0;padding:0 10px;font-size:11.5px;color:#6f675d}
 .nd-exports{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .nd-exports strong{margin-right:4px}
+
+/* 1.68.0 Security & customer data */
+.nd-sec{border-top:3px solid #C9A24B}
+.nd-sec .nd-card__h{display:flex;align-items:center;gap:10px}
+.nd-sec__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:4px 0 14px}
+.nd-sec__stat{padding:14px 16px;border-radius:12px;background:#0E0E0E;color:#cfc6b8}
+.nd-sec__stat strong{display:block;font-size:20px;color:#E4C983}
+.nd-sec__stat span{font-size:12px}
+.nd-sec__form{padding:14px 16px;border:1px solid #efe7da;border-radius:12px;background:#faf7f2;margin:10px 0}
+.nd-sec__form p{margin:0 0 10px}
+.nd-sec__more{margin-top:10px;border:1px solid #efe7da;border-radius:12px;padding:10px 14px;background:#fff}
+.nd-sec__more summary{cursor:pointer;font-weight:700}
+.nd-code{padding:12px;border-radius:10px;background:#0E0E0E;color:#E4C983;white-space:pre-wrap;word-break:break-all;font-size:12.5px}
+.nd-alert--error{padding:10px 14px;border-radius:10px;background:#fdecea;color:#b3261e;font-weight:600}
+@media (max-width:900px){.nd-sec__grid{grid-template-columns:1fr}}

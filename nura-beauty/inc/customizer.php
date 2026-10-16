@@ -49,8 +49,8 @@ function nura_settings_map() {
 		'nura_city'        => array( 'default' => 'Nairobi', 'label' => __( 'City', 'nura-beauty' ), 'section' => 'nura_brand' ),
 		'nura_hours'       => array( 'default' => 'Mon–Sat 8:00–20:00', 'label' => __( 'Opening hours', 'nura-beauty' ), 'section' => 'nura_brand' ),
 		'nura_instagram'   => array( 'default' => '', 'label' => __( 'Instagram URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
-		'nura_tiktok'      => array( 'default' => '', 'label' => __( 'TikTok URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
-		'nura_facebook'    => array( 'default' => '', 'label' => __( 'Facebook URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
+		'nura_tiktok'      => array( 'default' => 'https://www.tiktok.com/@nurabeautyke', 'label' => __( 'TikTok URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
+		'nura_facebook'    => array( 'default' => 'https://www.facebook.com/nurabeautyke/', 'label' => __( 'Facebook URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
 		'nura_youtube'     => array( 'default' => '', 'label' => __( 'YouTube URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
 		'nura_pinterest'   => array( 'default' => '', 'label' => __( 'Pinterest URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
 		'nura_x'           => array( 'default' => '', 'label' => __( 'X (Twitter) URL', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
@@ -240,7 +240,7 @@ function nura_social_links() {
 	);
 	$out = array();
 	foreach ( $networks as $key => $label ) {
-		$url = trim( (string) get_theme_mod( 'nura_' . $key, '' ) );
+		$url = trim( (string) nura_opt( 'nura_' . $key ) );
 		if ( '' !== $url ) {
 			$out[] = array( 'key' => $key, 'label' => $label, 'url' => $url );
 		}
@@ -257,8 +257,8 @@ function nura_social_urls() {
 function nura_social_icon( $key ) {
 	$paths = array(
 		'instagram' => '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/>',
-		'tiktok'    => '<path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5"/><path d="M14 3c.5 2.7 2.3 4.3 5 4.5"/>',
-		'facebook'  => '<path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V10H6.5v3.5H9V21h3.5v-7.5H15l.5-3.5h-3V7a1 1 0 0 1 1-1H15z"/>',
+		'tiktok'    => '<path d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.27 0 .53.04.78.12V9.75a5.8 5.8 0 0 0-.78-.05 5.75 5.75 0 1 0 5.75 5.75V9.1a7.4 7.4 0 0 0 4.3 1.38V7.37a4.3 4.3 0 0 1-3.25-1.57z" fill="currentColor" stroke="none"/>',
+		'facebook'  => '<path d="M13.5 21v-7.5H16l.4-3h-2.9V8.6c0-.87.25-1.46 1.5-1.46h1.55V4.45A20 20 0 0 0 14.3 4.3c-2.2 0-3.7 1.34-3.7 3.8v2.4H8.1v3h2.5V21z" fill="currentColor" stroke="none"/>',
 		'youtube'   => '<rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor"/>',
 		'pinterest' => '<circle cx="12" cy="12" r="9"/><path d="M11 21l2-8"/><path d="M9.5 13.5c-1-2.5.5-6 3.5-6 2.5 0 3.5 1.8 3.5 3.5 0 2.5-1.5 4.5-3.5 4.5-1 0-1.6-.6-1.5-1.5"/>',
 		'x'         => '<path d="M4 4l16 16M20 4L4 20"/>',

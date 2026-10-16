@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.55.10' );
+define( 'NURA_VERSION', '1.56.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -71,6 +71,7 @@ nura_require( 'shortcodes' );
 nura_require( 'nura-tidy' );
 nura_require( 'nura-new-content' );
 nura_require( 'nura-gallery-captions' );
+nura_require( 'nura-social' );
 
 /**
  * Contact page design (v1.45.0): use page-contact.php for the contact page

@@ -1375,3 +1375,30 @@ html{scroll-behavior:smooth}
 @media (max-width:900px){.nura-ab-story,.nura-ab-studio{grid-template-columns:1fr}.nura-ab-story__media{aspect-ratio:4/3}.nura-ab-studio__map,.nura-ab-studio__map iframe{min-height:260px}}
 @media (max-width:560px){.nura-ab-why,.nura-ab-page .nura-in-services,.nura-wf-tool__body .nura-finder__grid{grid-template-columns:1fr}.nura-ab-stats{grid-template-columns:1fr}.nura-wf-cards{grid-template-columns:1fr}.nura-ab-hero::after,.nura-wf-hero::after{display:none}.nura-wf-tool__body .nura-finder__hint{min-height:0}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.nura-ab-why__card,.nura-wf-steps li{transition:none}}
+
+
+/* ===== v1.56.0 Social media touchpoints (TikTok, Facebook) ===== */
+.nura-announce__inner{position:relative;display:flex;align-items:center;justify-content:center}
+.nura-announce__social{position:absolute;right:clamp(16px,3vw,40px);top:50%;transform:translateY(-50%);display:flex;gap:.35rem}
+.nura-announce__social a{display:inline-flex;width:26px;height:26px;align-items:center;justify-content:center;border-radius:50%;color:rgba(251,243,230,.82);transition:color .2s,background .2s}
+.nura-announce__social a:hover,.nura-announce__social a:focus-visible{color:#1a1410;background:#c9a24b}
+.nura-announce__social svg{width:15px;height:15px}
+@media(max-width:900px){.nura-announce__social{display:none}}
+
+.nura-follow{display:flex;flex-wrap:wrap;justify-content:center;gap:.75rem;margin:1.6rem 0 .6rem}
+.nura-follow__btn{display:inline-flex;align-items:center;gap:.6rem;min-height:48px;padding:0 1.4rem;border-radius:999px;border:1px solid rgba(243,233,220,.3);color:#fbf3e6;font-family:var(--font-ui);font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:background .2s,border-color .2s,color .2s,transform .2s}
+.nura-follow__btn svg{width:18px;height:18px}
+.nura-follow__btn:hover,.nura-follow__btn:focus-visible{background:#c9a24b;border-color:#c9a24b;color:#1a1410;transform:translateY(-1px)}
+.nura-follow__note{margin:.2rem auto 0;max-width:520px;font-size:.85rem;opacity:.72}
+@media(max-width:480px){.nura-follow__btn{flex:1 1 100%;justify-content:center}}
+
+.nura-social-strip{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin:1.4rem 0 0;padding:14px 16px;border:1px solid rgba(14,14,14,.08);border-radius:12px;background:#faf6f0}
+.nura-social-strip__copy{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.nura-social-strip__copy strong{font-family:var(--font-ui);font-size:.82rem;letter-spacing:.08em;text-transform:uppercase}
+.nura-social-strip__copy span{font-size:.85rem;color:#5c5c5c}
+.nura-social-strip__links{display:flex;gap:.5rem}
+.nura-social-strip__link{display:inline-flex;align-items:center;gap:.4rem;height:38px;padding:0 .9rem;border-radius:999px;border:1px solid rgba(14,14,14,.14);background:#fff;color:var(--nura-ink,#0e0e0e);font-family:var(--font-ui);font-size:.76rem;font-weight:600;text-decoration:none;transition:background .2s,color .2s,border-color .2s}
+.nura-social-strip__link svg{width:16px;height:16px}
+.nura-social-strip__link:hover,.nura-social-strip__link:focus-visible{background:var(--nura-ink,#0e0e0e);border-color:var(--nura-ink,#0e0e0e);color:#fff}
+.nura-social-strip--thankyou{margin:2rem 0}
+@media(max-width:480px){.nura-social-strip__links{width:100%}.nura-social-strip__link{flex:1;justify-content:center}}

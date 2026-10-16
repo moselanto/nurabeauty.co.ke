@@ -73,7 +73,21 @@ function nura_announcement_bar() {
 	if ( ! $text ) {
 		return;
 	}
-	echo '<div class="nura-announce"><div class="nura-container"><p>' . wp_kses_post( $text ) . '</p></div></div>';
+	$social = '';
+	if ( function_exists( 'nura_social_links' ) ) {
+		foreach ( nura_social_links() as $soc ) {
+			if ( ! in_array( $soc['key'], array( 'tiktok', 'facebook', 'instagram' ), true ) ) {
+				continue;
+			}
+			/* translators: %s: social network name. */
+			$social .= '<a href="' . esc_url( $soc['url'] ) . '" target="_blank" rel="noopener me" aria-label="' . esc_attr( sprintf( __( 'NURA on %s', 'nura-beauty' ), $soc['label'] ) ) . '">' . nura_social_icon( $soc['key'] ) . '</a>';
+		}
+	}
+	echo '<div class="nura-announce"><div class="nura-container nura-announce__inner"><p>' . wp_kses_post( $text ) . '</p>';
+	if ( $social ) {
+		echo '<div class="nura-announce__social">' . $social . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above; icons are static SVG.
+	}
+	echo '</div></div>';
 }
 
 /**

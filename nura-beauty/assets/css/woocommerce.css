@@ -329,3 +329,27 @@ html body .woocommerce ul.products li.product .woocommerce-loop-product__title,
 html body ul.products li.product .woocommerce-loop-product__title{font-size:.86rem;margin:.65rem 9px .45rem!important;min-height:3.9em}
 html body .woocommerce ul.products,html body ul.products{row-gap:1.25rem}
 }
+
+
+/* ===== v1.56.0 Balanced shop grid: every row lines up, card to card ===== */
+html body .woocommerce ul.products,html body ul.products{align-items:stretch}
+/* Reserve the colour-swatch row on cards with no swatches so prices sit on one line across the row. */
+html body ul.products li.product:not(:has(.nura-swatch-dots)) .price{margin-top:calc(16px + .6rem)!important}
+html body ul.products li.product .price{font-variant-numeric:tabular-nums;min-height:1.6em}
+/* Equal, pinned action buttons. */
+html body ul.products li.product .button,html body ul.products li.product .nwo-btn--card{height:42px;min-height:42px;box-sizing:border-box;font-weight:600}
+html body ul.products li.product a.woocommerce-loop-product__link{flex:1 1 auto}
+/* Calmer card surface and consistent image framing. */
+html body ul.products li.product{border-color:rgba(14,14,14,.08);box-shadow:0 1px 2px rgba(14,14,14,.03)}
+html body ul.products li.product a img{object-position:center top}
+/* Shop toolbar: result count and sorting on one balanced line. */
+.woocommerce .woocommerce-result-count,.woocommerce .woocommerce-ordering{margin:0 0 1.25rem!important;font-family:var(--font-ui);font-size:.85rem;color:#5c5c5c}
+@media(min-width:700px){.woocommerce .woocommerce-result-count{float:left;line-height:40px}.woocommerce .woocommerce-ordering{float:right}.woocommerce .woocommerce-ordering select{height:40px;border-radius:8px;padding:0 2rem 0 .8rem}}
+.woocommerce .woocommerce-ordering::after{content:"";display:table;clear:both}
+.woocommerce ul.products{clear:both}
+/* Pagination: centred, tidy pills. */
+.woocommerce nav.woocommerce-pagination{margin-top:2.5rem;text-align:center}
+.woocommerce nav.woocommerce-pagination ul{border:0!important;display:inline-flex;gap:.4rem}
+.woocommerce nav.woocommerce-pagination ul li{border:0!important}
+.woocommerce nav.woocommerce-pagination ul li a,.woocommerce nav.woocommerce-pagination ul li span{min-width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid rgba(14,14,14,.12)}
+.woocommerce nav.woocommerce-pagination ul li span.current{background:var(--nura-ink);color:#fff;border-color:var(--nura-ink)}

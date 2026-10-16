@@ -43,6 +43,17 @@ class NURAX_Desk {
 		add_action( 'init', array( $this, 'schedule' ) );
 		add_action( self::CRON, array( $this, 'daily' ) );
 		add_action( 'admin_menu', array( $this, 'menu' ), 56 );
+		// Publish the Lipa Mdogo Mdogo Terms page once, so the website pop-up can link to it.
+		add_action( 'admin_init', function () {
+			if ( get_option( 'nurax_lmm_terms_page' ) || ! class_exists( 'NURAX_Pages' ) || ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+			$defs = NURAX_Pages::defs();
+			if ( ! get_page_by_path( 'lipa-mdogo-mdogo-terms' ) && isset( $defs['lipa-mdogo-mdogo-terms'] ) ) {
+				wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_name' => 'lipa-mdogo-mdogo-terms', 'post_title' => $defs['lipa-mdogo-mdogo-terms'][0], 'post_content' => $defs['lipa-mdogo-mdogo-terms'][1] ) );
+			}
+			update_option( 'nurax_lmm_terms_page', 1, false );
+		} );
 		add_action( 'admin_menu', function () {
 			remove_submenu_page( 'woocommerce', 'nurax-wa-orders' );
 		}, 999 );

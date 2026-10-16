@@ -1738,3 +1738,11 @@ body .wp-block-woocommerce-checkout .wc-block-components-notice-banner{border-ra
 /* 1.60.3 plan pop-up: phone field */
 .nura-plan__fields label:last-child{grid-column:1/-1}
 @media (max-width:600px){.nura-plan__fields label:last-child{grid-column:auto}}
+
+/* 1.60.4 Lipa Mdogo terms acceptance */
+.nura-plan__agree{display:flex;gap:10px;align-items:flex-start;margin:14px 24px 0;padding:12px 14px;border:1px solid #e2cf9f;border-radius:12px;background:#fffaf0;font-size:.86rem;line-height:1.45;cursor:pointer;transition:box-shadow .2s,border-color .2s}
+.nura-plan__agree input{width:18px;height:18px;margin-top:1px;flex:none;accent-color:#0E0E0E}
+.nura-plan__agree a{color:#8a6a1f;font-weight:700;text-decoration:underline}
+.nura-plan__agree.is-required{border-color:#b3261e;box-shadow:0 0 0 3px rgba(179,38,30,.15)}
+.nura-plan__send.is-locked{opacity:.55}
+@media (max-width:600px){.nura-plan__agree{margin:12px 18px 0}}

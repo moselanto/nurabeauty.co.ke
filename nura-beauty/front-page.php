@@ -29,7 +29,7 @@ $finder_url = home_url( '/ai-wig-finder/' );
 $nura_phone = nura_opt( 'nura_phone' );
 if ( ! $nura_phone ) { $nura_phone = '+254 714 994 898'; }
 $nura_email = nura_opt( 'nura_email' );
-if ( ! $nura_email ) { $nura_email = 'care@nurabeautyke.co.ke'; }
+if ( ! $nura_email ) { $nura_email = 'care@nurabeauty.co.ke'; }
 $nura_tel   = preg_replace( '/[^0-9+]/', '', $nura_phone );
 if ( ! $wa ) { $wa = 'https://wa.me/254714994898'; }
 

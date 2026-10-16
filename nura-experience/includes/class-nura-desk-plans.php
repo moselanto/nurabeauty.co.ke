@@ -388,6 +388,9 @@ class NURAX_Desk_Plans {
 		} elseif ( $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $t WHERE ref = %s", $ref ) ) ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			wp_send_json_success( array( 'ref' => $ref ) ); // Same request sent twice.
 		}
+		if ( empty( $_POST['terms'] ) ) {
+			wp_send_json_error( array( 'message' => 'terms' ), 400 );
+		}
 		$name   = isset( $_POST['name'] ) ? mb_substr( sanitize_text_field( wp_unslash( $_POST['name'] ) ), 0, 120 ) : '';
 		$phone  = isset( $_POST['phone'] ) ? NURAX_Desk::phone( wp_unslash( $_POST['phone'] ) ) : '';
 		$opt    = isset( $_POST['options'] ) ? mb_substr( sanitize_text_field( wp_unslash( $_POST['options'] ) ), 0, 255 ) : '';
@@ -414,7 +417,7 @@ class NURAX_Desk_Plans {
 			'fulfil'        => $fulfil,
 			'notes'         => '',
 			'source'        => 'website',
-			'log'           => wp_json_encode( array( array( 't' => $now, 'u' => 'Website', 'm' => 'Plan requested from the product page.' ) ) ),
+			'log'           => wp_json_encode( array( array( 't' => $now, 'u' => 'Website', 'm' => 'Plan requested from the product page. Customer ticked: "I have read and agree to the Lipa Mdogo Mdogo Terms & Conditions" (version 1.0).' ) ) ),
 			'created_at'    => $now,
 			'updated_at'    => $now,
 		) );
@@ -527,7 +530,7 @@ class NURAX_Desk_Plans {
 						<?php endforeach; ?>
 						</tbody></table>
 					<?php endif; ?>
-					<p style="font-size:.85rem;color:#6f675d;margin:0">Questions about your plan? Message us on WhatsApp and quote <strong><?php echo esc_html( $p->ref ); ?></strong>.</p>
+					<p style="font-size:.85rem;color:#6f675d;margin:0">Questions about your plan? Message us on WhatsApp and quote <strong><?php echo esc_html( $p->ref ); ?></strong>. Your plan follows our <a href="<?php echo esc_url( home_url( '/lipa-mdogo-mdogo-terms/' ) ); ?>">Lipa Mdogo Mdogo Terms</a>.</p>
 				</div>
 			</div>
 		</main>
@@ -932,6 +935,9 @@ class NURAX_Desk_Plans {
 		}
 		echo '</div><aside class="nd-plan__side"><section class="nd-card"><header class="nd-card__h"><h2>Notes</h2></header>';
 		echo '<label class="nd-field"><textarea name="notes" rows="6" placeholder="Anything the team should know">' . esc_textarea( $v['notes'] ) . '</textarea></label>';
+		if ( ! $p ) {
+			echo '<label class="nd-field nd-field--check"><input type="checkbox" name="terms_ok" value="1" required><span><strong>Customer has read and accepted the Lipa Mdogo Mdogo Terms</strong><small><a href="' . esc_url( home_url( '/lipa-mdogo-mdogo-terms/' ) ) . '" target="_blank" rel="noopener">Open the terms</a> - send her the link on WhatsApp if she has not seen them.</small></span></label>';
+		}
 		echo '<label class="nd-field"><span class="nd-label">WooCommerce order # (optional)</span><input type="number" name="wc_order_id" min="0" value="' . esc_attr( $v['wc_order_id'] ) . '"></label>';
 		echo '<button type="submit" class="nd-btn nd-btn--primary nd-btn--block">' . ( $p ? 'Save changes' : 'Create plan' ) . '</button></section></aside></div></form>';
 		NURAX_Desk::footer();
@@ -1018,7 +1024,7 @@ class NURAX_Desk_Plans {
 			$data['log']        = '[]';
 			$wpdb->insert( $t, $data );
 			$id = (int) $wpdb->insert_id;
-			NURAX_Desk::log( $t, $id, 'Plan created.' );
+			NURAX_Desk::log( $t, $id, 'Plan created.' . ( ! empty( $in['terms_ok'] ) ? ' Customer accepted the Lipa Mdogo Mdogo Terms (version 1.0).' : '' ) );
 			$amt = isset( $in['init_amount'] ) ? round( (float) $in['init_amount'], 2 ) : 0;
 			if ( $amt > 0 ) {
 				$amt = min( $amt, $price );

@@ -783,6 +783,7 @@ add_action( 'wp_enqueue_scripts', function () {
 		/* translators: 1: product, 2: deposit, 3: weekly, 4: weeks, 5: link. */
 		'waMsg'  => __( 'Hi NURA, I would like to buy %1$s on Lipa Mdogo Mdogo: %2$s deposit, then %3$s a week for %4$s weeks. Colour/length: ____. %5$s', 'nura-beauty' ),
 		'copied' => __( 'Copied', 'nura-beauty' ),
+		'lmmTerms'  => ( get_page_by_path( 'lipa-mdogo-mdogo-terms' ) ? get_permalink( get_page_by_path( 'lipa-mdogo-mdogo-terms' ) ) : home_url( '/lipa-mdogo-mdogo-terms/' ) ),
 		'lmmAjax'   => class_exists( 'NURAX_Desk_Plans' ) ? admin_url( 'admin-ajax.php' ) : '',
 		'slots'     => class_exists( 'NURAX_Desk_Appts' ) ? rest_url( 'nurax/v1/slots' ) : '',
 		'hoursText' => function_exists( 'nura_hours_text' ) ? nura_hours_text() : 'Mon-Sat 8:00-20:00',

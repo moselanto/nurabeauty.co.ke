@@ -17,7 +17,7 @@
  *    publish.
  *
  * The copy is grounded in NURA's own published details (Nairobi studio,
- * +254 714 994 898, care@nurabeautyke.co.ke, M-Pesa/card (Paystack)/bank transfer/COD, same-day Nairobi
+ * +254 714 994 898, care@nurabeauty.co.ke, M-Pesa/card (Paystack)/bank transfer/COD, same-day Nairobi
  * delivery, 48-hour returns window). A few store-specific values that only the
  * owner can confirm (exact Till number, precise fees) are shown at checkout or
  * left as a clearly marked note rather than invented.
@@ -41,7 +41,7 @@ class NURAX_Pages {
 	public static function defs() {
 		$biz   = get_bloginfo( 'name' );
 		$phone = '+254 714 994 898';
-		$email = 'care@nurabeautyke.co.ke';
+		$email = 'care@nurabeauty.co.ke';
 
 		$about = <<<HTML
 <h2>The House of Radiant Confidence</h2>
@@ -74,18 +74,27 @@ HTML;
 HTML;
 
 		$delivery = <<<HTML
-<h2>Delivery Information</h2>
-<p>We deliver premium wigs, hair and beauty across Kenya and worldwide, carefully packaged and tracked.</p>
-<h3>Delivery times</h3>
+<h2>Shipping &amp; Delivery</h2>
+<p>We deliver across all 47 counties of Kenya. Every NURA unit is quality-checked, packed discreetly and handed to a trusted rider or courier. All prices and delivery fees are in Kenyan Shillings (KES).</p>
+<h3>Delivery options and times</h3>
 <ul>
-<li><strong>Nairobi:</strong> same-day delivery on orders placed before 5:00pm; otherwise next day.</li>
-<li><strong>Countrywide (Kenya):</strong> 1 to 3 business days via trusted couriers.</li>
-<li><strong>International / diaspora:</strong> 3 to 10 business days via DHL or FedEx with full tracking, priced in USD.</li>
+<li><strong>Nairobi - rider delivery:</strong> same day for orders confirmed before 5:00pm (Monday to Saturday), otherwise the next working day. Fees start from KSh 300 depending on your area.</li>
+<li><strong>Outside Nairobi - bus &amp; shuttle parcel:</strong> usually 1 to 2 working days to your town's stage or office (for example Mombasa, Kisumu, Nakuru, Eldoret, Nyeri, Embu). You collect with your ID and the parcel code we send you.</li>
+<li><strong>Outside Nairobi - courier (Fargo / G4S):</strong> 1 to 3 working days to the courier branch nearest you, or to your door where the courier offers it.</li>
+<li><strong>Free pick-up:</strong> collect from our studio at Imenti House, Moi Avenue, Nairobi CBD, Monday to Saturday.</li>
 </ul>
-<h3>Fees &amp; processing</h3>
-<p>Delivery fees are calculated at checkout based on your location; free delivery is available on qualifying orders. Orders are processed within 1 business day. You will receive tracking details once your order is dispatched.</p>
-<h3>Pay on delivery</h3>
-<p>Pay-on-delivery is available within Nairobi. For all other locations we confirm payment (or a deposit) before dispatch. See our <a href="/payment-information/">Payment Information</a> page for options.</p>
+<p>The exact fee for your location is shown at checkout (and in our WhatsApp order form) before you pay. Free delivery applies to qualifying orders where shown at checkout.</p>
+<h3>Processing</h3>
+<p>Orders are packed within 1 working day of payment confirmation. We send your rider details, parcel code or courier tracking number by WhatsApp or SMS as soon as your order is dispatched. Orders placed on Sundays and public holidays are dispatched the next working day.</p>
+<h3>Paying for delivery orders</h3>
+<ul>
+<li><strong>Nairobi:</strong> pay online (M-Pesa or card), by bank transfer, or pay the rider on delivery (M-Pesa or cash).</li>
+<li><strong>Outside Nairobi:</strong> full payment is needed before dispatch, because parcels travel by bus or courier.</li>
+</ul>
+<h3>Receiving your order</h3>
+<p>Please check your parcel when you receive it and tell us within 48 hours if anything is wrong, with photos - see <a href="/returns-refunds/">Returns &amp; Refunds</a>. If a delivery cannot be completed because the phone number is unreachable or the address is wrong, a second delivery may be charged.</p>
+<h3>Outside Kenya</h3>
+<p>We can ship to clients abroad on request. Message us on WhatsApp for a quote; shipping is quoted and paid in KES before dispatch, and any import duties or taxes in your country are paid by you.</p>
 <p>Questions about a delivery? Message us on WhatsApp at <strong>$phone</strong>.</p>
 HTML;
 
@@ -112,8 +121,8 @@ HTML;
 <li><strong>Wrong item received or faulty on arrival:</strong> NURA covers return shipping in full.</li>
 <li><strong>Change-of-mind returns</strong> (unworn unit, within 7 days): return shipping is the customer's responsibility. We recommend a tracked courier so we can confirm arrival before processing your refund.</li>
 </ul>
-<h3>International &amp; diaspora orders</h3>
-<p>Because of the cost of return freight on international shipments, change-of-mind returns are not available for orders shipped outside Kenya via DHL or FedEx. Diaspora orders remain fully covered by our <a href="/warranty/">Warranty</a> for faulty or damaged units. If you are unsure about sizing, colour or texture before ordering internationally, we strongly recommend a free virtual consultation first.</p>
+<h3>Orders shipped outside Kenya</h3>
+<p>Because of the cost of international return freight, change-of-mind returns are not available for orders shipped outside Kenya. These orders are still covered for wrong or faulty items under our <a href="/warranty/">Warranty</a>. If you are unsure about size, colour or texture, book a free virtual consultation before you order.</p>
 <h3>How to start a return</h3>
 <ol>
 <li>Contact us on WhatsApp or email within 7 days of delivery, quoting your order number.</li>
@@ -146,7 +155,7 @@ HTML;
 <h3>Information we collect</h3>
 <ul>
 <li><strong>Information you give us:</strong> name, phone number, email, delivery address and order details when you place an order, book an appointment, message us on WhatsApp, or subscribe to Join The House.</li>
-<li><strong>Payment information:</strong> we do not store your full M-Pesa or card details. Payments are processed securely through Safaricom (M-Pesa) and our card and PayPal payment providers, who handle this data under their own security and privacy standards.</li>
+<li><strong>Payment information:</strong> we do not store your full M-Pesa or card details. Payments are processed securely through Safaricom (M-Pesa) and Paystack, our M-Pesa and card payment provider, who handle this data under their own security and privacy standards.</li>
 <li><strong>Automatically collected information:</strong> IP address, browser type, device information and browsing behaviour on our Site, collected via cookies and similar technologies.</li>
 <li><strong>Photos you share:</strong> if you send photos via WhatsApp (for a return, warranty claim or styling consultation), we keep these only as long as needed to resolve your request.</li>
 </ul>
@@ -179,7 +188,7 @@ HTML;
 <p>$biz (registered as NURA CROWN &amp; BEAUTY, Business Registration No. BN-MJS7ALRV) is East Africa's house of radiant confidence, offering premium human-hair and fashion wigs, hair care and beauty products, hand-finished and serviced from our studio at Imenti House, Moi Avenue, Nairobi CBD.</p>
 <h3>Orders &amp; payment</h3>
 <ul>
-<li>All prices are listed in Kenyan Shillings (KES) unless otherwise stated; international orders may be quoted in USD.</li>
+<li>All prices are in Kenyan Shillings (KES) and include any applicable taxes. Delivery fees are shown separately at checkout.</li>
 <li>We accept M-Pesa and card (via Paystack), bank transfer, and cash on delivery within Nairobi.</li>
 <li>Orders are confirmed once payment is received or, for pay-on-delivery orders, once we have confirmed the order details with you.</li>
 <li>We may cancel or refuse an order - for example in cases of suspected fraud, pricing errors or stock unavailability - and will notify you promptly.</li>
@@ -187,11 +196,13 @@ HTML;
 <h3>Product information</h3>
 <p>We do our best to accurately describe and photograph every product, including hair type (human hair versus synthetic fibre), texture, length and construction. Minor variations in colour or texture are possible due to the natural nature of human hair and to photography and screen differences.</p>
 <h3>Shipping &amp; delivery</h3>
-<p>See our <a href="/shipping-delivery/">Shipping &amp; Delivery</a> page for timelines and fees. Delivery estimates are not guaranteed and may be affected by factors outside our control (courier delays, customs processing for international orders).</p>
+<p>See our <a href="/shipping-delivery/">Shipping &amp; Delivery</a> page for timelines and fees. Delivery estimates are not guaranteed and may be affected by factors outside our control (courier or bus delays, weather, public holidays).</p>
 <h3>Returns, refunds &amp; warranty</h3>
 <p>See our <a href="/returns-refunds/">Returns &amp; Refunds</a> and <a href="/warranty/">Warranty</a> pages for full terms. Nothing in these Terms affects your statutory rights under Kenya's Consumer Protection Act.</p>
 <h3>Custom &amp; bespoke orders</h3>
 <p>Custom and bespoke units are made to your specification and are non-returnable unless faulty. Production timelines are confirmed at the time of order.</p>
+<h3>Lipa Mdogo Mdogo (pay in instalments)</h3>
+<p>Lipa Mdogo Mdogo is an interest-free lay-by plan: you reserve a wig with a deposit and pay the balance in weekly instalments, and the wig is released once it is fully paid. It is not a loan. Plans are governed by our <a href="/lipa-mdogo-mdogo-terms/">Lipa Mdogo Mdogo Terms</a>, which you accept before starting a plan.</p>
 <h3>Appointments &amp; installation</h3>
 <p>Appointments booked through our Site or WhatsApp are subject to availability. Please give at least 24 hours notice if you need to reschedule or cancel.</p>
 <h3>Intellectual property</h3>
@@ -268,9 +279,11 @@ HTML;
 <h3>How do I pay?</h3>
 <p>M-Pesa and Visa/Mastercard (both via Paystack), bank transfer, and cash on delivery within Nairobi. See <a href="/payment-information/">Payment Information</a>.</p>
 <h3>How fast is delivery?</h3>
-<p>Same-day within Nairobi (order before 5:00pm), 1 to 3 business days countrywide, and 3 to 10 business days internationally with tracking. See <a href="/shipping-delivery/">Delivery Information</a>.</p>
+<p>Same-day within Nairobi (order before 5:00pm), 1 to 3 business days countrywide, and and shipping abroad on request. See <a href="/shipping-delivery/">Shipping &amp; Delivery</a>.</p>
 <h3>Can I return or exchange a wig?</h3>
 <p>Unworn, unaltered units can be returned within 7 days of delivery. Worn, cut or installed units cannot be returned for hygiene reasons. See <a href="/returns-refunds/">Refund &amp; Returns</a>.</p>
+<h3>Can I pay in instalments?</h3>
+<p>Yes - Lipa Mdogo Mdogo on wigs from KSh 7,000: pay a 30% deposit to reserve your wig, then the balance weekly over 2 to 4 weeks with no interest and no extra fees. Your wig is released once fully paid. See the <a href="/lipa-mdogo-mdogo-terms/">Lipa Mdogo Mdogo Terms</a>.</p>
 <h3>Do you install wigs?</h3>
 <p>Yes - installation, styling, colouring, revamp and repairs. See <a href="/wig-installation/">Wig Installation</a>.</p>
 <p>Still have a question? Chat with us on WhatsApp at <strong>$phone</strong>.</p>
@@ -311,10 +324,66 @@ HTML;
 <p>Try our <a href="/ai-wig-finder/">Find Your Wig</a> quiz, then message us on WhatsApp at <strong>$phone</strong> or email <strong>$email</strong> and we will help you confirm size, cap and density before you order. You can also visit our Nairobi studio for a fitting.</p>
 HTML;
 
+
+		$lmm = <<<HTML
+<h2>Lipa Mdogo Mdogo - Terms &amp; Conditions</h2>
+<p><em>Version 1.0 - effective 16 October 2026.</em> These terms apply to every Lipa Mdogo Mdogo plan with $biz (NURA CROWN &amp; BEAUTY). Please read them before you start a plan. By ticking "I agree" or paying a deposit, you accept them.</p>
+<h3>1. What Lipa Mdogo Mdogo is</h3>
+<p>Lipa Mdogo Mdogo is an <strong>interest-free lay-by plan</strong>. You reserve a wig with a deposit and pay the balance in weekly instalments. The wig stays with NURA until it is <strong>fully paid</strong>, then you collect it or we deliver it. It is not a loan or credit facility, and there is no interest, no service charge and no penalty fee.</p>
+<h3>2. Who can use it</h3>
+<ul>
+<li>Available on selected wigs from <strong>KSh 7,000</strong>, as shown on the product page.</li>
+<li>You must be 18 or older and give a working Kenyan (or WhatsApp) phone number, which we use for your receipts and reminders.</li>
+<li>NURA may decline a plan, for example if the item is out of stock.</li>
+</ul>
+<h3>3. Price, deposit and schedule</h3>
+<ul>
+<li>The price is <strong>fixed on the day your deposit is received</strong>, even if the shop price changes later.</li>
+<li>A <strong>deposit of 30%</strong> of the price reserves your wig. Your plan starts only when the deposit is received and confirmed by NURA.</li>
+<li>The balance is paid in equal weekly instalments over the plan length you choose (2, 3 or 4 weeks). Your dated schedule is shown before you start and on your personal statement link.</li>
+<li>You may pay more than the instalment, or clear the balance early, at any time at no extra cost.</li>
+</ul>
+<h3>4. How to pay</h3>
+<ul>
+<li>Pay only to NURA's official M-Pesa Till/Paybill or bank account shared in our WhatsApp chat or invoice. NURA staff will never ask you to pay to a personal number.</li>
+<li>Send us the M-Pesa confirmation code after each payment. We record it and send you a receipt with your new balance.</li>
+</ul>
+<h3>5. Your reserved wig</h3>
+<ul>
+<li>Once the deposit is received, the wig (exact length, texture and colour) is taken out of stock and kept for you.</li>
+<li>Before the plan is complete you may switch once to another wig of equal or higher value; any price difference is added to your balance.</li>
+</ul>
+<h3>6. Late or missed payments</h3>
+<ul>
+<li>We send friendly reminders by WhatsApp, SMS or e-mail before and after a due date.</li>
+<li>If you are struggling, tell us - we can agree a new date once, at no cost.</li>
+<li>If a payment is more than <strong>14 days late</strong> and we have not heard from you after a final reminder, NURA may cancel the plan and return the wig to stock. What happens to the money you paid is set out in section 7.</li>
+</ul>
+<h3>7. Cancelling a plan</h3>
+<ul>
+<li><strong>If you cancel, or the plan is cancelled under section 6:</strong> everything you paid is kept as <strong>NURA credit</strong>, valid for 6 months on any product or service. If you prefer cash, we refund your instalments to M-Pesa within 7 working days; the <strong>deposit is not refundable</strong> because the wig was held off sale for you.</li>
+<li><strong>If NURA cancels for any other reason</strong> (for example we cannot supply the wig): you receive a <strong>full refund</strong> of everything paid, including the deposit, within 7 working days.</li>
+</ul>
+<h3>8. Collection and delivery</h3>
+<ul>
+<li>The wig is released only after the full price is paid.</li>
+<li>Collection from our studio is free. Delivery is charged separately at our normal rates (see <a href="/shipping-delivery/">Shipping &amp; Delivery</a>).</li>
+<li>Please collect or arrange delivery within 30 days of your final payment. After that, please contact us so we can arrange it.</li>
+</ul>
+<h3>9. Returns and warranty</h3>
+<p>Our normal <a href="/returns-refunds/">Returns &amp; Refunds</a> and <a href="/warranty/">Warranty</a> terms apply from the day you receive the wig. Because you can inspect the exact unit before it is released, please check it carefully on collection or delivery.</p>
+<h3>10. Your information</h3>
+<p>We use your name, phone number and payment records only to run your plan, send receipts and reminders and keep accounting records, in line with our <a href="/privacy-policy/">Privacy Policy</a> and Kenya's Data Protection Act, 2019.</p>
+<h3>11. General</h3>
+<p>These terms sit alongside our general <a href="/terms-conditions/">Terms &amp; Conditions</a> and do not affect your rights under Kenya's Consumer Protection Act, 2012. Kenyan law applies. We may update these terms; changes apply only to plans started after the update.</p>
+<p>Questions? WhatsApp <strong>$phone</strong> or e-mail <strong>$email</strong>.</p>
+HTML;
+
 		return array(
 			'about-nura'           => array( 'About NURA', $about ),
 			'contact-us'           => array( 'Contact Us', $contact ),
 			'delivery-information' => array( 'Delivery Information', $delivery ),
+			'shipping-delivery'    => array( 'Shipping & Delivery', $delivery ),
 			'returns-refunds'       => array( 'Returns & Refunds', $returns ),
 			'privacy-policy'       => array( 'Privacy Policy', $privacy ),
 			'terms-conditions'     => array( 'Terms & Conditions', $terms ),
@@ -323,6 +392,7 @@ HTML;
 			'payment-information'  => array( 'Payment Information', $payment ),
 			'wig-installation'     => array( 'Wig Installation', $install ),
 			'faq'                  => array( 'FAQ', $faq ),
+			'lipa-mdogo-mdogo-terms' => array( 'Lipa Mdogo Mdogo Terms', $lmm ),
 		);
 	}
 
@@ -387,6 +457,11 @@ HTML;
 					<?php wp_nonce_field( 'nurax_update_pages' ); ?>
 					<?php submit_button( __( 'Update draft pages to latest content', 'nura-experience' ), 'primary', 'submit', false ); ?>
 				</form>
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('Replace the text of your published policy pages with the latest Kenya-checked version? WordPress keeps the old version under Revisions.');">
+					<input type="hidden" name="action" value="nurax_update_pages"><input type="hidden" name="include_published" value="1">
+					<?php wp_nonce_field( 'nurax_update_pages' ); ?>
+					<?php submit_button( __( 'Update published pages too (keeps a revision)', 'nura-experience' ), 'secondary', 'submit', false ); ?>
+				</form>
 			</p>
 			<p class="description" style="max-width:760px"><?php esc_html_e( 'Tip: after updating, open each page under Pages, adjust anything specific to you (Till number, exact fees), and click Publish.', 'nura-experience' ); ?></p>
 		</div>
@@ -433,8 +508,9 @@ HTML;
 		$updated = 0;
 		foreach ( self::defs() as $slug => $d ) {
 			$existing = get_page_by_path( $slug );
-			if ( ! $existing || 'draft' !== $existing->post_status ) {
-				continue; // Never touch published pages.
+			$all = ! empty( $_POST['include_published'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce checked above.
+			if ( ! $existing || ( 'draft' !== $existing->post_status && ! $all ) || in_array( $existing->post_status, array( 'trash', 'auto-draft' ), true ) ) {
+				continue; // Published pages only when explicitly asked (a revision is kept).
 			}
 			$res = wp_update_post( array(
 				'ID'           => (int) $existing->ID,

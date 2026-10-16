@@ -84,6 +84,7 @@
 			if (f.phone) { lines.push('*Phone:* ' + f.phone); }
 			if (f.where) { lines.push('*Delivery:* ' + f.where); }
 			if (f.name || f.phone || f.where) { lines.push(''); }
+			lines.push('I have read and accept the Lipa Mdogo Mdogo Terms & Conditions.');
 			lines.push(url, '', t('msgAsk', 'Please confirm my plan and share the M-Pesa payment details for the deposit.'));
 			return lines.join('\n');
 		}
@@ -122,7 +123,7 @@
 			var fd = new FormData();
 			fd.append('action', 'nurax_lmm_request'); fd.append('ref', fields.ref); fd.append('product_id', pid); fd.append('variation_id', vid);
 			fd.append('weeks', String(weeksOn())); fd.append('name', fields.name); fd.append('phone', fields.phone); fd.append('fulfil', fields.where);
-			fd.append('options', options().join(', ')); fd.append('website', '');
+			fd.append('options', options().join(', ')); fd.append('website', ''); fd.append('terms', '1');
 			try { fetch(L.lmmAjax, { method: 'POST', body: fd, credentials: 'same-origin', keepalive: true }).catch(function () {}); } catch (x) {}
 		}
 		function build() {
@@ -158,6 +159,7 @@
 				'<li>' + esc(t('t4', 'Collect your wig or have it delivered once the plan is fully paid.')) + '</li>' +
 				'<li>' + esc(t('t5', 'Payment details and plan terms are confirmed by our team on WhatsApp before you pay anything.')) + '</li></ul>' +
 				'</div>' +
+				'<label class="nura-plan__agree"><input type="checkbox" data-nura-agree> <span>' + esc(t('agree1', 'I have read and agree to the')) + ' <a href="' + esc(L.lmmTerms || '/lipa-mdogo-mdogo-terms/') + '" target="_blank" rel="noopener">' + esc(t('agree2', 'Lipa Mdogo Mdogo Terms & Conditions')) + '</a></span></label>' +
 				'<footer class="nura-plan__foot"><a class="nura-plan__send" target="_blank" rel="noopener" data-p="send"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.3-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.5-.6-2.7-1.2-4.4-3.9-4.6-4.1-.1-.2-1.1-1.4-1.1-2.7s.7-1.9.9-2.2c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.1.1.3 0 .5l-.3.5-.4.5c-.1.1-.3.3-.1.6.2.3.7 1.2 1.6 2 1.1.9 2 1.2 2.3 1.4.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.1.1.6-.1 1.2Z"/></svg><span>' + esc(t('send', 'Send my plan on WhatsApp')) + '</span></a>' +
 				'<button type="button" class="nura-plan__later" data-plan-close>' + esc(t('later', 'Not now')) + '</button>' +
 				'<p class="nura-plan__hours">' + esc(fill(t('hours', 'Our team replies %1$s (East Africa Time).'), [t('hoursText', 'Mon-Sat 8:00-20:00')])) + '</p></footer>' +
@@ -171,7 +173,18 @@
 				el.addEventListener('input', function () { fields[el.getAttribute('data-f')] = el.value.trim(); render(); });
 				el.addEventListener('change', function () { fields[el.getAttribute('data-f')] = el.value.trim(); render(); });
 			});
-			modal.querySelector('[data-p="send"]').addEventListener('click', function () { save(); setTimeout(close, 300); });
+			modal.querySelector('[data-p="send"]').addEventListener('click', function (e) {
+				var ag = modal.querySelector('[data-nura-agree]');
+				if (ag && !ag.checked) {
+					e.preventDefault();
+					var lb = ag.closest('.nura-plan__agree'); lb.classList.add('is-required'); ag.focus();
+					setTimeout(function () { lb.classList.remove('is-required'); }, 1600);
+					return;
+				}
+				save(); setTimeout(close, 300);
+			});
+			modal.querySelector('[data-nura-agree]').addEventListener('change', function () { modal.querySelector('[data-p="send"]').classList.toggle('is-locked', !this.checked); });
+			modal.querySelector('[data-p="send"]').classList.add('is-locked');
 			modal.addEventListener('keydown', function (e) {
 				if (e.key === 'Escape') { close(); return; }
 				if (e.key !== 'Tab') { return; }

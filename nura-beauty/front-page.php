@@ -467,7 +467,7 @@ $slides = array(
 				<p><?php esc_html_e( 'Questions about a unit, sizing or an order? Reach us any way you like.', 'nura-beauty' ); ?></p>
 			</div>
 			<div class="nura-contact-grid">
-				<a class="nura-contact-card" href="<?php echo esc_url( $wa ); ?>" target="_blank" rel="noopener">
+				<a class="nura-contact-card nura-contact-card--feature" href="<?php echo esc_url( $wa ); ?>" target="_blank" rel="noopener">
 					<span class="nura-contact-card__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4.2A8 8 0 1 1 20 11.5z"/></svg></span>
 					<span class="nura-contact-card__k"><?php esc_html_e( 'WhatsApp', 'nura-beauty' ); ?></span>
 					<span class="nura-contact-card__v"><?php echo esc_html( $nura_phone ); ?></span>
@@ -492,15 +492,20 @@ $slides = array(
 					<span class="nura-contact-card__cta"><?php esc_html_e( 'Visits by appointment', 'nura-beauty' ); ?></span>
 				</div>
 			</div>
-			<p class="nura-contact-note"><?php esc_html_e( 'Same-day delivery in Nairobi (order before 5pm) - Kenya-wide in 1-3 days - Worldwide shipping available.', 'nura-beauty' ); ?></p>
+			<ul class="nura-contact-note">
+				<li><?php esc_html_e( 'Same-day delivery in Nairobi (order before 5pm)', 'nura-beauty' ); ?></li>
+				<li><?php esc_html_e( 'Kenya-wide in 1-3 days', 'nura-beauty' ); ?></li>
+				<li><?php esc_html_e( 'Worldwide shipping available', 'nura-beauty' ); ?></li>
+			</ul>
 		</div>
 	</section>
 
 	<?php if ( function_exists( 'nura_home_seo_section' ) ) { nura_home_seo_section(); } ?>
 
 	<!-- NURA STYLIST (final conversion CTA) -->
-	<section class="section text-center">
+	<section class="section text-center nura-stylist-cta">
 		<div class="nura-container nura-reveal">
+		<div class="nura-stylist-cta__panel">
 			<p class="nura-eyebrow"><?php esc_html_e( 'Not sure what suits you?', 'nura-beauty' ); ?></p>
 			<h2><?php esc_html_e( 'Meet NURA Stylist', 'nura-beauty' ); ?></h2>
 			<p class="nura-lede" style="max-width:620px;margin-inline:auto"><?php esc_html_e( "Tell us what you're looking for and we'll help you find your perfect wig.", 'nura-beauty' ); ?></p>
@@ -508,6 +513,8 @@ $slides = array(
 				<a class="nura-btn nura-btn--gold" href="<?php echo esc_url( $finder_url ); ?>"><?php esc_html_e( 'Find My Wig', 'nura-beauty' ); ?></a>
 				<a class="nura-btn nura-btn--ghost" href="<?php echo esc_url( $wa ); ?>"><?php esc_html_e( 'Chat on WhatsApp', 'nura-beauty' ); ?></a>
 			</p>
+			<ul class="nura-stylist-cta__points"><li><?php esc_html_e( '60-second Wig Finder quiz', 'nura-beauty' ); ?></li><li><?php esc_html_e( 'Real stylists on WhatsApp', 'nura-beauty' ); ?></li><li><?php esc_html_e( 'Honest hair-type advice', 'nura-beauty' ); ?></li></ul>
+		</div>
 		</div>
 	</section>
 

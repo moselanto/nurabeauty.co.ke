@@ -91,8 +91,10 @@ function nura_home_seo_section() {
 					);
 				?></p>
 				<p><?php esc_html_e( 'Every wig is quality-checked and clearly labelled as human hair, human-hair blend (semi-human) or heat-resistant fibre, so you know exactly what you are paying for. Prices are in Kenya Shillings, with same-day delivery in Nairobi before 5pm, countrywide delivery in 1-3 days, and payment by M-Pesa, card or cash on delivery.', 'nura-beauty' ); ?></p>
+				<ul class="nura-seo-home__facts"><li><strong>KSh 1,500+</strong><span><?php esc_html_e( 'Wigs from', 'nura-beauty' ); ?></span></li><li><strong><?php esc_html_e( 'Same day', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Nairobi delivery', 'nura-beauty' ); ?></span></li><li><strong>7 <?php esc_html_e( 'days', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Easy returns', 'nura-beauty' ); ?></span></li></ul>
 			</div>
 			<div class="nura-faq nura-seo-home__faq">
+				<p class="nura-eyebrow"><?php esc_html_e( 'FAQ', 'nura-beauty' ); ?></p>
 				<h2><?php esc_html_e( 'Wigs in Kenya: your questions answered', 'nura-beauty' ); ?></h2>
 				<?php foreach ( $faqs as $qa ) : ?>
 				<details>

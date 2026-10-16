@@ -126,7 +126,7 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 							<label for="nb-time"><?php esc_html_e( 'Time', 'nura-beauty' ); ?></label>
 							<select id="nb-time" name="time" required>
 								<option value=""><?php esc_html_e( 'Choose', 'nura-beauty' ); ?></option>
-								<?php for ( $h = 9; $h <= 17; $h++ ) : foreach ( array( '00', '30' ) as $m ) : $v = sprintf( '%02d:%s', $h, $m ); ?>
+								<?php $nb_cut = class_exists( 'NURAX_Desk_Appts' ) ? NURAX_Desk_Appts::cutoff() : '12:00'; for ( $h = 8; $h <= 11; $h++ ) : foreach ( array( '00', '30' ) as $m ) : $v = sprintf( '%02d:%s', $h, $m ); if ( $v < '09:00' || $v >= $nb_cut ) { continue; } ?>
 									<option value="<?php echo esc_attr( $v ); ?>"><?php echo esc_html( date_i18n( 'g:i a', strtotime( '2000-01-01 ' . $v ) ) ); ?></option>
 								<?php endforeach; endfor; ?>
 							</select>
@@ -136,9 +136,39 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 						<label for="nb-notes"><?php esc_html_e( 'The look you want (optional)', 'nura-beauty' ); ?></label>
 						<textarea id="nb-notes" name="notes" rows="3" maxlength="300" placeholder="<?php esc_attr_e( 'e.g. 18 inch body wave, natural hairline, for a wedding on 5 Dec', 'nura-beauty' ); ?>"></textarea>
 					</div>
+					<?php
+					$nb_deps = array();
+					$nb_mp   = '';
+					if ( class_exists( 'NURAX_Desk_Appts' ) ) {
+						foreach ( array_keys( $nb_services ) as $nb_k ) {
+							$nb_deps[ $nb_k ] = NURAX_Desk_Appts::deposit_for( $nb_k );
+						}
+						$nb_mp = (string) NURAX_Desk::settings()['mpesa_details'];
+					}
+					$nb_has_dep = $nb_deps && max( $nb_deps ) > 0;
+					?>
+					<p class="nura-bk__morning"><?php esc_html_e( 'Studio bookings are mornings only. Afternoons are for walk-ins.', 'nura-beauty' ); ?></p>
+					<?php if ( $nb_has_dep ) : ?>
+					<div class="nura-bk__dep" data-deps="<?php echo esc_attr( wp_json_encode( $nb_deps ) ); ?>">
+						<p class="nura-bk__dep-h"><?php esc_html_e( 'Secure your slot with a deposit of', 'nura-beauty' ); ?> <strong data-dep-amt></strong></p>
+						<ol class="nura-bk__dep-steps">
+							<li><?php echo esc_html( sprintf( __( 'Pay by M-Pesa: %s', 'nura-beauty' ), $nb_mp ) ); ?></li>
+							<li><?php esc_html_e( 'Enter the M-Pesa confirmation code below.', 'nura-beauty' ); ?></li>
+							<li><?php esc_html_e( 'We confirm your slot on WhatsApp. The deposit comes off your final bill.', 'nura-beauty' ); ?></li>
+						</ol>
+						<input name="mpesa" type="text" maxlength="12" autocomplete="off" autocapitalize="characters" placeholder="<?php esc_attr_e( 'M-Pesa code, e.g. SJK4ABC123', 'nura-beauty' ); ?>">
+					</div>
+					<?php endif; ?>
+					<?php if ( class_exists( 'NURAX_Desk_Appts' ) ) : ?>
+					<details class="nura-bk__terms">
+						<summary><?php esc_html_e( 'Booking terms & conditions', 'nura-beauty' ); ?></summary>
+						<ol><?php foreach ( NURAX_Desk_Appts::terms_list() as $nb_t ) { echo '<li>' . esc_html( $nb_t ) . '</li>'; } ?></ol>
+					</details>
+					<label class="nura-bk__agree"><input type="checkbox" name="terms" value="1"> <span><?php esc_html_e( 'I have read and agree to the booking terms, including the deposit and late arrival policy.', 'nura-beauty' ); ?></span></label>
+					<?php endif; ?>
 					<p class="nura-bk__err" role="alert" hidden></p>
 					<button type="submit" class="nura-bk__submit"><?php esc_html_e( 'Request appointment', 'nura-beauty' ); ?></button>
-					<p class="nura-bk__small"><?php esc_html_e( 'No payment now. We confirm your slot on WhatsApp.', 'nura-beauty' ); ?></p>
+					<p class="nura-bk__small"><?php echo esc_html( ! empty( $nb_has_dep ) ? __( 'Your slot is confirmed once we verify your deposit.', 'nura-beauty' ) : __( 'We confirm your slot on WhatsApp.', 'nura-beauty' ) ); ?></p>
 
 					<div class="nura-bk__done" hidden>
 						<p class="nura-bk__done-h"><?php esc_html_e( 'Almost done', 'nura-beauty' ); ?></p>

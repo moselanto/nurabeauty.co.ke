@@ -1818,3 +1818,19 @@ a.nura-contact-card--feature:hover{color:#fff;border-color:var(--nura-gold)}
   .nura-stylist-cta__panel{border-radius:20px}.nura-stylist-cta__panel::before{inset:8px;border-radius:14px}
   .nura-stylist-cta__panel .nura-btn{display:flex;width:100%;margin:8px 0;justify-content:center}
 }
+
+/* v1.62.0 booking rules: morning only, deposit, terms */
+.nura-bk__morning{margin:.5rem 0 .75rem;padding:.6rem .8rem;border-radius:10px;background:#faf6ee;font-family:var(--font-ui);font-size:.82rem;color:#5b5348}
+.nura-bk__dep{margin:0 0 .9rem;padding:1rem;border:1px solid #C9A24B;border-radius:14px;background:#fffaf0}
+.nura-bk__dep[hidden]{display:none}
+.nura-bk__dep-h{margin:0 0 .5rem;font-family:var(--font-ui);font-size:.9rem;color:#0E0E0E}
+.nura-bk__dep-h strong{color:#a07a24;font-size:1.05rem}
+.nura-bk__dep-steps{margin:0 0 .7rem 1.1rem;padding:0;font-family:var(--font-ui);font-size:.8rem;line-height:1.55;color:#4a443c}
+.nura-bk__dep input{width:100%;min-height:44px;padding:0 .8rem;border:1px solid #dcd3c4;border-radius:10px;font-size:.95rem;letter-spacing:.08em;text-transform:uppercase;background:#fff}
+.nura-bk__dep input.is-invalid{border-color:#b3261e}
+.nura-bk__terms{margin:0 0 .6rem;border:1px solid #ece4d6;border-radius:12px;background:#fff}
+.nura-bk__terms summary{padding:.7rem .9rem;font-family:var(--font-ui);font-size:.85rem;font-weight:600;cursor:pointer}
+.nura-bk__terms ol{margin:0;padding:0 .9rem .9rem 2rem;font-family:var(--font-ui);font-size:.8rem;line-height:1.6;color:#4a443c}
+.nura-bk__terms li{margin:.25rem 0}
+.nura-bk__agree{display:flex;gap:.55rem;align-items:flex-start;margin:0 0 .8rem;font-family:var(--font-ui);font-size:.82rem;line-height:1.45;color:#2b2622;cursor:pointer}
+.nura-bk__agree input{margin-top:.2rem;width:18px;height:18px;accent-color:#0E0E0E;flex:none}

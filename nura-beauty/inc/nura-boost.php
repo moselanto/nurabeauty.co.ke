@@ -347,7 +347,7 @@ add_filter( 'rank_math/frontend/description', function ( $desc ) {
 
 /** Plan settings: minimum price, deposit %, week options. */
 function nura_lmm_settings() {
-	return apply_filters( 'nura_lmm_settings', array( 'min' => 7000, 'deposit' => 30, 'weeks' => array( 2, 3, 4 ) ) );
+	return apply_filters( 'nura_lmm_settings', array( 'min' => 7000, 'deposit' => 50, 'weeks' => array( 1, 2 ) ) );
 }
 
 /** Lowest display price of a product. */
@@ -373,16 +373,16 @@ add_action( 'woocommerce_single_product_summary', function () {
 	echo '<div class="nura-lmm" data-nura-lmm data-price="' . esc_attr( $price ) . '" data-deposit="' . esc_attr( (int) $s['deposit'] ) . '" data-wa="' . esc_url( $wa ) . '" data-name="' . esc_attr( $product->get_name() ) . '" data-url="' . esc_url( get_permalink( $product->get_id() ) ) . '" data-img="' . esc_url( (string) wp_get_attachment_image_url( $product->get_image_id(), 'woocommerce_thumbnail' ) ) . '" data-sku="' . esc_attr( (string) $product->get_sku() ) . '" data-pid="' . esc_attr( $product->get_id() ) . '">';
 	echo '<div class="nura-lmm__head"><span class="nura-lmm__badge">' . esc_html__( 'Lipa Mdogo Mdogo', 'nura-beauty' ) . '</span>';
 	/* translators: 1: deposit, 2: weekly amount, 3: weeks. */
-	echo '<p class="nura-lmm__lead" data-nura-lmm-lead>' . esc_html( sprintf( __( 'Pay %1$s deposit, then %2$s a week for %3$d weeks.', 'nura-beauty' ), nura_boost_ksh( $dep ), nura_boost_ksh( $wk ), $max ) ) . '</p></div>';
+	echo '<p class="nura-lmm__lead" data-nura-lmm-lead>' . esc_html( sprintf( __( 'Pay a 50%% deposit of %1$s today, then the balance of %2$s within %3$s.', 'nura-beauty' ), nura_boost_ksh( $dep ), nura_boost_ksh( $price - $dep ), 1 === $max ? __( '1 week', 'nura-beauty' ) : sprintf( __( '%d weeks', 'nura-beauty' ), $max ) ) ) . '</p></div>';
 	echo '<div class="nura-lmm__weeks" role="radiogroup" aria-label="' . esc_attr__( 'Pay over', 'nura-beauty' ) . '">';
 	foreach ( $weeks as $w ) {
 		/* translators: %d: weeks. */
-		echo '<button type="button" class="nura-lmm__wk' . ( $w === $max ? ' is-on' : '' ) . '" data-weeks="' . esc_attr( $w ) . '" role="radio" aria-checked="' . ( $w === $max ? 'true' : 'false' ) . '">' . esc_html( sprintf( __( '%d weeks', 'nura-beauty' ), $w ) ) . '</button>';
+		echo '<button type="button" class="nura-lmm__wk' . ( $w === $max ? ' is-on' : '' ) . '" data-weeks="' . esc_attr( $w ) . '" role="radio" aria-checked="' . ( $w === $max ? 'true' : 'false' ) . '">' . esc_html( 1 === $w ? __( '1 week', 'nura-beauty' ) : sprintf( __( '%d weeks', 'nura-beauty' ), $w ) ) . '</button>';
 	}
 	echo '</div>';
-	echo '<ol class="nura-lmm__steps"><li>' . esc_html__( 'Pay the deposit by M-Pesa to reserve your wig.', 'nura-beauty' ) . '</li><li>' . esc_html__( 'Pay the balance weekly - any amount, any time, no interest.', 'nura-beauty' ) . '</li><li>' . esc_html__( 'Collect it or get it delivered as soon as it is fully paid.', 'nura-beauty' ) . '</li></ol>';
+	echo '<ol class="nura-lmm__steps"><li>' . esc_html__( 'Pay a 50% deposit by M-Pesa to reserve your wig.', 'nura-beauty' ) . '</li><li>' . esc_html__( 'Clear the balance within 2 weeks - any amount, any time, no interest.', 'nura-beauty' ) . '</li><li>' . esc_html__( 'Collect or get it delivered once fully paid. Imported units can take up to 7 days to arrive.', 'nura-beauty' ) . '</li></ol>';
 	echo '<a class="nura-lmm__cta" href="' . esc_url( $wa ) . '" target="_blank" rel="noopener" data-nura-lmm-cta>' . esc_html__( 'Start my plan on WhatsApp', 'nura-beauty' ) . '</a>';
-	echo '<p class="nura-lmm__note">' . esc_html__( 'No interest, no extra fees. The price shown is the price you pay.', 'nura-beauty' ) . '</p>';
+	echo '<p class="nura-lmm__note">' . esc_html__( 'No interest, no extra fees. The deposit is non-refundable if you cancel.', 'nura-beauty' ) . ' <a href="' . esc_url( home_url( '/lipa-mdogo-mdogo-terms/' ) ) . '" target="_blank" rel="noopener">' . esc_html__( 'Read the full terms', 'nura-beauty' ) . '</a></p>';
 	echo '</div>';
 }, 33 );
 
@@ -779,7 +779,7 @@ add_action( 'wp_enqueue_scripts', function () {
 	wp_enqueue_script( 'nura-boost', NURA_URI . 'assets/js/nura-boost.js', array(), NURA_VERSION, true );
 	wp_localize_script( 'nura-boost', 'nuraBoost', array(
 		/* translators: 1: deposit, 2: weekly, 3: weeks. */
-		'lead'   => __( 'Pay %1$s deposit, then %2$s a week for %3$s weeks.', 'nura-beauty' ),
+		'lead'   => __( 'Pay a 50% deposit of %1$s today, then the balance of %2$s within %3$s.', 'nura-beauty' ),
 		/* translators: 1: product, 2: deposit, 3: weekly, 4: weeks, 5: link. */
 		'waMsg'  => __( 'Hi NURA, I would like to buy %1$s on Lipa Mdogo Mdogo: %2$s deposit, then %3$s a week for %4$s weeks. Colour/length: ____. %5$s', 'nura-beauty' ),
 		'copied' => __( 'Copied', 'nura-beauty' ),

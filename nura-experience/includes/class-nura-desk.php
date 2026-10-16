@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class NURAX_Desk {
 
-	const DBV     = '1.3.0';
+	const DBV     = '1.4.0';
 	const DBV_OPT = 'nurax_desk_db';
 	const OPT     = 'nurax_desk';
 	const CAP     = 'manage_woocommerce';
@@ -54,6 +54,18 @@ class NURAX_Desk {
 				wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_name' => 'lipa-mdogo-mdogo-terms', 'post_title' => $defs['lipa-mdogo-mdogo-terms'][0], 'post_content' => $defs['lipa-mdogo-mdogo-terms'][1] ) );
 			}
 			update_option( 'nurax_lmm_terms_page', 1, false );
+		} );
+		// 1.71.0: refresh the published Lipa Mdogo Mdogo Terms to version 2.0 if it was never edited by hand.
+		add_action( 'admin_init', function () {
+			if ( get_option( 'nurax_lmm_terms_v2' ) || ! class_exists( 'NURAX_Pages' ) || ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+			$pg   = get_page_by_path( 'lipa-mdogo-mdogo-terms' );
+			$defs = NURAX_Pages::defs();
+			if ( $pg && isset( $defs['lipa-mdogo-mdogo-terms'] ) && false !== strpos( (string) $pg->post_content, 'Version 1.0 - effective 16 October 2026' ) ) {
+				wp_update_post( array( 'ID' => (int) $pg->ID, 'post_content' => $defs['lipa-mdogo-mdogo-terms'][1] ) );
+			}
+			update_option( 'nurax_lmm_terms_v2', 1, false );
 		} );
 		add_action( 'admin_menu', function () {
 			remove_submenu_page( 'woocommerce', 'nurax-wa-orders' );
@@ -186,6 +198,11 @@ class NURAX_Desk {
   last_reminded datetime DEFAULT NULL,
   reminders smallint(5) unsigned NOT NULL DEFAULT 0,
   created_at datetime DEFAULT NULL,
+  deposit decimal(12,2) NOT NULL DEFAULT 0,
+  deposit_ref varchar(40) NOT NULL DEFAULT '',
+  deposit_status varchar(12) NOT NULL DEFAULT 'none',
+  arrived_at datetime DEFAULT NULL,
+  terms_at datetime DEFAULT NULL,
   updated_at datetime DEFAULT NULL,
   PRIMARY KEY  (id),
   UNIQUE KEY ref (ref),
@@ -205,8 +222,8 @@ class NURAX_Desk {
 	public static function defaults() {
 		return array(
 			'lmm_min'       => 7000,
-			'lmm_deposit'   => 30,
-			'lmm_weeks'     => '2,3,4',
+			'lmm_deposit'   => 50,
+			'lmm_weeks'     => '1,2',
 			'lmm_grace'     => 2,
 			'lmm_reserve'   => 1,
 			'digest'        => 1,
@@ -215,9 +232,15 @@ class NURAX_Desk {
 			'appt_capacity' => 2,
 			'appt_days'     => '1,2,3,4,5,6',
 			'appt_open'     => '09:00',
-			'appt_close'    => '17:30',
+			'appt_close'    => '11:30',
 			'appt_step'     => 30,
 			'appt_duration' => 60,
+			'appt_cutoff'   => '12:00',
+			'appt_dep_pct'  => 50,
+			'appt_dep_min'  => 500,
+			'appt_grace'    => 15,
+			'appt_prices'   => 'fitting=0, installation=0, revamp=0, bridal=0',
+			'appt_terms'    => '',
 			'staff'         => '',
 			'mpesa_details' => '',
 			'auto_wa'       => 0,
@@ -249,7 +272,15 @@ class NURAX_Desk {
 
 	public static function settings() {
 		$o = get_option( self::OPT, array() );
-		return array_merge( self::defaults(), is_array( $o ) ? $o : array() );
+		$o = is_array( $o ) ? $o : array();
+		// 1.71.0 policy: Lipa Mdogo Mdogo is 50% deposit, 2 weeks maximum. Applied once to saved settings.
+		if ( '2w50' !== get_option( 'nurax_lmm_policy' ) ) {
+			$o['lmm_deposit'] = max( 50, isset( $o['lmm_deposit'] ) ? (int) $o['lmm_deposit'] : 50 );
+			$o['lmm_weeks']   = '1,2';
+			update_option( self::OPT, $o );
+			update_option( 'nurax_lmm_policy', '2w50', true );
+		}
+		return array_merge( self::defaults(), $o );
 	}
 
 	/** Week options as integers, e.g. array( 2, 3, 4 ). */
@@ -264,7 +295,7 @@ class NURAX_Desk {
 		}
 		$out = array_values( array_unique( $out ) );
 		sort( $out );
-		return $out ? $out : array( 2, 3, 4 );
+		return $out ? $out : array( 1, 2 );
 	}
 
 	/** The theme's Lipa Mdogo Mdogo box reads these. */
@@ -656,6 +687,15 @@ class NURAX_Desk {
 		self::field_num( 'appt_step', 'Minutes between slots', $s['appt_step'], '' );
 		self::field_num( 'appt_duration', 'Default appointment length (minutes)', $s['appt_duration'], '' );
 		self::field_num( 'appt_capacity', 'Clients per time slot', $s['appt_capacity'], 'When a time is full the website asks the client to choose another time.' );
+		self::field_text( 'appt_cutoff', 'Bookings only before', $s['appt_cutoff'], 'Morning-only studio: no booking slot at or after this time (default 12:00 noon). Afternoons are for walk-ins.', 'time' );
+		self::field_num( 'appt_dep_pct', 'Booking deposit (% of service price)', $s['appt_dep_pct'], 'Clients pay this by M-Pesa to secure the slot. It is deducted from the final bill.' );
+		self::field_num( 'appt_dep_min', 'Minimum booking deposit (KSh)', $s['appt_dep_min'], 'Used when a service has no price below, or 50% comes to less than this. Set 0 for no minimum.' );
+		self::field_text( 'appt_prices', 'Service prices (KSh)', $s['appt_prices'], 'Used to work out the deposit, e.g. fitting=2000, installation=3500, revamp=1500, bridal=10000. Services: consultation, fitting, installation, revamp, bridal.' );
+		self::field_num( 'appt_grace', 'Late arrival grace (minutes)', $s['appt_grace'], 'A booked slot is held this long. After that the client is served as a walk-in.' );
+		echo '<label class="nd-field nd-field--wide"><span class="nd-label">Booking terms &amp; conditions</span><textarea name="appt_terms" rows="8">' . esc_textarea( $s['appt_terms'] ) . '</textarea><small>One rule per line. Leave empty to use the standard NURA terms (shown on the booking page and accepted by every client).</small></label>';
+		if ( '' === trim( (string) $s['mpesa_details'] ) ) {
+			echo '<p class="nd-mut"><strong>Deposits are switched off until you fill in "M-Pesa payment details" below</strong>, because clients need to know where to pay.</p>';
+		}
 		self::field_text( 'staff', 'Stylists / team', $s['staff'], 'Comma separated names to assign appointments, e.g. Faith, Wanjiru' );
 		echo '</div></section>';
 
@@ -761,7 +801,7 @@ class NURAX_Desk {
 		$in  = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$d   = self::defaults();
 		$out = array();
-		foreach ( array( 'lmm_min', 'lmm_deposit', 'lmm_grace', 'appt_capacity', 'appt_step', 'appt_duration' ) as $k ) {
+		foreach ( array( 'lmm_min', 'lmm_deposit', 'lmm_grace', 'appt_capacity', 'appt_step', 'appt_duration', 'appt_dep_pct', 'appt_dep_min', 'appt_grace' ) as $k ) {
 			$out[ $k ] = isset( $in[ $k ] ) ? absint( $in[ $k ] ) : $d[ $k ];
 		}
 		$out['lmm_deposit']   = min( 100, $out['lmm_deposit'] );
@@ -792,6 +832,11 @@ class NURAX_Desk {
 		$out['appt_days']  = implode( ',', array_unique( $days ) );
 		$out['appt_open']  = isset( $in['appt_open'] ) && preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $in['appt_open'] ) ? $in['appt_open'] : $d['appt_open'];
 		$out['appt_close'] = isset( $in['appt_close'] ) && preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $in['appt_close'] ) ? $in['appt_close'] : $d['appt_close'];
+		$out['appt_dep_pct'] = min( 100, $out['appt_dep_pct'] );
+		$out['appt_grace']   = min( 120, $out['appt_grace'] );
+		$out['appt_cutoff']  = isset( $in['appt_cutoff'] ) && preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $in['appt_cutoff'] ) ? $in['appt_cutoff'] : $d['appt_cutoff'];
+		$out['appt_prices']  = isset( $in['appt_prices'] ) ? mb_substr( sanitize_text_field( $in['appt_prices'] ), 0, 500 ) : $d['appt_prices'];
+		$out['appt_terms']   = isset( $in['appt_terms'] ) ? mb_substr( sanitize_textarea_field( $in['appt_terms'] ), 0, 4000 ) : '';
 		$out['staff']      = isset( $in['staff'] ) ? sanitize_text_field( $in['staff'] ) : '';
 		$out['mpesa_details'] = isset( $in['mpesa_details'] ) ? sanitize_text_field( $in['mpesa_details'] ) : '';
 		$out['auto_wa']       = empty( $in['auto_wa'] ) ? 0 : 1;

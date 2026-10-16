@@ -487,7 +487,7 @@ class NURAX_Desk_Plans {
 			'fulfil'        => $fulfil,
 			'notes'         => '',
 			'source'        => 'website',
-			'log'           => wp_json_encode( array( array( 't' => $now, 'u' => 'Website', 'm' => 'Plan requested from the product page. Customer ticked: "I have read and agree to the Lipa Mdogo Mdogo Terms & Conditions" (version 1.0).' ) ) ),
+			'log'           => wp_json_encode( array( array( 't' => $now, 'u' => 'Website', 'm' => 'Plan requested from the product page. Customer ticked: "I have read and agree to the Lipa Mdogo Mdogo Terms & Conditions" (version 2.0).' ) ) ),
 			'created_at'    => $now,
 			'updated_at'    => $now,
 		) );
@@ -994,7 +994,7 @@ class NURAX_Desk_Plans {
 		echo '<section class="nd-card"><header class="nd-card__h"><h2>Plan</h2></header><div class="nd-fields nd-fields--4">';
 		echo '<label class="nd-field"><span class="nd-label">Price (KSh) *</span><input type="number" name="price" min="1" step="1" required value="' . esc_attr( $v['price'] ) . '" data-nd-price></label>';
 		echo '<label class="nd-field"><span class="nd-label">Deposit (KSh)</span><input type="number" name="deposit" min="0" step="1" value="' . esc_attr( $v['deposit'] ) . '" data-nd-deposit data-pct="' . (int) $s['lmm_deposit'] . '"><small>Default ' . (int) $s['lmm_deposit'] . '%</small></label>';
-		echo '<label class="nd-field"><span class="nd-label">Weeks</span><input type="number" name="weeks" min="1" max="52" value="' . esc_attr( $v['weeks'] ) . '" data-nd-weeks></label>';
+		echo '<label class="nd-field"><span class="nd-label">Weeks</span><input type="number" name="weeks" min="1" max="' . (int) max( NURAX_Desk::week_options() ) . '" value="' . esc_attr( $v['weeks'] ) . '" data-nd-weeks></label>';
 		echo '<label class="nd-field"><span class="nd-label">Start date</span><input type="date" name="start_date" value="' . esc_attr( $v['start_date'] ) . '" data-nd-start></label>';
 		echo '</div><div class="nd-preview" data-nd-preview></div></section>';
 
@@ -1071,7 +1071,7 @@ class NURAX_Desk_Plans {
 			'options'       => isset( $in['options'] ) ? mb_substr( sanitize_text_field( $in['options'] ), 0, 255 ) : '',
 			'price'         => $price,
 			'deposit'       => $deposit,
-			'weeks'         => isset( $in['weeks'] ) ? min( 52, max( 1, absint( $in['weeks'] ) ) ) : 4,
+			'weeks'         => isset( $in['weeks'] ) ? min( max( NURAX_Desk::week_options() ), max( 1, absint( $in['weeks'] ) ) ) : max( NURAX_Desk::week_options() ),
 			'start_date'    => $start,
 			'fulfil'        => isset( $in['fulfil'] ) ? mb_substr( sanitize_text_field( $in['fulfil'] ), 0, 120 ) : '',
 			'notes'         => isset( $in['notes'] ) ? sanitize_textarea_field( $in['notes'] ) : '',
@@ -1105,7 +1105,7 @@ class NURAX_Desk_Plans {
 			$data['log']        = '[]';
 			$wpdb->insert( $t, $data );
 			$id = (int) $wpdb->insert_id;
-			NURAX_Desk::log( $t, $id, 'Plan created.' . ( ! empty( $in['terms_ok'] ) ? ' Customer accepted the Lipa Mdogo Mdogo Terms (version 1.0).' : '' ) );
+			NURAX_Desk::log( $t, $id, 'Plan created.' . ( ! empty( $in['terms_ok'] ) ? ' Customer accepted the Lipa Mdogo Mdogo Terms (version 2.0).' : '' ) );
 			$amt = isset( $in['init_amount'] ) ? round( (float) $in['init_amount'], 2 ) : 0;
 			if ( $amt > 0 ) {
 				$amt = min( $amt, $price );

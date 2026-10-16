@@ -91,7 +91,7 @@
 		function waLink(text) { return wa.split('?')[0] + '?text=' + encodeURIComponent(text); }
 		function update() {
 			var p = plan(current(), depPct, weeksOn());
-			if (lead) { lead.textContent = fill(t('lead', 'Pay %1$s deposit, then %2$s a week for %3$s weeks.'), [ksh(p.dep), ksh(p.wk), p.weeks]); }
+			if (lead) { lead.textContent = fill(t('lead', 'Pay a 50% deposit of %1$s today, then the balance of %2$s within %3$s.'), [ksh(p.dep), ksh(p.price - p.dep), Number(p.weeks) === 1 ? '1 week' : p.weeks + ' weeks']); }
 			if (cta && waOk) { cta.href = waLink(message(p, {})); }
 		}
 		each(box.querySelectorAll('.nura-lmm__wk'), function (b) {

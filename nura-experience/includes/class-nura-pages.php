@@ -283,7 +283,7 @@ HTML;
 <h3>Can I return or exchange a wig?</h3>
 <p>Unworn, unaltered units can be returned within 7 days of delivery. Worn, cut or installed units cannot be returned for hygiene reasons. See <a href="/returns-refunds/">Refund &amp; Returns</a>.</p>
 <h3>Can I pay in instalments?</h3>
-<p>Yes - Lipa Mdogo Mdogo on wigs from KSh 7,000: pay a 30% deposit to reserve your wig, then the balance weekly over 2 to 4 weeks with no interest and no extra fees. Your wig is released once fully paid. See the <a href="/lipa-mdogo-mdogo-terms/">Lipa Mdogo Mdogo Terms</a>.</p>
+<p>Yes - Lipa Mdogo Mdogo on wigs from KSh 7,000: pay a 50% deposit to reserve your wig, then clear the balance within a maximum of 2 weeks, with no interest and no extra fees. Your wig is released once fully paid. See the <a href="/lipa-mdogo-mdogo-terms/">Lipa Mdogo Mdogo Terms</a>.</p>
 <h3>Do you install wigs?</h3>
 <p>Yes - installation, styling, colouring, revamp and repairs. See <a href="/wig-installation/">Wig Installation</a>.</p>
 <p>Still have a question? Chat with us on WhatsApp at <strong>$phone</strong>.</p>
@@ -327,55 +327,68 @@ HTML;
 
 		$lmm = <<<HTML
 <h2>Lipa Mdogo Mdogo - Terms &amp; Conditions</h2>
-<p><em>Version 1.0 - effective 16 October 2026.</em> These terms apply to every Lipa Mdogo Mdogo plan with $biz (NURA CROWN &amp; BEAUTY). Please read them before you start a plan. By ticking "I agree" or paying a deposit, you accept them.</p>
-<h3>1. What Lipa Mdogo Mdogo is</h3>
-<p>Lipa Mdogo Mdogo is an <strong>interest-free lay-by plan</strong>. You reserve a wig with a deposit and pay the balance in weekly instalments. The wig stays with NURA until it is <strong>fully paid</strong>, then you collect it or we deliver it. It is not a loan or credit facility, and there is no interest, no service charge and no penalty fee.</p>
-<h3>2. Who can use it</h3>
+<p><em>Version 2.0 - effective 17 October 2026.</em> These terms govern every Lipa Mdogo Mdogo plan with $biz (NURA CROWN &amp; BEAUTY), referred to below as "NURA", "we" or "us". Please read them carefully. By ticking "I agree", confirming on WhatsApp or paying a deposit, you accept these terms in full.</p>
+
+<h3>1. About the plan</h3>
+<p>Lipa Mdogo Mdogo is an <strong>interest-free lay-by plan</strong>. You reserve a wig with a deposit and pay the balance within an agreed period. The wig is released to you only once it is <strong>fully paid</strong>. It is not a loan or credit facility. There is no interest, service charge or penalty fee.</p>
+
+<h3>2. Eligibility</h3>
 <ul>
-<li>Available on selected wigs from <strong>KSh 7,000</strong>, as shown on the product page.</li>
-<li>You must be 18 or older and give a working Kenyan (or WhatsApp) phone number, which we use for your receipts and reminders.</li>
-<li>NURA may decline a plan, for example if the item is out of stock.</li>
+<li>Available on selected wigs priced from <strong>KSh 7,000</strong>, as shown on the product page.</li>
+<li>You must be 18 or older and give a working Kenyan or WhatsApp phone number for receipts and reminders.</li>
+<li>NURA may decline or limit a plan at its discretion, for example when an item is out of stock or must be imported.</li>
 </ul>
-<h3>3. Price, deposit and schedule</h3>
+
+<h3>3. Price, deposit and plan period</h3>
 <ul>
-<li>The price is <strong>fixed on the day your deposit is received</strong>, even if the shop price changes later.</li>
-<li>A <strong>deposit of 30%</strong> of the price reserves your wig. Your plan starts only when the deposit is received and confirmed by NURA.</li>
-<li>The balance is paid in equal weekly instalments over the plan length you choose (2, 3 or 4 weeks). Your dated schedule is shown before you start and on your personal statement link.</li>
-<li>You may pay more than the instalment, or clear the balance early, at any time at no extra cost.</li>
+<li><strong>Deposit:</strong> a non-interest deposit of <strong>50% of the price</strong> is required to start a plan. The plan begins only when NURA has received and confirmed the deposit.</li>
+<li><strong>Plan period:</strong> the balance must be cleared within a <strong>maximum of 2 weeks</strong> (14 days) from the date the deposit is confirmed. You may choose to pay weekly or in any amounts, provided the full balance is paid by the final due date.</li>
+<li><strong>Fixed price:</strong> the price is fixed on the day your deposit is confirmed, even if the shop price changes later.</li>
+<li><strong>Early settlement:</strong> you may clear the balance at any time before the due date at no extra cost.</li>
+<li>Your dated schedule, payments and balance are shown on your personal plan statement link.</li>
 </ul>
-<h3>4. How to pay</h3>
+
+<h3>4. Payments</h3>
 <ul>
-<li>Pay only to NURA's official M-Pesa Till/Paybill or bank account shared in our WhatsApp chat or invoice. NURA staff will never ask you to pay to a personal number.</li>
-<li>Send us the M-Pesa confirmation code after each payment. We record it and send you a receipt with your new balance.</li>
+<li>Pay only to NURA's official M-Pesa Till or Paybill, or the bank account shown on your invoice. NURA staff will never ask you to pay to a personal number.</li>
+<li>Send the M-Pesa confirmation code after every payment. A payment counts only once NURA has confirmed it, and we send you a receipt with your new balance.</li>
 </ul>
-<h3>5. Your reserved wig</h3>
+
+<h3>5. Your reserved wig, imports and lead times</h3>
 <ul>
-<li>Once the deposit is received, the wig (exact length, texture and colour) is taken out of stock and kept for you.</li>
-<li>Before the plan is complete you may switch once to another wig of equal or higher value; any price difference is added to your balance.</li>
+<li><strong>In-stock wigs:</strong> once the deposit is confirmed, the exact unit (length, texture, density and colour) is taken off sale and held for you.</li>
+<li><strong>Imported or specially ordered wigs:</strong> when the unit is not in stock, NURA orders it from its supplier once the deposit is confirmed. Supply can take <strong>up to 7 days</strong>. If you complete payment before the unit arrives, it will be released to you as soon as it is received, normally within 7 days of your final payment. We keep you updated on WhatsApp.</li>
+<li>Before the plan is complete you may switch once to another wig of equal or higher value, subject to availability. Any price difference is added to your balance.</li>
 </ul>
+
 <h3>6. Late or missed payments</h3>
 <ul>
-<li>We send friendly reminders by WhatsApp, SMS or e-mail before and after a due date.</li>
-<li>If you are struggling, tell us - we can agree a new date once, at no cost.</li>
-<li>If a payment is more than <strong>14 days late</strong> and we have not heard from you after a final reminder, NURA may cancel the plan and return the wig to stock. What happens to the money you paid is set out in section 7.</li>
+<li>We send reminders by WhatsApp, SMS or e-mail before and after each due date.</li>
+<li>If you expect to be late, contact us before the due date. We may agree one extension of up to 3 days, at no cost and at our discretion.</li>
+<li>If the full balance is not paid by the final due date (including any agreed extension) and we have not heard from you after a final reminder, NURA may cancel the plan and return the wig to stock. Section 7 then applies.</li>
 </ul>
-<h3>7. Cancelling a plan</h3>
+
+<h3>7. Cancellations and refunds</h3>
 <ul>
-<li><strong>If you cancel, or the plan is cancelled under section 6:</strong> everything you paid is kept as <strong>NURA credit</strong>, valid for 6 months on any product or service. If you prefer cash, we refund your instalments to M-Pesa within 7 working days; the <strong>deposit is not refundable</strong> because the wig was held off sale for you.</li>
-<li><strong>If NURA cancels for any other reason</strong> (for example we cannot supply the wig): you receive a <strong>full refund</strong> of everything paid, including the deposit, within 7 working days.</li>
+<li><strong>If you cancel, or the plan is cancelled under section 6:</strong> the <strong>deposit is non-refundable</strong>, because the wig was held off sale or ordered specially for you. Any instalments paid above the deposit are refunded to M-Pesa within 7 working days, or kept as NURA credit valid for 6 months if you prefer.</li>
+<li><strong>If NURA cannot supply the wig</strong>, or cancels for any reason not caused by you, you receive a <strong>full refund</strong> of everything paid, including the deposit, within 7 working days.</li>
 </ul>
+
 <h3>8. Collection and delivery</h3>
 <ul>
-<li>The wig is released only after the full price is paid.</li>
-<li>Collection from our studio is free. Delivery is charged separately at our normal rates (see <a href="/shipping-delivery/">Shipping &amp; Delivery</a>).</li>
-<li>Please collect or arrange delivery within 30 days of your final payment. After that, please contact us so we can arrange it.</li>
+<li>The wig is released only after the full price has been paid and confirmed.</li>
+<li>Collection from our studio is free. Delivery is charged at our normal rates (see <a href="/shipping-delivery/">Shipping &amp; Delivery</a>).</li>
+<li>Please collect or arrange delivery within 30 days of your final payment. After that, unclaimed items may be subject to storage arrangements agreed with you.</li>
 </ul>
+
 <h3>9. Returns and warranty</h3>
-<p>Our normal <a href="/returns-refunds/">Returns &amp; Refunds</a> and <a href="/warranty/">Warranty</a> terms apply from the day you receive the wig. Because you can inspect the exact unit before it is released, please check it carefully on collection or delivery.</p>
+<p>Our standard <a href="/returns-refunds/">Returns &amp; Refunds</a> and <a href="/warranty/">Warranty</a> terms apply from the day you receive the wig. Please inspect the unit carefully on collection or delivery.</p>
+
 <h3>10. Your information</h3>
-<p>We use your name, phone number and payment records only to run your plan, send receipts and reminders and keep accounting records, in line with our <a href="/privacy-policy/">Privacy Policy</a> and Kenya's Data Protection Act, 2019.</p>
+<p>We use your name, phone number and payment records only to manage your plan, send receipts and reminders and keep accounting records, in line with our <a href="/privacy-policy/">Privacy Policy</a> and Kenya's Data Protection Act, 2019.</p>
+
 <h3>11. General</h3>
-<p>These terms sit alongside our general <a href="/terms-conditions/">Terms &amp; Conditions</a> and do not affect your rights under Kenya's Consumer Protection Act, 2012. Kenyan law applies. We may update these terms; changes apply only to plans started after the update.</p>
+<p>These terms apply together with our general <a href="/terms-conditions/">Terms &amp; Conditions</a> and do not affect your statutory rights under Kenya's Consumer Protection Act, 2012. They are governed by the laws of Kenya. NURA may update these terms from time to time; changes apply only to plans started after the update is published.</p>
 <p>Questions? WhatsApp <strong>$phone</strong> or e-mail <strong>$email</strong>.</p>
 HTML;
 

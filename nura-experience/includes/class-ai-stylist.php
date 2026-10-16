@@ -329,6 +329,20 @@ class NURAX_AI_Stylist {
 		if ( !preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $time ) ) {
 			$errors[] = __( 'a preferred time', 'nura-experience' );
 		}
+		$deposit = 0;
+		$mpesa   = strtoupper( preg_replace( '/[^A-Za-z0-9]/', '', (string) $req->get_param( 'mpesa' ) ) );
+		if ( ! $errors && class_exists( 'NURAX_Desk_Appts' ) ) {
+			if ( $time >= NURAX_Desk_Appts::cutoff() ) {
+				return new WP_Error( 'nurax_morning', sprintf( __( 'Studio bookings are mornings only, before %s. Please choose an earlier time, or walk in during the afternoon.', 'nura-experience' ), NURAX_Desk::time_label( NURAX_Desk_Appts::cutoff() ) ), array( 'status' => 409 ) );
+			}
+			$deposit = NURAX_Desk_Appts::deposit_for( $service );
+			if ( $deposit > 0 && ! preg_match( '/^[A-Z0-9]{8,12}$/', $mpesa ) ) {
+				$errors[] = sprintf( __( 'the M-Pesa code for your KSh %s deposit', 'nura-experience' ), number_format( $deposit ) );
+			}
+			if ( ! $req->get_param( 'terms' ) ) {
+				$errors[] = __( 'your agreement to the booking terms', 'nura-experience' );
+			}
+		}
 		if ( $errors ) {
 			return new WP_Error( 'nurax_booking_invalid', sprintf( __( 'Please add %s.', 'nura-experience' ), implode( ', ', $errors ) ), array( 'status' => 400 ) );
 		}
@@ -350,6 +364,9 @@ class NURAX_AI_Stylist {
 				'date'    => $date,
 				'time'    => $time,
 				'notes'   => $notes,
+				'deposit' => $deposit,
+				'deposit_ref' => $deposit > 0 ? $mpesa : '',
+				'terms'   => 1,
 			) );
 		}
 
@@ -366,6 +383,10 @@ class NURAX_AI_Stylist {
 		);
 		if ( '' !== $notes ) {
 			$lines[] = sprintf( __( 'Notes: %s', 'nura-experience' ), $notes );
+		}
+		if ( $deposit > 0 ) {
+			$lines[] = sprintf( __( 'Deposit: KSh %1$s paid, M-Pesa code %2$s', 'nura-experience' ), number_format( $deposit ), $mpesa );
+			$lines[] = __( 'I agree to the booking terms.', 'nura-experience' );
 		}
 		if ( '' !== $desk_ref ) {
 			$lines[] = sprintf( __( 'Ref: %s', 'nura-experience' ), $desk_ref );

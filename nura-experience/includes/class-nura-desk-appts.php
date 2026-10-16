@@ -123,11 +123,168 @@ class NURAX_Desk_Appts {
 		$step = max( 10, (int) $s['appt_step'] ) * 60;
 		$t    = strtotime( '2000-01-01 ' . $s['appt_open'] );
 		$end  = strtotime( '2000-01-01 ' . $s['appt_close'] );
+		$cut  = self::cutoff();
 		while ( $t && $end && $t <= $end && count( $out ) < 100 ) {
+			if ( gmdate( 'H:i', $t ) >= $cut ) {
+				break; // Morning-only bookings.
+			}
 			$out[] = gmdate( 'H:i', $t );
 			$t    += $step;
 		}
 		return $out;
+	}
+
+	/* ------------------------------------------------------------------ */
+	/* Booking rules: morning only, deposit, arrival policy, terms        */
+	/* ------------------------------------------------------------------ */
+
+	public static function cutoff() {
+		$s = NURAX_Desk::settings();
+		return isset( $s['appt_cutoff'] ) && preg_match( '/^\d{2}:\d{2}$/', (string) $s['appt_cutoff'] ) ? $s['appt_cutoff'] : '12:00';
+	}
+
+	public static function grace() {
+		$s = NURAX_Desk::settings();
+		return max( 0, (int) ( isset( $s['appt_grace'] ) ? $s['appt_grace'] : 15 ) );
+	}
+
+	public static function prices() {
+		$s   = NURAX_Desk::settings();
+		$out = array();
+		foreach ( explode( ',', (string) ( isset( $s['appt_prices'] ) ? $s['appt_prices'] : '' ) ) as $pair ) {
+			$kv = array_map( 'trim', explode( '=', $pair, 2 ) );
+			if ( 2 === count( $kv ) && '' !== $kv[0] ) {
+				$out[ sanitize_key( $kv[0] ) ] = max( 0, (float) preg_replace( '/[^0-9.]/', '', $kv[1] ) );
+			}
+		}
+		return $out;
+	}
+
+	/** Deposit to secure a slot (0 when deposits are off: no M-Pesa details). */
+	public static function deposit_for( $service ) {
+		$s = NURAX_Desk::settings();
+		if ( '' === trim( (string) $s['mpesa_details'] ) ) {
+			return 0;
+		}
+		$pct = min( 100, max( 0, (int) ( isset( $s['appt_dep_pct'] ) ? $s['appt_dep_pct'] : 50 ) ) );
+		$min = max( 0, (int) ( isset( $s['appt_dep_min'] ) ? $s['appt_dep_min'] : 500 ) );
+		$p   = self::prices();
+		$p   = isset( $p[ $service ] ) ? $p[ $service ] : 0;
+		return (int) max( $min, ceil( $p * $pct / 100 ) );
+	}
+
+	public static function terms_list() {
+		$s = NURAX_Desk::settings();
+		$t = trim( (string) ( isset( $s['appt_terms'] ) ? $s['appt_terms'] : '' ) );
+		if ( '' !== $t ) {
+			return array_values( array_filter( array_map( 'trim', preg_split( '/\r?\n/', $t ) ) ) );
+		}
+		$g   = self::grace();
+		$pct = (int) ( isset( $s['appt_dep_pct'] ) ? $s['appt_dep_pct'] : 50 );
+		$min = (int) ( isset( $s['appt_dep_min'] ) ? $s['appt_dep_min'] : 500 );
+		$cut = NURAX_Desk::time_label( self::cutoff() );
+		return array(
+			'Studio appointments are available in the morning only, with the last booking before ' . $cut . '. Afternoons are for walk-in clients.',
+			'A deposit of ' . $pct . '% of the service price' . ( $min > 0 ? ' (minimum KSh ' . number_format( $min ) . ')' : '' ) . ' secures your slot. Your booking is confirmed only once we have verified your M-Pesa payment.',
+			'Your deposit is deducted from your final bill.',
+			'Please arrive on time. If you arrive early, we will attend to you at your booked time. A client already being served will not be interrupted.',
+			'We hold your slot for ' . $g . ' minutes after your booked time. After that the slot is released and you will be served as a walk-in when the next stylist is free. This may not be on the same day.',
+			'Walk-in clients are served only in free time between booked appointments. A booked client who arrives on time is always served first.',
+			'To reschedule, let us know at least 24 hours before your appointment. Your deposit moves to the new date once.',
+			'If you cancel with less than 24 hours notice, or do not come, the deposit is not refunded.',
+			'By booking, you agree to these terms.',
+		);
+	}
+
+	/** Where a booked client stands right now: [key, label]. */
+	public static function arrival_state( $a, $now_hm = '' ) {
+		$now_hm = $now_hm ? $now_hm : current_time( 'H:i' );
+		$slot   = strtotime( '2000-01-01 ' . $a->appt_time );
+		$g      = self::grace() * 60;
+		if ( 'completed' === $a->status ) {
+			return array( 'done', 'Served' );
+		}
+		if ( ! empty( $a->arrived_at ) ) {
+			$arr = strtotime( '2000-01-01 ' . substr( $a->arrived_at, 11, 5 ) );
+			if ( $arr < $slot ) {
+				return array( 'early', 'Arrived early - serve at ' . NURAX_Desk::time_label( $a->appt_time ) );
+			}
+			if ( $arr <= $slot + $g ) {
+				return array( 'ontime', 'Arrived on time - serve now' );
+			}
+			return array( 'late', 'Arrived late - serve as a walk-in' );
+		}
+		$now = strtotime( '2000-01-01 ' . $now_hm );
+		if ( $now < $slot ) {
+			return array( 'due', 'Expected in ' . (int) round( ( $slot - $now ) / 60 ) . ' min' );
+		}
+		if ( $now <= $slot + $g ) {
+			return array( 'grace', 'Late ' . (int) round( ( $now - $slot ) / 60 ) . ' min - slot held until ' . NURAX_Desk::time_label( gmdate( 'H:i', $slot + $g ) ) );
+		}
+		return array( 'released', 'Slot released - treat as a walk-in' );
+	}
+
+	public static function deposit_tag( $a ) {
+		if ( empty( $a->deposit ) || (float) $a->deposit <= 0 ) {
+			return '<small class="nb-dep nb-dep--none">No deposit</small>';
+		}
+		if ( 'verified' === $a->deposit_status ) {
+			return '<small class="nb-dep nb-dep--ok">Deposit ' . esc_html( NURAX_Desk::money( $a->deposit ) ) . ' received</small>';
+		}
+		return '<small class="nb-dep nb-dep--chk">Deposit ' . esc_html( NURAX_Desk::money( $a->deposit ) ) . ( $a->deposit_ref ? ' - check M-Pesa ' . esc_html( $a->deposit_ref ) : ' - not paid' ) . '</small>';
+	}
+
+	/** Today's studio board: who is due, who is late, can we take a walk-in now. */
+	public static function studio_board() {
+		$today = NURAX_Desk::today();
+		if ( ! self::slots( $today ) ) {
+			return;
+		}
+		$now  = current_time( 'H:i' );
+		$cut  = self::cutoff();
+		$dur  = (int) NURAX_Desk::settings()['appt_duration'];
+		$list = array_values( array_filter( self::between( $today, $today, array( 'request', 'confirmed', 'completed' ) ), function ( $a ) {
+			return 'studio' === $a->type;
+		} ) );
+		$next = null;
+		foreach ( $list as $a ) {
+			$st = self::arrival_state( $a, $now );
+			if ( in_array( $st[0], array( 'due', 'grace', 'early', 'ontime' ), true ) && ( ! $next || $a->appt_time < $next->appt_time ) ) {
+				$next = $a;
+			}
+		}
+		$nowt = strtotime( '2000-01-01 ' . $now );
+		if ( $now >= $cut && ! $next ) {
+			$verdict = array( 'yes', 'Walk-ins welcome', 'Bookings are finished for today. Serve walk-ins freely.' );
+		} elseif ( ! $next ) {
+			$verdict = array( 'yes', 'Walk-ins welcome now', 'No more booked clients are expected today.' );
+		} else {
+			$free = (int) round( ( strtotime( '2000-01-01 ' . $next->appt_time ) - $nowt ) / 60 );
+			$st   = self::arrival_state( $next, $now );
+			if ( in_array( $st[0], array( 'grace', 'early', 'ontime' ), true ) || $free <= 0 ) {
+				$verdict = array( 'no', 'Booked client first', $next->customer_name . ' (' . NURAX_Desk::time_label( $next->appt_time ) . ') comes first. Offer the walk-in the next free time or the afternoon.' );
+			} elseif ( $free >= $dur ) {
+				$verdict = array( 'yes', 'You can take a walk-in now', $free . ' min free before ' . $next->customer_name . ' at ' . NURAX_Desk::time_label( $next->appt_time ) . '. Tell the walk-in the service must finish by then.' );
+			} else {
+				$verdict = array( 'wait', 'Only ' . $free . ' min free', $next->customer_name . ' is booked at ' . NURAX_Desk::time_label( $next->appt_time ) . '. Take a walk-in only for a quick service, or offer a time after the booking.' );
+			}
+		}
+		echo '<section class="nb-board"><div class="nb-board__v nb-board__v--' . esc_attr( $verdict[0] ) . '"><span class="nb-board__eyebrow">Studio now - ' . esc_html( NURAX_Desk::time_label( $now ) ) . '</span><strong>' . esc_html( $verdict[1] ) . '</strong><p>' . esc_html( $verdict[2] ) . '</p><small>Rule: early arrivals wait for their time. A client more than ' . (int) self::grace() . ' min late loses the slot and joins the walk-in queue.</small></div>';
+		echo '<div class="nb-board__list">';
+		if ( ! $list ) {
+			echo '<p class="nb-board__empty">No studio bookings today. Walk-ins all day.</p>';
+		}
+		foreach ( $list as $a ) {
+			$st = self::arrival_state( $a, $now );
+			echo '<div class="nb-slot nb-slot--' . esc_attr( $st[0] ) . '"><b>' . esc_html( NURAX_Desk::time_label( $a->appt_time ) ) . '</b><div><strong>' . esc_html( $a->customer_name ) . '</strong><small>' . esc_html( self::service_label( $a->service ) ) . '</small>' . self::deposit_tag( $a ) . '</div><span class="nb-slot__st">' . esc_html( $st[1] ) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput
+			if ( empty( $a->arrived_at ) && 'completed' !== $a->status ) {
+				self::status_btn( $a->id, 'arrived', 'Checked in', 'nd-ico-btn nd-ico-btn--ok' );
+			} elseif ( 'confirmed' === $a->status ) {
+				self::status_btn( $a->id, 'completed', 'Done', 'nd-ico-btn nd-ico-btn--ok' );
+			}
+			echo '</div>';
+		}
+		echo '</div></section>';
 	}
 
 	public static function booked( $date, $time, $exclude = 0 ) {
@@ -186,7 +343,11 @@ class NURAX_Desk_Appts {
 			'user_id'       => ( $u && $u->ID ) ? (int) $u->ID : 0,
 			'notes'         => (string) $a['notes'],
 			'source'        => 'website',
-			'log'           => wp_json_encode( array( array( 't' => $now, 'u' => 'Website', 'm' => 'Booked on the website.' ) ) ),
+			'deposit'       => isset( $a['deposit'] ) ? (float) $a['deposit'] : 0,
+			'deposit_ref'   => isset( $a['deposit_ref'] ) ? mb_substr( (string) $a['deposit_ref'], 0, 40 ) : '',
+			'deposit_status' => ! empty( $a['deposit_ref'] ) ? 'claimed' : 'none',
+			'terms_at'      => ! empty( $a['terms'] ) ? $now : null,
+			'log'           => wp_json_encode( array( array( 't' => $now, 'u' => 'Website', 'm' => 'Booked on the website.' . ( ! empty( $a['deposit'] ) ? ' Deposit ' . NURAX_Desk::money( $a['deposit'] ) . ( ! empty( $a['deposit_ref'] ) ? ', M-Pesa ' . $a['deposit_ref'] . ' (to verify)' : '' ) . '.' : '' ) . ( ! empty( $a['terms'] ) ? ' Booking terms accepted.' : '' ) ) ) ),
 			'created_at'    => $now,
 			'updated_at'    => $now,
 		) );
@@ -209,7 +370,9 @@ class NURAX_Desk_Appts {
 			ucfirst( $where ) . '.',
 			'',
 			'Ref: ' . $a->ref,
-			'Need to change the time? Just reply to this message. We look forward to seeing you.',
+			( ! empty( $a->deposit ) && (float) $a->deposit > 0 ? ( 'verified' === $a->deposit_status ? 'Deposit of ' . NURAX_Desk::money( $a->deposit ) . ' received, thank you. It comes off your final bill.' : 'Please pay the ' . NURAX_Desk::money( $a->deposit ) . ' deposit to ' . NURAX_Desk::settings()['mpesa_details'] . ' to keep this slot.' ) : '' ),
+			'Please arrive on time. We hold your slot for ' . self::grace() . ' minutes. After that it goes to the next client and you are served as a walk-in.',
+			'Need to change the time? Reply at least 24 hours before. We look forward to seeing you.',
 		) );
 	}
 
@@ -289,6 +452,7 @@ class NURAX_Desk_Appts {
 		$rows  = (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $t WHERE $where ORDER BY appt_date $dir, appt_time $dir LIMIT %d OFFSET %d", array_merge( $args, array( $per, ( $paged - 1 ) * $per ) ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL
 
 		NURAX_Desk::header( NURAX_Desk::P_APPTS, 'Appointments', self::head_actions() );
+		self::studio_board();
 		$k = self::kpis();
 		echo '<div class="nd-kpis nd-kpis--4">';
 		NURAX_Desk::kpi( 'Today', (string) $k['today'], $k['today_confirmed'] . ' confirmed', 'ink' );
@@ -330,7 +494,7 @@ class NURAX_Desk_Appts {
 		echo '<td class="nd-col-chk"><input type="checkbox" class="nd-check" value="appt:' . (int) $a->id . '" aria-label="Select"></td>';
 		echo '<td><strong class="nd-time">' . esc_html( NURAX_Desk::time_label( $a->appt_time ) ) . '</strong><small>' . esc_html( (int) $a->duration . ' min - ' . self::type_label( $a->type ) ) . '</small></td>';
 		echo '<td><a href="' . esc_url( $view ) . '"><strong>' . esc_html( $a->customer_name ) . '</strong></a><small>' . esc_html( NURAX_Desk::phone_label( $a->phone ) . ' - ' . $a->ref ) . '</small></td>';
-		echo '<td>' . esc_html( self::service_label( $a->service ) ) . ( $a->notes ? '<small class="nd-clip">' . esc_html( $a->notes ) . '</small>' : '' ) . '</td>';
+		echo '<td>' . esc_html( self::service_label( $a->service ) ) . ( $a->notes ? '<small class="nd-clip">' . esc_html( $a->notes ) . '</small>' : '' ) . self::deposit_tag( $a ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput
 		echo '<td>' . esc_html( $a->staff ? $a->staff : '-' ) . '</td>';
 		echo '<td>' . NURAX_Desk::badge( $a->status, self::status_label( $a->status ) ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<td class="nd-col-act">';
@@ -340,8 +504,15 @@ class NURAX_Desk_Appts {
 
 	private static function quick_actions( $a ) {
 		$today = NURAX_Desk::today();
+		$dep   = ! empty( $a->deposit ) && (float) $a->deposit > 0 && 'verified' !== $a->deposit_status;
+		if ( $dep && in_array( $a->status, array( 'request', 'confirmed' ), true ) ) {
+			self::status_btn( $a->id, 'deposit_ok', 'Deposit received', 'nd-ico-btn nd-ico-btn--ok' );
+		}
 		if ( 'request' === $a->status ) {
-			self::status_btn( $a->id, 'confirmed', 'Confirm', 'nd-ico-btn nd-ico-btn--ok' );
+			self::status_btn( $a->id, 'confirmed', $dep ? 'Confirm without deposit' : 'Confirm', $dep ? 'nd-ico-btn' : 'nd-ico-btn nd-ico-btn--ok', $dep ? 'The deposit has not been marked as received. Confirm anyway?' : '' );
+		}
+		if ( 'confirmed' === $a->status && $a->appt_date === $today && empty( $a->arrived_at ) ) {
+			self::status_btn( $a->id, 'arrived', 'Checked in', 'nd-ico-btn' );
 		}
 		if ( in_array( $a->status, array( 'request', 'confirmed' ), true ) && $a->phone ) {
 			$txt = 'request' === $a->status ? self::confirm_text( $a ) : self::reminder_text( $a );
@@ -665,12 +836,28 @@ class NURAX_Desk_Appts {
 		$id = isset( $_POST['appt_id'] ) ? absint( $_POST['appt_id'] ) : 0;
 		$to = isset( $_POST['to'] ) ? sanitize_key( wp_unslash( $_POST['to'] ) ) : '';
 		$a  = self::get( $id );
-		if ( ! $a || ! array_key_exists( $to, self::statuses() ) ) {
+		if ( ! $a || ! ( array_key_exists( $to, self::statuses() ) || in_array( $to, array( 'deposit_ok', 'arrived' ), true ) ) ) {
 			wp_safe_redirect( NURAX_Desk::url( NURAX_Desk::P_APPTS, array( 'nd_msg' => 'notfound' ) ) );
 			exit;
 		}
-		$wpdb->update( NURAX_Desk::t_appts(), array( 'status' => $to, 'updated_at' => current_time( 'mysql' ) ), array( 'id' => $id ) );
-		NURAX_Desk::log( NURAX_Desk::t_appts(), $id, 'Status changed to ' . self::status_label( $to ) . '.' );
+		$now = current_time( 'mysql' );
+		if ( 'deposit_ok' === $to ) {
+			$set = array( 'deposit_status' => 'verified', 'status' => 'request' === $a->status ? 'confirmed' : $a->status, 'updated_at' => $now );
+			$msg = 'Deposit ' . NURAX_Desk::money( $a->deposit ) . ' received' . ( $a->deposit_ref ? ' (M-Pesa ' . $a->deposit_ref . ')' : '' ) . ' - booking confirmed.';
+		} elseif ( 'arrived' === $to ) {
+			$set   = array( 'arrived_at' => $now, 'updated_at' => $now );
+			$a->arrived_at = $now;
+			$state = self::arrival_state( $a );
+			$msg   = 'Checked in at ' . NURAX_Desk::time_label( substr( $now, 11, 5 ) ) . ': ' . $state[1] . '.';
+		} else {
+			$set = array( 'status' => $to, 'updated_at' => $now );
+			$msg = 'Status changed to ' . self::status_label( $to ) . '.';
+		}
+		$wpdb->update( NURAX_Desk::t_appts(), $set, array( 'id' => $id ) );
+		NURAX_Desk::log( NURAX_Desk::t_appts(), $id, $msg );
+		if ( class_exists( 'NURAX_Staff' ) ) {
+			NURAX_Staff::log( 'appt', $a->ref . ' ' . $a->customer_name . ': ' . $msg, array( 'object' => 'appt', 'object_id' => $id, 'amount' => 'deposit_ok' === $to ? (float) $a->deposit : 0 ) );
+		}
 		NURAX_Desk::bust();
 		$ref  = wp_get_referer();
 		$dest = ( $ref && false !== strpos( $ref, 'page=' . NURAX_Desk::P_APPTS ) && false === strpos( $ref, 'appt=' ) ) || ( $ref && false !== strpos( $ref, 'page=' . NURAX_Desk::MENU ) ) ? remove_query_arg( 'nd_msg', $ref ) : NURAX_Desk::url( NURAX_Desk::P_APPTS, array( 'appt' => $id ) );

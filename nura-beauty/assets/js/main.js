@@ -149,7 +149,7 @@ r(function(){[].slice.call(d.querySelectorAll("[data-nura-rail]")).forEach(funct
 
 /* ===== NURA v1.1.0 - Book a fitting -> WhatsApp ===== */
 (function(){var d=document;function r(f){if(d.readyState!=="loading"){f();}else{d.addEventListener("DOMContentLoaded",f);}}
-r(function(){var form=d.querySelector("[data-nura-book]");if(!form){return;}
+r(function(){var form=d.querySelector("[data-nura-book]");if(!form||form.hasAttribute("data-endpoint")){return;}
 	form.addEventListener("submit",function(e){e.preventDefault();
 		var wa=form.getAttribute("data-wa")||"";
 		var g=function(k){var el=form.querySelector('[name="'+k+'"]');return el?el.value:"";};
@@ -774,9 +774,9 @@ function show(m){err.textContent=m;err.hidden=false;}
 function phone(){var p=val("phone").replace(/\D/g,"");if(p.length===10&&p.charAt(0)==="0"){p="254"+p.slice(1);}else if(p.length===9){p="254"+p;}return p;}
 var names={consultation:"Free consultation",fitting:"Wig fitting",installation:"Installation & styling",bridal:"Bridal & occasion"},types={studio:"Nairobi studio visit",video:"Video call",whatsapp:"WhatsApp chat"};
 function waLink(){var lines=["Hello NURA, I would like to book an appointment.","","Name: "+val("name"),"Phone: +"+phone(),"Service: "+(names[svc.value]||svc.value),"Where: "+(types[val("type")]||val("type")),"Date: "+val("date"),"Time: "+val("time")];if(val("notes")){lines.push("Notes: "+val("notes"));}var base=f.getAttribute("data-wa")||"https://wa.me/254714994898";return base+(base.indexOf("?")>-1?"&":"?")+"text="+encodeURIComponent(lines.join("\n"));}
-function depAmt(){var b=f.querySelector(".nura-bk__dep");if(!b){return 0;}try{var m=JSON.parse(b.getAttribute("data-deps")||"{}");return Number(m[svc.value])||0;}catch(x){return 0;}}
+function depAmt(){var b=f.querySelector(".nura-bk__dep");if(!b){return 0;}if(val("type")&&val("type")!=="studio"){return 0;}try{var m=JSON.parse(b.getAttribute("data-deps")||"{}");return Number(m[svc.value])||0;}catch(x){return 0;}}
 function depShow(){var b=f.querySelector(".nura-bk__dep");if(!b){return;}var a=depAmt();b.hidden=!(a>0);var s=b.querySelector("[data-dep-amt]");if(s){s.textContent="KSh "+a.toLocaleString("en-KE");}}
-depShow();[].forEach.call(d.querySelectorAll("input[name=nb_service_pick]"),function(r){r.addEventListener("change",depShow);});
+depShow();[].forEach.call(d.querySelectorAll("input[name=nb_service_pick],input[name=type]"),function(r){r.addEventListener("change",depShow);});
 function finish(text,url){done.querySelector(".nura-bk__done-t").textContent=text;done.querySelector(".nura-bk__wa").href=url;done.hidden=false;}
 f.addEventListener("submit",function(e){e.preventDefault();err.hidden=true;
 	[].forEach.call(f.querySelectorAll(".is-invalid"),function(x){x.classList.remove("is-invalid");});

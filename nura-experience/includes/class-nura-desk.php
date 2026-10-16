@@ -239,6 +239,7 @@ class NURAX_Desk {
 			'appt_dep_pct'  => 50,
 			'appt_dep_min'  => 500,
 			'appt_grace'    => 15,
+			'appt_hold'     => 3,
 			'appt_prices'   => 'fitting=0, installation=0, revamp=0, bridal=0',
 			'appt_terms'    => '',
 			'staff'         => '',
@@ -691,6 +692,7 @@ class NURAX_Desk {
 		self::field_num( 'appt_dep_pct', 'Booking deposit (% of service price)', $s['appt_dep_pct'], 'Clients pay this by M-Pesa to secure the slot. It is deducted from the final bill.' );
 		self::field_num( 'appt_dep_min', 'Minimum booking deposit (KSh)', $s['appt_dep_min'], 'Used when a service has no price below, or 50% comes to less than this. Set 0 for no minimum.' );
 		self::field_text( 'appt_prices', 'Service prices (KSh)', $s['appt_prices'], 'Used to work out the deposit, e.g. fitting=2000, installation=3500, revamp=1500, bridal=10000. Services: consultation, fitting, installation, revamp, bridal.' );
+		self::field_num( 'appt_hold', 'Hold an unpaid booking for (hours)', $s['appt_hold'], 'A website booking whose deposit you have not marked as received frees its slot after this many hours, so fake M-Pesa codes cannot block your mornings.' );
 		self::field_num( 'appt_grace', 'Late arrival grace (minutes)', $s['appt_grace'], 'A booked slot is held this long. After that the client is served as a walk-in.' );
 		echo '<label class="nd-field nd-field--wide"><span class="nd-label">Booking terms &amp; conditions</span><textarea name="appt_terms" rows="8">' . esc_textarea( $s['appt_terms'] ) . '</textarea><small>One rule per line. Leave empty to use the standard NURA terms (shown on the booking page and accepted by every client).</small></label>';
 		if ( '' === trim( (string) $s['mpesa_details'] ) ) {
@@ -801,7 +803,7 @@ class NURAX_Desk {
 		$in  = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$d   = self::defaults();
 		$out = array();
-		foreach ( array( 'lmm_min', 'lmm_deposit', 'lmm_grace', 'appt_capacity', 'appt_step', 'appt_duration', 'appt_dep_pct', 'appt_dep_min', 'appt_grace' ) as $k ) {
+		foreach ( array( 'lmm_min', 'lmm_deposit', 'lmm_grace', 'appt_capacity', 'appt_step', 'appt_duration', 'appt_dep_pct', 'appt_dep_min', 'appt_grace', 'appt_hold' ) as $k ) {
 			$out[ $k ] = isset( $in[ $k ] ) ? absint( $in[ $k ] ) : $d[ $k ];
 		}
 		$out['lmm_deposit']   = min( 100, $out['lmm_deposit'] );
@@ -834,6 +836,7 @@ class NURAX_Desk {
 		$out['appt_close'] = isset( $in['appt_close'] ) && preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $in['appt_close'] ) ? $in['appt_close'] : $d['appt_close'];
 		$out['appt_dep_pct'] = min( 100, $out['appt_dep_pct'] );
 		$out['appt_grace']   = min( 120, $out['appt_grace'] );
+		$out['appt_hold']    = min( 48, max( 1, $out['appt_hold'] ) );
 		$out['appt_cutoff']  = isset( $in['appt_cutoff'] ) && preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $in['appt_cutoff'] ) ? $in['appt_cutoff'] : $d['appt_cutoff'];
 		$out['appt_prices']  = isset( $in['appt_prices'] ) ? mb_substr( sanitize_text_field( $in['appt_prices'] ), 0, 500 ) : $d['appt_prices'];
 		$out['appt_terms']   = isset( $in['appt_terms'] ) ? mb_substr( sanitize_textarea_field( $in['appt_terms'] ), 0, 4000 ) : '';

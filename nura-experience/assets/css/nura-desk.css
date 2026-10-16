@@ -709,3 +709,5 @@ a.nt-who:hover{color:#a07a24}
 .nb-dep--ok{background:#e7f4ec;color:#1e7a46!important}.nb-dep--chk{background:#fff4e0;color:#8a5a00!important}.nb-dep--none{background:#f3efe8;color:#8a8174!important}
 .nd-field--wide{grid-column:1/-1}.nd-field--wide textarea{width:100%;font-size:13px}
 @media (max-width:1000px){.nb-board{grid-template-columns:1fr}.nb-slot{grid-template-columns:60px minmax(0,1fr);}.nb-slot__st{text-align:left}}
+
+.nb-dep--exp{background:#fdecea;color:#b3261e!important}

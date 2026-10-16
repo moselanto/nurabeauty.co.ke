@@ -161,9 +161,9 @@ class NURAX_Desk_Appts {
 	}
 
 	/** Deposit to secure a slot (0 when deposits are off: no M-Pesa details). */
-	public static function deposit_for( $service ) {
+	public static function deposit_for( $service, $type = 'studio' ) {
 		$s = NURAX_Desk::settings();
-		if ( '' === trim( (string) $s['mpesa_details'] ) ) {
+		if ( 'studio' !== $type || '' === trim( (string) $s['mpesa_details'] ) ) {
 			return 0;
 		}
 		$pct = min( 100, max( 0, (int) ( isset( $s['appt_dep_pct'] ) ? $s['appt_dep_pct'] : 50 ) ) );
@@ -185,8 +185,8 @@ class NURAX_Desk_Appts {
 		$cut = NURAX_Desk::time_label( self::cutoff() );
 		return array(
 			'Studio appointments are available in the morning only, with the last booking before ' . $cut . '. Afternoons are for walk-in clients.',
-			'A deposit of ' . $pct . '% of the service price' . ( $min > 0 ? ' (minimum KSh ' . number_format( $min ) . ')' : '' ) . ' secures your slot. Your booking is confirmed only once we have verified your M-Pesa payment.',
-			'Your deposit is deducted from your final bill.',
+			'A deposit of ' . $pct . '% of the service price' . ( $min > 0 ? ' (minimum KSh ' . number_format( $min ) . ')' : '' ) . ' secures a studio slot. Video and WhatsApp consultations need no deposit. Your booking is confirmed only once we have verified your M-Pesa payment. An unverified booking is released after ' . self::hold_hours() . ' hours.',
+			'Your deposit is deducted from your final bill. For a free consultation, it is credited to any purchase or service you take on the day.',
 			'Please arrive on time. If you arrive early, we will attend to you at your booked time. A client already being served will not be interrupted.',
 			'We hold your slot for ' . $g . ' minutes after your booked time. After that the slot is released and you will be served as a walk-in when the next stylist is free. This may not be on the same day.',
 			'Walk-in clients are served only in free time between booked appointments. A booked client who arrives on time is always served first.',
@@ -225,6 +225,9 @@ class NURAX_Desk_Appts {
 	}
 
 	public static function deposit_tag( $a ) {
+		if ( self::hold_expired( $a ) ) {
+			return '<small class="nb-dep nb-dep--exp">Deposit not verified in ' . (int) self::hold_hours() . 'h - slot released</small>';
+		}
 		if ( empty( $a->deposit ) || (float) $a->deposit <= 0 ) {
 			return '<small class="nb-dep nb-dep--none">No deposit</small>';
 		}
@@ -290,7 +293,31 @@ class NURAX_Desk_Appts {
 	public static function booked( $date, $time, $exclude = 0 ) {
 		global $wpdb;
 		$t = NURAX_Desk::t_appts();
-		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $t WHERE appt_date = %s AND appt_time = %s AND status IN ('request','confirmed') AND id <> %d", $date, $time, (int) $exclude ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$cut = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - self::hold_hours() * HOUR_IN_SECONDS );
+		// A website request whose deposit has not been verified only holds the slot for a few hours.
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $t WHERE appt_date = %s AND appt_time = %s AND id <> %d AND ( status = 'confirmed' OR ( status = 'request' AND NOT ( deposit > 0 AND deposit_status <> 'verified' AND created_at < %s ) ) )", $date, $time, (int) $exclude, $cut ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+
+	public static function hold_hours() {
+		$s = NURAX_Desk::settings();
+		return max( 1, (int) ( isset( $s['appt_hold'] ) ? $s['appt_hold'] : 3 ) );
+	}
+
+	/** True when a website request's deposit was never verified in time (slot released). */
+	public static function hold_expired( $a ) {
+		return 'request' === $a->status && ! empty( $a->deposit ) && (float) $a->deposit > 0 && 'verified' !== $a->deposit_status && strtotime( $a->created_at ) < current_time( 'timestamp' ) - self::hold_hours() * HOUR_IN_SECONDS;
+	}
+
+	/** M-Pesa code already used on another live booking? */
+	public static function code_used( $code ) {
+		global $wpdb;
+		return '' !== $code && (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . NURAX_Desk::t_appts() . " WHERE deposit_ref = %s AND status IN ('request','confirmed','completed')", $code ) ) > 0; // phpcs:ignore WordPress.DB
+	}
+
+	/** Open booking already held by this phone on this date? */
+	public static function phone_has( $phone, $date ) {
+		global $wpdb;
+		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . NURAX_Desk::t_appts() . " WHERE phone = %s AND appt_date = %s AND status IN ('request','confirmed')", $phone, $date ) ) > 0; // phpcs:ignore WordPress.DB
 	}
 
 	public static function is_full( $date, $time, $exclude = 0 ) {
@@ -856,7 +883,7 @@ class NURAX_Desk_Appts {
 		$wpdb->update( NURAX_Desk::t_appts(), $set, array( 'id' => $id ) );
 		NURAX_Desk::log( NURAX_Desk::t_appts(), $id, $msg );
 		if ( class_exists( 'NURAX_Staff' ) ) {
-			NURAX_Staff::log( 'appt', $a->ref . ' ' . $a->customer_name . ': ' . $msg, array( 'object' => 'appt', 'object_id' => $id, 'amount' => 'deposit_ok' === $to ? (float) $a->deposit : 0 ) );
+			NURAX_Staff::log( 'appointment', $a->ref . ' ' . $a->customer_name . ': ' . $msg, array( 'object' => 'appt', 'object_id' => $id, 'amount' => 'deposit_ok' === $to ? (float) $a->deposit : 0 ) );
 		}
 		NURAX_Desk::bust();
 		$ref  = wp_get_referer();

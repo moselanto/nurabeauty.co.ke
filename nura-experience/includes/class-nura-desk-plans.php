@@ -1056,6 +1056,13 @@ class NURAX_Desk_Plans {
 		$s       = NURAX_Desk::settings();
 		$deposit = isset( $in['deposit'] ) && '' !== (string) $in['deposit'] ? (float) $in['deposit'] : ceil( $price * (int) $s['lmm_deposit'] / 100 );
 		$deposit = min( $price, max( 0, round( $deposit, 2 ) ) );
+		$floor   = ceil( $price * (int) $s['lmm_deposit'] / 100 );
+		if ( $deposit < $floor && ! current_user_can( 'manage_options' ) ) {
+			if ( class_exists( 'NURAX_Staff' ) ) {
+				NURAX_Staff::log( 'blocked', 'Blocked: plan deposit ' . NURAX_Desk::money( $deposit ) . ' is below the ' . (int) $s['lmm_deposit'] . '% policy (' . NURAX_Desk::money( $floor ) . ') - raised to the policy amount', array( 'level' => 'warn' ) );
+			}
+			$deposit = $floor;
+		}
 		$pname   = isset( $in['product_name'] ) ? mb_substr( sanitize_text_field( $in['product_name'] ), 0, 255 ) : '';
 		if ( '' === $pname && $pid ) {
 			$pname = get_the_title( $pid );

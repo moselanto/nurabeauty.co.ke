@@ -649,6 +649,7 @@ class NURAX_Desk_POS {
 			'mpesa'    => (string) NURAX_Desk::settings()['mpesa_details'],
 			'suppliers' => class_exists( 'NURAX_Desk_Source' ) ? NURAX_Desk_Source::suppliers() : array(),
 			'today'    => NURAX_Desk::today(),
+			'canPrice' => NURAX_Staff::can( 'edit_price' ) ? 1 : 0,
 		) );
 		NURAX_Desk::header( NURAX_Desk::P_POS, 'Point of sale', self::subnav( 'register' ) );
 		$cats = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => true, 'parent' => 0, 'number' => 12 ) );

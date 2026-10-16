@@ -141,7 +141,7 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 					$nb_mp   = '';
 					if ( class_exists( 'NURAX_Desk_Appts' ) ) {
 						foreach ( array_keys( $nb_services ) as $nb_k ) {
-							$nb_deps[ $nb_k ] = NURAX_Desk_Appts::deposit_for( $nb_k );
+							$nb_deps[ $nb_k ] = NURAX_Desk_Appts::deposit_for( $nb_k, 'studio' );
 						}
 						$nb_mp = (string) NURAX_Desk::settings()['mpesa_details'];
 					}

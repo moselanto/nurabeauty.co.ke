@@ -332,12 +332,24 @@ class NURAX_AI_Stylist {
 		$deposit = 0;
 		$mpesa   = strtoupper( preg_replace( '/[^A-Za-z0-9]/', '', (string) $req->get_param( 'mpesa' ) ) );
 		if ( ! $errors && class_exists( 'NURAX_Desk_Appts' ) ) {
+			$now_hm = current_time( 'H:i' );
+			if ( $date === current_time( 'Y-m-d' ) && $time <= $now_hm ) {
+				return new WP_Error( 'nurax_past', __( 'That time has already passed today. Please choose a later time or another day.', 'nura-experience' ), array( 'status' => 409 ) );
+			}
+			if ( $time < NURAX_Desk_Appts::cutoff() && ! in_array( $time, NURAX_Desk_Appts::slots( $date ), true ) ) {
+				return new WP_Error( 'nurax_slot', __( 'Please choose one of the times in the list.', 'nura-experience' ), array( 'status' => 409 ) );
+			}
+			if ( NURAX_Desk_Appts::phone_has( $digits, $date ) ) {
+				return new WP_Error( 'nurax_dupe', __( 'You already have a booking on that day. Message us on WhatsApp to change it.', 'nura-experience' ), array( 'status' => 409 ) );
+			}
 			if ( $time >= NURAX_Desk_Appts::cutoff() ) {
 				return new WP_Error( 'nurax_morning', sprintf( __( 'Studio bookings are mornings only, before %s. Please choose an earlier time, or walk in during the afternoon.', 'nura-experience' ), NURAX_Desk::time_label( NURAX_Desk_Appts::cutoff() ) ), array( 'status' => 409 ) );
 			}
-			$deposit = NURAX_Desk_Appts::deposit_for( $service );
+			$deposit = NURAX_Desk_Appts::deposit_for( $service, $type );
 			if ( $deposit > 0 && ! preg_match( '/^[A-Z0-9]{8,12}$/', $mpesa ) ) {
 				$errors[] = sprintf( __( 'the M-Pesa code for your KSh %s deposit', 'nura-experience' ), number_format( $deposit ) );
+			} elseif ( $deposit > 0 && NURAX_Desk_Appts::code_used( $mpesa ) ) {
+				return new WP_Error( 'nurax_code_used', __( 'That M-Pesa code has already been used for another booking. Please check the code from your M-Pesa message.', 'nura-experience' ), array( 'status' => 409 ) );
 			}
 			if ( ! $req->get_param( 'terms' ) ) {
 				$errors[] = __( 'your agreement to the booking terms', 'nura-experience' );

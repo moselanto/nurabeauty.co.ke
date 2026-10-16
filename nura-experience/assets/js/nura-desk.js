@@ -383,6 +383,9 @@
 			if (!cart.length) { return; }
 			if (paid && method === 'cash' && (Number($('[data-pos-tender]').val()) || 0) > 0 && (Number($('[data-pos-tender]').val()) || 0) < t.total) { toast('Cash received is less than the total.', 'err'); return; }
 			if (!paid && !c.name && !c.phone) { toast('Add the customer name or phone for an invoice.', 'err'); return; }
+			var srcWait = cart.some(function (l) { return l.src && l.src.status !== 'handed'; });
+			if (srcWait && !c.phone) { toast('Add the client phone number so you can tell her when her sourced wig arrives.', 'err'); return; }
+			if (cart.some(function (l) { return !(l.price > 0); }) && !window.confirm('One item has no price (KSh 0). Continue?')) { return; }
 			var sale = {
 				items: cart.map(function (l) { return { id: l.custom ? 0 : l.id, qty: l.qty, price: l.price, name: l.name, custom: l.custom ? 1 : 0, src: l.src || null }; }),
 				customer: { name: c.name, phone: c.phone, email: c.email, consent: c.consent, user_id: $pos.data('uid') || 0 },
@@ -449,26 +452,32 @@
 			srcIx = i; var s = l.src || {};
 			$sm.find('[data-ps-item]').text(l.name + (l.opt ? ' - ' + l.opt : ''));
 			$sm.find('[data-ps="supplier"]').val(s.supplier || ''); $sm.find('[data-ps="phone"]').val(s.phone || ''); $sm.find('[data-ps="cost"]').val(s.cost || '');
-			$sm.find('[data-ps="price"]').val(l.price || ''); $sm.find('[data-ps="eta"]').val(s.eta || '').attr('min', P.today || ''); $sm.find('[data-ps="paid"]').prop('checked', !!s.paid); $sm.find('[data-ps="note"]').val(s.note || '');
+			$sm.find('[data-ps="price"]').val(l.price || '').prop('readonly', !P.canPrice && !l.custom); $sm.find('[data-ps="eta"]').val(s.eta || '').attr('min', P.today || ''); $sm.find('[data-ps="paid"]').prop('checked', !!s.paid); $sm.find('[data-ps="note"]').val(s.note || '');
 			$sm.find('[data-ps-remove]').prop('hidden', !l.src);
 			setWhere(s.status || 'waiting'); psProfit();
 			$sm.prop('hidden', false).addClass('is-open'); $sm.find('[data-ps="supplier"]').trigger('focus');
 		}
-		function closeSrc() { $sm.removeClass('is-open').prop('hidden', true); srcIx = -1; }
+		function closeSrc(saved) {
+			var l = cart[srcIx];
+			if (saved !== true && l && l.custom && !l.src && !(l.price > 0)) { cart.splice(srcIx, 1); draw(); save(); }
+			$sm.removeClass('is-open').prop('hidden', true); srcIx = -1;
+		}
 		$d.on('click', '[data-src]', function () { openSrc(Number($(this).attr('data-src'))); });
-		$d.on('click', '[data-ps-close]', closeSrc);
+		$d.on('click', '[data-ps-close]', function () { closeSrc(false); });
 		$d.on('click', '[data-ps-where] button', function () { setWhere($(this).attr('data-w')); });
 		$d.on('input', '[data-ps="cost"], [data-ps="price"]', psProfit);
 		$d.on('change', '[data-ps="supplier"]', function () { var v = $.trim(this.value).toLowerCase(), ph = $sm.find('[data-ps="phone"]'); sups.forEach(function (s) { if (s.name.toLowerCase() === v && s.phone && !ph.val()) { ph.val(s.phone); } }); });
-		$d.on('click', '[data-ps-remove]', function () { if (cart[srcIx]) { cart[srcIx].src = null; draw(); save(); } closeSrc(); });
+		$d.on('click', '[data-ps-remove]', function () { if (cart[srcIx]) { cart[srcIx].src = null; draw(); save(); } closeSrc(true); });
 		$d.on('click', '[data-ps-save]', function () {
 			var l = cart[srcIx]; if (!l) { closeSrc(); return; }
 			var sup = $.trim($sm.find('[data-ps="supplier"]').val()), cost = Number($sm.find('[data-ps="cost"]').val()) || 0, pr = Number($sm.find('[data-ps="price"]').val());
 			if (!sup) { toast('Add the supplier name.', 'err'); return; }
 			if (cost <= 0) { toast('Add your cost from the supplier.', 'err'); return; }
+			if (!(pr > 0) && !(l.price > 0)) { toast('Add the selling price.', 'err'); return; }
 			if (!isNaN(pr) && pr > 0) { l.price = pr; }
+			if (l.price < cost && !window.confirm('You are selling below your cost (loss of ' + ksh((cost - l.price) * l.qty) + '). Continue?')) { return; }
 			l.src = { supplier: sup, phone: $.trim($sm.find('[data-ps="phone"]').val()), cost: cost, status: where, eta: where === 'waiting' ? $sm.find('[data-ps="eta"]').val() : '', paid: $sm.find('[data-ps="paid"]').is(':checked') ? 1 : 0, note: $.trim($sm.find('[data-ps="note"]').val()) };
-			draw(); save(); closeSrc();
+			draw(); save(); closeSrc(true);
 		});
 		$d.on('click', '[data-pos-srcnew]', function () {
 			var n = window.prompt('Which wig does the client want? (e.g. Bone straight 24" 1B)');

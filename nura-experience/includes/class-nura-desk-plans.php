@@ -312,23 +312,7 @@ class NURAX_Desk_Plans {
 	/* ------------------------------------------------------------------ */
 
 	public static function reminder_text( $p, $m ) {
-		$first = trim( strtok( (string) $p->customer_name, ' ' ) );
-		$l     = array();
-		$l[]   = 'Hi ' . ( $first ? $first : 'there' ) . ', this is NURA Beauty.';
-		$l[]   = '';
-		if ( 'overdue' === $m['health'] ) {
-			$l[] = 'A gentle reminder that your Lipa Mdogo Mdogo plan for the *' . $p->product_name . '* has *' . NURAX_Desk::money( $m['arrears'] ) . '* outstanding.';
-		} elseif ( $m['next'] ) {
-			$l[] = 'A friendly reminder that your next Lipa Mdogo Mdogo payment of *' . NURAX_Desk::money( $m['next']['amount'] ) . '* for the *' . $p->product_name . '* is due on *' . NURAX_Desk::date_label( $m['next']['due'] ) . '*.';
-		}
-		$l[] = '';
-		$l[] = 'Paid so far: ' . NURAX_Desk::money( $m['paid'] ) . ' of ' . NURAX_Desk::money( $p->price ) . ' (' . $m['progress'] . '%)';
-		$l[] = 'Balance: ' . NURAX_Desk::money( $m['balance'] );
-		$l[] = 'Plan ref: ' . $p->ref;
-		$l[] = '';
-		$l[] = 'Your statement: ' . self::status_url( $p );
-		$l[] = 'Thank you for choosing NURA.';
-		return implode( "\n", $l );
+		return NURAX_Desk_Remind::plan_text( $p, $m );
 	}
 
 	public static function receipt_text( $p, $m, $pay ) {
@@ -655,12 +639,13 @@ class NURAX_Desk_Plans {
 			return;
 		}
 
-		echo '<div class="nd-table-wrap"><table class="nd-table"><thead><tr><th>Plan</th><th>Customer</th><th>Wig</th><th class="nd-col-prog">Progress</th><th>Balance</th><th>Next payment</th><th>Status</th><th class="nd-col-act"></th></tr></thead><tbody>';
+		echo '<div class="nd-table-wrap"><table class="nd-table" data-nd-type="plan"><thead><tr><th class="nd-col-chk"><input type="checkbox" data-nd-all aria-label="Select all"></th><th>Plan</th><th>Customer</th><th>Wig</th><th class="nd-col-prog">Progress</th><th>Balance</th><th>Next payment</th><th>Status</th><th class="nd-col-act"></th></tr></thead><tbody>';
 		foreach ( $rows as $row ) {
 			list( $p, $m ) = $row;
 			$view = NURAX_Desk::url( NURAX_Desk::P_PLANS, array( 'plan' => $p->id ) );
 			$wa   = NURAX_Desk::wa( $p->phone, self::reminder_text( $p, $m ) );
-			echo '<tr class="is-' . esc_attr( $m['health'] ) . '">';
+			echo '<tr class="is-' . esc_attr( $m['health'] ) . '" data-nd-key="plan:' . (int) $p->id . '" data-nd-search="' . esc_attr( strtolower( $p->ref . ' ' . $p->customer_name . ' ' . $p->phone . ' ' . $p->product_name ) ) . '">';
+			echo '<td class="nd-col-chk"><input type="checkbox" class="nd-check" value="plan:' . (int) $p->id . '" aria-label="Select"></td>';
 			echo '<td><a class="nd-ref" href="' . esc_url( $view ) . '">' . esc_html( $p->ref ) . '</a><small>' . esc_html( NURAX_Desk::date_label( $p->created_at, 'j M Y' ) . ( 'website' === $p->source ? ' - website' : '' ) ) . '</small></td>';
 			echo '<td><strong>' . esc_html( $p->customer_name ? $p->customer_name : '(no name yet)' ) . '</strong><small>' . esc_html( NURAX_Desk::phone_label( $p->phone ) ) . '</small></td>';
 			echo '<td><span class="nd-clip">' . esc_html( $p->product_name ) . '</span><small>' . esc_html( $p->options ) . '</small></td>';
@@ -668,7 +653,7 @@ class NURAX_Desk_Plans {
 			echo '<td><strong>' . esc_html( NURAX_Desk::money( $m['balance'] ) ) . '</strong>' . ( $m['arrears'] > 0 ? '<small class="nd-red">' . esc_html( NURAX_Desk::money( $m['arrears'] ) . ' behind' ) . '</small>' : '' ) . '</td>';
 			echo '<td>' . ( $m['next'] ? '<strong>' . esc_html( NURAX_Desk::money( $m['next']['amount'] ) ) . '</strong><small' . ( $m['late'] ? ' class="nd-red"' : '' ) . '>' . esc_html( NURAX_Desk::date_label( $m['next']['due'], 'D j M' ) . ( $m['late'] ? ' - ' . $m['late'] . ' days late' : '' ) ) . '</small>' : '<span class="nd-mut">-</span>' ) . '</td>';
 			echo '<td>' . NURAX_Desk::badge( $m['health'], self::health_label( $m['health'] ) ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo '<td class="nd-col-act"><a class="nd-ico-btn" href="' . esc_url( $view . '#nd-pay' ) . '" title="Record payment">+ Pay</a>' . ( $wa && $m['next'] ? '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( $wa ) . '" title="Send WhatsApp reminder">Remind</a>' : '' ) . '</td>';
+			echo '<td class="nd-col-act"><a class="nd-ico-btn" href="' . esc_url( $view . '#nd-pay' ) . '" title="Record payment">+ Pay</a>' . ( $wa && $m['next'] ? '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( $wa ) . '" title="Send WhatsApp reminder" data-nd-remind="plan:' . (int) $p->id . '">Remind</a>' : '' ) . '<button type="button" class="nd-ico-btn nd-ico-btn--danger" data-nd-del="plan:' . (int) $p->id . '" title="Delete">Delete</button></td>';
 			echo '</tr>';
 		}
 		echo '</tbody></table></div>';
@@ -708,7 +693,7 @@ class NURAX_Desk_Plans {
 		$open  = ! in_array( $p->status, array( 'cancelled', 'released' ), true );
 		$act   = NURAX_Desk::btn( $back, 'All plans', 'nd-btn--ghost' );
 		if ( $wa && $open && $m['next'] ) {
-			$act .= NURAX_Desk::btn( $wa, 'WhatsApp reminder', 'nd-btn--wa', 'target="_blank" rel="noopener"' );
+			$act .= NURAX_Desk::btn( $wa, 'WhatsApp reminder', 'nd-btn--wa', 'target="_blank" rel="noopener" data-nd-remind="plan:' . (int) $id . '"' );
 		}
 		$act .= '<button type="button" class="nd-btn nd-btn--ghost" data-nd-copy="' . esc_attr( self::status_url( $p ) ) . '">Copy statement link</button>';
 		$act .= '<button type="button" class="nd-btn nd-btn--ghost" data-nd-print>Print</button>';
@@ -840,6 +825,10 @@ class NURAX_Desk_Plans {
 			$st( 'cancelled', 'Cancel plan', 'nd-btn--danger-ghost', 'Cancel this plan? Any reserved stock will be returned. Payments stay in the ledger for your records.' );
 		} else {
 			$st( 'active', 'Re-open plan', 'nd-btn--ghost' );
+		}
+		NURAX_Desk_Remind::delete_form( 'plan:' . (int) $id, 'Delete plan', 'Delete this plan and all its payments permanently? Reserved stock is returned. This cannot be undone.' );
+		if ( $p->last_reminded ) {
+			echo '<p class="nd-mut nd-small">' . esc_html( NURAX_Desk_Remind::last_label( $p->last_reminded, $p->reminders ) ) . '</p>';
 		}
 		echo '</div></section>';
 

@@ -155,6 +155,28 @@ class NURAX_Desk_Orders {
 		return implode( "\n", $l );
 	}
 
+	public static function add_log( $post_id, $msg ) {
+		self::log( $post_id, $msg );
+	}
+
+	public static function is_paid( $post_id ) {
+		return 'paid' === get_post_meta( $post_id, '_nwo_pay', true );
+	}
+
+	public static function set_paid( $post_id, $paid, $ref = '' ) {
+		if ( $paid ) {
+			update_post_meta( $post_id, '_nwo_pay', 'paid' );
+			update_post_meta( $post_id, '_nwo_pay_ref', mb_substr( strtoupper( preg_replace( '/[^A-Za-z0-9\- ]/', '', (string) $ref ) ), 0, 40 ) );
+			update_post_meta( $post_id, '_nwo_paid_at', current_time( 'mysql' ) );
+			self::log( $post_id, 'Marked as paid' . ( $ref ? ' (' . $ref . ')' : '' ) . '.' );
+		} else {
+			delete_post_meta( $post_id, '_nwo_pay' );
+			delete_post_meta( $post_id, '_nwo_pay_ref' );
+			delete_post_meta( $post_id, '_nwo_paid_at' );
+			self::log( $post_id, 'Marked as unpaid.' );
+		}
+	}
+
 	private static function log( $post_id, $msg ) {
 		$l = get_post_meta( $post_id, self::LOG, true );
 		$l = is_array( $l ) ? $l : array();
@@ -211,18 +233,19 @@ class NURAX_Desk_Orders {
 			NURAX_Desk::footer();
 			return;
 		}
-		echo '<div class="nd-table-wrap"><table class="nd-table"><thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Delivery</th><th>Payment</th><th>Status</th><th class="nd-col-act"></th></tr></thead><tbody>';
+		echo '<div class="nd-table-wrap"><table class="nd-table" data-nd-type="order"><thead><tr><th class="nd-col-chk"><input type="checkbox" data-nd-all aria-label="Select all"></th><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Delivery</th><th>Payment</th><th>Status</th><th class="nd-col-act"></th></tr></thead><tbody>';
 		foreach ( $res->posts as $post ) {
 			$d  = self::data( $post->ID );
 			$st = self::status( $post->ID );
 			$v  = NURAX_Desk::url( NURAX_Desk::P_ORDERS, array( 'order' => $post->ID ) );
-			echo '<tr class="is-' . esc_attr( 'new' === $st ? 'request' : $st ) . '">';
+			echo '<tr class="is-' . esc_attr( 'new' === $st ? 'request' : $st ) . '" data-nd-key="order:' . (int) $post->ID . '" data-nd-search="' . esc_attr( strtolower( $d['ref'] . ' ' . $d['name'] . ' ' . $d['phone'] . ' ' . self::items_line( $d ) ) ) . '">';
+			echo '<td class="nd-col-chk"><input type="checkbox" class="nd-check" value="order:' . (int) $post->ID . '" aria-label="Select"></td>';
 			echo '<td><a class="nd-ref" href="' . esc_url( $v ) . '">' . esc_html( $d['ref'] ? $d['ref'] : '#' . $post->ID ) . '</a><small>' . esc_html( get_the_date( 'j M, H:i', $post ) ) . '</small></td>';
 			echo '<td><strong>' . esc_html( $d['name'] ) . '</strong><small>' . esc_html( NURAX_Desk::phone_label( $d['phone'] ) ) . '</small></td>';
 			echo '<td><span class="nd-clip">' . esc_html( self::items_line( $d ) ) . '</span></td>';
-			echo '<td><strong>' . esc_html( NURAX_Desk::money( self::grand( $d ) ) ) . '</strong><small>' . esc_html( '' !== (string) $d['ship'] ? 'incl. delivery ' . NURAX_Desk::money( $d['ship'] ) : 'delivery not quoted' ) . '</small></td>';
+			echo '<td><strong>' . esc_html( NURAX_Desk::money( self::grand( $d ) ) ) . '</strong><small>' . esc_html( 'pickup' === $d['fulfil'] ? 'pick-up, no delivery fee' : ( '' !== (string) $d['ship'] ? ( (float) $d['ship'] > 0 ? 'incl. delivery ' . NURAX_Desk::money( $d['ship'] ) : 'free delivery' ) : 'delivery not quoted' ) ) . '</small></td>';
 			echo '<td>' . esc_html( 'pickup' === $d['fulfil'] ? 'Pick-up' : ( $d['town'] ? $d['town'] . ', ' . $d['county'] : $d['delivery'] ) ) . '</td>';
-			echo '<td>' . esc_html( $d['payment'] ? $d['payment'] : '-' ) . '</td>';
+			echo '<td>' . ( self::is_paid( $post->ID ) ? NURAX_Desk::badge( 'confirmed', 'Paid' ) : NURAX_Desk::badge( 'muted', 'Unpaid' ) ) . '<small>' . esc_html( $d['payment'] ? $d['payment'] : '-' ) . '</small></td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '<td>' . NURAX_Desk::badge( self::tone( $st ), self::status_label( $st ) ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '<td class="nd-col-act">';
 			self::quick( $post->ID, $d, $st );
@@ -241,8 +264,15 @@ class NURAX_Desk_Orders {
 			echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $d['phone'], self::confirm_text( $d ) ) ) . '">WhatsApp</a>';
 		}
 		if ( 'confirmed' === $st ) {
+			if ( ! self::is_paid( $id ) ) {
+				echo '<button type="button" class="nd-ico-btn nd-ico-btn--ok" data-nd-paid="order:' . (int) $id . '">Paid</button>';
+				if ( $d['phone'] ) {
+					echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $d['phone'], NURAX_Desk_Remind::order_text( $id, $d, 'pay' ) ) ) . '" data-nd-remind="order:' . (int) $id . '">Remind</a>';
+				}
+			}
 			self::status_btn( $id, 'delivered', 'Delivered', 'nd-ico-btn nd-ico-btn--ok' );
 		}
+		echo '<button type="button" class="nd-ico-btn nd-ico-btn--danger" data-nd-del="order:' . (int) $id . '">Delete</button>';
 	}
 
 	private static function status_btn( $id, $to, $label, $cls, $confirm = '' ) {
@@ -306,7 +336,30 @@ class NURAX_Desk_Orders {
 			wp_nonce_field( 'nurax_desk_order_status' );
 			echo '<button type="submit" class="nd-btn nd-btn--block ' . esc_attr( $o[1] ) . '">' . esc_html( $o[0] ) . '</button></form>';
 		}
+		NURAX_Desk_Remind::delete_form( 'order:' . (int) $id, 'Delete order' );
 		echo '</div></section>';
+
+		// Payment.
+		$paid = self::is_paid( $id );
+		echo '<section class="nd-card nd-noprint' . ( $paid ? '' : ' nd-card--accent' ) . '"><header class="nd-card__h"><h2>Payment</h2>' . ( $paid ? NURAX_Desk::badge( 'confirmed', 'Paid' ) : NURAX_Desk::badge( 'request', 'Not paid' ) ) . '</header>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="nd-form nd-form--tight"><input type="hidden" name="action" value="nurax_desk_order_pay"><input type="hidden" name="order_id" value="' . (int) $id . '"><input type="hidden" name="paid" value="' . ( $paid ? '0' : '1' ) . '">';
+		wp_nonce_field( 'nurax_desk_order_pay' );
+		if ( $paid ) {
+			$pr = (string) get_post_meta( $id, '_nwo_pay_ref', true );
+			echo '<p>' . esc_html( 'Paid on ' . NURAX_Desk::date_label( get_post_meta( $id, '_nwo_paid_at', true ), 'D j M Y' ) . ( $pr ? ' - ' . $pr : '' ) ) . '</p><button type="submit" class="nd-btn nd-btn--ghost nd-btn--block">Mark as unpaid</button>';
+		} else {
+			echo '<label class="nd-field"><span class="nd-label">M-Pesa code (optional)</span><input type="text" name="ref" maxlength="40" placeholder="e.g. SJK4X2PQ7Z" style="text-transform:uppercase"></label><button type="submit" class="nd-btn nd-btn--primary nd-btn--block">Mark as paid</button>';
+		}
+		echo '</form>';
+		if ( ! $paid && $d['phone'] && 'cancelled' !== $st ) {
+			$kind = 'confirmed' === $st ? 'pay' : 'follow';
+			echo '<div style="margin-top:8px">' . NURAX_Desk::btn( NURAX_Desk::wa( $d['phone'], NURAX_Desk_Remind::order_text( $id, $d, $kind ) ), 'pay' === $kind ? 'Send payment reminder' : 'Send follow-up', 'nd-btn--wa nd-btn--block', 'target="_blank" rel="noopener" data-nd-remind="order:' . (int) $id . '"' ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+		$rl = get_post_meta( $id, '_nwo_reminded', true );
+		if ( $rl ) {
+			echo '<p class="nd-mut nd-small">' . esc_html( NURAX_Desk_Remind::last_label( $rl, (int) get_post_meta( $id, '_nwo_reminders', true ) ) ) . '</p>';
+		}
+		echo '</section>';
 
 		// Hand-over to the other Desk modules.
 		echo '<section class="nd-card nd-noprint"><header class="nd-card__h"><h2>Next step</h2></header><div class="nd-stack">';

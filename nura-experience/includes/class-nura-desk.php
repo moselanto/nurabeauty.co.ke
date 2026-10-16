@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class NURAX_Desk {
 
-	const DBV     = '1.0.0';
+	const DBV     = '1.1.0';
 	const DBV_OPT = 'nurax_desk_db';
 	const OPT     = 'nurax_desk';
 	const CAP     = 'manage_woocommerce';
@@ -32,6 +32,7 @@ class NURAX_Desk {
 	const P_PLANS = 'nurax-lmm';
 	const P_APPTS = 'nurax-appts';
 	const P_ORDERS = 'nurax-orders';
+	const P_REM    = 'nurax-reminders';
 	const P_SET   = 'nurax-desk-settings';
 	const CRON    = 'nurax_desk_daily';
 
@@ -49,6 +50,7 @@ class NURAX_Desk {
 		NURAX_Desk_Plans::hooks();
 		NURAX_Desk_Appts::hooks();
 		NURAX_Desk_Orders::hooks();
+		NURAX_Desk_Remind::hooks();
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -107,6 +109,8 @@ class NURAX_Desk {
   stock_reserved tinyint(1) NOT NULL DEFAULT 0,
   source varchar(20) NOT NULL DEFAULT 'admin',
   log longtext,
+  last_reminded datetime DEFAULT NULL,
+  reminders smallint(5) unsigned NOT NULL DEFAULT 0,
   created_at datetime DEFAULT NULL,
   updated_at datetime DEFAULT NULL,
   completed_at datetime DEFAULT NULL,
@@ -155,6 +159,8 @@ class NURAX_Desk {
   notes text,
   source varchar(20) NOT NULL DEFAULT 'admin',
   log longtext,
+  last_reminded datetime DEFAULT NULL,
+  reminders smallint(5) unsigned NOT NULL DEFAULT 0,
   created_at datetime DEFAULT NULL,
   updated_at datetime DEFAULT NULL,
   PRIMARY KEY  (id),
@@ -188,7 +194,9 @@ class NURAX_Desk {
 			'appt_step'     => 30,
 			'appt_duration' => 60,
 			'staff'         => '',
-		);
+			'mpesa_details' => '',
+			'auto_wa'       => 0,
+		) + NURAX_Desk_Remind::template_defaults();
 	}
 
 	public static function settings() {
@@ -343,6 +351,7 @@ class NURAX_Desk {
 	/** Clear cached counters after any change. */
 	public static function bust() {
 		delete_transient( 'nurax_desk_attn' );
+		delete_transient( 'nurax_desk_rem' );
 	}
 
 	public static function notice() {
@@ -358,6 +367,7 @@ class NURAX_Desk {
 			'invalid'   => array( 'error', 'Please complete the required fields (name, a valid phone number, price, date).' ),
 			'full'      => array( 'warning', 'Saved, but this time slot is now over its capacity.' ),
 			'notfound'  => array( 'error', 'That record could not be found.' ),
+			'deleted'   => array( 'success', 'Deleted.' ),
 		);
 		$k = isset( $_GET['nd_msg'] ) ? sanitize_key( wp_unslash( $_GET['nd_msg'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $map[ $k ] ) ) {
@@ -372,12 +382,14 @@ class NURAX_Desk {
 			self::P_ORDERS => 'WhatsApp orders',
 			self::P_PLANS => 'Payment plans',
 			self::P_APPTS => 'Appointments',
+			self::P_REM   => 'Reminders',
 			self::P_SET   => 'Settings',
 		);
 		echo '<div class="wrap nd-wrap">';
 		echo '<div class="nd-top"><div class="nd-brand"><span class="nd-logo">NURA</span><span class="nd-brand__sub">Desk</span></div><nav class="nd-tabs" aria-label="NURA Desk">';
+		$rem = NURAX_Desk_Remind::pending_count();
 		foreach ( $tabs as $slug => $label ) {
-			echo '<a class="nd-tab' . ( $slug === $current ? ' is-on' : '' ) . '" href="' . esc_url( self::url( $slug ) ) . '">' . esc_html( $label ) . '</a>';
+			echo '<a class="nd-tab' . ( $slug === $current ? ' is-on' : '' ) . '" href="' . esc_url( self::url( $slug ) ) . '">' . esc_html( $label ) . ( self::P_REM === $slug && $rem ? ' <span class="nd-tab__n">' . (int) $rem . '</span>' : '' ) . '</a>';
 		}
 		echo '</nav></div>';
 		echo '<div class="nd-head"><h1 class="nd-title">' . esc_html( $title ) . '</h1><div class="nd-head__actions">' . $actions . '</div></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- actions are built from escaped parts.
@@ -417,12 +429,13 @@ class NURAX_Desk {
 		add_submenu_page( self::MENU, 'WhatsApp orders', 'WhatsApp orders', self::CAP, self::P_ORDERS, array( 'NURAX_Desk_Orders', 'page' ) );
 		add_submenu_page( self::MENU, 'Payment plans', 'Payment plans', self::CAP, self::P_PLANS, array( 'NURAX_Desk_Plans', 'page' ) );
 		add_submenu_page( self::MENU, 'Appointments', 'Appointments', self::CAP, self::P_APPTS, array( 'NURAX_Desk_Appts', 'page' ) );
+		add_submenu_page( self::MENU, 'Reminders', 'Reminders', self::CAP, self::P_REM, array( 'NURAX_Desk_Remind', 'page' ) );
 		add_submenu_page( self::MENU, 'Desk settings', 'Settings', self::CAP, self::P_SET, array( $this, 'settings_page' ) );
 	}
 
 	public function assets( $hook ) {
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! in_array( $page, array( self::MENU, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_SET ), true ) ) {
+		if ( ! in_array( $page, array( self::MENU, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_SET ), true ) ) {
 			return;
 		}
 		wp_enqueue_style( 'nurax-desk', NURAX_URL . 'assets/css/nura-desk.css', array(), NURAX_VERSION );
@@ -438,6 +451,8 @@ class NURAX_Desk {
 		wp_localize_script( 'nurax-desk', 'NURAX_DESK', array(
 			'ajax'      => admin_url( 'admin-ajax.php' ),
 			'nonce'     => wp_create_nonce( 'nurax_lmm_price' ),
+			'dnonce'    => wp_create_nonce( 'nurax_desk' ),
+			'api'       => NURAX_Desk_Remind::api_ready() ? 1 : 0,
 			'deposit'   => (int) self::settings()['lmm_deposit'],
 			'confirmVoid'   => 'Void this payment? Please give a short reason:',
 			'confirmCancel' => 'Cancel this? Reserved stock (if any) will be returned.',
@@ -468,6 +483,8 @@ class NURAX_Desk {
 		self::kpi( 'Next 7 days', (string) $a['week'], 'appointments booked', '', self::url( self::P_APPTS, array( 'view' => 'week' ) ) );
 		$wait = $a['requests'] + $k['requests'] + $o['new'];
 		self::kpi( 'Waiting for you', (string) $wait, $o['new'] . ' orders, ' . $a['requests'] . ' bookings, ' . $k['requests'] . ' plans', $wait ? 'amber' : '' );
+		$rc = NURAX_Desk_Remind::pending_count();
+		self::kpi( 'Reminders to send', (string) $rc, 'payments, orders and visits', $rc ? 'amber' : '', self::url( self::P_REM ) );
 		self::kpi( 'Ready to release', (string) $k['ready'], 'fully paid wigs', $k['ready'] ? 'green' : '', self::url( self::P_PLANS, array( 'tab' => 'completed' ) ) );
 		echo '</div>';
 
@@ -544,6 +561,25 @@ class NURAX_Desk {
 		self::field_text( 'staff', 'Stylists / team', $s['staff'], 'Comma separated names to assign appointments, e.g. Faith, Wanjiru' );
 		echo '</div></section>';
 
+		echo '<section class="nd-card" id="nd-templates"><header class="nd-card__h"><h2>WhatsApp reminders</h2></header><div class="nd-fields">';
+		self::field_text( 'mpesa_details', 'M-Pesa payment details', $s['mpesa_details'], 'Shown in payment reminders, e.g. Till 123456 (NURA Beauty) or Paybill 222111, Account NURA' );
+		self::field_check( 'auto_wa', 'Send reminders automatically every morning', $s['auto_wa'], NURAX_Desk_Remind::api_ready() ? 'WhatsApp Business API is connected. Each customer gets at most one reminder every 2 days.' : 'Needs the WhatsApp Business API (Settings > NURA Experience > WhatsApp). Until then use the one-tap Send buttons on the Reminders page.' );
+		$labels = array(
+			'tpl_plan_due'     => 'Plan - payment due soon',
+			'tpl_plan_late'    => 'Plan - late (1-6 days)',
+			'tpl_plan_firm'    => 'Plan - late 7+ days',
+			'tpl_plan_final'   => 'Plan - late 14+ days',
+			'tpl_plan_deposit' => 'Plan - deposit not paid',
+			'tpl_order_pay'    => 'Order - confirmed, not paid',
+			'tpl_order_follow' => 'Order - no reply yet',
+			'tpl_appt'         => 'Appointment reminder',
+		);
+		echo '<p class="nd-mut nd-small">Placeholders: {first} {name} {product} {amount} {due} {days} {paid} {price} {balance} {progress} {weekly} {weeks} {ref} {link} {items} {service} {when} {time} {where} {pay_line}. Text between *stars* shows in bold on WhatsApp. Empty a box to restore the default.</p>';
+		foreach ( $labels as $k => $lbl ) {
+			echo '<label class="nd-field"><span class="nd-label">' . esc_html( $lbl ) . '</span><textarea name="' . esc_attr( $k ) . '" rows="6">' . esc_textarea( $s[ $k ] ) . '</textarea></label>';
+		}
+		echo '</div></section>';
+
 		echo '<section class="nd-card"><header class="nd-card__h"><h2>Daily summary e-mail</h2></header><div class="nd-fields">';
 		self::field_check( 'digest', 'Send me a summary every morning', $s['digest'], 'Today\'s and tomorrow\'s appointments, overdue plans and payments due today.' );
 		self::field_text( 'digest_to', 'Send to', $s['digest_to'], 'Leave empty to use ' . get_option( 'admin_email' ), 'email' );
@@ -602,6 +638,11 @@ class NURAX_Desk {
 		$out['appt_open']  = isset( $in['appt_open'] ) && preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $in['appt_open'] ) ? $in['appt_open'] : $d['appt_open'];
 		$out['appt_close'] = isset( $in['appt_close'] ) && preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $in['appt_close'] ) ? $in['appt_close'] : $d['appt_close'];
 		$out['staff']      = isset( $in['staff'] ) ? sanitize_text_field( $in['staff'] ) : '';
+		$out['mpesa_details'] = isset( $in['mpesa_details'] ) ? sanitize_text_field( $in['mpesa_details'] ) : '';
+		$out['auto_wa']       = empty( $in['auto_wa'] ) ? 0 : 1;
+		foreach ( array_keys( NURAX_Desk_Remind::template_defaults() ) as $k ) {
+			$out[ $k ] = isset( $in[ $k ] ) ? trim( sanitize_textarea_field( $in[ $k ] ) ) : '';
+		}
 		update_option( self::OPT, $out, false );
 		self::bust();
 		wp_safe_redirect( self::url( self::P_SET, array( 'nd_msg' => 'settings' ) ) );
@@ -687,6 +728,7 @@ class NURAX_Desk {
 		$s = self::settings();
 
 		NURAX_Desk_Plans::customer_reminders();
+		NURAX_Desk_Remind::auto();
 
 		if ( empty( $s['digest'] ) ) {
 			return;

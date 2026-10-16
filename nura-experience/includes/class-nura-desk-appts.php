@@ -214,16 +214,7 @@ class NURAX_Desk_Appts {
 	}
 
 	public static function reminder_text( $a ) {
-		$first = trim( strtok( (string) $a->customer_name, ' ' ) );
-		$when  = $a->appt_date === NURAX_Desk::today() ? 'today' : ( $a->appt_date === gmdate( 'Y-m-d', strtotime( NURAX_Desk::today() . ' +1 day' ) ) ? 'tomorrow' : 'on ' . NURAX_Desk::date_label( $a->appt_date, 'l j F' ) );
-		return implode( "\n", array(
-			'Hi ' . ( $first ? $first : 'there' ) . ', a friendly reminder from NURA Beauty.',
-			'',
-			'Your *' . self::service_label( $a->service ) . '* is ' . $when . ' at *' . NURAX_Desk::time_label( $a->appt_time ) . '*' . ( 'studio' === $a->type ? ' at ' . NURAX_Desk::shop_address() : '' ) . '.',
-			'Ref: ' . $a->ref,
-			'',
-			'Please reply YES to confirm, or let us know if you need another time.',
-		) );
+		return NURAX_Desk_Remind::appt_text( $a );
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -318,13 +309,13 @@ class NURAX_Desk_Appts {
 			NURAX_Desk::footer();
 			return;
 		}
-		echo '<div class="nd-table-wrap"><table class="nd-table"><thead><tr><th>When</th><th>Client</th><th>Service</th><th>Stylist</th><th>Status</th><th class="nd-col-act"></th></tr></thead><tbody>';
+		echo '<div class="nd-table-wrap"><table class="nd-table" data-nd-type="appt"><thead><tr><th class="nd-col-chk"><input type="checkbox" data-nd-all aria-label="Select all"></th><th>When</th><th>Client</th><th>Service</th><th>Stylist</th><th>Status</th><th class="nd-col-act"></th></tr></thead><tbody>';
 		$last = '';
 		foreach ( $rows as $a ) {
 			if ( $a->appt_date !== $last ) {
 				$last = $a->appt_date;
 				$lbl  = $a->appt_date === $today ? 'Today' : NURAX_Desk::date_label( $a->appt_date, 'l j F Y' );
-				echo '<tr class="nd-daysep"><td colspan="6">' . esc_html( $lbl ) . '</td></tr>';
+				echo '<tr class="nd-daysep"><td colspan="7">' . esc_html( $lbl ) . '</td></tr>';
 			}
 			self::row( $a );
 		}
@@ -335,7 +326,8 @@ class NURAX_Desk_Appts {
 
 	private static function row( $a ) {
 		$view = NURAX_Desk::url( NURAX_Desk::P_APPTS, array( 'appt' => $a->id ) );
-		echo '<tr class="is-' . esc_attr( $a->status ) . '">';
+		echo '<tr class="is-' . esc_attr( $a->status ) . '" data-nd-key="appt:' . (int) $a->id . '" data-nd-search="' . esc_attr( strtolower( $a->ref . ' ' . $a->customer_name . ' ' . $a->phone . ' ' . $a->notes ) ) . '">';
+		echo '<td class="nd-col-chk"><input type="checkbox" class="nd-check" value="appt:' . (int) $a->id . '" aria-label="Select"></td>';
 		echo '<td><strong class="nd-time">' . esc_html( NURAX_Desk::time_label( $a->appt_time ) ) . '</strong><small>' . esc_html( (int) $a->duration . ' min - ' . self::type_label( $a->type ) ) . '</small></td>';
 		echo '<td><a href="' . esc_url( $view ) . '"><strong>' . esc_html( $a->customer_name ) . '</strong></a><small>' . esc_html( NURAX_Desk::phone_label( $a->phone ) . ' - ' . $a->ref ) . '</small></td>';
 		echo '<td>' . esc_html( self::service_label( $a->service ) ) . ( $a->notes ? '<small class="nd-clip">' . esc_html( $a->notes ) . '</small>' : '' ) . '</td>';
@@ -343,7 +335,7 @@ class NURAX_Desk_Appts {
 		echo '<td>' . NURAX_Desk::badge( $a->status, self::status_label( $a->status ) ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<td class="nd-col-act">';
 		self::quick_actions( $a );
-		echo '</td></tr>';
+		echo '<button type="button" class="nd-ico-btn nd-ico-btn--danger" data-nd-del="appt:' . (int) $a->id . '">Delete</button></td></tr>';
 	}
 
 	private static function quick_actions( $a ) {
@@ -353,7 +345,7 @@ class NURAX_Desk_Appts {
 		}
 		if ( in_array( $a->status, array( 'request', 'confirmed' ), true ) && $a->phone ) {
 			$txt = 'request' === $a->status ? self::confirm_text( $a ) : self::reminder_text( $a );
-			echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $a->phone, $txt ) ) . '">' . ( 'request' === $a->status ? 'WhatsApp' : 'Remind' ) . '</a>';
+			echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $a->phone, $txt ) ) . '"' . ( 'confirmed' === $a->status ? ' data-nd-remind="appt:' . (int) $a->id . '"' : '' ) . '>' . ( 'request' === $a->status ? 'WhatsApp' : 'Remind' ) . '</a>';
 		}
 		if ( 'confirmed' === $a->status && $a->appt_date <= $today ) {
 			self::status_btn( $a->id, 'completed', 'Done', 'nd-ico-btn nd-ico-btn--ok' );
@@ -438,7 +430,7 @@ class NURAX_Desk_Appts {
 			if ( 'request' === $a->status ) {
 				echo NURAX_Desk::btn( NURAX_Desk::wa( $a->phone, self::confirm_text( $a ) ), 'Send confirmation on WhatsApp', 'nd-btn--wa', 'target="_blank" rel="noopener"' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			} elseif ( 'confirmed' === $a->status ) {
-				echo NURAX_Desk::btn( NURAX_Desk::wa( $a->phone, self::reminder_text( $a ) ), 'Send reminder on WhatsApp', 'nd-btn--wa', 'target="_blank" rel="noopener"' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo NURAX_Desk::btn( NURAX_Desk::wa( $a->phone, self::reminder_text( $a ) ), 'Send reminder on WhatsApp', 'nd-btn--wa', 'target="_blank" rel="noopener" data-nd-remind="appt:' . (int) $a->id . '"' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo NURAX_Desk::btn( NURAX_Desk::wa( $a->phone, self::confirm_text( $a ) ), 'Re-send confirmation', 'nd-btn--ghost', 'target="_blank" rel="noopener"' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 		}
@@ -486,6 +478,7 @@ class NURAX_Desk_Appts {
 			wp_nonce_field( 'nurax_appt_status' );
 			echo '<button type="submit" class="nd-btn nd-btn--block ' . esc_attr( $o[1] ) . '">' . esc_html( $o[0] ) . '</button></form>';
 		}
+		NURAX_Desk_Remind::delete_form( 'appt:' . (int) $id, 'Delete appointment' );
 		if ( in_array( $a->status, array( 'completed' ), true ) && in_array( $a->service, array( 'consultation', 'fitting' ), true ) ) {
 			echo '<a class="nd-btn nd-btn--ghost nd-btn--block" href="' . esc_url( NURAX_Desk::url( NURAX_Desk::P_PLANS, array( 'action' => 'new' ) ) ) . '">Start a payment plan</a>';
 		}

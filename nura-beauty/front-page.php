@@ -455,6 +455,9 @@ $slides = array(
 		</div>
 	</section>
 
+	<!-- RECENTLY VIEWED (filled in the browser; hidden until 2+ items) -->
+	<?php if ( function_exists( 'nura_growth_rv_rail' ) ) { nura_growth_rv_rail( 'home' ); } ?>
+
 	<!-- TALK TO NURA (contact) -->
 	<section class="section section--ivory" id="contact">
 		<div class="nura-container nura-reveal">
@@ -474,7 +477,7 @@ $slides = array(
 					<span class="nura-contact-card__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.9.36 1.79.7 2.63a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.45-1.27a2 2 0 0 1 2.11-.45c.84.34 1.73.57 2.63.7A2 2 0 0 1 22 16.92z"/></svg></span>
 					<span class="nura-contact-card__k"><?php esc_html_e( 'Call', 'nura-beauty' ); ?></span>
 					<span class="nura-contact-card__v"><?php echo esc_html( $nura_phone ); ?></span>
-					<span class="nura-contact-card__cta"><?php esc_html_e( 'Mon - Sat, 9 - 18', 'nura-beauty' ); ?></span>
+					<span class="nura-contact-card__cta"><?php echo esc_html( nura_opt( 'nura_hours' ) ); ?></span>
 				</a>
 				<a class="nura-contact-card" href="mailto:<?php echo esc_attr( $nura_email ); ?>">
 					<span class="nura-contact-card__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
@@ -485,7 +488,7 @@ $slides = array(
 				<div class="nura-contact-card nura-contact-card--static">
 					<span class="nura-contact-card__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg></span>
 					<span class="nura-contact-card__k"><?php esc_html_e( 'Studio', 'nura-beauty' ); ?></span>
-					<span class="nura-contact-card__v"><?php esc_html_e( 'Nairobi, Kenya', 'nura-beauty' ); ?></span>
+					<span class="nura-contact-card__v"><?php echo esc_html( nura_opt( 'nura_address' ) ); ?></span>
 					<span class="nura-contact-card__cta"><?php esc_html_e( 'Visits by appointment', 'nura-beauty' ); ?></span>
 				</div>
 			</div>

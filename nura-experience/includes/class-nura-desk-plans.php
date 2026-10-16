@@ -688,7 +688,7 @@ class NURAX_Desk_Plans {
 		$rows  = array_slice( $rows, ( $paged - 1 ) * $per, $per );
 
 		$act = NURAX_Desk::btn( NURAX_Desk::url( NURAX_Desk::P_PLANS, array( 'action' => 'new' ) ), '+ New payment plan', 'nd-btn--primary' ) .
-			NURAX_Desk::btn( NURAX_Desk::export_url( 'plans' ), 'Export CSV', 'nd-btn--ghost' );
+			NURAX_Desk::export_btns( 'plans' );
 		NURAX_Desk::header( NURAX_Desk::P_PLANS, 'Lipa Mdogo Mdogo plans', $act );
 
 		$k = self::kpis();

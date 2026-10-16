@@ -211,7 +211,7 @@ class NURAX_Desk_Orders {
 		if ( ! isset( $tabs[ $tab ] ) ) {
 			$tab = 'new';
 		}
-		NURAX_Desk::header( NURAX_Desk::P_ORDERS, 'WhatsApp orders', NURAX_Desk::btn( NURAX_Desk::export_url( 'orders' ), 'Export CSV', 'nd-btn--ghost' ) );
+		NURAX_Desk::header( NURAX_Desk::P_ORDERS, 'WhatsApp orders', NURAX_Desk::export_btns( 'orders' ) );
 		$k = self::kpis();
 		echo '<div class="nd-kpis nd-kpis--4">';
 		NURAX_Desk::kpi( 'New orders', (string) $k['new'], 'waiting for a reply', $k['new'] ? 'amber' : '' );

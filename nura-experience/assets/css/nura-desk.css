@@ -482,3 +482,12 @@ a.nd-kpi:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(14,14,14,.
 .pos__charge{min-height:58px;font-size:15.5px;box-shadow:0 10px 22px rgba(31,138,76,.25)}
 .pos__charge:disabled{background:#9bb9a6;box-shadow:none}
 @media (max-width:1200px){.pos__cart{max-height:none}.pos__body{overflow:visible}.pos__foot{position:sticky;bottom:0;z-index:5}}
+
+/* 1.67.0 branded Excel exports */
+.nd-btn--xl{background:#0E0E0E;border-color:#0E0E0E;color:#E4C983}
+.nd-btn--xl:hover{background:#C9A24B;border-color:#C9A24B;color:#0E0E0E}
+.nd-xl-ic{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:4px;background:#C9A24B;color:#0E0E0E;font-size:11px;font-weight:800}
+.nd-btn--xl:hover .nd-xl-ic{background:#0E0E0E;color:#E4C983}
+.nd-btn--csv{min-width:0;padding:0 10px;font-size:11.5px;color:#6f675d}
+.nd-exports{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.nd-exports strong{margin-right:4px}

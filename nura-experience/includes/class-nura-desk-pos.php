@@ -827,7 +827,7 @@ class NURAX_Desk_POS {
 		$total = count( $rows );
 		$rows  = array_slice( $rows, ( $paged - 1 ) * $per, $per );
 
-		$exp = '<a class="nd-btn nd-btn--ghost" href="' . esc_url( NURAX_Desk::export_url( 'sales' ) . '&from=' . $from . '&to=' . $to ) . '">Export sales CSV</a><a class="nd-btn nd-btn--ghost" href="' . esc_url( NURAX_Desk::export_url( 'sale_items' ) . '&from=' . $from . '&to=' . $to ) . '">Export items CSV</a>';
+		$exp = NURAX_Desk::export_btns( 'sales', 'Sales report', '&from=' . $from . '&to=' . $to ) . NURAX_Desk::export_btns( 'sale_items', 'Items report', '&from=' . $from . '&to=' . $to );
 		NURAX_Desk::header( NURAX_Desk::P_POS, 'Sales & invoices', self::subnav( 'sales' ) . $exp );
 		wp_localize_script( 'nurax-desk', 'NURAX_POS', array( 'ajax' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce( 'nurax_pos' ), 'methods' => self::methods() ) );
 

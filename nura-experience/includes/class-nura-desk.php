@@ -577,7 +577,7 @@ class NURAX_Desk {
 		echo '</section>';
 		echo '</div>';
 
-		echo '<p class="nd-foot">Export: <a href="' . esc_url( self::export_url( 'orders' ) ) . '">WhatsApp orders (CSV)</a> &middot; <a href="' . esc_url( self::export_url( 'plans' ) ) . '">Payment plans (CSV)</a> &middot; <a href="' . esc_url( self::export_url( 'payments' ) ) . '">Payments ledger (CSV)</a> &middot; <a href="' . esc_url( self::export_url( 'appts' ) ) . '">Appointments (CSV)</a></p>';
+		echo '<p class="nd-foot nd-exports"><strong>Reports:</strong> ' . self::export_btns( 'orders', 'WhatsApp orders' ) . self::export_btns( 'plans', 'Payment plans' ) . self::export_btns( 'payments', 'Payments ledger' ) . self::export_btns( 'appts', 'Appointments' ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		self::footer();
 	}
 
@@ -793,8 +793,14 @@ class NURAX_Desk {
 	/* Export                                                              */
 	/* ------------------------------------------------------------------ */
 
-	public static function export_url( $type ) {
-		return wp_nonce_url( admin_url( 'admin-post.php?action=nurax_desk_export&type=' . $type ), 'nurax_desk_export' );
+	public static function export_url( $type, $fmt = 'xlsx' ) {
+		return wp_nonce_url( admin_url( 'admin-post.php?action=nurax_desk_export&type=' . $type . ( 'csv' === $fmt ? '&fmt=csv' : '' ) ), 'nurax_desk_export' );
+	}
+
+	/** "Excel report" button + small CSV link. */
+	public static function export_btns( $type, $label = 'Excel report', $extra = '' ) {
+		return '<a class="nd-btn nd-btn--xl" href="' . esc_url( self::export_url( $type ) . $extra ) . '" title="Branded Excel report with logo, totals and filters"><span class="nd-xl-ic" aria-hidden="true">X</span>' . esc_html( $label ) . '</a>'
+			. '<a class="nd-btn nd-btn--ghost nd-btn--csv" href="' . esc_url( self::export_url( $type, 'csv' ) . $extra ) . '" title="Plain CSV for importing into other systems">CSV</a>';
 	}
 
 	public function export() {
@@ -830,6 +836,18 @@ class NURAX_Desk {
 			foreach ( NURAX_Desk_Plans::all() as $p ) {
 				$m      = NURAX_Desk_Plans::metrics( $p, isset( $paid[ $p->id ] ) ? $paid[ $p->id ] : 0 );
 				$rows[] = array( $p->ref, $p->created_at, $p->status, NURAX_Desk_Plans::health_label( $m['health'] ), $p->customer_name, $p->phone, $p->email, $p->product_name, $p->options, $p->price, $p->deposit, $p->weeks, $p->start_date, $m['paid'], $m['balance'], $m['arrears'], $m['next'] ? $m['next']['due'] : '', $m['next'] ? $m['next']['amount'] : '', $p->source );
+			}
+		}
+		$fmt = isset( $_GET['fmt'] ) ? sanitize_key( wp_unslash( $_GET['fmt'] ) ) : 'xlsx';
+		if ( 'csv' !== $fmt && class_exists( 'NURAX_Xlsx' ) && NURAX_Xlsx::available() ) {
+			$period = '';
+			if ( in_array( $type, array( 'sales', 'sale_items' ), true ) ) {
+				$f = isset( $_GET['from'] ) ? self::valid_date( wp_unslash( $_GET['from'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$t = isset( $_GET['to'] ) ? self::valid_date( wp_unslash( $_GET['to'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$period = ( $f && $t ) ? 'Period: ' . date_i18n( 'j M Y', strtotime( $f ) ) . ' - ' . date_i18n( 'j M Y', strtotime( $t ) ) : 'Period: this year';
+			}
+			if ( NURAX_Xlsx::send( $rows, $type, array( 'period' => $period ) ) ) {
+				exit;
 			}
 		}
 		nocache_headers();

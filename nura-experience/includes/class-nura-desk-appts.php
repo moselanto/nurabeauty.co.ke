@@ -245,7 +245,7 @@ class NURAX_Desk_Appts {
 		return NURAX_Desk::btn( NURAX_Desk::url( NURAX_Desk::P_APPTS, array( 'action' => 'new' ) ), '+ New appointment', 'nd-btn--primary' ) .
 			NURAX_Desk::btn( NURAX_Desk::url( NURAX_Desk::P_APPTS ), 'List', 'nd-btn--ghost' ) .
 			NURAX_Desk::btn( NURAX_Desk::url( NURAX_Desk::P_APPTS, array( 'view' => 'week' ) ), 'Week board', 'nd-btn--ghost' ) .
-			NURAX_Desk::btn( NURAX_Desk::export_url( 'appts' ), 'Export CSV', 'nd-btn--ghost' );
+			NURAX_Desk::export_btns( 'appts' );
 	}
 
 	/* ------------------------------------------------------------------ */

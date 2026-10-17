@@ -70,7 +70,10 @@ class NURAX_Desk_Social {
 		$out = array();
 		foreach ( $a as $v ) {
 			// Security (1.73.0): neutralise spreadsheet formulas (CSV injection).
-			$v     = NURAX_Desk::csv_cell( str_replace( array( "\r", "\n" ), ' ', (string) $v ) );
+			$v     = str_replace( array( "\r", "\n" ), ' ', (string) $v );
+			if ( '' !== $v && in_array( $v[0], array( '=', '@' ), true ) ) {
+				$v = "'" . $v; // Neutralise formulas without changing normal titles that start with + or -.
+			}
 			$out[] = '"' . str_replace( '"', '""', $v ) . '"';
 		}
 		return implode( ',', $out ) . "\n";

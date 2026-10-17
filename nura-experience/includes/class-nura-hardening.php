@@ -24,8 +24,8 @@ class NURAX_Hardening {
 
 	/** Public admin-ajax actions => max requests per IP per 10 minutes. */
 	const AJAX_LIMITS = array(
-		'nurax_wa_ship' => 120,
-		'nura_search'   => 180,
+		'nurax_wa_ship' => 600,  // Generous: Safaricom/Airtel share one IP across many phones (CGNAT).
+		'nura_search'   => 900,
 	);
 
 	/** Upload extensions that can carry script and are refused for normal staff. */
@@ -104,7 +104,9 @@ class NURAX_Hardening {
 				return $file;
 			}
 		}
-		if ( ! empty( $file['tmp_name'] ) && ! empty( $file['name'] ) ) {
+		// Administrators keep WordPress' normal behaviour so plugin, theme, settings and
+		// product imports keep working; the real-type check applies to everyone else.
+		if ( ! current_user_can( 'unfiltered_html' ) && ! empty( $file['tmp_name'] ) && ! empty( $file['name'] ) ) {
 			$check = wp_check_filetype_and_ext( $file['tmp_name'], $file['name'] );
 			if ( empty( $check['ext'] ) || empty( $check['type'] ) ) {
 				$file['error'] = __( 'This file type is not allowed for security reasons.', 'nura-experience' );

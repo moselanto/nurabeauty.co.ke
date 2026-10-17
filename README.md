@@ -11,7 +11,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 <br>
 
 [![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.64.0-0E0E0E?style=for-the-badge)](nura-beauty)
-[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.73.0-C9A24B?style=for-the-badge)](nura-experience)
+[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.73.1-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -59,7 +59,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 | --- | --- | --- |
 | `nura-beauty/` | 1.64.0 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
-| `nura-experience/` | 1.73.0 | Plugin |
+| `nura-experience/` | 1.73.1 | Plugin |
 
 ## Features
 
@@ -165,7 +165,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
-| 1.64.0 | 1.73.0 | Security hardening module, upload safety, CSP frame-ancestors, no-store Desk, AJAX limits, CSV-injection and cookie fixes, full documentation refresh |
+| 1.64.0 | 1.73.1 | Security hardening module, upload safety, CSP frame-ancestors, no-store Desk, AJAX limits, CSV-injection and cookie fixes, full documentation refresh |
 | 1.63.0 | 1.72.0 | Booking loophole fixes (WhatsApp bypass, fake/reused M-Pesa codes, slot holds, past times, duplicates), plan deposit floor, till safeguards |
 | 1.62.0 | 1.71.0 | Morning bookings with deposit, terms and arrival board; Lipa Mdogo Mdogo 50% / 2 weeks, terms v2.0 |
 | - | 1.70.0 | Sourced sales, supplier ledger, Team page redesign |

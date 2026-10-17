@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | Latest audit | 17 October 2026 |
-| Scope | Parent theme `nura-beauty` 1.64.0, child theme `nura-beauty-child`, plugin `nura-experience` 1.73.0 (about 32,000 lines of PHP plus JavaScript) |
+| Scope | Parent theme `nura-beauty` 1.64.0, child theme `nura-beauty-child`, plugin `nura-experience` 1.73.1 (about 32,000 lines of PHP plus JavaScript) |
 | Method | Line-by-line review of every public endpoint, every admin action, every database query and every output path; automated pattern scans; `php -l` (PHP 8.3) on all 107 PHP files; JavaScript parse check |
 | Previous audit | 14 October 2026 (theme 1.53.0 / plugin 1.55.0) - findings 1-10 below |
 
@@ -60,10 +60,10 @@ The code follows WordPress secure-coding practice throughout: prepared SQL, esca
 | 11 | Medium | Public booking form: an old script opened WhatsApp on submit, bypassing the deposit, terms and time checks. | Old handler disabled for the validated form (theme 1.63.0). |
 | 12 | Medium | Booking slots could be held with fake or reused M-Pesa codes, past times, invented times, or many bookings per phone. | Unverified deposits release the slot after 3 h (configurable); reused codes refused; past/invalid times refused; one open booking per phone per day (plugin 1.72.0). |
 | 13 | Medium | Staff could start a payment plan below the 50% deposit policy. | Deposit floor enforced server-side for non-owners and logged as blocked. |
-| 14 | Low | Media uploads accepted SVG/HTML/XML (script-capable) from any user allowed to upload, and did not stop double-extension names. | `class-nura-hardening.php`: risky types removed for users without `unfiltered_html`; double extensions and type mismatches refused. |
-| 15 | Low | Public admin-ajax delivery quote (`nurax_wa_ship`) and live search (`nura_search`) had no rate limit (resource exhaustion / scraping). | 120 and 180 requests per IP per 10 minutes; staff exempt; `nurax_ajax_limit` filter. |
+| 14 | Low | Media uploads accepted SVG/HTML/XML (script-capable) from any user allowed to upload, and did not stop double-extension names. | `class-nura-hardening.php`: risky types and real-type mismatches refused for users without `unfiltered_html` (administrators keep normal imports); double extensions refused for everyone. |
+| 15 | Low | Public admin-ajax delivery quote (`nurax_wa_ship`) and live search (`nura_search`) had no rate limit (resource exhaustion / scraping). | 600 and 900 requests per IP per 10 minutes (generous because Kenyan mobile networks share one IP across many phones); staff exempt; `nurax_ajax_limit` filter. |
 | 16 | Low | NURA Desk screens and exports could be stored by browser back/forward cache or shared proxies (customer data exposure on shared computers). | `Cache-Control: no-store, private` on every `nurax*` admin screen and `nurax_*` action. |
-| 17 | Low | Social catalogue CSV feed did not neutralise spreadsheet formulas (CSV injection if a product name starts with `=`, `+`, `-`, `@`). | Cells pass through `NURAX_Desk::csv_cell()` like the Desk exports. |
+| 17 | Low | Social catalogue CSV feed did not neutralise spreadsheet formulas (CSV injection if a product name starts with `=`, `+`, `-`, `@`). | Cells starting with `=` or `@` are neutralised; normal titles are left unchanged for Meta/TikTok. |
 | 18 | Low | `_ga` cookie used without sanitising in the GA4 server event. | Digits and dots only, 64-character cap. |
 | 19 | Low | No modern anti-framing header (clickjacking defence relied only on the legacy `X-Frame-Options`). | `Content-Security-Policy: frame-ancestors 'self'` + `X-Permitted-Cross-Domain-Policies: none` on front end, login and admin. |
 

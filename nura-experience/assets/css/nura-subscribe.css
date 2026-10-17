@@ -115,3 +115,35 @@ html.nhs-lock{overflow:hidden}
 	.nhs__x{background:rgba(255,255,255,.9);border-color:transparent}
 }
 @media (prefers-reduced-motion:reduce){.nhs__photo{transition:none;transform:none}}
+
+/* ---------- 1.74.1 compact pop-up (smaller card, tighter spacing, lighter on phones) ---------- */
+.nhs__card{grid-template-columns:40% 60%;max-width:680px;min-height:0;border-radius:16px}
+.nhs__art{padding:20px}
+.nhs__brand span{font-size:20px;letter-spacing:.36em}
+.nhs__brand small{margin-top:6px;font-size:8.5px}
+.nhs__badge{margin-bottom:10px}
+.nhs__trust{gap:5px;padding-top:10px}
+.nhs__trust li{font-size:9.5px;letter-spacing:.12em;padding-left:14px}
+.nhs__body{padding:30px 28px 20px}
+.nhs__x{top:10px;right:10px;width:30px;height:30px}
+.nhs__eyebrow{margin-bottom:8px;font-size:10px;letter-spacing:.2em}
+.nhs__eyebrow::before{width:18px}
+.nhs__title{font-size:25px;line-height:1.2;margin-bottom:6px}
+.nhs__text{font-size:13px;line-height:1.55;margin-bottom:12px}
+.nhs__perks{gap:6px;margin-bottom:14px;padding:10px 0}
+.nhs__perks li{padding-left:22px;font-size:12.5px;line-height:1.4}
+.nhs__perks li::before{width:14px;height:14px;background-size:9px}
+.nhs__form{gap:8px}
+.nhs__form input[type=text],.nhs__form input[type=email],.nhs__form input[type=tel]{min-height:44px;font-size:14px;border-radius:8px}
+.nhs__btn{min-height:46px;border-radius:8px;font-size:12px;letter-spacing:.16em}
+.nhs__legal{font-size:10.5px;margin-top:10px}
+.nhs__later{margin-top:2px;font-size:11.5px}
+@media (max-width:760px){
+	.nhs__card{grid-template-columns:1fr;border-radius:16px 16px 0 0;max-height:86vh}
+	.nhs__art{min-height:96px;padding:14px 18px}
+	.nhs__trust{display:none}
+	.nhs__perks{display:none}
+	.nhs__body{padding:18px 18px calc(14px + env(safe-area-inset-bottom))}
+	.nhs__title{font-size:21px}
+	.nhs__photo{object-position:50% 35%}
+}

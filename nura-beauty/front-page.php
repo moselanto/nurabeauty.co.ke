@@ -381,14 +381,14 @@ $slides = array(
 			}
 			?>
 			<?php if ( $nura_follow ) : ?>
-			<div class="nura-follow" role="list" aria-label="<?php esc_attr_e( 'Follow NURA', 'nura-beauty' ); ?>">
+			<ul class="nura-follow" aria-label="<?php esc_attr_e( 'Follow NURA', 'nura-beauty' ); ?>">
 				<?php foreach ( $nura_follow as $soc ) : ?>
-				<a role="listitem" class="nura-follow__btn nura-follow__btn--<?php echo esc_attr( $soc['key'] ); ?>" href="<?php echo esc_url( $soc['url'] ); ?>" target="_blank" rel="noopener me">
+				<li><a class="nura-follow__btn nura-follow__btn--<?php echo esc_attr( $soc['key'] ); ?>" href="<?php echo esc_url( $soc['url'] ); ?>" target="_blank" rel="noopener me">
 					<?php echo nura_social_icon( $soc['key'] ); // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG. ?>
 					<span><?php echo esc_html( sprintf( /* translators: %s: social network name. */ __( 'Follow on %s', 'nura-beauty' ), $soc['label'] ) ); ?></span>
-				</a>
+				</a></li>
 				<?php endforeach; ?>
-			</div>
+			</ul>
 			<p class="nura-follow__note"><?php esc_html_e( 'New arrivals, styling videos and real client transformations every week.', 'nura-beauty' ); ?></p>
 			<?php else : ?>
 			<p style="margin-top:1.4rem">

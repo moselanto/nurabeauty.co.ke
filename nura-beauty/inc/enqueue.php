@@ -20,7 +20,9 @@ function nura_enqueue_assets() {
 	$fonts_url = function_exists( 'nura_dynamic_fonts_url' ) ? nura_dynamic_fonts_url() : 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cormorant+Garamond:wght@400;500&family=Montserrat:wght@300;400;500&family=Jost:wght@400;500&display=swap';
 	wp_enqueue_style( 'nura-fonts', $fonts_url, array(), null );
 
-	wp_enqueue_style( 'nura-main', NURA_URI . 'assets/css/main.css', array(), NURA_VERSION );
+	// 1.70.3: serve the minified build when present (main.css stays the editable source).
+	$nura_css = file_exists( NURA_DIR . 'assets/css/main.min.css' ) && ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? 'main.min.css' : 'main.css';
+	wp_enqueue_style( 'nura-main', NURA_URI . 'assets/css/' . $nura_css, array(), NURA_VERSION );
 
 	if ( class_exists( 'WooCommerce' ) ) {
 		wp_enqueue_style( 'nura-woocommerce', NURA_URI . 'assets/css/woocommerce.css', array( 'nura-main' ), NURA_VERSION );

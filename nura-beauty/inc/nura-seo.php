@@ -185,6 +185,32 @@ add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment 
 	if ( $pid ) {
 		/* translators: %s: product name */
 		$attr['alt'] = sprintf( __( '%s - wig in Kenya | NURA Beauty', 'nura-beauty' ), get_the_title( $pid ) );
+	} elseif ( $attachment && ! empty( $attachment->post_title ) && ! preg_match( '/^(img|image|dsc|photo|screenshot)?[\s_\-]*\d[\d\s_\-]*$/i', $attachment->post_title ) ) {
+		// 1.69.3: any other image uses its Media Library title when the alt field is empty.
+		$attr['alt'] = wp_strip_all_tags( $attachment->post_title );
 	}
 	return $attr;
 }, 20, 2 );
+
+/**
+ * 1.69.3 safety net (Bing "Alt attribute for images is missing"): any <img> printed
+ * by a plugin or widget without an alt attribute gets one. Tracking pixels and
+ * images with no title get alt="" (decorative), the correct value for them.
+ */
+add_action( 'template_redirect', function () {
+	if ( is_admin() || wp_doing_ajax() || is_feed() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ! apply_filters( 'nura_alt_safety_net', true ) ) {
+		return;
+	}
+	ob_start( function ( $html ) {
+		if ( false === stripos( (string) $html, '<img' ) ) {
+			return $html;
+		}
+		return preg_replace_callback( '/<img\b(?![^>]*\balt\s*=)([^>]*)>/i', function ( $m ) {
+			$alt = '';
+			if ( preg_match( '/\btitle\s*=\s*([\'"])(.*?)\1/i', $m[1], $t ) ) {
+				$alt = $t[2];
+			}
+			return '<img alt="' . esc_attr( $alt ) . '"' . $m[1] . '>';
+		}, (string) $html );
+	} );
+}, 1 );

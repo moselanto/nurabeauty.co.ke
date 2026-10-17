@@ -47,9 +47,9 @@ All MK Desk features worth porting are now in NURA. Not ported on purpose: MK ve
 
 | Item | Status |
 | --- | --- |
-| Real cron: Enhance cron every 5 min `wget -q -O - "https://nurabeauty.co.ke/wp-cron.php?doing_wp_cron" >/dev/null 2>&1` | Owner given steps; earlier screenshot had `-0-` (zero) - confirm it is `-O -` |
-| `define( 'DISABLE_WP_CRON', true );` in `wp-config.php` | Owner given steps; confirm |
-| Redis on in Enhance + LiteSpeed Object Cache (Redis 127.0.0.1:6379, lifetime 360, persistent ON) | Done, connection test passed. **Cache WP-Admin must be OFF** (was ON) - confirm |
+| Real cron: Enhance cron every 5 min `wget -q -O - "https://nurabeauty.co.ke/wp-cron.php?doing_wp_cron" >/dev/null 2>&1` | Done - owner confirmed 17 Oct (`-O -` fixed) |
+| `define( 'DISABLE_WP_CRON', true );` in `wp-config.php` | Done - owner confirmed 17 Oct |
+| Redis on in Enhance + LiteSpeed Object Cache (Redis 127.0.0.1:6379, lifetime 360, persistent ON) | Done, connection test passed; Cache WP-Admin OFF - owner confirmed 17 Oct |
 | LiteSpeed UCSS / Critical CSS (QUIC.cloud linked, CSS minify+combine, UCSS, async CSS, selector allowlist of JS state classes, UCSS excludes /cart /checkout /my-account) | Configured; queue run and visual check pending. JS combine left OFF on purpose |
 | Rank Math logo ".png.png" | Fixed - Rich Results Test shows `nura-beauty-logo.webp`, Organization/OnlineStore + one HealthAndBeautyBusiness (#studio), no errors |
 | Rank Math Local SEO module | Keep OFF - plugin `class-nura-schema.php` supplies address, geo, hours (Mon-Sat 08:00-20:00, confirm with owner), map |

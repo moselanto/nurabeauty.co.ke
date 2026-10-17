@@ -119,6 +119,18 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 			if ( $same ) {
 				$data[ $key ]['sameAs'] = array_values( array_unique( array_merge( isset( $node['sameAs'] ) ? (array) $node['sameAs'] : array(), $same ) ) );
 			}
+			if ( ! empty( $data[ $key ]['sameAs'] ) ) {
+				// 1.70.1: one URL per profile (web.facebook.com and www.facebook.com are the same page).
+				$clean = array();
+				foreach ( (array) $data[ $key ]['sameAs'] as $u ) {
+					$u = trailingslashit( str_replace( array( '://web.facebook.com', '://m.facebook.com', 'http://' ), array( '://www.facebook.com', '://www.facebook.com', 'https://' ), (string) $u ) );
+					$clean[ strtolower( $u ) ] = $u;
+				}
+				$data[ $key ]['sameAs'] = array_values( $clean );
+			}
+			if ( isset( $data[ $key ]['location'] ) && is_array( $data[ $key ]['location'] ) ) {
+				$data[ $key ]['location']['address'] = $addr['node']; // Same full address everywhere.
+			}
 			$data[ $key ]['subOrganization']    = array( '@id' => $home . '#studio' );
 			$data[ $key ]['slogan']             = 'The House of Radiant Confidence';
 			$logo_id = (int) get_theme_mod( 'custom_logo' );
@@ -140,6 +152,11 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 				array( '@type' => 'City', 'name' => 'Nairobi' ),
 				array( '@type' => 'Country', 'name' => 'Kenya' ),
 			);
+		}
+
+		// 1c. Rank Math's Place node: same full studio address as everywhere else.
+		if ( array_intersect( $types, array( 'Place' ) ) ) {
+			$data[ $key ]['address'] = $addr['node'];
 		}
 
 		// 2. Installation page is a service page, not a blog article.

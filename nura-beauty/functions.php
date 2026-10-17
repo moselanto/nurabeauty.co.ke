@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.65.0' );
+define( 'NURA_VERSION', '1.66.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -59,7 +59,8 @@ nura_require( 'nura-seo' );
 nura_require( 'nura-seo-fixes' );
 nura_require( 'nura-seo-plus' );
 nura_require( 'nura-schema-variants' ); // 1.65.0 ProductGroup + variants.
-nura_require( 'nura-geo' );             // 1.65.0 llms.txt, AI answer facts.
+nura_require( 'nura-geo' );
+nura_require( 'nura-content-hub' );       // 1.66.0 guides, live price tables, product box.             // 1.65.0 llms.txt, AI answer facts.
 
 // Admin / onboarding.
 nura_require( 'required-plugins' );

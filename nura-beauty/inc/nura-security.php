@@ -91,6 +91,10 @@ add_action( 'send_headers', function () {
 	header( 'Referrer-Policy: strict-origin-when-cross-origin' );
 	header( 'Permissions-Policy: geolocation=(), microphone=(), camera=(self), browsing-topics=()' );
 	header( 'Cross-Origin-Opener-Policy: same-origin' );
+	header( 'X-Permitted-Cross-Domain-Policies: none' );
+	if ( ! class_exists( 'NURAX_Hardening' ) ) {
+		header( "Content-Security-Policy: frame-ancestors 'self'; base-uri 'self'; object-src 'none'" );
+	}
 	if ( is_ssl() ) {
 		header( 'Strict-Transport-Security: max-age=31536000; includeSubDomains' );
 	}

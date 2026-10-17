@@ -350,9 +350,11 @@ final class NURAX_Retargeting {
 	/** GA4 client id from the _ga cookie, else a generated one. */
 	private function ga_client_id(): string {
 		if ( ! empty( $_COOKIE['_ga'] ) ) {
-			$parts = explode( '.', (string) $_COOKIE['_ga'] );
+			// Security (1.73.0): the cookie is visitor-controlled; keep digits and dots only.
+			$raw   = preg_replace( '/[^0-9.]/', '', sanitize_text_field( wp_unslash( $_COOKIE['_ga'] ) ) );
+			$parts = explode( '.', substr( (string) $raw, 0, 64 ) );
 			$n     = count( $parts );
-			if ( $n >= 2 ) {
+			if ( $n >= 2 && '' !== $parts[ $n - 2 ] && '' !== $parts[ $n - 1 ] ) {
 				return $parts[ $n - 2 ] . '.' . $parts[ $n - 1 ];
 			}
 		}

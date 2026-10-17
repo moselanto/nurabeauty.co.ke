@@ -69,7 +69,8 @@ class NURAX_Desk_Social {
 	private static function csv_line( $a ) {
 		$out = array();
 		foreach ( $a as $v ) {
-			$v     = str_replace( array( "\r", "\n" ), ' ', (string) $v );
+			// Security (1.73.0): neutralise spreadsheet formulas (CSV injection).
+			$v     = NURAX_Desk::csv_cell( str_replace( array( "\r", "\n" ), ' ', (string) $v ) );
 			$out[] = '"' . str_replace( '"', '""', $v ) . '"';
 		}
 		return implode( ',', $out ) . "\n";

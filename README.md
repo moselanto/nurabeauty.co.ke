@@ -10,8 +10,8 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.53.0-0E0E0E?style=for-the-badge)](nura-beauty)
-[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.55.0-C9A24B?style=for-the-badge)](nura-experience)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.64.0-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.73.0-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -39,118 +39,45 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 ## At a glance
 
-<table>
-  <tr>
-    <td width="25%" align="center"><h3>2 + 1</h3><sub>Packages: theme, plugin<br>and child theme</sub></td>
-    <td width="25%" align="center"><h3>M-Pesa</h3><sub>STK push and card via Paystack,<br>bank transfer, cash on delivery</sub></td>
-    <td width="25%" align="center"><h3>5pm</h3><sub>Same-day Nairobi cut-off,<br>1 - 3 days countrywide</sub></td>
-    <td width="25%" align="center"><h3>1 tap</h3><sub>WhatsApp order with product,<br>colour, quantity and price</sub></td>
-  </tr>
-</table>
-
-## Contents
-
-| | | |
-| --- | --- | --- |
-| [Packages](#packages) | [Shopping experience](#shopping-experience) | [Screenshots](#screenshots) |
-| [Collections](#collections) | [Architecture](#architecture) | [Project structure](#project-structure) |
-| [Installation](#installation) | [Deploying an update](#deploying-an-update) | [Configuration](#configuration) |
-| [Shortcodes and REST](#shortcodes-and-rest-api) | [Release history](#release-history) | [Business](#business) |
+| Packages | Payments | Delivery | Back office |
+| :---: | :---: | :---: | :---: |
+| Theme, child theme, plugin | M-Pesa, card (Paystack), bank, COD Nairobi | Same-day Nairobi before 5 PM, 1-3 days countrywide | NURA Desk: till, orders, plans, bookings, sourcing, team |
 
 ## Documentation
 
-| File | Purpose |
+| File | Contents |
 | --- | --- |
-| [AGENTS.md](AGENTS.md) | Rules and checklist for anyone (human or AI) changing this code |
-| [ARCHITECTURE-ESSENTIALS.md](ARCHITECTURE-ESSENTIALS.md) | One-page architecture summary |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Full architecture: modules, data, flows, security layers, release process |
 | [PRD.md](PRD.md) | Product requirements and status |
-| [SECURITY-AUDIT.md](SECURITY-AUDIT.md) | Security review, fixes and maintenance checklist |
-
-## Security (theme 1.53.0 / plugin 1.55.0)
-
-- Login lockout after repeated failures (per IP and per username), bot traps on login, registration and password reset
-- Limits: 3 registrations and 5 password resets per IP per hour; existing limits on contact, newsletter, WhatsApp orders, AI stylist and wig finder
-- Minimum 10-character passwords; staff sessions expire after 8 hours (3 days with "Remember me")
-- HTTPS redirect, HSTS and security headers on every screen; REST CORS limited to this site
-- Optional `wp-config.php` settings: `NURAX_TRUSTED_PROXY_HEADER` (behind Cloudflare), `FORCE_SSL_ADMIN`
-
-Full details: [SECURITY-AUDIT.md](SECURITY-AUDIT.md).
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Full architecture, modules, data model, flows |
+| [ARCHITECTURE-ESSENTIALS.md](ARCHITECTURE-ESSENTIALS.md) | One-page summary |
+| [SECURITY-AUDIT.md](SECURITY-AUDIT.md) | Security controls, findings and maintenance checklist |
+| [AGENTS.md](AGENTS.md) | Rules for developers and AI agents |
 
 ## Packages
 
-| Package | Folder | Version | Role |
-| --- | --- | :---: | --- |
-| **NURA Beauty** | [`nura-beauty/`](nura-beauty) | `1.53.0` | Parent theme: storefront, design system, header search, checkout, Customizer, SEO schema |
-| **NURA Beauty Child** | [`nura-beauty-child/`](nura-beauty-child) | `1.0.0` | **Active theme.** Update-safe layer for site-specific CSS and PHP |
-| **NURA Experience** | [`nura-experience/`](nura-experience) | `1.55.0` | Plugin: AI Stylist chat, AI Wig Finder, Quick View, WhatsApp order pop-up + WhatsApp Orders admin, mobile bottom bar, policy pages, NURA Circle |
+| Folder | Version | Installed as |
+| --- | --- | --- |
+| `nura-beauty/` | 1.64.0 | Parent theme |
+| `nura-beauty-child/` | - | Active child theme |
+| `nura-experience/` | 1.73.0 | Plugin |
 
-> [!NOTE]
-> Nothing brand-specific is hard-coded. Colours, fonts, contact details, social links, announcement bar and hero copy are edited under **Appearance > Customize > NURA Options**.
+## Features
 
-## Shopping experience
+### Shopping
+- Catalogue of human hair, blend and fibre wigs with colour swatches (10 shades) and per-colour photos.
+- Live search, filters, quick view, mega menu, trust strips, Google reviews, journal guides.
+- Checkout with required phone; cash on delivery offered and enforced for Nairobi only.
+- One-tap **Order on WhatsApp** with colour, quantity, county delivery quote and reference `NURA-YYMMDD-XXXX`.
+- **Lipa Mdogo Mdogo**: 50% deposit today, balance within 1 or 2 weeks, published terms v2.0.
+- AI stylist chat, AI wig finder, wig quiz and in-browser virtual try-on.
+- **Studio bookings**: mornings only, 50% deposit by M-Pesa (minimum KSh 500), terms, 15-minute late rule; video and WhatsApp consultations free.
+- My Account with order tracking, NURA Circle loyalty, care schedule, warranty certificates, e-mail 2-step verification and new-device alerts.
 
-Designed around how Kenyan shoppers actually buy: on a phone, with M-Pesa, and often finishing the order on WhatsApp.
+### NURA Desk (wp-admin)
+Overview and daily digest, point of sale with receipts, WhatsApp/online orders, payment plans, appointments with the "Studio now" board, sourced sales and supplier ledger, reminders, marketing campaigns, social catalogue feeds, subscribers, team permissions and activity log, encrypted contacts vault, Excel and CSV exports.
 
-<table>
-  <tr>
-    <td width="33%" valign="top">
-      <h4>Find it fast</h4>
-      <ul>
-        <li>Always-visible header search bar with live product results (photo + price)</li>
-        <li>"Not found" offers WhatsApp help instead of a dead end</li>
-        <li>Mega menu on desktop, Home | Shop | WhatsApp | Cart | Menu bar on mobile</li>
-        <li>AI Wig Finder quiz and NURA Stylist chat</li>
-      </ul>
-    </td>
-    <td width="33%" valign="top">
-      <h4>Choose with confidence</h4>
-      <ul>
-        <li>Colour and length swatches on product pages and in Quick View</li>
-        <li>Chosen value shown next to the label; sold-out options greyed out</li>
-        <li>Every wig labelled human hair, human-hair blend or heat-resistant fibre</li>
-        <li>Clear delivery, returns (7 days) and payment info on every product</li>
-      </ul>
-    </td>
-    <td width="33%" valign="top">
-      <h4>Pay the Kenyan way</h4>
-      <ul>
-        <li>M-Pesa and card via Paystack, bank transfer, cash on delivery in Nairobi</li>
-        <li>Short checkout: phone first and required, County + Town, no postcode</li>
-        <li>Free-delivery progress bar in the cart</li>
-        <li>Order on WhatsApp with product, colour, quantity, price and link pre-filled</li>
-      </ul>
-    </td>
-  </tr>
-</table>
-
-<details>
-<summary><b>Full feature list</b></summary>
-
-<br>
-
-**Storefront (NURA Beauty theme)**
-
-- Editorial luxury design: obsidian black, champagne gold `#C9A24B`, warm ivory; Playfair Display, Cormorant Garamond, Montserrat and Jost
-- Hero slider, trust bar, category tiles, Shop by wig type, New Arrivals, Best Sellers (no duplicates between rails), Real Women gallery, Wig Care, Talk to NURA
-- Balanced header: logo, centred search, phone, account and cart
-- AJAX cart drawer with quantity steppers; free-delivery bar read from WooCommerce Free Shipping
-- Footer with social icons (Instagram, TikTok, Facebook, YouTube, Pinterest, X, Threads) and payment badges taken from the live payment gateways
-- One-click onboarding under *Appearance > NURA Setup*
-
-**Experience layer (NURA Experience plugin)**
-
-| Module | What it does |
-| --- | --- |
-| **NURA Stylist** | Chat concierge (OpenAI or Gemini, with guided fallback replies), Kenyan quick replies and one-tap WhatsApp hand-off |
-| **AI Wig Finder** | Quiz on face shape, lifestyle and budget that recommends matching products |
-| **Quick View** | REST-powered product pop-up with full variation picker and AJAX add to cart |
-| **WhatsApp ordering** | Pre-filled order message from product pages, Quick View, the bottom bar and the floating button |
-| **Policy & trust pages** | Delivery, Returns & Refunds, Payment Information, FAQ, Terms, Privacy - kept consistent with checkout and schema |
-| **The NURA Circle** | Loyalty points, care reminders and certificates in My Account |
-| **Virtual Try-On** | Built in, currently **switched off** for the Kenyan market (`NURAX_ENABLE_TRYON`) |
-
-</details>
+### Security
+Rate limiting on every public form and endpoint, input sanitisation, WordPress password hashing + 10-character policy, secrets from environment/constants, same-origin CORS, prepared SQL, staff session expiry, HTTPS redirect + HSTS, security headers incl. CSP `frame-ancestors`, safe uploads, `no-store` Desk screens, AES-256-GCM contact encryption, login lockout. See [SECURITY-AUDIT.md](SECURITY-AUDIT.md).
 
 ## Screenshots
 
@@ -170,277 +97,82 @@ Designed around how Kenyan shoppers actually buy: on a phone, with M-Pesa, and o
   </tr>
 </table>
 
-## Architecture
-
-<details>
-<summary><b>System context, layers and flows (diagrams)</b></summary>
-
-<br>
-
-#### System context
-
-```mermaid
-flowchart TB
-    subgraph Users
-        C[Shopper - web and mobile]
-        A[Store admin]
-    end
-    subgraph WP["WordPress - nurabeauty.co.ke"]
-        direction TB
-        CH[NURA Beauty Child<br/>active theme]
-        PT[NURA Beauty<br/>parent theme]
-        NX[NURA Experience<br/>plugin]
-        WC[(WooCommerce<br/>products, orders, customers)]
-        CH --> PT
-        PT --> WC
-        NX --> WC
-    end
-    subgraph External["External services (optional)"]
-        LLM[OpenAI / Google Gemini]
-        VIS[Face-analysis API]
-        AR[AR try-on provider<br/>MediaPipe / Banuba]
-        WA[WhatsApp]
-        GF[Google Fonts]
-    end
-    C --> CH
-    A --> PT
-    NX -- AI Stylist REST proxy --> LLM
-    NX -- nurax_face_analysis filter --> VIS
-    NX -. window.nuraxTryonProvider .-> AR
-    CH --> WA
-    PT --> GF
-```
-
-#### Layered design
-
-```mermaid
-flowchart LR
-    subgraph Presentation["Presentation - theme"]
-        T1[Templates<br/>front-page, header, footer]
-        T2[Design system<br/>main.css, woocommerce.css]
-        T3[main.js<br/>slider, drawer, nav]
-    end
-    subgraph Config["Configuration"]
-        K1[Customizer registry<br/>nura_settings_map]
-        K2[dynamic-css.php<br/>CSS variables]
-        K3[Shortcodes<br/>nura_phone, nura_email ...]
-    end
-    subgraph Logic["Business logic - plugin"]
-        P1[AI Wig Finder]
-        P2[AI Stylist]
-        P3[Virtual Try-On]
-        P4[NURA Circle]
-        P5[Shop Enhance]
-        P6[Wig Attributes]
-    end
-    subgraph Data["Data"]
-        D1[(WooCommerce)]
-        D2[(Options and user meta)]
-    end
-    K1 --> K2 --> T2
-    K1 --> K3 --> T1
-    T1 --> P1 & P3 & P5
-    P1 & P2 & P5 & P6 --> D1
-    P4 --> D1 & D2
-```
-
-#### Flow: AI Wig Finder
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant S as Shopper
-    participant UI as Wig Finder (nurax.js)
-    participant API as WordPress AJAX / REST
-    participant F as nurax_face_analysis filter
-    participant WC as WooCommerce
-    S->>UI: Answers quiz (+ optional selfie)
-    UI->>API: POST answers with nonce
-    alt Vision provider configured
-        API->>F: Selfie
-        F-->>API: Detected face shape
-    else Default
-        API->>API: Rule-based profile
-    end
-    API->>WC: Query matching wigs (length, texture, lace, budget)
-    WC-->>API: Products
-    API-->>UI: Ranked shortlist
-    UI-->>S: Matches, plus Try on, Add to cart and WhatsApp options
-```
-
-#### Flow: NURA Circle loyalty
-
-```mermaid
-flowchart LR
-    O[Order completed] --> P[Award Radiance Points<br/>1 pt / KES 100]
-    O --> W[Issue warranty and<br/>provenance certificate per item]
-    O --> R[Schedule wash and<br/>revamp reminders]
-    P & W & R --> M[My Account tabs<br/>NURA Circle, Care Schedule, Certificates]
-```
-</details>
-
 ## Project structure
 
-<details>
-<summary><b>Folder tree</b></summary>
-
-```text
-.
-├── README.md
-├── docs/
-│   ├── screenshots/                 # Live-site screenshots used in this README
-│   └── images/                      # Optimised collection and lookbook images
-├── nura-beauty/                     # Parent theme
-│   ├── functions.php                # Lean bootstrap, guarded includes
-│   ├── inc/
-│   │   ├── setup.php                # Theme supports, menus, image sizes
-│   │   ├── enqueue.php              # Critical CSS and async assets
-│   │   ├── customizer.php           # Single registry of every brand setting
-│   │   ├── dynamic-css.php          # Customizer values to CSS variables
-│   │   ├── woocommerce-support.php  # Shop and product integration
-│   │   ├── seo-schema.php           # JSON-LD, Open Graph, Twitter
-│   │   ├── shortcodes.php           # Brand value, contact and booking shortcodes
-│   │   ├── template-tags.php        # Template helpers
-│   │   ├── required-plugins.php     # One-click installer from WordPress.org
-│   │   └── sample-data.php / sample-content.php
-│   ├── assets/{css,js,images}/      # Design system, main.js, hero and category photos
-│   ├── demo/pages/*.html            # Starter page content
-│   ├── front-page.php  header.php  footer.php  page.php  single.php ...
-│   └── style.css                    # Theme header only
-├── nura-beauty-child/               # Child theme (activate this)
-└── nura-experience/                 # Experience plugin
-    ├── nura-experience.php          # Bootstrap and shared assets
-    ├── includes/
-    │   ├── class-ai-wig-finder.php
-    │   ├── class-ai-stylist.php
-    │   ├── class-virtual-tryon.php
-    │   ├── class-nura-circle.php
-    │   ├── class-shop-enhance.php
-    │   ├── class-wig-attributes.php
-    │   └── class-settings.php
-    ├── assets/{css,js}/nurax.*
-    └── samples/nura-variable-products-template.csv
 ```
-
-</details>
+nura-beauty/            parent theme
+  functions.php         versions + module loader
+  inc/                  setup, WooCommerce, SEO, security, login, boost, customizer
+  page-*.php            page templates (booking, contact, about, wig finder...)
+  assets/css, js        styles and scripts
+  demo/                 sample content for the importer
+nura-beauty-child/      child theme (active)
+nura-experience/        plugin
+  nura-experience.php   versions + class loader
+  includes/             one class per feature (class-nura-desk-*.php = NURA Desk)
+  assets/css, js, img   Desk and storefront assets
+  samples/              product import template
+docs/                   README images and screenshots
+```
 
 ## Installation
 
-> **Requirements:** WordPress 6.2+ &nbsp;&bull;&nbsp; WooCommerce 8.0+ &nbsp;&bull;&nbsp; PHP 7.4+
+Requirements: WordPress 6.2+, WooCommerce 8.0+, PHP 7.4+ (8.x recommended), HTTPS.
 
-1. Upload **`nura-beauty/`**, then **`nura-beauty-child/`** under *Appearance > Themes > Add New > Upload Theme*.
-2. **Activate NURA Beauty Child** (not the parent).
-3. Run **Appearance > NURA Setup**: install plugins, then import sample content.
-4. Upload **`nura-experience/`** to `wp-content/plugins/` and activate it.
-5. Install **Paystack WooCommerce Payment Gateway**, add your live keys and the webhook URL in the Paystack dashboard.
-6. Re-save **Settings > Permalinks**.
-
-```mermaid
-flowchart LR
-    A[Upload parent] --> B[Activate child] --> C[NURA Setup] --> D[Activate NURA Experience] --> E[Paystack keys + webhook] --> F[Customize brand] --> G((Live))
-```
+1. Upload `nura-beauty` then `nura-beauty-child` (Appearance > Themes > Add New > Upload) and activate the child theme.
+2. Upload and activate `nura-experience` (Plugins > Add New > Upload).
+3. Run Appearance > NURA Setup (plugins, sample content).
+4. Install Paystack, add live keys and the webhook URL.
+5. Fill NURA Desk > Settings: M-Pesa details, service prices, booking and payment-plan rules.
+6. Add to `wp-config.php`: `FORCE_SSL_ADMIN`, `DISALLOW_FILE_EDIT` and the `NURA_DATA_KEY` shown in NURA Desk > Security.
+7. Re-save Settings > Permalinks.
 
 ## Deploying an update
 
-> [!IMPORTANT]
-> Commits to `main` do **not** deploy automatically. Every release bumps the version numbers so you can see what is live.
+Commits to `main` do not deploy automatically.
 
-| Step | Action |
-| :---: | --- |
-| 1 | Download the changed folder(s): `nura-beauty/` and/or `nura-experience/` |
-| 2 | Upload them to `wp-content/themes/` and `wp-content/plugins/` on hosting (replace existing) |
-| 3 | Clear the caching plugin and any hosting cache |
-| 4 | Check the version in *Appearance > Themes* and *Plugins* matches the badges above |
-| 5 | Test on a phone: search, add to cart, checkout with M-Pesa, Order on WhatsApp |
+1. Plugins > Add New > Upload the plugin zip > "Replace current with uploaded".
+2. Appearance > Themes > Add New > Upload the theme zip > "Replace current with uploaded".
+3. LiteSpeed Cache > Purge All, then Ctrl+F5.
+4. Check versions in Plugins and Themes, then test on a phone: search, cart, checkout, WhatsApp order, booking, Desk till.
 
 ## Configuration
 
-| Where | What you can change |
+| Where | What |
 | --- | --- |
-| **Customize > NURA Options > Brand** | Name, tagline, bio, announcement bar, phone, WhatsApp, email, address, hours, social profile links |
-| **Customize > NURA Options > Colours / Typography** | Brand colours and Google Font families |
-| **Customize > NURA Options > Homepage** | Trust bar and feature blocks |
-| **WooCommerce > Settings > Payments** | Paystack (M-Pesa + card), bank transfer, cash on delivery - the site labels follow automatically |
-| **WooCommerce > Settings > Shipping** | Free-shipping minimum - drives the cart progress bar and product delivery text |
-| **Settings > NURA Experience** | AI Stylist key and greeting, WhatsApp number, loyalty options |
+| Customize > NURA Options | Brand, contact details, colours, fonts, homepage blocks |
+| WooCommerce > Settings | Payments, shipping zones and free-delivery minimum |
+| NURA Desk > Settings | M-Pesa details, booking hours, cut-off, deposit %, minimum, grace, hold hours, prices, payment-plan rules |
+| NURA Desk > Team | Staff permissions (prices, discounts, refunds, mark paid, exports, delete) |
+| Settings > NURA Experience | AI provider keys (or environment variables), WhatsApp number, loyalty |
+
+### Environment variables / constants
+
+| Name | Purpose |
+| --- | --- |
+| `NURAX_OPENAI_KEY`, `NURAX_GEMINI_KEY` | AI provider keys |
+| WhatsApp token / app secret constants | Cloud API and webhook signature |
+| `NURA_DATA_KEY` | Vault encryption key (32+ characters) |
+| `NURAX_TRUSTED_PROXY_HEADER` | Real client IP behind Cloudflare/proxy |
 
 ## Shortcodes and REST API
 
-| Shortcode | Output |
-| --- | --- |
-| `[nura_ai_wig_finder]` | AI Wig Finder quiz and results |
-| `[nura_circle_portal]` | NURA Circle client portal |
-| `[nura_contact_form]` | Contact form (Contact Form 7 when available) |
-| `[nura_phone]` `[nura_email]` `[nura_address]` `[nura_hours]` `[nura_whatsapp]` | Live brand values from the Customizer |
+Shortcodes: `[nura_ai_wig_finder]`, `[nura_wig_finder]`, `[nura_find_your_wig]`, `[nura_wig_quiz]`, `[nura_virtual_tryon]`, `[nura_booking_form]`, `[nura_contact_form]`, `[nura_circle_portal]`, `[nura_journal]`, `[nura_lookbook]`, `[nura_reviews]`, `[nura_google_reviews]`, `[nura_why_shop]`.
 
-REST namespace `nurax/v1`: `POST /stylist` (chat), `GET /quickview?id=` (Quick View).
+REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `GET /slots?date=`, `GET /quickview?id=`, WhatsApp webhook. All public routes are rate-limited.
 
-<details>
-<summary><b>Extending with AI providers</b></summary>
-
-<br>
-
-```php
-// Plug a real face-shape vision model into the AI Wig Finder.
-add_filter( 'nurax_face_analysis', function ( $shape, $image ) {
-    // Call your provider and return e.g. 'oval', 'round', 'heart', 'square'.
-    return $shape;
-}, 10, 2 );
-```
-
-```js
-// Swap in a face-tracked AR engine for Virtual Try-On; the UI stays identical.
-window.nuraxTryonProvider = { align: (photo, wig) => { /* MediaPipe / Banuba */ } };
-```
-
-</details>
-
-## Release history
+## Release history (recent)
 
 | Theme | Plugin | Highlights |
-| :---: | :---: | --- |
-| - | `1.55.0` | Order pop-up: name, phone, county (47 counties) and town required on every order |
-| - | `1.45.0` | Fix: Order on WhatsApp now opens the order pop-up instead of going straight to WhatsApp |
-| - | `1.44.0` | Redesigned WhatsApp order pop-up: 3-step progress, product card with category, sale price and quantity, +254 phone field, delivery / pick-up and payment option cards, sticky total + Send order button |
-| - | `1.43.0` | WhatsApp order pop-up on product page, every product card and cart (variation, qty, delivery, payment, ref NURA-YYMMDD-XXXX); orders saved under WooCommerce > WhatsApp Orders |
-| `1.53.0` | - | Aligned product cards: reserved shade row, fixed price row, full-width buttons pinned to the bottom |
-| `1.32.1` | - | Equal two-line product titles on every card; semi-human and bone straight category intros |
-| `1.32.0` | `1.42.0` | SEO for Kenyan wig searches: keyword H1, homepage wig guide + FAQ schema, Product shipping/returns schema, image alt text, LocalBusiness areas |
-| `1.31.1` | - | Mobile: only one WhatsApp (bottom bar); floating bubble hidden on phones |
-| `1.31.0` | `1.41.0` | WhatsApp bubble with real logo, redesigned NURA Stylist button and chat, one-line mobile announcement bar |
-| `1.30.0` | `1.40.0` | Mobile bottom bar: Home, Shop, WhatsApp, Cart, Menu; visible chat button |
-| `1.29.0` | - | Simple Kenyan checkout: phone required and first, no postcode, County + Town |
-| `1.28.x` | `1.39.0` | Add to cart + Order on WhatsApp buy box, full WhatsApp order message, clean single search box |
-| `1.27.0` | - | Balanced header with Account link |
-| `1.26.0` | - | Colour picker works in Quick View |
-| `1.25.x` | - | Always-visible header search bar; footer payment badges from live gateways |
-| `1.24.x` | `1.38.x` | Consistent policies (5pm same-day, 7-day returns), honest hair-type copy, Paystack payment copy |
-| `1.23.x` | `1.37.1` | Social profile links and icons; cart drawer layout fix |
-| `1.22.x` | `1.37.0` | Virtual Try-On switched off, Quality-Checked Hair, Paystack labels |
+| --- | --- | --- |
+| 1.64.0 | 1.73.0 | Security hardening module, upload safety, CSP frame-ancestors, no-store Desk, AJAX limits, CSV-injection and cookie fixes, full documentation refresh |
+| 1.63.0 | 1.72.0 | Booking loophole fixes (WhatsApp bypass, fake/reused M-Pesa codes, slot holds, past times, duplicates), plan deposit floor, till safeguards |
+| 1.62.0 | 1.71.0 | Morning bookings with deposit, terms and arrival board; Lipa Mdogo Mdogo 50% / 2 weeks, terms v2.0 |
+| - | 1.70.0 | Sourced sales, supplier ledger, Team page redesign |
+| 1.53.0 | 1.55.0 | First security audit: login lockout, password policy, sessions, HTTPS, CORS |
 
 ## Business
 
-<table>
-  <tr>
-    <td valign="top">
-      <b>NURA Beauty</b> - The House of Radiant Confidence<br>
-      Imenti House, Moi Avenue, Nairobi CBD, Kenya<br><br>
-      Phone / WhatsApp: <a href="tel:+254714994898">+254 714 994 898</a><br>
-      Email: <a href="mailto:care@nurabeauty.co.ke">care@nurabeauty.co.ke</a><br>
-      Mon - Sat, 9:00 - 18:00
-    </td>
-    <td valign="top">
-      <b>Delivery</b><br>
-      Same-day Nairobi on orders before 5pm<br>
-      Countrywide in 1 - 3 days<br><br>
-      <b>Returns</b><br>
-      Unworn, unaltered units within 7 days
-    </td>
-  </tr>
-</table>
+NURA Beauty - The House of Radiant Confidence. Imenti House, Moi Avenue, Nairobi CBD. WhatsApp +254 714 994 898. [nurabeauty.co.ke](https://nurabeauty.co.ke/)
 
----
-
-<div align="center">
-<sub>Designed, developed and maintained by <a href="https://github.com/moselanto"><b>Pimofy Digital</b></a>, Nairobi &nbsp;&bull;&nbsp; Licensed GPLv2 or later</sub>
-</div>
+License: GPLv2 or later.

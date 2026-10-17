@@ -255,7 +255,7 @@ function nura_boost_current_guide() {
 			sprintf( __( 'At NURA, %1$s currently cost from %2$s to %3$s. Prices are in Kenya Shillings and you can pay by M-Pesa, card or cash on delivery in Nairobi.', 'nura-beauty' ), $name, nura_boost_ksh( $px['lo'] ), nura_boost_ksh( $px['hi'] ) ),
 		) );
 	}
-	$g['faqs'][] = array( __( 'Can I return a wig?', 'nura-beauty' ), __( 'Unworn, unaltered wigs in original condition can be returned within 7 days of delivery. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' ) );
+	$g['faqs'][] = array( __( 'Can I return a wig?', 'nura-beauty' ), __( 'Unworn, unaltered wigs in original condition can be returned within 7 days of delivery, either at our Imenti House studio in Nairobi CBD or by courier. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' ) );
 	$memo        = $g;
 	return $g;
 }

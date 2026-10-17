@@ -101,23 +101,31 @@ add_action( 'send_headers', function () {
 }, 1 );
 
 /* -----------------------------------------------------------------------------
- * 6. Keep AI training/scraping crawlers out via robots.txt (Google/Bing search
- *    are untouched) and keep private/transactional paths out of every index.
+ * 6. robots.txt. Since 1.65.0 AI search and answer engines (ChatGPT, Claude,
+ *    Perplexity, Gemini, Apple, Meta, Amazon, Common Crawl) are WELCOME so NURA can
+ *    be understood and recommended. Only aggressive SEO scrapers stay blocked, and
+ *    private/transactional paths stay out of every index.
  *    Only applies when a static robots.txt file is NOT present in web root.
  * -------------------------------------------------------------------------- */
 add_filter( 'robots_txt', function ( $output, $public ) {
 	if ( ! $public ) {
 		return $output; // Respect "discourage search engines" in Settings > Reading.
 	}
-	$ai_bots = array(
-		'GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'CCBot', 'ClaudeBot', 'Claude-Web',
-		'anthropic-ai', 'Google-Extended', 'Applebot-Extended', 'PerplexityBot',
-		'Amazonbot', 'Bytespider', 'Diffbot', 'ImagesiftBot', 'Omgili', 'Omgilibot',
-		'FacebookBot', 'meta-externalagent', 'cohere-ai', 'YouBot', 'Timpibot',
+	$ai_allowed = apply_filters( 'nura_ai_bots_allowed', array(
+		'GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User',
+		'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot', 'Applebot-Extended',
+		'meta-externalagent', 'FacebookBot', 'Amazonbot', 'CCBot', 'DuckAssistBot', 'MistralAI-User', 'cohere-ai', 'YouBot',
+	) );
+	$scrapers = apply_filters( 'nura_scraper_bots', array(
+		'Bytespider', 'Diffbot', 'ImagesiftBot', 'Omgili', 'Omgilibot', 'Timpibot',
 		'DataForSeoBot', 'magpie-crawler', 'Scrapy',
-	);
-	$extra = "\n# NURA: block AI training / scraping crawlers\n";
-	foreach ( $ai_bots as $bot ) {
+	) );
+	$extra = "\n# NURA: AI search and answer engines are welcome (public pages only)\n";
+	foreach ( $ai_allowed as $bot ) {
+		$extra .= "User-agent: {$bot}\nAllow: /\nDisallow: /wp-admin/\nDisallow: /cart/\nDisallow: /checkout/\nDisallow: /my-account/\n\n";
+	}
+	$extra .= "# NURA: aggressive scrapers\n";
+	foreach ( $scrapers as $bot ) {
 		$extra .= "User-agent: {$bot}\nDisallow: /\n\n";
 	}
 	$extra .= "# NURA: keep private / transactional paths out of all indexes\n";
@@ -131,6 +139,7 @@ add_filter( 'robots_txt', function ( $output, $public ) {
 	$extra .= "Disallow: /*add-to-cart=\n";
 	$extra .= "Disallow: /*?*orderby=\n";
 	$extra .= "Disallow: /?s=\n";
+	$extra .= "\n# Plain-language summary for AI assistants: " . home_url( '/llms.txt' ) . "\n";
 	return $output . $extra;
 }, 10, 2 );
 
@@ -152,8 +161,9 @@ add_action( 'init', function () {
 		return;
 	}
 	$blocked = apply_filters( 'nura_blocked_user_agents', array(
-		'Bytespider', 'GPTBot', 'CCBot', 'ClaudeBot', 'anthropic-ai', 'PerplexityBot',
-		'Amazonbot', 'Diffbot', 'ImagesiftBot', 'DataForSeoBot', 'MJ12bot', 'DotBot',
+		// 1.65.0: GPTBot, CCBot, ClaudeBot, PerplexityBot and Amazonbot removed so AI
+		// assistants can read and recommend NURA. Only abusive scrapers remain.
+		'Bytespider', 'Diffbot', 'ImagesiftBot', 'DataForSeoBot', 'MJ12bot', 'DotBot',
 		'PetalBot', 'BLEXBot', 'Scrapy', 'magpie-crawler', 'Barkrowler', 'serpstatbot',
 	) );
 	foreach ( $blocked as $needle ) {

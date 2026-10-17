@@ -227,7 +227,6 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 			}
 		}
 	}
-	$valid = gmdate( 'Y' ) + 1 . '-12-31';
 	foreach ( $data as $key => $node ) {
 		if ( ! is_array( $node ) || empty( $node['@type'] ) ) {
 			continue;
@@ -240,9 +239,6 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 		}
 		if ( empty( $node['brand'] ) ) {
 			$data[ $key ]['brand'] = array( '@type' => 'Brand', 'name' => 'NURA Beauty' );
-		}
-		if ( isset( $node['offers'] ) && is_array( $node['offers'] ) && isset( $node['offers']['@type'] ) && empty( $node['offers']['priceValidUntil'] ) ) {
-			$data[ $key ]['offers']['priceValidUntil'] = $valid;
 		}
 	}
 	return $data;

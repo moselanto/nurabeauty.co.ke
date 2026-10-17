@@ -255,7 +255,7 @@ function nura_seo_return_policy() {
 		'returnPolicyCountry'  => 'KE',
 		'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
 		'merchantReturnDays'   => 7,
-		'returnMethod'         => 'https://schema.org/ReturnByMail',
+		'returnMethod'         => array( 'https://schema.org/ReturnInStore', 'https://schema.org/ReturnByMail' ),
 		'returnFees'           => 'https://schema.org/ReturnFeesCustomerResponsibility',
 		'refundType'           => 'https://schema.org/FullRefund',
 		'merchantReturnLink'   => $returns ? $returns : null,

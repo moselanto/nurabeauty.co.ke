@@ -48,6 +48,33 @@ function nura_schema_parse_price( $text ) {
 	return array( 'min' => min( $nums ), 'max' => count( $nums ) > 1 ? max( $nums ) : null );
 }
 
+/** Live price range from the catalogue (cached 12 h); fallback to the last known range. */
+function nura_schema_price_range() {
+	$r = get_transient( 'nura_price_range' );
+	if ( false !== $r ) {
+		return $r;
+	}
+	global $wpdb;
+	$r     = 'KSh 1,500 - KSh 17,300';
+	$table = $wpdb->prefix . 'wc_product_meta_lookup';
+	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$row = $wpdb->get_row( "SELECT MIN(l.min_price) AS lo, MAX(l.max_price) AS hi FROM {$table} l INNER JOIN {$wpdb->posts} p ON p.ID = l.product_id WHERE p.post_type = 'product' AND p.post_status = 'publish' AND l.min_price > 0" ); // phpcs:ignore WordPress.DB
+		if ( $row && (float) $row->lo > 0 && (float) $row->hi >= (float) $row->lo ) {
+			$r = 'KSh ' . number_format( (float) $row->lo ) . ' - KSh ' . number_format( (float) $row->hi );
+		}
+	}
+	set_transient( 'nura_price_range', $r, 12 * HOUR_IN_SECONDS );
+	return $r;
+}
+add_action( 'save_post_product', function () {
+	delete_transient( 'nura_price_range' );
+} );
+
+/** One factual sentence AI engines and Google can quote about the business. */
+function nura_schema_org_description() {
+	return 'NURA Beauty (registered in Kenya as NURA CROWN & BEAUTY, BN-MJS7ALRV) is a Nairobi wig shop selling 100% human hair, human-hair blend and heat-resistant fibre wigs online across Kenya, with a fitting and installation studio at Imenti House, Moi Avenue, Nairobi CBD. Prices in Kenya Shillings; same-day Nairobi delivery before 5pm; M-Pesa, card and cash on delivery; Lipa Mdogo Mdogo payment plans.';
+}
+
 /** Services from the Installation page settings: [ name, price text, description ]. */
 function nura_schema_services() {
 	if ( ! function_exists( 'nura_lines' ) ) {
@@ -74,9 +101,25 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 
 		// 1. One business entity.
 		if ( array_intersect( $types, array( 'Organization', 'OnlineStore' ) ) ) {
-			$types = array_values( array_unique( array_merge( $types, array( 'Organization', 'OnlineStore', 'HealthAndBeautyBusiness' ) ) ) );
-			$data[ $key ]['@type']              = $types;
+			// 1.65.0: the company is an online store; the Nairobi studio is its own
+			// LocalBusiness node (nuraStudio below) linked by parentOrganization.
+			$data[ $key ]['@type']              = array( 'Organization', 'OnlineStore' );
+			$data[ $key ]['@id']                = $org_id;
+			$data[ $key ]['name']               = 'NURA Beauty';
+			$data[ $key ]['alternateName']      = array( 'NURA', 'NURA Beauty Kenya', 'NURA Crown & Beauty', 'nurabeauty.co.ke' );
 			$data[ $key ]['legalName']          = 'NURA CROWN & BEAUTY';
+			$data[ $key ]['identifier']         = array(
+				'@type'      => 'PropertyValue',
+				'propertyID' => 'Kenya Business Registration Service - Business Name Number',
+				'value'      => 'BN-MJS7ALRV',
+			);
+			$data[ $key ]['description']        = nura_schema_org_description();
+			$data[ $key ]['url']                = $home;
+			$same = function_exists( 'nura_social_urls' ) ? array_values( nura_social_urls() ) : array();
+			if ( $same ) {
+				$data[ $key ]['sameAs'] = array_values( array_unique( array_merge( isset( $node['sameAs'] ) ? (array) $node['sameAs'] : array(), $same ) ) );
+			}
+			$data[ $key ]['subOrganization']    = array( '@id' => $home . '#studio' );
 			$data[ $key ]['slogan']             = 'The House of Radiant Confidence';
 			$logo_id = (int) get_theme_mod( 'custom_logo' );
 			$logo    = $logo_id ? wp_get_attachment_image_url( $logo_id, 'full' ) : '';
@@ -84,21 +127,10 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 				$data[ $key ]['image'] = $logo;
 			}
 			$data[ $key ]['address']            = $addr['node'];
-			$data[ $key ]['priceRange']         = 'KSh 1,500 - KSh 17,300';
+			$data[ $key ]['priceRange']         = nura_schema_price_range();
 			$data[ $key ]['currenciesAccepted'] = 'KES';
 			$data[ $key ]['paymentAccepted']    = 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash on Delivery (Nairobi)';
-			$data[ $key ]['openingHoursSpecification'] = array(
-				array(
-					'@type'     => 'OpeningHoursSpecification',
-					'dayOfWeek' => array( 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ),
-					'opens'     => '08:00',
-					'closes'    => '20:00',
-				),
-			);
-			if ( $addr['is_default'] ) {
-				$data[ $key ]['geo']    = array( '@type' => 'GeoCoordinates', 'latitude' => '-1.2837', 'longitude' => '36.8272' );
-				$data[ $key ]['hasMap'] = 'https://www.google.com/maps/search/?api=1&query=Imenti+House+Moi+Avenue+Nairobi';
-			}
+			unset( $data[ $key ]['openingHoursSpecification'], $data[ $key ]['openingHours'], $data[ $key ]['geo'], $data[ $key ]['hasMap'] );
 			$data[ $key ]['knowsAbout'] = array(
 				'Wigs', 'Human hair wigs', 'Human hair blend (semi-human) wigs', 'Heat-resistant fibre wigs',
 				'Lace front wigs', '4x4 lace closure wigs', 'Headband wigs', 'Glueless wigs',
@@ -149,6 +181,51 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 				);
 			}
 		}
+	}
+
+	// 1b. The studio: a separate LocalBusiness on the pages about visiting us.
+	if ( is_front_page() || is_page( array( 'contact', 'contact-us', 'about', 'about-us', 'installation', 'book-appointment' ) ) ) {
+		$c      = function_exists( 'nura_seo_brand_contact' ) ? nura_seo_brand_contact() : array( 'telephone' => '+254714994898', 'email' => 'care@nurabeauty.co.ke' );
+		$logo_i = (int) get_theme_mod( 'custom_logo' );
+		$studio = array(
+			'@type'                     => 'HealthAndBeautyBusiness',
+			'@id'                       => $home . '#studio',
+			'name'                      => 'NURA Beauty Studio',
+			'description'               => 'Wig fitting, installation, revamp and styling studio in Nairobi CBD. Visits by appointment; collection of online orders.',
+			'url'                       => $home,
+			'parentOrganization'        => array( '@id' => $org_id ),
+			'telephone'                 => $c['telephone'],
+			'email'                     => $c['email'],
+			'address'                   => $addr['node'],
+			'priceRange'                => nura_schema_price_range(),
+			'currenciesAccepted'        => 'KES',
+			'paymentAccepted'           => 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash',
+			'openingHoursSpecification' => array(
+				array(
+					'@type'     => 'OpeningHoursSpecification',
+					'dayOfWeek' => array( 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ),
+					'opens'     => '08:00',
+					'closes'    => '20:00',
+				),
+			),
+			'areaServed'                => array( '@type' => 'City', 'name' => 'Nairobi' ),
+		);
+		if ( $logo_i ) {
+			$studio['image'] = wp_get_attachment_image_url( $logo_i, 'full' );
+		}
+		if ( $addr['is_default'] ) {
+			$studio['geo']    = array( '@type' => 'GeoCoordinates', 'latitude' => '-1.2837', 'longitude' => '36.8272' );
+			$studio['hasMap'] = 'https://www.google.com/maps/search/?api=1&query=Imenti+House+Moi+Avenue+Nairobi';
+		}
+		$book = get_page_by_path( 'book-appointment' );
+		if ( $book && 'publish' === $book->post_status ) {
+			$studio['potentialAction'] = array(
+				'@type'  => 'ReserveAction',
+				'target' => array( '@type' => 'EntryPoint', 'urlTemplate' => get_permalink( $book ) ),
+				'result' => array( '@type' => 'Reservation', 'name' => 'Wig fitting or installation appointment' ),
+			);
+		}
+		$data['nuraStudio'] = array_filter( $studio );
 	}
 
 	// 2b. Service catalogue on the Installation page.

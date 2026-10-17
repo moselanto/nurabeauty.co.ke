@@ -126,9 +126,7 @@ function nura_seo_enrich_offer( $offer ) {
 	if ( empty( $offer['seller'] ) ) {
 		$offer['seller'] = array( '@type' => 'Organization', 'name' => get_bloginfo( 'name' ) );
 	}
-	if ( empty( $offer['priceValidUntil'] ) ) {
-		$offer['priceValidUntil'] = gmdate( 'Y' ) . '-12-31';
-	}
+	// 1.65.0: no invented priceValidUntil (only real sale end dates from WooCommerce).
 	$offer['shippingDetails'] = array(
 		'@type'               => 'OfferShippingDetails',
 		'shippingDestination' => array( '@type' => 'DefinedRegion', 'addressCountry' => 'KE' ),
@@ -143,7 +141,7 @@ function nura_seo_enrich_offer( $offer ) {
 		'applicableCountry'    => 'KE',
 		'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
 		'merchantReturnDays'   => 7,
-		'returnMethod'         => 'https://schema.org/ReturnByMail',
+		'returnMethod'         => array( 'https://schema.org/ReturnInStore', 'https://schema.org/ReturnByMail' ),
 		'returnFees'           => 'https://schema.org/ReturnFeesCustomerResponsibility',
 		'refundType'           => 'https://schema.org/FullRefund',
 	);

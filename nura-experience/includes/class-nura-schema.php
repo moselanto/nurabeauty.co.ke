@@ -153,7 +153,9 @@ class NURAX_Schema {
 		}
 
 		// --- FAQPage (FAQ page only) ---
-		if ( is_page( 'faq' ) ) {
+		$faq_post = is_page( 'faq' ) ? get_post() : null;
+		$rm_faq   = $faq_post && ( false !== strpos( $faq_post->post_content, 'rank-math/faq-block' ) || false !== strpos( $faq_post->post_content, 'rank-math-faq' ) );
+		if ( is_page( 'faq' ) && ! ( $seo && $rm_faq ) ) { // 1.73.2: never two FAQPage blocks.
 			$this->print_jsonld( $this->faq_schema() );
 		}
 	}

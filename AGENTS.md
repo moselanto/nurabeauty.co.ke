@@ -14,6 +14,8 @@ Rules for developers and AI coding agents changing the NURA Beauty store code.
 
 Live site: https://nurabeauty.co.ke (WordPress + WooCommerce, Kenya, KES, Africa/Nairobi time).
 
+**Start with [HANDOVER.md](HANDOVER.md)** - current versions, what was already shipped, server settings and open items.
+
 ## 2. Golden rules
 
 1. **Never break checkout.** After every change test cart, checkout (Nairobi and another county), the WhatsApp order pop-up, the booking page, NURA Desk point of sale and My Account login.
@@ -22,7 +24,9 @@ Live site: https://nurabeauty.co.ke (WordPress + WooCommerce, Kenya, KES, Africa
 4. **Database changes** go through the module's `DBV` constant and `dbDelta()` in `maybe_install()` (runs on `init`). Never drop columns that hold live data.
 5. **Commit to `main` and ship zips.** The owner installs via Upload > "Replace current with uploaded", then LiteSpeed Cache > Purge All. The theme zip must include `demo/`.
 6. **No secrets in code.** Environment variable, then `wp-config.php` constant, then a password field in settings.
-7. Staff-sensitive actions must check `NURAX_Staff::can( '<permission>' )` and write `NURAX_Staff::log()` with a valid area.
+7. **Minified JS:** scripts with a `.min.js` twin are served minified; regenerate the `.min.js` (terser) whenever the source changes.
+8. Till orders use `created_via 'nura_pos'` and `_nura_*` meta (see HANDOVER.md section 3); never the MK `nurax_pos` names.
+9. Staff-sensitive actions must check `NURAX_Staff::can( '<permission>' )` and write `NURAX_Staff::log()` with a valid area.
 
 ## 3. Secure coding checklist
 

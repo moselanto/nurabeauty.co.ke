@@ -10,8 +10,8 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.64.0-0E0E0E?style=for-the-badge)](nura-beauty)
-[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.73.1-C9A24B?style=for-the-badge)](nura-experience)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.72.0-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.77.1-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -52,14 +52,15 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 | [ARCHITECTURE-ESSENTIALS.md](ARCHITECTURE-ESSENTIALS.md) | One-page summary |
 | [SECURITY-AUDIT.md](SECURITY-AUDIT.md) | Security controls, findings and maintenance checklist |
 | [AGENTS.md](AGENTS.md) | Rules for developers and AI agents |
+| [HANDOVER.md](HANDOVER.md) | Current state, recent releases, server settings and open items - read first |
 
 ## Packages
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.64.0 | Parent theme |
+| `nura-beauty/` | 1.72.0 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
-| `nura-experience/` | 1.73.1 | Plugin |
+| `nura-experience/` | 1.77.1 | Plugin |
 
 ## Features
 
@@ -165,6 +166,12 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.72.0 | 1.77.1 | Self-hosted login fonts; payment-code label fix |
+| - | 1.77.0 | WhatsApp receipts for website orders, no duplicate till e-mails, contact fallback, sent badges, billed bookings |
+| - | 1.76.0 | Void sales, part payments, bill a booking from the till, automatic receipts |
+| 1.71.0 | 1.75.0 | Self-hosted fonts, minified JS, one payment code one use, staff idle logout |
+| - | 1.74.0-1.74.1 | Database connection load guard, compact subscribe pop-up |
+| - | 1.73.8-1.73.9 | /review link, Review button, fallback Google Place ID |
 | 1.64.0 | 1.73.1 | Security hardening module, upload safety, CSP frame-ancestors, no-store Desk, AJAX limits, CSV-injection and cookie fixes, full documentation refresh |
 | 1.63.0 | 1.72.0 | Booking loophole fixes (WhatsApp bypass, fake/reused M-Pesa codes, slot holds, past times, duplicates), plan deposit floor, till safeguards |
 | 1.62.0 | 1.71.0 | Morning bookings with deposit, terms and arrival board; Lipa Mdogo Mdogo 50% / 2 weeks, terms v2.0 |

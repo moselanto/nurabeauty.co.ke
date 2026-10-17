@@ -3,7 +3,7 @@
  * Plugin Name:       NURA Experience
  * Plugin URI:        https://nurabeauty.co.ke
  * Description:       NURA's exclusive features: AI Wig Finder, Virtual Try-On, and The NURA Circle luxury client portal (order history, care schedule, warranty certificates, maintenance reminders, loyalty points, VIP membership), plus the NURA catalogue architecture, a catalogue-driven mega menu, mobile bottom navigation, a faceted shop experience and an upgraded product page. Requires WooCommerce.
- * Version:           1.73.9
+ * Version:           1.74.0
  * Author:            NURA - The House of Radiant Confidence
  * License:           GPL-2.0-or-later
  * Text Domain:       nura-experience
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURAX_VERSION', '1.73.9' );
+define( 'NURAX_VERSION', '1.74.0' );
 
 /*
  * Virtual Try-On is switched OFF for the Kenyan market (v1.42.0). The code stays in
@@ -93,6 +93,7 @@ require_once NURAX_DIR . 'includes/class-nura-community.php';
 require_once NURAX_DIR . 'includes/class-nura-security.php';
 require_once NURAX_DIR . 'includes/class-nura-login-guard.php';
 require_once NURAX_DIR . 'includes/class-nura-hardening.php';
+require_once NURAX_DIR . 'includes/class-nura-load.php';
 require_once NURAX_DIR . 'includes/class-nura-perf.php';
 
 // Admin housekeeping: tidy third-party admin list-table columns.
@@ -157,7 +158,8 @@ function nurax_init() {
 	new NURAX_Google_Reviews();
 	new NURAX_Community();
 	new NURAX_Security();
-	new NURAX_Hardening(); // v1.73.0 extra headers, upload safety, no-store Desk, ajax limits.
+	new NURAX_Hardening();
+	new NURAX_Load(); // v1.74.0 fewer simultaneous MySQL connections (cron, Action Scheduler, Heartbeat). // v1.73.0 extra headers, upload safety, no-store Desk, ajax limits.
 	new NURAX_Perf();
 
 	// Admin housekeeping (admin-only): keep third-party SEO columns from

@@ -55,6 +55,80 @@ class NURAX_Desk_POS {
 		return $order->is_paid() || 'completed' === $order->get_status();
 	}
 
+	/* 1.76.0 part payments (from MKauto Desk) ------------------------------ */
+	public static function payments( $order ) {
+		$p = $order->get_meta( '_nura_payments' );
+		return is_array( $p ) ? $p : array();
+	}
+
+	public static function paid_so_far( $order ) {
+		$s = 0;
+		foreach ( self::payments( $order ) as $p ) {
+			$s += (float) ( isset( $p['amt'] ) ? $p['amt'] : 0 );
+		}
+		return round( $s, 2 );
+	}
+
+	public static function balance( $order ) {
+		return self::is_paid( $order ) ? 0 : max( 0, round( (float) $order->get_total() - self::paid_so_far( $order ), 2 ) );
+	}
+
+	private static function add_payment( $order, $amt, $method, $ref, $note = '' ) {
+		$list   = self::payments( $order );
+		$list[] = array( 'amt' => round( (float) $amt, 2 ), 'm' => $method, 'ref' => $ref, 't' => current_time( 'mysql' ), 'u' => get_current_user_id(), 'note' => $note );
+		$order->update_meta_data( '_nura_payments', $list );
+		if ( $ref ) {
+			$order->add_meta_data( '_nura_part_ref', $ref, false );
+		}
+	}
+
+	/* 1.76.0 automatic receipts (from MKauto Desk) --------------------------- */
+	public static function auto_on() {
+		return (bool) apply_filters( 'nurax_auto_receipts', true );
+	}
+
+	public static function send_email( $order, $to ) {
+		if ( ! is_email( $to ) ) {
+			return false;
+		}
+		$type = self::is_paid( $order ) ? 'receipt' : 'invoice';
+		$subj = 'Your ' . self::biz()['name'] . ' ' . $type . ' #' . $order->get_order_number() . ' - ' . NURAX_Desk::money( $order->get_total() ) . ( 'receipt' === $type ? ' paid' : ' due' );
+		$hdrs = array( 'Content-Type: text/html; charset=UTF-8' );
+		if ( is_email( self::biz()['email'] ) ) {
+			$hdrs[] = 'Reply-To: ' . self::biz()['name'] . ' <' . self::biz()['email'] . '>';
+		}
+		$ok = wp_mail( $to, $subj, self::email_html( $order ), $hdrs );
+		if ( $ok ) {
+			$order->add_order_note( ucfirst( $type ) . ' e-mailed to ' . $to . ' from NURA Desk.' );
+			$order->update_meta_data( '_nura_sent_email_' . $type, current_time( 'mysql' ) );
+			$order->save();
+		}
+		return $ok;
+	}
+
+	/** Send the receipt once per channel: e-mail, and WhatsApp when the Business API is connected. */
+	public static function deliver( $order ) {
+		$sent = array();
+		if ( ! self::auto_on() ) {
+			return $sent;
+		}
+		$type  = self::is_paid( $order ) ? 'receipt' : 'invoice';
+		$email = $order->get_billing_email();
+		if ( is_email( $email ) && ! $order->get_meta( '_nura_sent_email_' . $type ) && self::send_email( $order, $email ) ) {
+			$sent[] = 'e-mail';
+		}
+		$phone = NURAX_Desk::phone( $order->get_billing_phone() );
+		if ( $phone && ! $order->get_meta( '_nura_sent_wa_' . $type ) && class_exists( 'NURAX_WhatsApp' ) && NURAX_WhatsApp::is_configured() ) {
+			if ( NURAX_WhatsApp::send_text( $phone, self::wa_text( $order ) ) ) {
+				$order->update_meta_data( '_nura_sent_wa_' . $type, current_time( 'mysql' ) );
+				$order->add_order_note( ucfirst( $type ) . ' sent on WhatsApp to +' . $phone . ' from NURA Desk.' );
+				$order->save();
+				$sent[] = 'WhatsApp';
+			}
+		}
+		return $sent;
+	}
+
 	public static function doc_url( $order, $type, $print = true ) {
 		return wp_nonce_url( admin_url( 'admin-post.php?action=nurax_desk_doc&type=' . $type . '&order=' . $order->get_id() . ( $print ? '&print=1' : '' ) ), 'nurax_doc_' . $order->get_id() );
 	}
@@ -337,9 +411,28 @@ class NURAX_Desk_POS {
 			NURAX_Desk_Mkt::upsert( array( 'name' => $name, 'phone' => $phone, 'email' => $email, 'user_id' => $uid, 'source' => 'pos', 'consent' => ! empty( $cust['consent'] ), 'spent' => $paid ? $total : 0 ) );
 		}
 		$sourced = class_exists( 'NURAX_Desk_Source' ) ? NURAX_Desk_Source::record_order( $order ) : 0;
+		// 1.76.0 studio job card: link the booking, carry a verified deposit onto the bill.
+		$appt_id = isset( $raw['appt'] ) ? absint( $raw['appt'] ) : 0;
+		$appt    = $appt_id && class_exists( 'NURAX_Desk_Appts' ) ? NURAX_Desk_Appts::get( $appt_id ) : null;
+		if ( $appt ) {
+			$order->update_meta_data( '_nura_appt', $appt_id );
+			if ( ! $paid && (float) $appt->deposit > 0 && 'verified' === $appt->deposit_status && ! $order->get_meta( '_nura_dep_from' ) ) {
+				self::add_payment( $order, min( (float) $appt->deposit, (float) $order->get_total() ), 'mpesa', '', 'Booking deposit ' . $appt->ref . ( $appt->deposit_ref ? ' (' . $appt->deposit_ref . ')' : '' ) );
+				$order->update_meta_data( '_nura_dep_from', $appt->ref );
+				$order->add_order_note( 'Booking deposit ' . NURAX_Desk::money( $appt->deposit ) . ' from ' . $appt->ref . ' taken off this invoice.' );
+				if ( self::paid_so_far( $order ) >= (float) $order->get_total() - 0.5 ) {
+					$order->set_date_paid( time() );
+					$order->set_status( 'completed', 'Paid in full by the booking deposit.' );
+				}
+			}
+			$order->save();
+			global $wpdb;
+			$wpdb->update( NURAX_Desk::t_appts(), array( 'status' => 'completed' ), array( 'id' => $appt_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		}
 		NURAX_Desk::bust();
 		NURAX_Staff::log( 'sale', ( $paid ? 'Sale #' : 'Unpaid invoice #' ) . $order->get_order_number() . ' - ' . ( $name ? $name : 'walk-in' ) . ' - ' . self::methods()[ $method ] . ( $disc > 0 ? ' - discount ' . NURAX_Desk::money( $disc ) : '' ), array( 'object' => 'order', 'object_id' => $order->get_id(), 'amount' => (float) $order->get_total() ) );
 		$sum            = self::summary( $order );
+		$sum['sent']    = self::is_paid( $order ) ? self::deliver( $order ) : array();
 		$sum['sourced'] = (int) $sourced;
 		$sum['src_url'] = class_exists( 'NURAX_Desk_Source' ) ? NURAX_Desk::url( NURAX_Desk_Source::PAGE ) : '';
 		wp_send_json_success( $sum );
@@ -353,6 +446,7 @@ class NURAX_Desk_POS {
 			'number'   => $order->get_order_number(),
 			'total'    => (float) $order->get_total(),
 			'paid'     => self::is_paid( $order ),
+			'balance'  => self::balance( $order ),
 			'change'   => (float) $order->get_meta( '_nura_change' ),
 			'name'     => trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ),
 			'email'    => $order->get_billing_email(),
@@ -520,23 +614,93 @@ class NURAX_Desk_POS {
 		if ( ! $order ) {
 			wp_send_json_error( array( 'message' => 'Order not found.' ), 404 );
 		}
+		$voided = in_array( $order->get_status(), array( 'cancelled', 'refunded', 'failed' ), true );
+		if ( $voided && in_array( $op, array( 'paid', 'part', 'complete', 'email', 'void' ), true ) ) {
+			wp_send_json_error( array( 'message' => 'Order #' . $order->get_order_number() . ' is ' . wc_get_order_status_name( $order->get_status() ) . ' - nothing to do.' ), 409 );
+		}
+		if ( 'void' === $op ) {
+			if ( 'nura_pos' !== $order->get_created_via() ) {
+				wp_send_json_error( array( 'message' => 'Website orders are refunded or cancelled in WooCommerce > Orders.' ), 400 );
+			}
+			if ( ! NURAX_Staff::is_admin() && ! NURAX_Staff::can( 'refunds' ) ) {
+				NURAX_Staff::log( 'blocked', 'Blocked: void sale #' . $order->get_order_number() . ' (no refunds permission)', array( 'level' => 'warn' ) );
+				wp_send_json_error( array( 'message' => 'Only the owner or staff with the refunds permission can void a sale.' ), 403 );
+			}
+			$why = isset( $_POST['reason'] ) ? mb_substr( sanitize_text_field( wp_unslash( $_POST['reason'] ) ), 0, 160 ) : '';
+			if ( mb_strlen( $why ) < 3 ) {
+				wp_send_json_error( array( 'message' => 'Please give a reason for voiding this sale.' ), 400 );
+			}
+			$was_paid = self::is_paid( $order );
+			$order->update_meta_data( '_nura_void_reason', $why );
+			$order->update_meta_data( '_nura_void_by', get_current_user_id() );
+			$order->set_status( 'cancelled', 'Voided at NURA Desk: ' . $why ); // WooCommerce puts the stock back.
+			$order->save();
+			if ( class_exists( 'NURAX_Desk_Source' ) && method_exists( 'NURAX_Desk_Source', 'void_order' ) ) {
+				NURAX_Desk_Source::void_order( $order->get_id() );
+			}
+			$wa = (int) $order->get_meta( '_nura_wa_order' );
+			if ( $wa && class_exists( 'NURAX_Desk_Orders' ) ) {
+				NURAX_Desk_Orders::add_log( $wa, 'Sale #' . $order->get_order_number() . ' voided: ' . $why );
+			}
+			NURAX_Staff::log( 'sale', 'Voided ' . ( $was_paid ? 'paid sale' : 'invoice' ) . ' #' . $order->get_order_number() . ' (' . NURAX_Desk::money( $order->get_total() ) . ') - ' . $why . ( $was_paid ? ' - refund the client' : '' ), array( 'object' => 'order', 'object_id' => $order->get_id(), 'amount' => (float) $order->get_total(), 'level' => 'warn' ) );
+			NURAX_Desk::bust();
+			wp_send_json_success( array( 'message' => 'Sale #' . $order->get_order_number() . ' voided. Stock is back.' . ( $was_paid ? ' Remember to refund the client ' . NURAX_Desk::money( $order->get_total() ) . '.' : '' ) ) );
+		}
 		if ( 'email' === $op ) {
 			$to = isset( $_POST['to'] ) && is_email( wp_unslash( $_POST['to'] ) ) ? sanitize_email( wp_unslash( $_POST['to'] ) ) : $order->get_billing_email();
 			if ( ! is_email( $to ) ) {
 				wp_send_json_error( array( 'message' => 'No e-mail address for this customer.' ), 400 );
 			}
-			$type = self::is_paid( $order ) ? 'receipt' : 'invoice';
-			$html = self::email_html( $order );
-			$subj = 'Your ' . self::biz()['name'] . ' ' . $type . ' #' . $order->get_order_number() . ' - ' . NURAX_Desk::money( $order->get_total() ) . ( 'receipt' === $type ? ' paid' : ' due' );
-			$hdrs = array( 'Content-Type: text/html; charset=UTF-8' );
-			if ( is_email( self::biz()['email'] ) ) {
-				$hdrs[] = 'Reply-To: ' . self::biz()['name'] . ' <' . self::biz()['email'] . '>';
+			self::send_email( $order, $to ) ? wp_send_json_success( array( 'message' => 'E-mailed to ' . $to ) ) : wp_send_json_error( array( 'message' => 'The e-mail could not be sent. Check your site e-mail (SMTP) settings.' ), 500 );
+		}
+		if ( 'part' === $op ) {
+			if ( 'nura_pos' !== $order->get_created_via() ) {
+				wp_send_json_error( array( 'message' => 'Part payments are for till invoices only.' ), 400 );
 			}
-			$ok   = wp_mail( $to, $subj, $html, $hdrs );
-			if ( $ok ) {
-				$order->add_order_note( ucfirst( $type ) . ' e-mailed to ' . $to . ' from NURA Desk.' );
+			if ( self::is_paid( $order ) ) {
+				wp_send_json_error( array( 'message' => 'Invoice #' . $order->get_order_number() . ' is already paid.' ), 409 );
 			}
-			$ok ? wp_send_json_success( array( 'message' => 'E-mailed to ' . $to ) ) : wp_send_json_error( array( 'message' => 'The e-mail could not be sent. Check your site e-mail (SMTP) settings.' ), 500 );
+			$bal    = self::balance( $order );
+			$amt    = isset( $_POST['amount'] ) ? round( (float) $_POST['amount'], 2 ) : 0;
+			$method = isset( $_POST['method'] ) && array_key_exists( wp_unslash( $_POST['method'] ), self::methods() ) ? sanitize_key( wp_unslash( $_POST['method'] ) ) : 'mpesa';
+			$ref    = isset( $_POST['ref'] ) ? NURAX_Desk::norm_ref( wp_unslash( $_POST['ref'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			if ( $amt <= 0 ) {
+				wp_send_json_error( array( 'message' => 'Enter an amount above KSh 0.' ), 400 );
+			}
+			if ( $amt > $bal + 0.5 ) {
+				wp_send_json_error( array( 'message' => 'That is more than the balance of ' . NURAX_Desk::money( $bal ) . '.' ), 400 );
+			}
+			if ( $ref ) {
+				$used = NURAX_Desk::ref_lock( $ref ) ? NURAX_Desk::ref_used( $ref, $order->get_id() ) : 'another sale being saved right now';
+				foreach ( self::payments( $order ) as $pp ) {
+					if ( ! empty( $pp['ref'] ) && NURAX_Desk::norm_ref( $pp['ref'] ) === $ref ) {
+						$used = 'this invoice';
+					}
+				}
+				if ( '' !== $used ) {
+					NURAX_Staff::log( 'blocked', 'Blocked: payment code ' . $ref . ' already used on ' . $used, array( 'level' => 'warn' ) );
+					wp_send_json_error( array( 'message' => 'Payment code ' . $ref . ' has already been used on ' . $used . '. Check the code with the customer.' ), 409 );
+				}
+			}
+			$amt = min( $amt, $bal );
+			self::add_payment( $order, $amt, $method, $ref );
+			$left = max( 0, round( (float) $order->get_total() - self::paid_so_far( $order ), 2 ) );
+			$order->add_order_note( 'Part payment ' . NURAX_Desk::money( $amt ) . ' (' . self::methods()[ $method ] . ( $ref ? ' ' . $ref : '' ) . ') at NURA Desk. Balance ' . NURAX_Desk::money( $left ) . '.' );
+			$full = $left <= 0.5;
+			if ( $full ) {
+				$order->set_payment_method( 'nura_pos_' . $method );
+				$order->set_payment_method_title( self::methods()[ $method ] );
+				$order->set_date_paid( time() );
+				$order->set_status( 'completed', 'Paid in full through part payments at NURA Desk.' );
+			}
+			$order->save();
+			NURAX_Staff::log( 'payment', 'Part payment ' . NURAX_Desk::money( $amt ) . ' on invoice #' . $order->get_order_number() . ' - balance ' . NURAX_Desk::money( $left ), array( 'object' => 'order', 'object_id' => $order->get_id(), 'amount' => $amt ) );
+			NURAX_Desk::bust();
+			$sent           = $full ? self::deliver( $order ) : array();
+			$sum            = self::summary( $order );
+			$sum['sent']    = $sent;
+			$sum['message'] = $full ? 'Paid in full. Invoice #' . $order->get_order_number() . ' is now a receipt.' : NURAX_Desk::money( $amt ) . ' recorded. Balance ' . NURAX_Desk::money( $left ) . '.';
+			wp_send_json_success( $sum );
 		}
 		if ( 'paid' === $op ) {
 			$method = isset( $_POST['method'] ) && array_key_exists( wp_unslash( $_POST['method'] ), self::methods() ) ? sanitize_key( wp_unslash( $_POST['method'] ) ) : 'mpesa';
@@ -561,7 +725,9 @@ class NURAX_Desk_POS {
 			$order->set_status( 'completed', 'Marked paid at NURA Desk (' . self::methods()[ $method ] . ( $ref ? ' ' . $ref : '' ) . ').' );
 			$order->save();
 			NURAX_Desk::bust();
-			wp_send_json_success( self::summary( $order ) );
+			$sum         = self::summary( $order );
+			$sum['sent'] = self::deliver( $order );
+			wp_send_json_success( $sum );
 		}
 		if ( 'complete' === $op ) {
 			$order->set_status( 'completed', 'Marked fulfilled (packed / delivered) at NURA Desk.' );
@@ -601,6 +767,12 @@ class NURAX_Desk_POS {
 			if ( $phone ) {
 				echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $phone, self::wa_text( $o ) ) ) . '">WhatsApp</a>';
 				echo self::review_btn( $o, $phone ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in review_btn().
+			}
+			if ( 'nura_pos' === $o->get_created_via() && ! in_array( $o->get_status(), array( 'cancelled', 'refunded', 'failed' ), true ) ) {
+				if ( ! self::is_paid( $o ) ) {
+					echo '<button type="button" class="nd-ico-btn" data-pos-part="' . (int) $o->get_id() . '" data-bal="' . esc_attr( self::balance( $o ) ) . '">Part pay</button>';
+				}
+				echo '<button type="button" class="nd-ico-btn nd-ico-btn--danger" data-pos-void="' . (int) $o->get_id() . '">Void</button>';
 			}
 			echo '<button type="button" class="nd-ico-btn nd-ico-btn--ok" data-pos-complete="' . (int) $o->get_id() . '">Fulfilled</button></span></li>';
 		}
@@ -673,6 +845,26 @@ class NURAX_Desk_POS {
 				'channel'  => 'whatsapp',
 				'ref'      => $d['ref'],
 			);
+		}
+		// 1.76.0 studio job card: ?appt=ID opens the till with the booking ready to bill.
+		$ap = isset( $_GET['appt'] ) ? absint( $_GET['appt'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $pre && $ap && class_exists( 'NURAX_Desk_Appts' ) ) {
+			$a = NURAX_Desk_Appts::get( $ap );
+			if ( $a ) {
+				$svc    = NURAX_Desk_Appts::services();
+				$prices = NURAX_Desk_Appts::prices();
+				$label  = isset( $svc[ $a->service ] ) ? $svc[ $a->service ] : ucfirst( (string) $a->service );
+				$pre    = array(
+					'appt'        => $ap,
+					'items'       => array( array( 'id' => 'svc-' . $ap, 'name' => $label . ' - booking ' . $a->ref, 'price' => isset( $prices[ $a->service ] ) ? (float) $prices[ $a->service ] : 0, 'qty' => 1, 'custom' => true ) ),
+					'customer'    => array( 'name' => $a->customer_name, 'phone' => $a->phone, 'email' => (string) $a->email ),
+					'delivery'    => 0,
+					'delivery_to' => '',
+					'channel'     => 'walk-in',
+					'ref'         => '',
+					'deposit'     => ( (float) $a->deposit > 0 && 'verified' === $a->deposit_status ) ? (float) $a->deposit : 0,
+				);
+			}
 		}
 		wp_localize_script( 'nurax-desk', 'NURAX_POS', array(
 			'ajax'     => admin_url( 'admin-ajax.php' ),
@@ -977,6 +1169,12 @@ class NURAX_Desk_POS {
 				echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $phone, self::wa_text( $o ) ) ) . '">WhatsApp</a>';
 				echo self::review_btn( $o, $phone ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in review_btn().
 			}
+			if ( 'nura_pos' === $o->get_created_via() && ! in_array( $o->get_status(), array( 'cancelled', 'refunded', 'failed' ), true ) ) {
+				if ( ! self::is_paid( $o ) ) {
+					echo '<button type="button" class="nd-ico-btn" data-pos-part="' . (int) $o->get_id() . '" data-bal="' . esc_attr( self::balance( $o ) ) . '">Part pay</button>';
+				}
+				echo '<button type="button" class="nd-ico-btn nd-ico-btn--danger" data-pos-void="' . (int) $o->get_id() . '">Void</button>';
+			}
 			echo '<button type="button" class="nd-ico-btn" data-pos-email="' . (int) $o->get_id() . '" data-email="' . esc_attr( is_email( $o->get_billing_email() ) ? $o->get_billing_email() : '' ) . '">E-mail</button>';
 			if ( ! $p ) {
 				echo '<button type="button" class="nd-ico-btn nd-ico-btn--ok" data-pos-paid="' . (int) $o->get_id() . '">Mark paid</button>';
@@ -1152,9 +1350,18 @@ class NURAX_Desk_POS {
 				$extra .= '<div class="ln"><span>Cash received</span><span>' . esc_html( NURAX_Desk::money( $order->get_meta( '_nura_tendered' ) ) ) . '</span></div><div class="ln"><span>Change</span><span>' . esc_html( NURAX_Desk::money( $order->get_meta( '_nura_change' ) ) ) . '</span></div>';
 			}
 		}
+		if ( ! $paid ) {
+			foreach ( self::payments( $order ) as $pp ) {
+				$lbl    = ! empty( $pp['note'] ) ? $pp['note'] : 'Paid' . ( isset( self::methods()[ $pp['m'] ] ) ? ' - ' . self::methods()[ $pp['m'] ] : '' ) . ( ! empty( $pp['ref'] ) ? ' ' . $pp['ref'] : '' );
+				$extra .= '<div class="ln"><span>' . esc_html( $lbl ) . '</span><span>-' . esc_html( NURAX_Desk::money( $pp['amt'] ) ) . '</span></div>';
+			}
+		}
 		$due_box = $paid
 			? '<div class="due ok"><span>Balance due</span><strong>KSh 0</strong></div>'
-			: '<div class="due"><span>Amount due</span><strong>' . esc_html( NURAX_Desk::money( $order->get_total() ) ) . '</strong></div>';
+			: '<div class="due"><span>' . ( self::paid_so_far( $order ) > 0 ? 'Balance due' : 'Amount due' ) . '</span><strong>' . esc_html( NURAX_Desk::money( self::balance( $order ) ) ) . '</strong></div>';
+		if ( 'cancelled' === $order->get_status() ) {
+			$due_box = '<div class="due" style="background:#b3261e;color:#fff"><span>VOID</span><strong>' . esc_html( (string) $order->get_meta( '_nura_void_reason' ) ) . '</strong></div>';
+		}
 
 		$note    = $order->get_customer_note() ? esc_html( $order->get_customer_note() ) : '';
 		$footer  = '' !== trim( $b['note'] ) ? esc_html( $b['note'] ) : 'Thank you for choosing ' . esc_html( $b['name'] ) . '. Unworn wigs in their original condition can be returned within 7 days of delivery with this document.';

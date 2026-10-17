@@ -405,7 +405,7 @@ class NURAX_Desk {
 		}
 		if ( function_exists( 'wc_get_orders' ) ) {
 			$dead = array( 'cancelled', 'failed', 'refunded', 'trash', 'checkout-draft' );
-			$ids  = $wpdb->get_col( $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ('_nura_pay_ref','_transaction_id') AND " . self::sql_norm( 'meta_value' ) . ' = %s LIMIT 10', $ref ) ); // phpcs:ignore WordPress.DB
+			$ids  = $wpdb->get_col( $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ('_nura_pay_ref','_transaction_id','_nura_part_ref') AND " . self::sql_norm( 'meta_value' ) . ' = %s LIMIT 10', $ref ) ); // phpcs:ignore WordPress.DB
 			$hpos = $wpdb->prefix . 'wc_orders';
 			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $hpos ) ) === $hpos ) {
 				$ids = array_merge( (array) $ids, (array) $wpdb->get_col( $wpdb->prepare( "SELECT id FROM $hpos WHERE " . self::sql_norm( 'transaction_id' ) . ' = %s LIMIT 10', $ref ) ) ); // phpcs:ignore WordPress.DB

@@ -545,6 +545,10 @@ class NURAX_Desk_Appts {
 			$txt = 'request' === $a->status ? self::confirm_text( $a ) : self::reminder_text( $a );
 			echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $a->phone, $txt ) ) . '"' . ( 'confirmed' === $a->status ? ' data-nd-remind="appt:' . (int) $a->id . '"' : '' ) . '>' . ( 'request' === $a->status ? 'WhatsApp' : 'Remind' ) . '</a>';
 		}
+		if ( 'confirmed' === $a->status || ( ! empty( $a->arrived_at ) && 'completed' !== $a->status ) ) {
+			// 1.76.0 studio job card: open the till with the client, service and deposit ready.
+			echo '<a class="nd-ico-btn nd-ico-btn--ok" href="' . esc_url( add_query_arg( 'appt', (int) $a->id, NURAX_Desk::url( 'nurax-pos' ) ) ) . '" title="Open the till with this booking">Bill</a>';
+		}
 		if ( 'confirmed' === $a->status && $a->appt_date <= $today ) {
 			self::status_btn( $a->id, 'completed', 'Done', 'nd-ico-btn nd-ico-btn--ok' );
 			self::status_btn( $a->id, 'no_show', 'No-show', 'nd-ico-btn nd-ico-btn--danger' );

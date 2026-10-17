@@ -297,6 +297,28 @@
 				if (r && r.success) { toast('Invoice marked paid', 'ok'); setTimeout(function () { window.location.reload(); }, 600); } else { toast('Could not update', 'err'); }
 			});
 		});
+		// 1.76.0 void a sale (reason required) and part payments on invoices.
+		$d.on('click', '[data-pos-void]', function () {
+			var $b = $(this), why = window.prompt('Void this sale? Stock goes back and it prints as VOID. Reason:', '');
+			if (why === null) { return; }
+			if ($.trim(why).length < 3) { toast('Please give a reason.', 'err'); return; }
+			$b.addClass('is-loading');
+			$.post(P.ajax, { action: 'nurax_pos_order', nonce: P.nonce, op: 'void', id: $b.attr('data-pos-void'), reason: why }).done(function (r) {
+				toast((r && r.data && r.data.message) || 'Could not void', r && r.success ? 'ok' : 'err');
+				if (r && r.success) { setTimeout(function () { window.location.reload(); }, 900); } else { $b.removeClass('is-loading'); }
+			}).fail(function (x) { toast((x.responseJSON && x.responseJSON.data && x.responseJSON.data.message) || 'Could not void', 'err'); $b.removeClass('is-loading'); });
+		});
+		$d.on('click', '[data-pos-part]', function () {
+			var $b = $(this), bal = Number($b.attr('data-bal')) || 0;
+			var amt = window.prompt('Part payment. Balance is KSh ' + Math.round(bal).toLocaleString('en-KE') + '. Amount received:', '');
+			if (amt === null) { return; }
+			var ref = window.prompt('M-Pesa / card code (leave empty for cash):', '');
+			if (ref === null) { return; }
+			$.post(P.ajax, { action: 'nurax_pos_order', nonce: P.nonce, op: 'part', id: $b.attr('data-pos-part'), amount: amt, method: $.trim(ref) ? 'mpesa' : 'cash', ref: ref }).done(function (r) {
+				toast((r && r.data && r.data.message) || 'Could not record', r && r.success ? 'ok' : 'err');
+				if (r && r.success) { setTimeout(function () { window.location.reload(); }, 900); }
+			}).fail(function (x) { toast((x.responseJSON && x.responseJSON.data && x.responseJSON.data.message) || 'Could not record', 'err'); });
+		});
 		$d.on('click', '[data-pos-complete]', function () {
 			var $b = $(this);
 			if (!window.confirm('Mark this order as fulfilled (packed / delivered)?')) { return; }
@@ -391,7 +413,7 @@
 				customer: { name: c.name, phone: c.phone, email: c.email, consent: c.consent, user_id: $pos.data('uid') || 0 },
 				discount: Number($('[data-pos-disc]').val()) || 0, discount_pct: $('[data-pos-disctype]').val() === 'pct' ? 1 : 0,
 				delivery: t.del, delivery_to: $.trim($('[data-pos-delto]').val()), note: $.trim($('[data-pos-note]').val()),
-				channel: $('[data-pos-channel]').val(), wa_order: waOrder,
+				channel: $('[data-pos-channel]').val(), wa_order: waOrder, appt: (P.pre && P.pre.appt) ? P.pre.appt : 0,
 				payment: { method: method, paid: paid ? 1 : 0, ref: $.trim($('[data-pos-ref]').val()), tendered: Number($('[data-pos-tender]').val()) || 0 }
 			};
 			var $b = $(paid ? '[data-pos-charge]' : '[data-pos-invoice]').prop('disabled', true).addClass('is-loading');
@@ -521,7 +543,7 @@
 		if (P.pre && P.pre.items) {
 			cart = []; P.pre.items.forEach(function (p) { add(p); });
 			setCust(P.pre.customer); $('[data-pos-del]').val(P.pre.delivery || 0); $('[data-pos-delto]').val(P.pre.delivery_to || '');
-			$('[data-pos-channel]').val('whatsapp'); waOrder = P.pre.wa_order || 0; $('[data-pos-note]').val(P.pre.ref ? 'WhatsApp order ' + P.pre.ref : '');
+			$('[data-pos-channel]').val(P.pre.channel || 'whatsapp'); waOrder = P.pre.wa_order || 0; $('[data-pos-note]').val(P.pre.ref ? 'WhatsApp order ' + P.pre.ref : (P.pre.appt ? 'Studio booking' + (P.pre.deposit ? ' - deposit KSh ' + Math.round(P.pre.deposit).toLocaleString('en-KE') + ' is taken off when you save it as an invoice' : '') : ''));
 			toast('WhatsApp order loaded - check and charge.', 'ok');
 		} else {
 			try { var s = JSON.parse(sessionStorage.getItem(KEY) || 'null'); if (s && s.cart) { cart = s.cart; setCust(s.cust); waOrder = s.waOrder || 0; } } catch (e) {}

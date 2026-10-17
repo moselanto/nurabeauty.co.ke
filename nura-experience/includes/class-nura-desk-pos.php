@@ -26,6 +26,11 @@ class NURAX_Desk_POS {
 		add_action( 'wp_ajax_nurax_pos_order', array( __CLASS__, 'ajax_order' ) );
 		add_action( 'admin_post_nurax_desk_doc', array( __CLASS__, 'h_doc' ) );
 		add_action( 'template_redirect', array( __CLASS__, 'public_doc' ) );
+		// 1.77.0 receipts: WhatsApp for paid website orders, no duplicate WooCommerce e-mail for till sales.
+		add_action( 'woocommerce_order_status_processing', array( __CLASS__, 'online_paid' ), 20 );
+		add_action( 'woocommerce_order_status_completed', array( __CLASS__, 'online_paid' ), 20 );
+		add_filter( 'woocommerce_email_recipient_customer_completed_order', array( __CLASS__, 'skip_wc_mail' ), 10, 2 );
+		add_filter( 'woocommerce_email_recipient_customer_processing_order', array( __CLASS__, 'skip_wc_mail' ), 10, 2 );
 	}
 
 	public static function methods() {
@@ -107,17 +112,18 @@ class NURAX_Desk_POS {
 	}
 
 	/** Send the receipt once per channel: e-mail, and WhatsApp when the Business API is connected. */
-	public static function deliver( $order ) {
+	public static function deliver( $order, $email_too = true ) {
 		$sent = array();
 		if ( ! self::auto_on() ) {
 			return $sent;
 		}
 		$type  = self::is_paid( $order ) ? 'receipt' : 'invoice';
-		$email = $order->get_billing_email();
-		if ( is_email( $email ) && ! $order->get_meta( '_nura_sent_email_' . $type ) && self::send_email( $order, $email ) ) {
+		$ct    = self::contacts( $order );
+		$email = $ct['email'];
+		if ( $email_too && is_email( $email ) && ! $order->get_meta( '_nura_sent_email_' . $type ) && self::send_email( $order, $email ) ) {
 			$sent[] = 'e-mail';
 		}
-		$phone = NURAX_Desk::phone( $order->get_billing_phone() );
+		$phone = $ct['phone'];
 		if ( $phone && ! $order->get_meta( '_nura_sent_wa_' . $type ) && class_exists( 'NURAX_WhatsApp' ) && NURAX_WhatsApp::is_configured() ) {
 			if ( NURAX_WhatsApp::send_text( $phone, self::wa_text( $order ) ) ) {
 				$order->update_meta_data( '_nura_sent_wa_' . $type, current_time( 'mysql' ) );
@@ -127,6 +133,82 @@ class NURAX_Desk_POS {
 			}
 		}
 		return $sent;
+	}
+
+	/**
+	 * 1.77.0 best e-mail and WhatsApp number for an order: what was typed on the
+	 * sale, then the customer's website account, then the WhatsApp order, then
+	 * the customer list (matched by phone or e-mail).
+	 */
+	public static function contacts( $order ) {
+		$email = is_email( $order->get_billing_email() ) ? (string) $order->get_billing_email() : '';
+		$phone = NURAX_Desk::phone( $order->get_billing_phone() );
+		$uid   = (int) $order->get_customer_id();
+		if ( $uid ) {
+			if ( '' === $email ) {
+				$be = (string) get_user_meta( $uid, 'billing_email', true );
+				$u  = get_userdata( $uid );
+				$email = is_email( $be ) ? $be : ( $u && is_email( $u->user_email ) ? (string) $u->user_email : '' );
+			}
+			if ( '' === $phone ) {
+				$phone = NURAX_Desk::phone( (string) get_user_meta( $uid, 'billing_phone', true ) );
+			}
+		}
+		$wa = (int) $order->get_meta( '_nura_wa_order' );
+		if ( '' === $phone && $wa && class_exists( 'NURAX_Desk_Orders' ) ) {
+			$d     = NURAX_Desk_Orders::data( $wa );
+			$phone = NURAX_Desk::phone( isset( $d['phone'] ) ? $d['phone'] : '' );
+		}
+		if ( ( '' === $email || '' === $phone ) && ( '' !== $phone || '' !== $email ) && class_exists( 'NURAX_Desk_Mkt' ) ) {
+			$c = NURAX_Desk_Mkt::find( '' !== $phone ? $phone : $email, 1 );
+			if ( ! empty( $c[0] ) ) {
+				if ( '' === $email && ! empty( $c[0]->email ) && is_email( $c[0]->email ) ) {
+					$email = (string) $c[0]->email;
+				}
+				if ( '' === $phone && ! empty( $c[0]->phone ) ) {
+					$phone = NURAX_Desk::phone( $c[0]->phone );
+				}
+			}
+		}
+		return array( 'email' => $email, 'phone' => $phone );
+	}
+
+	/** What has already gone out for this order (shown on the Sales list). */
+	public static function sent_info( $order ) {
+		$type = self::is_paid( $order ) ? 'receipt' : 'invoice';
+		$out  = array();
+		if ( $order->get_meta( '_nura_sent_email_' . $type ) ) {
+			$out[] = 'E-mailed';
+		}
+		if ( $order->get_meta( '_nura_sent_wa_' . $type ) ) {
+			$out[] = 'WhatsApp sent';
+		}
+		return $out;
+	}
+
+	/** Website orders: WooCommerce already e-mails the customer, so only add the WhatsApp receipt. */
+	public static function online_paid( $order_id ) {
+		$order = function_exists( 'wc_get_order' ) ? wc_get_order( $order_id ) : null;
+		if ( ! $order || 'nura_pos' === $order->get_created_via() ) {
+			return;
+		}
+		self::deliver( $order, false );
+	}
+
+	/** Till sales: NURA Desk sends its own branded receipt, so stop the duplicate WooCommerce e-mail. */
+	public static function skip_wc_mail( $recipient, $order ) {
+		if ( $order instanceof WC_Order && 'nura_pos' === $order->get_created_via() && self::auto_on() ) {
+			return '';
+		}
+		return $recipient;
+	}
+
+	/** Sales billed for a studio booking. */
+	public static function orders_for_appt( $appt_id ) {
+		if ( ! function_exists( 'wc_get_orders' ) || ! $appt_id ) {
+			return array();
+		}
+		return wc_get_orders( array( 'limit' => 20, 'meta_key' => '_nura_appt', 'meta_value' => (int) $appt_id, 'orderby' => 'date', 'order' => 'DESC' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
 	}
 
 	public static function doc_url( $order, $type, $print = true ) {
@@ -767,6 +849,9 @@ class NURAX_Desk_POS {
 			if ( $phone ) {
 				echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $phone, self::wa_text( $o ) ) ) . '">WhatsApp</a>';
 				echo self::review_btn( $o, $phone ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in review_btn().
+				foreach ( self::sent_info( $o ) as $si ) {
+					echo '<span class="nd-pill" style="font-size:11px;opacity:.75;margin-left:4px">' . esc_html( $si ) . '</span>';
+				}
 			}
 			if ( 'nura_pos' === $o->get_created_via() && ! in_array( $o->get_status(), array( 'cancelled', 'refunded', 'failed' ), true ) ) {
 				if ( ! self::is_paid( $o ) ) {
@@ -1168,6 +1253,9 @@ class NURAX_Desk_POS {
 			if ( $phone ) {
 				echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $phone, self::wa_text( $o ) ) ) . '">WhatsApp</a>';
 				echo self::review_btn( $o, $phone ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in review_btn().
+				foreach ( self::sent_info( $o ) as $si ) {
+					echo '<span class="nd-pill" style="font-size:11px;opacity:.75;margin-left:4px">' . esc_html( $si ) . '</span>';
+				}
 			}
 			if ( 'nura_pos' === $o->get_created_via() && ! in_array( $o->get_status(), array( 'cancelled', 'refunded', 'failed' ), true ) ) {
 				if ( ! self::is_paid( $o ) ) {

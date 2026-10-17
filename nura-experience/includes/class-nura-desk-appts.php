@@ -545,7 +545,13 @@ class NURAX_Desk_Appts {
 			$txt = 'request' === $a->status ? self::confirm_text( $a ) : self::reminder_text( $a );
 			echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $a->phone, $txt ) ) . '"' . ( 'confirmed' === $a->status ? ' data-nd-remind="appt:' . (int) $a->id . '"' : '' ) . '>' . ( 'request' === $a->status ? 'WhatsApp' : 'Remind' ) . '</a>';
 		}
-		if ( 'confirmed' === $a->status || ( ! empty( $a->arrived_at ) && 'completed' !== $a->status ) ) {
+		$bills = class_exists( 'NURAX_Desk_POS' ) ? array_filter( NURAX_Desk_POS::orders_for_appt( $a->id ), function ( $o ) {
+			return 'cancelled' !== $o->get_status();
+		} ) : array();
+		foreach ( $bills as $bo ) {
+			echo '<a class="nd-ico-btn" href="' . esc_url( NURAX_Desk_POS::doc_url( $bo, NURAX_Desk_POS::is_paid( $bo ) ? 'receipt' : 'invoice', false ) ) . '" target="_blank" rel="noopener" title="Open the bill">Billed #' . esc_html( $bo->get_order_number() ) . ( NURAX_Desk_POS::is_paid( $bo ) ? '' : ' (due)' ) . '</a>';
+		}
+		if ( ! $bills && ( 'confirmed' === $a->status || ( ! empty( $a->arrived_at ) && 'completed' !== $a->status ) ) ) {
 			// 1.76.0 studio job card: open the till with the client, service and deposit ready.
 			echo '<a class="nd-ico-btn nd-ico-btn--ok" href="' . esc_url( add_query_arg( 'appt', (int) $a->id, NURAX_Desk::url( 'nurax-pos' ) ) ) . '" title="Open the till with this booking">Bill</a>';
 		}

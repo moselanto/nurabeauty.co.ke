@@ -19,7 +19,7 @@ html.nhs-lock{overflow:hidden}
 .nhs__step{display:none;flex-direction:column;justify-content:center;width:100%}
 .nhs__step.is-on{display:flex;animation:nhsIn .35s ease}
 @keyframes nhsIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
-.nhs__eyebrow{margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#a07a24}
+.nhs__eyebrow{margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#7d5e1a}
 .nhs__title{margin:0 0 10px;font-family:var(--font-display,Georgia,serif);font-size:32px;line-height:1.12;color:#0E0E0E;font-weight:600}
 .nhs__text{margin:0 0 14px;font-size:14.5px;line-height:1.6;color:#4d463e}
 .nhs__perks{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:6px}
@@ -87,7 +87,7 @@ html.nhs-lock{overflow:hidden}
 .nhs__trust li::before{content:"";position:absolute;left:0;top:50%;width:6px;height:6px;margin-top:-3px;transform:rotate(45deg);background:#E4C983}
 .nhs__body{padding:52px 46px 30px}
 .nhs__x{top:16px;right:16px;width:36px;height:36px;background:transparent;border:1px solid #e6dccb;color:#3b352e}
-.nhs__eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:10.5px;letter-spacing:.26em;color:#a07a24}
+.nhs__eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:10.5px;letter-spacing:.26em;color:#7d5e1a}
 .nhs__eyebrow::before{content:"";width:26px;height:1px;background:#C9A24B}
 .nhs__title{font-size:36px;font-weight:500;letter-spacing:-.01em;margin-bottom:12px}
 .nhs__text{font-size:14px;line-height:1.65;color:#5a5249;margin-bottom:18px}

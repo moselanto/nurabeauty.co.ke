@@ -179,7 +179,7 @@ add_filter( 'get_custom_logo', function ( $html ) {
 	if ( ! nura_speed_on() || false === strpos( $html, 'nura-logo.webp' ) ) {
 		return $html;
 	}
-	return preg_replace( array( '/\swidth="\d+"/', '/\sheight="\d+"/' ), array( ' width="400"', ' height="127"' ), $html, 1 );
+	return preg_replace( array( '/\swidth="\d+"/', '/\sheight="\d+"/' ), array( ' width="360"', ' height="114"' ), $html, 1 );
 } );
 
 /* 8. Defer the NURA Experience scripts too (they only run after the page is ready). */
@@ -239,7 +239,13 @@ add_filter( 'style_loader_tag', function ( $tag, $handle ) {
 	if ( ! nura_speed_on() || is_admin() ) {
 		return $tag;
 	}
-	$async = (array) apply_filters( 'nura_async_styles', array( 'nura-fonts', 'nurax-wa-order', 'nurax-sub' ) );
+	$async = array( 'nura-fonts', 'nurax-wa-order', 'nurax-sub' );
+	$wc    = function_exists( 'is_woocommerce' ) && ( is_woocommerce() || is_cart() || is_checkout() || is_account_page() );
+	if ( ! $wc ) {
+		// 1.69.2: homepage, guides and pages show products below the first screen only.
+		$async = array_merge( $async, array( 'woocommerce-general', 'nura-woocommerce' ) );
+	}
+	$async = (array) apply_filters( 'nura_async_styles', $async );
 	if ( ! in_array( $handle, $async, true ) || false !== strpos( $tag, 'onload=' ) ) {
 		return $tag;
 	}
@@ -301,12 +307,22 @@ add_action( 'wp_enqueue_scripts', function () {
 		return; // Leave checkout, cart and account exactly as WooCommerce ships them.
 	}
 	global $wp_scripts;
-	foreach ( array( 'jquery', 'jquery-core', 'jquery-blockui', 'js-cookie', 'underscore', 'wp-util', 'woocommerce', 'wp-hooks', 'wc-add-to-cart' ) as $h ) {
-		if ( isset( $wp_scripts->registered[ $h ] ) ) {
+	// 1.69.2: move every queued script and all of its dependencies; a single head
+	// script (e.g. Google for WooCommerce gtag-events) used to pull jQuery back up.
+	$todo = (array) $wp_scripts->queue;
+	$seen = array();
+	while ( $todo ) {
+		$h = array_shift( $todo );
+		if ( isset( $seen[ $h ] ) || ! isset( $wp_scripts->registered[ $h ] ) ) {
+			continue;
+		}
+		$seen[ $h ] = true;
+		if ( ! in_array( $h, (array) apply_filters( 'nura_keep_in_head', array() ), true ) ) {
 			$wp_scripts->add_data( $h, 'group', 1 );
 		}
+		$todo = array_merge( $todo, (array) $wp_scripts->registered[ $h ]->deps );
 	}
-}, 999 );
+}, 9999 );
 
 /* 15. Small CSS files: print inline instead of separate blocking requests. */
 add_filter( 'style_loader_tag', function ( $tag, $handle, $href ) {

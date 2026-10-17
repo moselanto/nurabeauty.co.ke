@@ -132,7 +132,7 @@ function nura_geo_llms( $full = false ) {
 }
 
 /** Serve /llms.txt and /llms-full.txt. */
-add_action( 'template_redirect', function () {
+add_action( 'parse_request', function () {
 	$path = isset( $_SERVER['REQUEST_URI'] ) ? strtolower( (string) wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH ) ) : '';
 	$path = untrailingslashit( (string) $path );
 	if ( '/llms.txt' !== $path && '/llms-full.txt' !== $path ) {

@@ -1847,3 +1847,9 @@ html body .nura-slider-dots button{width:24px!important;height:24px!important;pa
 html body .nura-slider-dots button::before{content:"";position:absolute;left:7px;top:7px;width:10px;height:10px;border-radius:50%;border:1px solid rgba(243,233,220,.75);box-sizing:border-box;transition:background .3s}
 html body .nura-slider-dots button.is-active::before{background:var(--nura-gold);border-color:var(--nura-gold)}
 html body .nura-slider-dots{gap:4px}
+
+/* 1.69.2 contrast */
+html body .nura-dot-more{color:#5c5c5c}
+html body .site-footer .nura-signoff{color:#E4C983}
+html body .nura-bottom-nav .nbn-t{color:#333}
+html body .nura-bottom-nav .is-active .nbn-t{color:#7a5d1c}

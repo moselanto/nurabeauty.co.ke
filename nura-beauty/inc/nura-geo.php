@@ -72,6 +72,11 @@ function nura_geo_llms( $full = false ) {
 		'Returns'       => nura_geo_page( 'returns' ) ? nura_geo_page( 'returns' ) : nura_geo_page( 'returns-refunds' ),
 		'Warranty'      => nura_geo_page( 'warranty' ),
 		'Track an order' => nura_geo_page( 'track-order' ),
+		'Wig prices in Kenya (live)' => nura_geo_page( 'wig-prices-kenya' ),
+		'Wigs in Mombasa' => nura_geo_page( 'wigs-mombasa' ),
+		'Wigs in Kisumu'  => nura_geo_page( 'wigs-kisumu' ),
+		'Wigs in Nakuru'  => nura_geo_page( 'wigs-nakuru' ),
+		'Wigs in Eldoret' => nura_geo_page( 'wigs-eldoret' ),
 	);
 	foreach ( $pages as $label => $url ) {
 		if ( $url ) {

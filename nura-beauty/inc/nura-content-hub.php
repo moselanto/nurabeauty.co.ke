@@ -535,3 +535,114 @@ var s=w.querySelector('[data-npg-q]');if(s){s.addEventListener('input',function(
 </script>
 <?php
 }, 30 );
+
+
+/* ------------------------------------------------- internal links (1.70.0) */
+
+/** Guide slug => short label. Only published guides are ever linked. */
+function nura_hub_guides() {
+	return array(
+		'human-hair-vs-semi-human-vs-fibre-wigs-kenya' => __( 'Human hair vs semi-human vs fibre', 'nura-beauty' ),
+		'how-long-does-a-wig-last'                     => __( 'How long does a wig last?', 'nura-beauty' ),
+		'frontal-vs-closure-wig'                       => __( 'Frontal vs closure wig', 'nura-beauty' ),
+		'headband-wig-vs-lace-front-wig'               => __( 'Headband vs lace front wig', 'nura-beauty' ),
+		'glueless-wigs-kenya'                          => __( 'Glueless wigs in Kenya', 'nura-beauty' ),
+		'how-to-care-for-a-human-hair-wig'             => __( 'Human hair wig care', 'nura-beauty' ),
+		'how-to-care-for-a-fibre-wig'                  => __( 'Fibre wig care', 'nura-beauty' ),
+		'how-to-choose-a-wig-for-your-face-shape'      => __( 'Wig for your face shape', 'nura-beauty' ),
+		'how-to-measure-your-head-for-a-wig'           => __( 'Measure your head for a wig', 'nura-beauty' ),
+		'wig-installation-nairobi-what-to-expect'      => __( 'Wig installation in Nairobi', 'nura-beauty' ),
+		'how-to-buy-wigs-online-in-kenya-safely'       => __( 'Buying wigs online safely', 'nura-beauty' ),
+		'bridal-wigs-kenya'                            => __( 'Bridal wigs in Kenya', 'nura-beauty' ),
+		'best-wigs-for-beginners-kenya'                => __( 'Best wigs for beginners', 'nura-beauty' ),
+	);
+}
+
+/** Published URL for a slug (post or page), cached per request. */
+function nura_hub_url( $slug, $type = 'post' ) {
+	static $c = array();
+	$k = $type . ':' . $slug;
+	if ( ! isset( $c[ $k ] ) ) {
+		$p       = get_page_by_path( $slug, OBJECT, $type );
+		$c[ $k ] = ( $p && 'publish' === $p->post_status ) ? get_permalink( $p ) : '';
+	}
+	return $c[ $k ];
+}
+
+/** Render a short list of guide links. */
+function nura_hub_link_list( $slugs, $title, $class = 'nura-hub-links' ) {
+	$all   = nura_hub_guides();
+	$items = '';
+	foreach ( $slugs as $s ) {
+		$u = isset( $all[ $s ] ) ? nura_hub_url( $s ) : '';
+		if ( $u ) {
+			$items .= '<li><a href="' . esc_url( $u ) . '">' . esc_html( $all[ $s ] ) . '</a></li>';
+		}
+	}
+	return $items ? '<nav class="' . esc_attr( $class ) . '" aria-label="' . esc_attr( $title ) . '"><p class="nura-hub-links__title">' . esc_html( $title ) . '</p><ul>' . $items . '</ul></nav>' : '';
+}
+
+/** Footer: guides + delivery cities + price list, on every page (crawlable links). */
+function nura_hub_footer_links() {
+	$guides = nura_hub_link_list( array( 'human-hair-vs-semi-human-vs-fibre-wigs-kenya', 'frontal-vs-closure-wig', 'how-long-does-a-wig-last', 'best-wigs-for-beginners-kenya', 'wig-installation-nairobi-what-to-expect', 'how-to-buy-wigs-online-in-kenya-safely' ), __( 'Wig guides', 'nura-beauty' ), 'nura-foot-links' );
+	$cities = '';
+	foreach ( array( 'wig-prices-kenya' => __( 'Wig prices in Kenya', 'nura-beauty' ), 'wigs-mombasa' => __( 'Wigs in Mombasa', 'nura-beauty' ), 'wigs-kisumu' => __( 'Wigs in Kisumu', 'nura-beauty' ), 'wigs-nakuru' => __( 'Wigs in Nakuru', 'nura-beauty' ), 'wigs-eldoret' => __( 'Wigs in Eldoret', 'nura-beauty' ) ) as $slug => $label ) {
+		$u = nura_hub_url( $slug, 'page' );
+		if ( $u ) {
+			$cities .= '<li><a href="' . esc_url( $u ) . '">' . esc_html( $label ) . '</a></li>';
+		}
+	}
+	if ( $cities ) {
+		$cities = '<nav class="nura-foot-links" aria-label="' . esc_attr__( 'Prices and delivery', 'nura-beauty' ) . '"><p class="nura-hub-links__title">' . esc_html__( 'Prices & delivery', 'nura-beauty' ) . '</p><ul>' . $cities . '</ul></nav>';
+	}
+	if ( $guides || $cities ) {
+		echo '<div class="nura-foot-hub">' . $guides . $cities . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+	}
+}
+
+/** Collection pages: guides that fit the collection. */
+add_action( 'woocommerce_after_shop_loop', function () {
+	if ( ! function_exists( 'is_product_category' ) || ! is_product_category() ) {
+		return;
+	}
+	$slug = (string) get_queried_object()->slug;
+	$map  = array(
+		'human'    => array( 'how-to-care-for-a-human-hair-wig', 'human-hair-vs-semi-human-vs-fibre-wigs-kenya', 'how-long-does-a-wig-last', 'bridal-wigs-kenya' ),
+		'blend'    => array( 'human-hair-vs-semi-human-vs-fibre-wigs-kenya', 'how-long-does-a-wig-last', 'how-to-care-for-a-fibre-wig' ),
+		'lace'     => array( 'frontal-vs-closure-wig', 'headband-wig-vs-lace-front-wig', 'wig-installation-nairobi-what-to-expect' ),
+		'closure'  => array( 'frontal-vs-closure-wig', 'glueless-wigs-kenya', 'best-wigs-for-beginners-kenya' ),
+		'headband' => array( 'headband-wig-vs-lace-front-wig', 'glueless-wigs-kenya', 'best-wigs-for-beginners-kenya' ),
+		'bob'      => array( 'how-to-choose-a-wig-for-your-face-shape', 'best-wigs-for-beginners-kenya', 'how-to-care-for-a-fibre-wig' ),
+	);
+	$pick = array( 'human-hair-vs-semi-human-vs-fibre-wigs-kenya', 'best-wigs-for-beginners-kenya', 'how-to-choose-a-wig-for-your-face-shape', 'how-to-buy-wigs-online-in-kenya-safely' );
+	foreach ( $map as $needle => $list ) {
+		if ( false !== strpos( $slug, $needle ) ) {
+			$pick = $list;
+			break;
+		}
+	}
+	echo nura_hub_link_list( $pick, __( 'Helpful guides', 'nura-beauty' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside.
+}, 14 );
+
+/** Product pages: two or three guides under the "Good to know" box. */
+add_action( 'woocommerce_single_product_summary', function () {
+	global $product;
+	if ( ! $product ) {
+		return;
+	}
+	$hair = nura_hub_hair( $product );
+	$name = strtolower( $product->get_name() );
+	$pick = array();
+	$pick[] = 'human' === $hair ? 'how-to-care-for-a-human-hair-wig' : ( 'fibre' === $hair || 'blend' === $hair ? 'how-to-care-for-a-fibre-wig' : 'how-long-does-a-wig-last' );
+	if ( false !== strpos( $name, 'closure' ) || false !== strpos( $name, 'frontal' ) || false !== strpos( $name, 'lace front' ) ) {
+		$pick[] = 'frontal-vs-closure-wig';
+	} elseif ( false !== strpos( $name, 'headband' ) ) {
+		$pick[] = 'headband-wig-vs-lace-front-wig';
+	}
+	$pick[] = 'how-to-measure-your-head-for-a-wig';
+	echo nura_hub_link_list( $pick, __( 'Before you buy', 'nura-beauty' ), 'nura-hub-links nura-hub-links--pdp' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside.
+}, 28 );
+
+add_action( 'wp_head', function () {
+	echo '<style id="nura-hub-links-css">.nura-hub-links{margin:1.6em 0;padding:1em 1.2em;border:1px solid #ECE4D3;border-radius:12px;background:#fffdf8}.nura-hub-links--pdp{margin:.8em 0;padding:.8em 1em}.nura-hub-links__title{font-weight:700;margin:0 0 .5em;font-size:.92rem}.nura-hub-links ul,.nura-foot-links ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.4em 1.1em}.nura-hub-links a{font-size:.9rem;color:#7a5d1c;text-decoration:underline;text-underline-offset:3px}.nura-foot-hub{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem 2rem;border-top:1px solid rgba(243,233,220,.14);margin-top:1.6rem;padding-top:1.2rem}.nura-foot-links .nura-hub-links__title{color:#E4C983;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500}.nura-foot-links a{color:rgba(243,233,220,.82);font-size:.84rem}.nura-foot-links a:hover{color:#E4C983}@media(max-width:700px){.nura-foot-hub{grid-template-columns:1fr}}</style>' . "\n";
+}, 22 );

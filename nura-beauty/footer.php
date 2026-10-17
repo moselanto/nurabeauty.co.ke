@@ -106,6 +106,8 @@ if ( ! function_exists( 'nura_footer_company_menu' ) ) {
 			</div>
 		</div>
 
+		<?php if ( function_exists( 'nura_hub_footer_links' ) ) { nura_hub_footer_links(); } ?>
+
 		<div class="nura-foot-bottom">
 			<span class="nura-signoff"><?php echo esc_html( nura_opt( 'nura_signoff' ) ); ?></span>
 			<?php if ( $payments ) : ?>

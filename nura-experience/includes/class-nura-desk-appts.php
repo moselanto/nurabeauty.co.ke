@@ -310,8 +310,8 @@ class NURAX_Desk_Appts {
 
 	/** M-Pesa code already used on another live booking? */
 	public static function code_used( $code ) {
-		global $wpdb;
-		return '' !== $code && (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . NURAX_Desk::t_appts() . " WHERE deposit_ref = %s AND status IN ('request','confirmed','completed')", $code ) ) > 0; // phpcs:ignore WordPress.DB
+		// 1.75.0: one payment code, one use - also checks till sales, invoices, plans and website orders.
+		return '' !== (string) $code && '' !== NURAX_Desk::ref_used( $code );
 	}
 
 	/** Open booking already held by this phone on this date? */

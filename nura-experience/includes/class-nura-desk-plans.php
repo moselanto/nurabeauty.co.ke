@@ -1168,7 +1168,8 @@ class NURAX_Desk_Plans {
 			exit;
 		}
 		$ref = self::clean_ref( isset( $in['reference'] ) ? $in['reference'] : '' );
-		if ( '' !== $ref && $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM ' . NURAX_Desk::t_pay() . ' WHERE voided = 0 AND reference = %s', $ref ) ) ) { // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		if ( '' !== $ref && ( ! NURAX_Desk::ref_lock( $ref ) || '' !== NURAX_Desk::ref_used( $ref ) ) ) { // 1.75.0: checked against every kind of sale.
+			NURAX_Staff::log( 'blocked', 'Blocked: payment code ' . $ref . ' already used on ' . NURAX_Desk::ref_used( $ref ) . ' (plan ' . $p->ref . ')', array( 'level' => 'warn' ) );
 			wp_safe_redirect( add_query_arg( 'nd_msg', 'dup', $view ) );
 			exit;
 		}

@@ -290,6 +290,15 @@ class NURAX_Desk_POS {
 			}
 			$order->update_meta_data( '_nura_channel', $channel );
 			$order->update_meta_data( '_nura_cashier', get_current_user_id() );
+			if ( $ref && $paid ) {
+				// 1.75.0: one payment code, one use - across sales, invoices, plans, bookings and website orders.
+				$used = NURAX_Desk::ref_lock( $ref ) ? NURAX_Desk::ref_used( $ref, $order->get_id() ) : 'another sale being saved right now';
+				if ( '' !== $used ) {
+					$order->delete( true );
+					NURAX_Staff::log( 'blocked', 'Blocked: payment code ' . $ref . ' already used on ' . $used, array( 'level' => 'warn' ) );
+					wp_send_json_error( array( 'message' => 'Payment code ' . $ref . ' has already been used on ' . $used . '. Check the code with the customer.' ), 409 );
+				}
+			}
 			if ( $ref ) {
 				$order->update_meta_data( '_nura_pay_ref', $ref );
 				$order->set_transaction_id( $ref );
@@ -532,6 +541,16 @@ class NURAX_Desk_POS {
 		if ( 'paid' === $op ) {
 			$method = isset( $_POST['method'] ) && array_key_exists( wp_unslash( $_POST['method'] ), self::methods() ) ? sanitize_key( wp_unslash( $_POST['method'] ) ) : 'mpesa';
 			$ref    = isset( $_POST['ref'] ) ? mb_substr( strtoupper( preg_replace( '/[^A-Za-z0-9\- ]/', '', wp_unslash( $_POST['ref'] ) ) ), 0, 40 ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			if ( self::is_paid( $order ) ) {
+				wp_send_json_error( array( 'message' => 'This invoice is already paid.' ), 409 );
+			}
+			if ( $ref ) {
+				$used = NURAX_Desk::ref_lock( $ref ) ? NURAX_Desk::ref_used( $ref, $order->get_id() ) : 'another sale being saved right now';
+				if ( '' !== $used ) {
+					NURAX_Staff::log( 'blocked', 'Blocked: payment code ' . $ref . ' already used on ' . $used, array( 'level' => 'warn' ) );
+					wp_send_json_error( array( 'message' => 'Payment code ' . $ref . ' has already been used on ' . $used . '. Check the code with the customer.' ), 409 );
+				}
+			}
 			$order->set_payment_method( 'nura_pos_' . $method );
 			$order->set_payment_method_title( self::methods()[ $method ] );
 			if ( $ref ) {

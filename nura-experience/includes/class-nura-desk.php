@@ -373,6 +373,77 @@ class NURAX_Desk {
 		return '' !== $addr ? $addr : 'Imenti House, Moi Avenue, Nairobi CBD';
 	}
 
+	/* ------------------------------------------------------------------ */
+	/* 1.75.0 One payment code, one use (ported from MKauto Desk 1.6.1)    */
+	/* ------------------------------------------------------------------ */
+
+	/** Standard form of a payment code: letters and digits only, upper case. */
+	public static function norm_ref( $ref ) {
+		return strtoupper( preg_replace( '/[^A-Za-z0-9]/', '', (string) $ref ) );
+	}
+
+	/** SQL expression that normalises a column the same way (spaces and dashes removed). */
+	private static function sql_norm( $col ) {
+		return "UPPER(REPLACE(REPLACE(REPLACE($col,' ',''),'-',''),'.',''))";
+	}
+
+	/**
+	 * Where a payment code is already used: till sales, invoices, website orders,
+	 * payment-plan payments and booking deposits. Cancelled/refunded orders and
+	 * voided plan payments do not count. Returns e.g. "sale #53449", or '' if free.
+	 */
+	public static function ref_used( $ref, $ex_order = 0, $ex_pay = 0, $ex_appt = 0 ) {
+		global $wpdb;
+		$ref = self::norm_ref( $ref );
+		if ( strlen( $ref ) < 4 ) {
+			return '';
+		}
+		$pid = $wpdb->get_var( $wpdb->prepare( 'SELECT plan_id FROM ' . self::t_pay() . ' WHERE voided = 0 AND ' . self::sql_norm( 'reference' ) . ' = %s AND id <> %d LIMIT 1', $ref, (int) $ex_pay ) ); // phpcs:ignore WordPress.DB
+		if ( $pid ) {
+			$p = $wpdb->get_var( $wpdb->prepare( 'SELECT ref FROM ' . self::t_plans() . ' WHERE id = %d', (int) $pid ) ); // phpcs:ignore WordPress.DB
+			return 'payment plan ' . ( $p ? $p : '#' . $pid );
+		}
+		if ( function_exists( 'wc_get_orders' ) ) {
+			$dead = array( 'cancelled', 'failed', 'refunded', 'trash', 'checkout-draft' );
+			$ids  = $wpdb->get_col( $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ('_nura_pay_ref','_transaction_id') AND " . self::sql_norm( 'meta_value' ) . ' = %s LIMIT 10', $ref ) ); // phpcs:ignore WordPress.DB
+			$hpos = $wpdb->prefix . 'wc_orders';
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $hpos ) ) === $hpos ) {
+				$ids = array_merge( (array) $ids, (array) $wpdb->get_col( $wpdb->prepare( "SELECT id FROM $hpos WHERE " . self::sql_norm( 'transaction_id' ) . ' = %s LIMIT 10', $ref ) ) ); // phpcs:ignore WordPress.DB
+				$ids = array_merge( $ids, (array) $wpdb->get_col( $wpdb->prepare( "SELECT order_id FROM {$wpdb->prefix}wc_orders_meta WHERE meta_key = '_nura_pay_ref' AND " . self::sql_norm( 'meta_value' ) . ' = %s LIMIT 10', $ref ) ) ); // phpcs:ignore WordPress.DB
+			}
+			foreach ( array_unique( array_map( 'intval', (array) $ids ) ) as $oid ) {
+				if ( $oid && $oid !== (int) $ex_order ) {
+					$o = wc_get_order( $oid );
+					if ( $o && ! in_array( $o->get_status(), $dead, true ) ) {
+						return ( 'nurax_pos' === $o->get_created_via() ? 'sale #' : 'website order #' ) . $o->get_order_number();
+					}
+				}
+			}
+		}
+		$bk = $wpdb->get_var( $wpdb->prepare( 'SELECT ref FROM ' . self::t_appts() . " WHERE status IN ('request','confirmed','completed') AND deposit > 0 AND " . self::sql_norm( 'deposit_ref' ) . ' = %s AND id <> %d LIMIT 1', $ref, (int) $ex_appt ) ); // phpcs:ignore WordPress.DB
+		return $bk ? 'booking deposit ' . $bk : '';
+	}
+
+	/** Short database lock so two staff (or a double tap) cannot save the same code at once. */
+	public static function ref_lock( $ref ) {
+		global $wpdb;
+		$n = self::norm_ref( $ref );
+		static $held = array();
+		if ( strlen( $n ) < 4 || isset( $held[ $n ] ) ) {
+			return true;
+		}
+		$name = 'nurax_ref_' . md5( $n );
+		$ok   = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 8)', $name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		if ( $ok ) {
+			$held[ $n ] = true;
+			add_action( 'shutdown', function () use ( $name ) {
+				global $wpdb;
+				$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $name ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			} );
+		}
+		return (bool) $ok;
+	}
+
 	public static function new_ref( $prefix, $table ) {
 		global $wpdb;
 		$chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';

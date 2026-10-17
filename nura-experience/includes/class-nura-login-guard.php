@@ -84,6 +84,7 @@ class NURAX_Login_Guard {
 		add_action( 'template_redirect', array( $this, 'force_https' ), 0 );
 		add_action( 'login_init', array( $this, 'login_headers' ) );
 		add_action( 'admin_init', array( $this, 'login_headers' ) );
+		add_action( 'admin_init', array( $this, 'idle_logout' ), 1 ); // 1.75.0 (from MK Auto Core).
 
 		// 7. CORS.
 		add_action( 'rest_api_init', array( $this, 'tighten_cors' ), 15 );
@@ -334,6 +335,32 @@ class NURAX_Login_Guard {
 	public function app_passwords_for_admins( $available, $user ) {
 		return $available && $user instanceof WP_User && user_can( $user, 'manage_options' );
 	}
-}
 
-new NURAX_Login_Guard();
+	/**
+	 * 1.75.0: idle timeout for staff. After 60 minutes with no action in wp-admin
+	 * or NURA Desk (filter nurax_staff_idle), the session ends and the user signs in
+	 * again. Protects an unattended till or counter PC. Heartbeat does not count.
+	 */
+	public function idle_logout() {
+		$uid = get_current_user_id();
+		if ( ! $uid || ! current_user_can( 'edit_posts' ) ) {
+			return;
+		}
+		$is_heartbeat = wp_doing_ajax() && isset( $_POST['action'] ) && 'heartbeat' === $_POST['action']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$idle         = (int) apply_filters( 'nurax_staff_idle', HOUR_IN_SECONDS );
+		$last         = (int) get_user_meta( $uid, 'nurax_last_active', true );
+		if ( $idle > 0 && $last && ( time() - $last ) > $idle ) {
+			delete_user_meta( $uid, 'nurax_last_active' );
+			wp_destroy_current_session();
+			wp_clear_auth_cookie();
+			if ( wp_doing_ajax() ) {
+				wp_send_json_error( array( 'message' => 'Your session expired after 60 minutes without activity. Please sign in again.' ), 401 );
+			}
+			wp_safe_redirect( add_query_arg( 'reauth', '1', wp_login_url( admin_url() ) ) );
+			exit;
+		}
+		if ( ! $is_heartbeat && ( time() - $last ) > 60 ) {
+			update_user_meta( $uid, 'nurax_last_active', time() );
+		}
+	}
+}

@@ -350,3 +350,73 @@ add_filter( 'style_loader_tag', function ( $tag, $handle, $href ) {
 }, 30, 3 );
 
 /* 16. Preload the font files used above the fold is left to the browser; fonts already swap. */
+
+/* ---------------------------------------------------------------------------
+ * v1.71.0 - fonts served from this website (no Google Fonts request)
+ * Used while the Customizer fonts are the NURA defaults; any other font
+ * choice falls back to Google Fonts automatically.
+ * ------------------------------------------------------------------------- */
+function nura_local_fonts_ok() {
+	if ( ! nura_speed_on() || ! function_exists( 'nura_opt' ) || ! apply_filters( 'nura_local_fonts', true ) ) {
+		return false;
+	}
+	return 'Playfair Display' === nura_opt( 'nura_font_display' ) && 'Cormorant Garamond' === nura_opt( 'nura_font_editorial' )
+		&& 'Montserrat' === nura_opt( 'nura_font_body' ) && 'Jost' === nura_opt( 'nura_font_ui' )
+		&& file_exists( NURA_DIR . 'assets/fonts/montserrat.woff2' );
+}
+add_action( 'wp_enqueue_scripts', function () {
+	if ( nura_local_fonts_ok() ) {
+		wp_dequeue_style( 'nura-fonts' );
+	}
+}, 99 );
+add_action( 'wp_head', function () {
+	if ( ! nura_local_fonts_ok() ) {
+		return;
+	}
+	$u = NURA_URI . 'assets/fonts/';
+	// Preload the two fonts visible on the first screen (body text and headings).
+	echo '<link rel="preload" href="' . esc_url( $u . 'montserrat.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
+	echo '<link rel="preload" href="' . esc_url( $u . 'playfair.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
+	$faces = array(
+		array( 'Playfair Display', 'playfair', 'normal', '400 900' ),
+		array( 'Cormorant Garamond', 'cormorant', 'normal', '300 700' ),
+		array( 'Cormorant Garamond', 'cormorant-italic', 'italic', '300 700' ),
+		array( 'Montserrat', 'montserrat', 'normal', '100 900' ),
+		array( 'Jost', 'jost', 'normal', '100 900' ),
+	);
+	$css = '';
+	foreach ( $faces as $f ) {
+		$css .= "@font-face{font-family:'" . $f[0] . "';font-style:" . $f[2] . ';font-weight:' . $f[3] . ';font-display:swap;src:url(' . esc_url( $u . $f[1] . '.woff2' ) . ") format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}";
+	}
+	echo '<style id="nura-local-fonts">' . $css . "</style>\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from fixed values and esc_url().
+}, 2 );
+add_filter( 'wp_resource_hints', function ( $urls, $type ) {
+	if ( 'preconnect' === $type && nura_local_fonts_ok() ) {
+		$urls = array_values( array_filter( $urls, function ( $u ) {
+			$h = is_array( $u ) ? ( isset( $u['href'] ) ? $u['href'] : '' ) : $u;
+			return false === strpos( (string) $h, 'fonts.g' );
+		} ) );
+	}
+	return $urls;
+}, 99, 2 );
+
+/* 17. v1.71.0: serve the compressed (.min.js) build of NURA theme and plugin scripts when it exists. */
+add_filter( 'script_loader_src', function ( $src ) {
+	if ( ! nura_speed_on() || ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) || ! $src || false !== strpos( $src, '.min.js' ) ) {
+		return $src;
+	}
+	$url = strtok( (string) $src, '?' );
+	$qs  = (string) substr( (string) $src, strlen( $url ) );
+	if ( '.js' !== substr( $url, -3 ) || ( false === strpos( $url, '/themes/nura-beauty/' ) && false === strpos( $url, '/plugins/nura-experience/' ) ) ) {
+		return $src;
+	}
+	foreach ( array( get_theme_root_uri() => get_theme_root(), plugins_url() => WP_PLUGIN_DIR ) as $u => $dir ) {
+		if ( 0 === strpos( $url, $u ) ) {
+			$min = substr( $url, 0, -3 ) . '.min.js';
+			if ( file_exists( $dir . substr( $min, strlen( $u ) ) ) ) {
+				return $min . $qs;
+			}
+		}
+	}
+	return $src;
+}, 20 );

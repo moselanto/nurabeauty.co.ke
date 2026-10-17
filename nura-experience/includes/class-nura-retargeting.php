@@ -144,10 +144,16 @@ final class NURAX_Retargeting {
 		$ga4   = $s['ga4_id'];
 		$ads   = $s['google_ads_id'];
 
+		// 1.73.3 speed: tracking libraries load after the visitor's first tap/scroll or 3.5 s.
+		// Calls made earlier are queued (fbq queue / dataLayer), so no event is lost.
+		if ( '' !== $pixel || '' !== $ga4 || '' !== $ads ) {
+			echo "<script>window.nuraLater=function(u){var q=window.__nuraQ=window.__nuraQ||[];q.push(u);if(window.__nuraGo){window.__nuraGo();return;}if(q.length>1)return;function go(){if(window.__nuraDone)return;window.__nuraDone=1;window.__nuraGo=function(){(window.__nuraQ||[]).splice(0).forEach(function(s){var e=document.createElement('script');e.async=1;e.src=s;document.head.appendChild(e);});};window.__nuraGo();}['pointerdown','keydown','scroll','touchstart'].forEach(function(ev){addEventListener(ev,go,{once:true,passive:true});});setTimeout(go,3500);};</script>\n";
+		}
 		if ( '' !== $pixel ) {
 			$pid = esc_js( $pixel );
 			echo "\n<!-- NURA Meta Pixel -->\n<script>\n";
-			echo "!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');\n";
+			echo "!function(f,n){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];}(window);\n";
+			echo "window.nuraLater&&nuraLater('https://connect.facebook.net/en_US/fbevents.js');\n";
 			echo "fbq('init','" . $pid . "');fbq('track','PageView');\n";
 			echo "</script>\n";
 		}
@@ -155,8 +161,8 @@ final class NURAX_Retargeting {
 		if ( '' !== $ga4 || '' !== $ads ) {
 			$primary = '' !== $ga4 ? $ga4 : $ads;
 			echo "\n<!-- NURA Google tag -->\n";
-			echo '<script async src="https://www.googletagmanager.com/gtag/js?id=' . esc_attr( $primary ) . '"></script>' . "\n";
 			echo "<script>\nwindow.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());\n";
+			echo "window.nuraLater&&nuraLater('https://www.googletagmanager.com/gtag/js?id=" . esc_js( $primary ) . "');\n";
 			if ( '' !== $ga4 ) {
 				echo "gtag('config','" . esc_js( $ga4 ) . "');\n";
 			}

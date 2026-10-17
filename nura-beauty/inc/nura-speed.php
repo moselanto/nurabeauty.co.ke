@@ -175,3 +175,79 @@ add_filter( 'get_custom_logo', function ( $html ) {
 add_filter( 'nura_defer_handles', function ( $handles ) {
 	return array_merge( (array) $handles, array( 'nurax', 'nurax-shop', 'nurax-variations' ) );
 } );
+
+
+/* ---------------------------------------------------------------------------
+ * v1.69.0 - PageSpeed (mobile 69): card images, render-blocking CSS, scripts
+ * ------------------------------------------------------------------------- */
+
+/* 9. A right-sized product-card image (440px wide, same shape as the original). */
+add_action( 'after_setup_theme', function () {
+	add_image_size( 'nura_card', 440, 0, false );
+} );
+
+/* 9b. Older uploads: create the card size the first time it is needed (max 8 per page view). */
+add_filter( 'image_downsize', function ( $out, $id, $size ) {
+	static $made = 0;
+	if ( 'nura_card' !== $size || $made >= 8 || ! nura_speed_on() ) {
+		return $out;
+	}
+	$meta = wp_get_attachment_metadata( $id );
+	if ( ! is_array( $meta ) || isset( $meta['sizes']['nura_card'] ) || empty( $meta['width'] ) || (int) $meta['width'] <= 440 ) {
+		return $out;
+	}
+	$file = get_attached_file( $id );
+	if ( ! $file || ! file_exists( $file ) ) {
+		return $out;
+	}
+	$ed = wp_get_image_editor( $file );
+	if ( is_wp_error( $ed ) ) {
+		return $out;
+	}
+	$ed->set_quality( 78 );
+	if ( is_wp_error( $ed->resize( 440, null, false ) ) ) {
+		return $out;
+	}
+	$saved = $ed->save( $ed->generate_filename( 'card' ) );
+	if ( is_wp_error( $saved ) || empty( $saved['file'] ) ) {
+		return $out;
+	}
+	$made++;
+	$meta['sizes']['nura_card'] = array(
+		'file'      => wp_basename( $saved['file'] ),
+		'width'     => (int) $saved['width'],
+		'height'    => (int) $saved['height'],
+		'mime-type' => $saved['mime-type'],
+	);
+	wp_update_attachment_metadata( $id, $meta );
+	return $out; // WordPress now finds the new size itself.
+}, 10, 3 );
+
+/* 10. Stylesheets not needed for the first screen load without blocking it. */
+add_filter( 'style_loader_tag', function ( $tag, $handle ) {
+	if ( ! nura_speed_on() || is_admin() ) {
+		return $tag;
+	}
+	$async = (array) apply_filters( 'nura_async_styles', array( 'nura-fonts', 'nurax-wa-order', 'nurax-sub' ) );
+	if ( ! in_array( $handle, $async, true ) || false !== strpos( $tag, 'onload=' ) ) {
+		return $tag;
+	}
+	$swap = preg_replace( "/media=(['\"])[^'\"]*\\1/", "media='print' onload=\"this.media='all';this.onload=null\"", $tag, 1, $n );
+	if ( ! $n ) {
+		$swap = str_replace( ' href=', " media='print' onload=\"this.media='all';this.onload=null\" href=", $tag );
+	}
+	return $swap . '<noscript>' . trim( $tag ) . '</noscript>' . "\n";
+}, 20, 2 );
+
+/* 11. jQuery Migrate is only for very old plugins; not loaded for shoppers. */
+add_action( 'wp_default_scripts', function ( $scripts ) {
+	if ( is_admin() || ! nura_speed_on() || ! apply_filters( 'nura_drop_jquery_migrate', true ) || empty( $scripts->registered['jquery'] ) ) {
+		return;
+	}
+	$scripts->registered['jquery']->deps = array_diff( (array) $scripts->registered['jquery']->deps, array( 'jquery-migrate' ) );
+} );
+
+/* 12. Defer the remaining small theme/plugin scripts (all wait for the page anyway). */
+add_filter( 'nura_defer_handles', function ( $handles ) {
+	return array_merge( (array) $handles, array( 'nura-boost', 'nura-growth', 'nura-menu', 'nurax-sub' ) );
+} );

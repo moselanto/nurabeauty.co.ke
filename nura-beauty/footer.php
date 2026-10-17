@@ -80,7 +80,7 @@ if ( ! function_exists( 'nura_footer_company_menu' ) ) {
 				</ul>
 				<?php endif; ?>
 				<div class="nura-newsletter">
-					<h4><?php esc_html_e( 'Join The House', 'nura-beauty' ); ?></h4>
+					<h2 class="nura-foot-title"><?php esc_html_e( 'Join The House', 'nura-beauty' ); ?></h2>
 					<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" class="nura-subscribe-form">
 						<input type="hidden" name="action" value="nura_subscribe">
 						<?php wp_nonce_field( 'nura_subscribe', 'nura_sub_nonce' ); ?>
@@ -93,15 +93,15 @@ if ( ! function_exists( 'nura_footer_company_menu' ) ) {
 			</div>
 
 			<div class="nura-foot-col">
-				<h4><?php esc_html_e( 'Shop', 'nura-beauty' ); ?></h4>
+				<h2 class="nura-foot-title"><?php esc_html_e( 'Shop', 'nura-beauty' ); ?></h2>
 				<?php wp_nav_menu( array( 'theme_location' => 'footer_shop', 'container' => false, 'fallback_cb' => 'nura_footer_shop_menu', 'depth' => 1 ) ); ?>
 			</div>
 			<div class="nura-foot-col">
-				<h4><?php esc_html_e( 'Help & Support', 'nura-beauty' ); ?></h4>
+				<h2 class="nura-foot-title"><?php esc_html_e( 'Help & Support', 'nura-beauty' ); ?></h2>
 				<?php wp_nav_menu( array( 'theme_location' => 'footer_help', 'container' => false, 'fallback_cb' => 'nura_footer_help_menu', 'depth' => 1 ) ); ?>
 			</div>
 			<div class="nura-foot-col">
-				<h4><?php esc_html_e( 'The House', 'nura-beauty' ); ?></h4>
+				<h2 class="nura-foot-title"><?php esc_html_e( 'The House', 'nura-beauty' ); ?></h2>
 				<?php wp_nav_menu( array( 'theme_location' => 'footer_company', 'container' => false, 'fallback_cb' => 'nura_footer_company_menu', 'depth' => 1 ) ); ?>
 			</div>
 		</div>

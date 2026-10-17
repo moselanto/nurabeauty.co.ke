@@ -34,7 +34,8 @@ add_filter( 'woocommerce_gallery_image_size', function ( $size ) {
 	return 'woocommerce_single' === $size ? 'full' : $size;
 } );
 add_filter( 'single_product_archive_thumbnail_size', function () {
-	return 'woocommerce_single';
+	// 1.69.0: 440px-wide card size (no crop) - sharp on phones, about 60% lighter than 600px.
+	return 'nura_card';
 } );
 
 // Variation selection should swap in the full-resolution image too (not the 600px single).

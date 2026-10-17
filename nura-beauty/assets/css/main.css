@@ -210,7 +210,7 @@ p{margin:0 0 1.1em}
 /* Footer */
 .site-footer{background:var(--nura-ink);color:var(--nura-ivory);padding-top:clamp(48px,6vw,90px)}
 .nura-foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:clamp(24px,4vw,60px)}
-.site-footer .widget-title,.nura-foot-col h4{font-family:var(--font-ui);text-transform:uppercase;letter-spacing:.2em;font-size:.78rem;color:var(--nura-gold);margin-bottom:1.1rem}
+.site-footer .widget-title,.nura-foot-col h4,.nura-foot-col .nura-foot-title{font-family:var(--font-ui);text-transform:uppercase;letter-spacing:.2em;font-size:.78rem;color:var(--nura-gold);margin-bottom:1.1rem}
 .site-footer ul{list-style:none;margin:0;padding:0;line-height:2.1;font-size:.92rem}
 .site-footer a{color:rgba(243,233,220,.8)}
 .nura-foot-brand p{color:rgba(243,233,220,.7);max-width:34ch;font-family:var(--font-editorial);font-size:1.15rem}
@@ -301,9 +301,9 @@ body.nura-drawer-open{overflow:hidden}
 .nura-slider-nav:hover{background:var(--nura-gold);color:var(--nura-ink);border-color:var(--nura-gold)}
 .nura-slider-nav--prev{left:calc(50% - 84px);right:auto}
 .nura-slider-nav--next{left:calc(50% + 40px);right:auto}
-.nura-slider-dots{position:absolute;bottom:39px;left:50%;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:.55rem}
-.nura-slider-dots button{width:10px;height:10px;padding:0;border-radius:50%;border:1px solid rgba(243,233,220,.7);background:transparent;cursor:pointer;transition:all .3s var(--ease)}
-.nura-slider-dots button.is-active{background:var(--nura-gold);border-color:var(--nura-gold);transform:scale(1.15)}
+.nura-slider-dots{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:0}
+.nura-slider-dots button{width:10px;height:10px;padding:0;box-sizing:content-box;border-width:7px!important;border-color:transparent!important;background-clip:content-box!important;box-shadow:inset 0 0 0 1px rgba(243,233,220,.7);border-radius:50%;border:1px solid rgba(243,233,220,.7);background:transparent;cursor:pointer;transition:all .3s var(--ease)}
+.nura-slider-dots button.is-active{background:var(--nura-gold);box-shadow:none;transform:scale(1.15)}
 @media(max-width:768px){.nura-slide__media::after{background:linear-gradient(180deg,rgba(14,14,14,.45),rgba(14,14,14,.85))}.nura-slide__media{background-position:center}.nura-slider-nav{display:none}}
 
 /* ---- Section heading row (with View all) ---- */
@@ -570,12 +570,12 @@ body.nura-cart-open{overflow:hidden}
    ================================================================== */
 .site-footer{padding-top:clamp(34px,4vw,56px)!important;padding-bottom:0!important}
 .nura-foot-grid{gap:clamp(20px,3vw,44px);padding-bottom:clamp(20px,2.6vw,34px);align-items:start}
-.nura-foot-col h4{margin:0 0 .7rem;font-size:.82rem;letter-spacing:.14em}
+.nura-foot-col h4,.nura-foot-col .nura-foot-title{margin:0 0 .7rem;font-size:.82rem;letter-spacing:.14em}
 .nura-foot-col ul{margin:0;line-height:1.85;font-size:.9rem}
 .nura-foot-brand p{margin:.5rem 0 .9rem;font-size:.9rem;line-height:1.55;max-width:34ch}
 .nura-foot-contact{margin:.2rem 0 1rem!important;line-height:1.8!important}
 .nura-newsletter{margin-top:.2rem}
-.nura-newsletter h4{margin:0 0 .5rem}
+.nura-newsletter h4,.nura-newsletter .nura-foot-title{margin:0 0 .5rem}
 .nura-newsletter form{display:flex;flex-direction:column;gap:.5rem;max-width:320px}
 .nura-newsletter input[type=email]{margin:0}
 .nura-foot-bottom{padding:.9rem 0 1.4rem;margin-top:0;gap:.6rem 1.2rem;border-top:1px solid rgba(243,233,220,.14)}
@@ -589,7 +589,7 @@ body.nura-cart-open{overflow:hidden}
 /* v1.18.2 - compact the "Join The House" subscribe block: email + button share
    one short row so it stops inflating the footer / brand-column height. */
 .nura-newsletter{margin-top:.1rem;max-width:340px}
-.nura-newsletter h4{font-size:.72rem;letter-spacing:.14em;margin:0 0 .45rem}
+.nura-newsletter h4,.nura-newsletter .nura-foot-title{font-size:.72rem;letter-spacing:.14em;margin:0 0 .45rem}
 .nura-newsletter form{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:stretch;gap:.4rem;max-width:340px}
 .nura-newsletter input[type=email]{flex:1 1 auto;min-width:0;margin:0;padding:.5rem .6rem;font-size:.82rem;line-height:1.25}
 .nura-newsletter .nura-btn{flex:0 0 auto;width:auto;padding:.5rem 1rem;font-size:.66rem;letter-spacing:.12em;line-height:1.25;white-space:nowrap}
@@ -1834,3 +1834,5 @@ a.nura-contact-card--feature:hover{color:#fff;border-color:var(--nura-gold)}
 .nura-bk__terms li{margin:.25rem 0}
 .nura-bk__agree{display:flex;gap:.55rem;align-items:flex-start;margin:0 0 .8rem;font-family:var(--font-ui);font-size:.82rem;line-height:1.45;color:#2b2622;cursor:pointer}
 .nura-bk__agree input{margin-top:.2rem;width:18px;height:18px;accent-color:#0E0E0E;flex:none}
+
+.nura-foot-title{font-family:var(--font-ui);text-transform:uppercase;letter-spacing:.14em;font-size:.82rem;color:var(--nura-gold);margin:0 0 .7rem;font-weight:500;line-height:1.3}

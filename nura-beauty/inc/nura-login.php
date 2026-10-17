@@ -23,7 +23,19 @@ add_filter( 'login_headertext', function () {
 
 /** Fonts + styles. */
 add_action( 'login_enqueue_scripts', function () {
-	wp_enqueue_style( 'nura-login-fonts', 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Jost:wght@400;500&family=Montserrat:wght@400;500&display=swap', array(), null );
+	// 1.72.0: self-hosted fonts on the login page too (no Google Fonts request).
+	if ( file_exists( NURA_DIR . 'assets/fonts/montserrat.woff2' ) && apply_filters( 'nura_local_fonts', true ) ) {
+		$fu = NURA_URI . 'assets/fonts/';
+		$ff = '';
+		foreach ( array( array( 'Playfair Display', 'playfair', '400 900' ), array( 'Jost', 'jost', '100 900' ), array( 'Montserrat', 'montserrat', '100 900' ) ) as $f ) {
+			$ff .= '@font-face{font-family:"' . $f[0] . '";font-style:normal;font-weight:' . $f[2] . ';font-display:swap;src:url(' . esc_url( $fu . $f[1] . '.woff2' ) . ') format("woff2")}';
+		}
+		wp_register_style( 'nura-login-fonts', false, array(), NURA_VERSION );
+		wp_enqueue_style( 'nura-login-fonts' );
+		wp_add_inline_style( 'nura-login-fonts', $ff );
+	} else {
+		wp_enqueue_style( 'nura-login-fonts', 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Jost:wght@400;500&family=Montserrat:wght@400;500&display=swap', array(), null );
+	}
 
 	$logo_id  = get_theme_mod( 'custom_logo' );
 	$logo_url = $logo_id ? wp_get_attachment_image_url( $logo_id, 'full' ) : '';

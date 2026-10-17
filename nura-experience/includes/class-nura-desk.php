@@ -415,7 +415,7 @@ class NURAX_Desk {
 				if ( $oid && $oid !== (int) $ex_order ) {
 					$o = wc_get_order( $oid );
 					if ( $o && ! in_array( $o->get_status(), $dead, true ) ) {
-						return ( 'nurax_pos' === $o->get_created_via() ? 'sale #' : 'website order #' ) . $o->get_order_number();
+						return ( 'nura_pos' === $o->get_created_via() ? 'sale #' : 'website order #' ) . $o->get_order_number();
 					}
 				}
 			}

@@ -104,7 +104,7 @@ add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment,
 		return $attr;
 	}
 	$class   = isset( $attr['class'] ) ? (string) $attr['class'] : '';
-	$is_card = false !== strpos( $class, 'attachment-woocommerce' ) || in_array( $size, array( 'woocommerce_thumbnail', 'woocommerce_single' ), true );
+	$is_card = false !== strpos( $class, 'attachment-woocommerce' ) || false !== strpos( $class, 'attachment-nura_card' ) || in_array( $size, array( 'woocommerce_thumbnail', 'woocommerce_single', 'nura_card' ), true );
 	if ( ! $is_card ) {
 		return $attr;
 	}
@@ -122,6 +122,17 @@ add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment,
 	if ( ! empty( $attr['srcset'] ) ) {
 		// Cards are 2 per row on phones, 3 on tablets, 4-5 on desktop.
 		$attr['sizes'] = '(max-width: 600px) 50vw, (max-width: 1024px) 33vw, 300px';
+		// 1.69.1: drop candidates wider than 800px so a phone never downloads the 600 KB original.
+		$keep = array();
+		foreach ( explode( ',', (string) $attr['srcset'] ) as $cand ) {
+			if ( preg_match( '/\s(\d+)w\s*$/', trim( $cand ), $m ) && (int) $m[1] > 800 ) {
+				continue;
+			}
+			$keep[] = trim( $cand );
+		}
+		if ( $keep ) {
+			$attr['srcset'] = implode( ', ', $keep );
+		}
 	}
 	return $attr;
 }, 30, 3 );
@@ -251,3 +262,75 @@ add_action( 'wp_default_scripts', function ( $scripts ) {
 add_filter( 'nura_defer_handles', function ( $handles ) {
 	return array_merge( (array) $handles, array( 'nura-boost', 'nura-growth', 'nura-menu', 'nurax-sub' ) );
 } );
+
+
+/* ---------------------------------------------------------------------------
+ * v1.69.1 - mobile LCP / TBT
+ * ------------------------------------------------------------------------- */
+
+/* 13. Third-party tags added by other plugins (Site Kit, Google for WooCommerce, Meta)
+ *     load after the first tap/scroll or 3.5 s. Their inline config still runs and
+ *     queues into dataLayer / fbq, so nothing is lost. Off: add_filter( 'nura_delay_tags', '__return_false' ). */
+function nura_delay_hosts() {
+	return (array) apply_filters( 'nura_delay_tag_hosts', array( 'googletagmanager.com/gtag/js', 'googletagmanager.com/gtm.js', 'connect.facebook.net', 'analytics.tiktok.com' ) );
+}
+add_filter( 'script_loader_tag', function ( $tag, $handle, $src ) {
+	if ( ! nura_speed_on() || is_admin() || ! apply_filters( 'nura_delay_tags', true ) || ! $src ) {
+		return $tag;
+	}
+	foreach ( nura_delay_hosts() as $h ) {
+		if ( false !== strpos( $src, $h ) ) {
+			return '<script type="text/plain" data-nura-src="' . esc_url( $src ) . '"></script>' . "\n";
+		}
+	}
+	return $tag;
+}, 50, 3 );
+add_action( 'wp_head', function () {
+	if ( ! nura_speed_on() || ! apply_filters( 'nura_delay_tags', true ) ) {
+		return;
+	}
+	echo "<script>(function(){var d=0;function go(){if(d)return;d=1;document.querySelectorAll('script[data-nura-src]').forEach(function(o){var s=document.createElement('script');s.async=1;s.src=o.getAttribute('data-nura-src');document.head.appendChild(s);});}['pointerdown','keydown','scroll','touchstart'].forEach(function(e){addEventListener(e,go,{once:true,passive:true});});addEventListener('load',function(){setTimeout(go,3500);});})();</script>\n";
+}, 0 );
+
+/* 14. WooCommerce/WordPress helper scripts out of the <head> (they were render-blocking). */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( ! nura_speed_on() || is_admin() || ! apply_filters( 'nura_scripts_to_footer', true ) ) {
+		return;
+	}
+	if ( function_exists( 'is_checkout' ) && ( is_checkout() || is_cart() || is_account_page() ) ) {
+		return; // Leave checkout, cart and account exactly as WooCommerce ships them.
+	}
+	global $wp_scripts;
+	foreach ( array( 'jquery', 'jquery-core', 'jquery-blockui', 'js-cookie', 'underscore', 'wp-util', 'woocommerce', 'wp-hooks', 'wc-add-to-cart' ) as $h ) {
+		if ( isset( $wp_scripts->registered[ $h ] ) ) {
+			$wp_scripts->add_data( $h, 'group', 1 );
+		}
+	}
+}, 999 );
+
+/* 15. Small CSS files: print inline instead of separate blocking requests. */
+add_filter( 'style_loader_tag', function ( $tag, $handle, $href ) {
+	if ( ! nura_speed_on() || is_admin() || ! in_array( $handle, (array) apply_filters( 'nura_inline_styles', array( 'nura-child', 'woocommerce-smallscreen', 'woocommerce-layout', 'nurax' ) ), true ) ) {
+		return $tag;
+	}
+	$path = '';
+	$url  = strtok( (string) $href, '?' );
+	foreach ( array( content_url() => WP_CONTENT_DIR, plugins_url() => WP_PLUGIN_DIR ) as $u => $dir ) {
+		if ( 0 === strpos( $url, $u ) ) {
+			$path = $dir . substr( $url, strlen( $u ) );
+			break;
+		}
+	}
+	if ( ! $path || ! is_readable( $path ) || filesize( $path ) > 15000 ) {
+		return $tag;
+	}
+	$css = (string) file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+	$base = trailingslashit( dirname( $url ) );
+	$css  = preg_replace_callback( '/url\(\s*([\'"]?)(?!data:|https?:|\/)([^\'")]+)\1\s*\)/i', function ( $m ) use ( $base ) {
+		return 'url(' . $m[1] . $base . $m[2] . $m[1] . ')';
+	}, $css );
+	$media = preg_match( "/media=['\"]([^'\"]+)['\"]/", $tag, $mm ) ? $mm[1] : 'all';
+	return '<style id="' . esc_attr( $handle ) . '-inline" media="' . esc_attr( $media ) . '">' . str_replace( '</style', '<\/style', $css ) . "</style>\n";
+}, 30, 3 );
+
+/* 16. Preload the font files used above the fold is left to the browser; fonts already swap. */

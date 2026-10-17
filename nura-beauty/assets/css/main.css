@@ -1836,3 +1836,14 @@ a.nura-contact-card--feature:hover{color:#fff;border-color:var(--nura-gold)}
 .nura-bk__agree input{margin-top:.2rem;width:18px;height:18px;accent-color:#0E0E0E;flex:none}
 
 .nura-foot-title{font-family:var(--font-ui);text-transform:uppercase;letter-spacing:.14em;font-size:.82rem;color:var(--nura-gold);margin:0 0 .7rem;font-weight:500;line-height:1.3}
+
+/* 1.69.1 accessibility: readable gold on light backgrounds, 24px slider dots */
+.nura-eyebrow,.nura-rail__viewall,.nura-signoff{color:#8a6a24}
+.section--ink .nura-eyebrow,.site-footer .nura-eyebrow,.nura-hero-slider .nura-eyebrow,.nura-slide__inner .nura-eyebrow,.nura-stylist-cta__panel .nura-eyebrow,.nura-bk-hero .nura-eyebrow,.nura-in-care .nura-eyebrow,.nura-ref .nura-eyebrow,.site-footer .nura-signoff,.section--ink .nura-rail__viewall{color:var(--nura-gold-soft)}
+.nura-ptab{color:#5c5c5c}
+.nura-seo-home__facts span{color:#5f5242}
+.nura-dot-more{color:#5c5c5c}
+html body .nura-slider-dots button{width:24px!important;height:24px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;transform:none!important;position:relative;border-radius:50%}
+html body .nura-slider-dots button::before{content:"";position:absolute;left:7px;top:7px;width:10px;height:10px;border-radius:50%;border:1px solid rgba(243,233,220,.75);box-sizing:border-box;transition:background .3s}
+html body .nura-slider-dots button.is-active::before{background:var(--nura-gold);border-color:var(--nura-gold)}
+html body .nura-slider-dots{gap:4px}

@@ -28,6 +28,30 @@ class NURAX_Community {
 		add_action( 'add_meta_boxes', array( $this, 'order_box' ) );
 		add_action( 'update_option_nura_google_place_id', array( __CLASS__, 'flush' ) );
 		add_action( 'update_option_nura_google_places_api_key', array( __CLASS__, 'flush' ) );
+		add_action( 'parse_request', array( __CLASS__, 'review_redirect' ), 1 );
+	}
+
+	/**
+	 * 1.73.8: short, shareable review link - nurabeauty.co.ke/review
+	 * Goes to the Google review form once a Place ID is saved, otherwise to the shop.
+	 * Use it in WhatsApp messages, receipts, packaging cards and QR codes.
+	 */
+	public static function review_link() {
+		return home_url( '/review/' );
+	}
+
+	public static function review_redirect() {
+		$path = isset( $_SERVER['REQUEST_URI'] ) ? untrailingslashit( strtolower( (string) wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH ) ) ) : '';
+		if ( '/review' !== $path && '/reviews' !== $path ) {
+			return;
+		}
+		$to = self::google_review_url();
+		if ( '' === $to ) {
+			$to = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/' );
+		}
+		nocache_headers();
+		wp_redirect( $to, 302, 'NURA' ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Google review form is an external, fixed host.
+		exit;
 	}
 
 	public static function flush() {

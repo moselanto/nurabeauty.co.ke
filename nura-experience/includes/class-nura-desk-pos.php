@@ -435,6 +435,20 @@ class NURAX_Desk_POS {
 		return $html;
 	}
 
+	/** 1.73.8: friendly WhatsApp review request for a paid order. */
+	public static function review_text( $order ) {
+		$first = trim( (string) $order->get_billing_first_name() );
+		$link  = class_exists( 'NURAX_Community' ) ? NURAX_Community::review_link() : home_url( '/review/' );
+		return sprintf( "Hello%s, thank you for choosing NURA Beauty! We hope you love your new look. Would you take 30 seconds to leave us a Google review? It helps other women find us:\n%s\n\nA photo wearing your wig is very welcome too.", '' !== $first ? ' ' . $first : '', $link );
+	}
+
+	private static function review_btn( $order, $phone ) {
+		if ( ! $phone || ! self::is_paid( $order ) ) {
+			return '';
+		}
+		return '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" title="Ask for a Google review on WhatsApp" href="' . esc_url( NURAX_Desk::wa( $phone, self::review_text( $order ) ) ) . '">Review</a>';
+	}
+
 	public static function wa_text( $order ) {
 		$b     = self::biz();
 		$paid  = self::is_paid( $order );
@@ -567,6 +581,7 @@ class NURAX_Desk_POS {
 			echo '<span class="nd-list__acts"><a class="nd-ico-btn" target="_blank" rel="noopener" href="' . esc_url( self::doc_url( $o, 'invoice' ) ) . '">Invoice</a>';
 			if ( $phone ) {
 				echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $phone, self::wa_text( $o ) ) ) . '">WhatsApp</a>';
+				echo self::review_btn( $o, $phone ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in review_btn().
 			}
 			echo '<button type="button" class="nd-ico-btn nd-ico-btn--ok" data-pos-complete="' . (int) $o->get_id() . '">Fulfilled</button></span></li>';
 		}
@@ -941,6 +956,7 @@ class NURAX_Desk_POS {
 			echo '<a class="nd-ico-btn" target="_blank" rel="noopener" href="' . esc_url( self::doc_url( $o, 'invoice' ) ) . '">Invoice</a>';
 			if ( $phone ) {
 				echo '<a class="nd-ico-btn nd-ico-btn--wa" target="_blank" rel="noopener" href="' . esc_url( NURAX_Desk::wa( $phone, self::wa_text( $o ) ) ) . '">WhatsApp</a>';
+				echo self::review_btn( $o, $phone ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in review_btn().
 			}
 			echo '<button type="button" class="nd-ico-btn" data-pos-email="' . (int) $o->get_id() . '" data-email="' . esc_attr( is_email( $o->get_billing_email() ) ? $o->get_billing_email() : '' ) . '">E-mail</button>';
 			if ( ! $p ) {

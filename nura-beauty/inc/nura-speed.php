@@ -295,7 +295,7 @@ add_action( 'wp_head', function () {
 	if ( ! nura_speed_on() || ! apply_filters( 'nura_delay_tags', true ) ) {
 		return;
 	}
-	echo "<script>(function(){var d=0;function go(){if(d)return;d=1;document.querySelectorAll('script[data-nura-src]').forEach(function(o){var s=document.createElement('script');s.async=1;s.src=o.getAttribute('data-nura-src');document.head.appendChild(s);});}['pointerdown','keydown','scroll','touchstart'].forEach(function(e){addEventListener(e,go,{once:true,passive:true});});addEventListener('load',function(){setTimeout(go,3500);});})();</script>\n";
+	echo "<script>(function(){var d=0;function go(){if(d)return;d=1;var seen={};document.querySelectorAll('script[data-nura-src]').forEach(function(o){var u=o.getAttribute('data-nura-src'),k=u.replace(/&amp;/g,'&');if(seen[k])return;seen[k]=1;var s=document.createElement('script');s.async=1;s.src=u;document.head.appendChild(s);});}['pointerdown','keydown','scroll','touchstart'].forEach(function(e){addEventListener(e,go,{once:true,passive:true});});addEventListener('load',function(){setTimeout(go,3500);});})();</script>\n";
 }, 0 );
 
 /* 14. WooCommerce/WordPress helper scripts out of the <head> (they were render-blocking). */

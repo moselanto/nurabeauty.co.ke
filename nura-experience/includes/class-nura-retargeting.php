@@ -158,6 +158,17 @@ final class NURAX_Retargeting {
 			echo "</script>\n";
 		}
 
+		// 1.73.7: no duplicate Google tags. Site Kit already sends Google Analytics and
+		// Google for WooCommerce already sends Google Ads, so NURA only adds what is
+		// not already on the page (switch off with the nurax_dedupe_google_tags filter).
+		if ( apply_filters( 'nurax_dedupe_google_tags', true ) ) {
+			if ( defined( 'GOOGLESITEKIT_VERSION' ) ) {
+				$ga4 = '';
+			}
+			if ( defined( 'WC_GLA_VERSION' ) || class_exists( 'Automattic\\WooCommerce\\GoogleListingsAndAds\\PluginFactory' ) ) {
+				$ads = '';
+			}
+		}
 		if ( '' !== $ga4 || '' !== $ads ) {
 			$primary = '' !== $ga4 ? $ga4 : $ads;
 			echo "\n<!-- NURA Google tag -->\n";

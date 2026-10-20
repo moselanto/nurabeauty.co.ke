@@ -259,8 +259,8 @@ class NURAX_Desk {
 			'mkt_vip'       => 20000,
 			'mkt_winback'   => 60,
 			'sub_popup'     => 1,
-			'sub_delay'     => 12,
-			'sub_scroll'    => 40,
+			'sub_delay'     => 4,
+			'sub_scroll'    => 60,
 			'sub_days'      => 21,
 			'sub_title'     => 'Join The House',
 			'sub_text'      => 'Be first to see new wigs, restocks and members-only offers. Calm, useful e-mails - unsubscribe anytime.',
@@ -791,9 +791,9 @@ class NURAX_Desk {
 		echo '</section>';
 
 		echo '<section class="nd-card" id="nd-house"><header class="nd-card__h"><h2>Join The House - subscribe pop-up</h2></header><div class="nd-fields nd-fields--2">';
-		self::field_check( 'sub_popup', 'Show the pop-up to new visitors', $s['sub_popup'], 'Once per visitor. Never on cart, checkout or account pages, never to staff, never over another pop-up.' );
-		self::field_num( 'sub_delay', 'Show after (seconds)', $s['sub_delay'], 'Or earlier if she scrolls far or (on computers) moves to leave.' );
-		self::field_num( 'sub_scroll', 'Or after scrolling (% of page)', $s['sub_scroll'], '' );
+		self::field_check( 'sub_popup', 'Show the Join The House bar to new visitors', $s['sub_popup'], 'A slim bar at the bottom, never a pop-up over products. Once per visitor. Never on cart, checkout or account pages, never to staff.' );
+		self::field_num( 'sub_delay', 'On her 2nd page, show after (seconds)', $s['sub_delay'], 'Never on the first page she opens, unless she scrolls far down it.' );
+		self::field_num( 'sub_scroll', 'Or after scrolling (% of page, 60 minimum)', $s['sub_scroll'], '' );
 		self::field_num( 'sub_days', 'If closed, ask again after (days)', $s['sub_days'], 'Subscribers never see it again.' );
 		self::field_text( 'sub_title', 'Headline', $s['sub_title'], '' );
 		self::field_text( 'sub_image', 'Side image URL (optional)', $s['sub_image'], 'A portrait photo of a model in a NURA wig works best. Leave empty for the black and gold design.', 'url' );
@@ -931,8 +931,8 @@ class NURAX_Desk {
 			$out['cart_days']    = (int) $d['cart_days'];
 		}
 		$out['sub_popup']  = empty( $in['sub_popup'] ) ? 0 : 1;
-		$out['sub_delay']  = isset( $in['sub_delay'] ) ? max( 4, absint( $in['sub_delay'] ) ) : 12;
-		$out['sub_scroll'] = isset( $in['sub_scroll'] ) ? min( 90, max( 10, absint( $in['sub_scroll'] ) ) ) : 40;
+		$out['sub_delay']  = isset( $in['sub_delay'] ) ? max( 2, absint( $in['sub_delay'] ) ) : 4;
+		$out['sub_scroll'] = isset( $in['sub_scroll'] ) ? min( 90, max( 60, absint( $in['sub_scroll'] ) ) ) : 60;
 		$out['sub_days']   = isset( $in['sub_days'] ) ? max( 1, absint( $in['sub_days'] ) ) : 21;
 		$out['sub_title']  = isset( $in['sub_title'] ) ? mb_substr( sanitize_text_field( $in['sub_title'] ), 0, 80 ) : 'Join The House';
 		$out['sub_text']   = isset( $in['sub_text'] ) ? mb_substr( sanitize_textarea_field( $in['sub_text'] ), 0, 300 ) : '';

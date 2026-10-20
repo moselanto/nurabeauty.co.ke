@@ -147,3 +147,33 @@ html.nhs-lock{overflow:hidden}
 	.nhs__title{font-size:21px}
 	.nhs__photo{object-position:50% 35%}
 }
+
+/* ---------- 1.78.0 slim slide-in bar (replaces the automatic centred pop-up) ---------- */
+.nhs-bar{position:fixed;left:18px;bottom:18px;z-index:9985;box-sizing:border-box;width:min(560px,calc(100vw - 120px));max-height:116px;display:grid;grid-template-columns:1fr auto;grid-template-areas:"txt x" "form x";gap:6px 10px;padding:12px 14px 12px 18px;border:1px solid rgba(201,162,75,.45);border-radius:14px;background:#0E0E0E;color:#fff;font-family:var(--font-body,"Montserrat",Arial,sans-serif);box-shadow:0 16px 40px rgba(0,0,0,.28);transform:translateY(calc(100% + 30px));opacity:0;transition:transform .35s ease,opacity .35s ease}
+.nhs-bar[hidden]{display:none}
+.nhs-bar.is-in{transform:none;opacity:1}
+.nhs-bar__txt{grid-area:txt;margin:0;font-size:12.5px;line-height:1.35;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nhs-bar__txt strong{color:#E4C983;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:11.5px;margin-right:4px}
+.nhs-bar__form,.nhs-bar__msg{grid-area:form}
+.nhs-bar__form{display:flex;gap:8px;margin:0}
+.nhs-bar__form[hidden]{display:none}
+.nhs-bar__form input[type=email]{flex:1;min-width:0;height:40px;padding:0 12px;border:1px solid #3a342b;border-radius:8px;background:#1a1712;color:#fff;font-size:14px;box-sizing:border-box}
+.nhs-bar__form input[type=email]:focus{outline:none;border-color:#C9A24B;box-shadow:0 0 0 3px rgba(201,162,75,.25)}
+.nhs-bar__form button{height:40px;padding:0 16px;border:0;border-radius:8px;background:#C9A24B;color:#0E0E0E;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.nhs-bar__form button:hover,.nhs-bar__form button:focus-visible{background:#E4C983;outline:none}
+.nhs-bar__form button[disabled]{opacity:.6}
+.nhs-bar__msg{margin:0;font-size:13px;line-height:1.4;color:#E4C983}
+.nhs-bar__msg.is-err{color:#ffb3ad}
+.nhs-bar__x{grid-area:x;align-self:start;width:30px;height:30px;border:1px solid rgba(255,255,255,.2);border-radius:50%;background:transparent;color:#fff;display:grid;place-items:center;cursor:pointer}
+.nhs-bar__x:hover,.nhs-bar__x:focus-visible{border-color:#E4C983;color:#E4C983;outline:none}
+@media (max-width:760px){
+	.nhs-bar{left:8px;right:8px;bottom:8px;width:auto;max-height:80px;padding:8px 8px 8px 12px;gap:4px 8px;border-radius:12px;padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+	.nhs-bar__txt{font-size:11px}
+	.nhs-bar__txt strong{font-size:10.5px}
+	.nhs-bar__form input[type=email],.nhs-bar__form button{height:36px}
+	.nhs-bar__form input[type=email]{font-size:16px}
+	.nhs-bar__form button{padding:0 12px;font-size:11px}
+	.nhs-bar__x{width:26px;height:26px}
+	html.nhs-bar-on .nurax-stylist{bottom:96px}
+}
+@media (prefers-reduced-motion:reduce){.nhs-bar{transition:none}}

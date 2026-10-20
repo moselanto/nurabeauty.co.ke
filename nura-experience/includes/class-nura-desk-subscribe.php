@@ -1,6 +1,11 @@
 <?php
 /**
- * NURA Desk - "Join The House" subscribe pop-up + footer form (NURA Experience 1.62.0).
+ * NURA Desk - "Join The House" subscribe bar, pop-up + footer form (NURA Experience 1.78.0).
+ *
+ * 1.78.0: the centred pop-up no longer opens by itself (it covered product
+ * buttons). New visitors get a slim bottom bar (no image, under 120px desktop /
+ * 80px phone) from their 2nd page view or after scrolling 60% of a page. The
+ * full pop-up opens only when she taps the "Join The House" tab.
  *
  * - Footer "Join The House" form and a calm, one-time pop-up for new visitors.
  * - Step 1: e-mail (+ first name). Step 2 (optional): WhatsApp number + what
@@ -62,8 +67,8 @@ class NURAX_Desk_Sub {
 		wp_localize_script( 'nurax-sub', 'NURAX_SUB', array(
 			'ajax'   => admin_url( 'admin-ajax.php' ),
 			'popup'  => ( ( ! empty( $s['sub_popup'] ) || self::preview() ) && ! self::excluded() ) ? 1 : 0,
-			'delay'  => max( 4, (int) $s['sub_delay'] ),
-			'scroll' => min( 90, max( 10, (int) $s['sub_scroll'] ) ),
+			'delay'  => max( 2, (int) $s['sub_delay'] ),
+			'scroll' => min( 90, max( 60, (int) $s['sub_scroll'] ) ),
 			'days'   => max( 1, (int) $s['sub_days'] ),
 			'preview' => self::preview() ? 1 : 0,
 			'debug'   => self::preview() ? 1 : 0,
@@ -134,6 +139,16 @@ class NURAX_Desk_Sub {
 			</div>
 		</div>
 		<button type="button" class="nhs-tab" data-nhs-tab hidden><span class="nhs-tab__dot" aria-hidden="true"></span><?php echo esc_html( $coupon > 0 ? sprintf( __( 'Get %s off', 'nura-experience' ), NURAX_Desk::money( $coupon ) ) : __( 'Join The House', 'nura-experience' ) ); ?></button>
+		<div class="nhs-bar" data-nhs-bar role="region" aria-label="<?php esc_attr_e( 'Join The House', 'nura-experience' ); ?>" hidden>
+			<p class="nhs-bar__txt"><strong><?php echo esc_html( $s['sub_title'] ); ?></strong> <span><?php echo esc_html( $coupon > 0 ? sprintf( __( '%s off your first wig, plus new drops first.', 'nura-experience' ), NURAX_Desk::money( $coupon ) ) : __( 'New drops, restocks and members-only offers first.', 'nura-experience' ) ); ?></span></p>
+			<form class="nhs-bar__form" data-nhs-barform novalidate>
+				<input type="email" name="email" autocomplete="email" inputmode="email" placeholder="<?php esc_attr_e( 'Your e-mail', 'nura-experience' ); ?>" aria-label="<?php esc_attr_e( 'E-mail address', 'nura-experience' ); ?>" required>
+				<input type="text" name="website" class="nhs__hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+				<button type="submit"><?php echo esc_html( $coupon > 0 ? __( 'Get code', 'nura-experience' ) : __( 'Join', 'nura-experience' ) ); ?></button>
+			</form>
+			<p class="nhs-bar__msg" data-nhs-barmsg role="status" hidden></p>
+			<button type="button" class="nhs-bar__x" data-nhs-barclose aria-label="<?php esc_attr_e( 'Close', 'nura-experience' ); ?>"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+		</div>
 		<?php
 	}
 

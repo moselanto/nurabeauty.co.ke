@@ -1,13 +1,13 @@
 # HANDOVER.md - current state for the next developer / AI agent
 
-Last updated: 17 Oct 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+Last updated: 20 Oct 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
 ## 1. Current versions (on `main`)
 
 | Package | Version | Constant |
 | --- | --- | --- |
 | `nura-beauty/` (parent theme) | **1.72.0** | `Version:` in `style.css`, `NURA_VERSION` in `functions.php` |
-| `nura-experience/` (plugin) | **1.77.1** | header `Version:` and `NURAX_VERSION` in `nura-experience.php` |
+| `nura-experience/` (plugin) | **1.78.0** | header `Version:` and `NURAX_VERSION` in `nura-experience.php` |
 | `nura-beauty-child/` | unchanged | - |
 
 Scope: this repo is NURA Beauty only. The sister site MK Auto Spares (`moselanto/https-mkautospares.co.ke-`, plugin `mk-desk`) was used only as a reference to copy features from. Do not change the MK repo from NURA work.
@@ -16,6 +16,7 @@ Scope: this repo is NURA Beauty only. The sister site MK Auto Spares (`moselanto
 
 | Theme | Plugin | Commit | What changed |
 | --- | --- | --- | --- |
+| - | 1.78.0 | (this commit) | CRO fix "modal blocking content": the centred Join The House pop-up no longer opens by itself. New visitors get a slim bottom bar (`.nhs-bar`, no image, under 120px desktop / 80px phone, close button) only from their 2nd page view (`localStorage nura_house_pv`) or after scrolling 60% of a page. Exit-intent and timed pop-up removed. Full pop-up opens only from the "Join The House" tab. Settings defaults: `sub_delay` 4 s (on 2nd page), `sub_scroll` 60% minimum. |
 | 1.72.0 | 1.77.1 | f9412eb | Login page uses self-hosted fonts (Google Fonts only as fallback). `NURAX_Desk::ref_used()` label now checks `nura_pos` (was `nurax_pos`), so reused codes say "sale #". |
 | - | 1.77.0 | c722ad3 | `NURAX_Desk_POS::online_paid()` WhatsApp receipt for paid website orders (processing/completed hooks, API only); `skip_wc_mail()` stops duplicate WooCommerce customer e-mail on till sales; `contacts()` fallback (order, account, WhatsApp order, customer list); `sent_info()` badges on Sales list; `orders_for_appt()` and "Billed #N" on bookings instead of Bill. |
 | - | 1.76.0 | 0f82e78 | Void a till sale (op `void`, reason >= 3 chars, `refunds` permission, status cancelled restocks, VOID line on documents, staff log warn); part payments (op `part`, `payments()`, `paid_so_far()`, `balance()`, `add_payment()`, auto-complete at zero balance); "Bill" button on bookings opens till via `?appt=ID` (verified deposit taken off invoice, booking set completed); automatic receipts `deliver()` once per channel after paid sale / mark paid / final part payment. |

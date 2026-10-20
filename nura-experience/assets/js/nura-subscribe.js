@@ -1,4 +1,4 @@
-/* NURA "Join The House" - pop-up + footer form (NURA Experience 1.62.0). */
+/* NURA "Join The House" - slim slide-in bar, pop-up on request + footer form (NURA Experience 1.78.0). */
 (function () {
 'use strict';
 function nuraHouseInit() {
@@ -43,8 +43,8 @@ function nuraHouseInit() {
 	});
 
 	/* ---------- Pop-up ---------- */
-	var box = d.querySelector('[data-nhs]'), tab = d.querySelector('[data-nhs-tab]');
-	function hideAll() { if (box) { box.hidden = true; } if (tab) { tab.hidden = true; } }
+	var box = d.querySelector('[data-nhs]'), tab = d.querySelector('[data-nhs-tab]'), bar = d.querySelector('[data-nhs-bar]');
+	function hideAll() { if (box) { box.hidden = true; } if (tab) { tab.hidden = true; } if (bar) { bar.hidden = true; d.documentElement.classList.remove('nhs-bar-on'); } }
 	if (!box || !C.popup) { return; }
 	var card = box.querySelector('.nhs__card'), opened = false, lastFocus = null;
 
@@ -110,19 +110,51 @@ function nuraHouseInit() {
 
 	if (C.preview) { setTimeout(function () { open(true); }, 800); return; }
 
-	/* Triggers: after the delay, or after reading part of the page, or (desktop) when leaving - whichever comes first. */
-	if (state()) { return; }
-	var armed = false;
-	setTimeout(function () { armed = true; }, 5000);
-	setTimeout(function () { open(false); }, (C.delay || 12) * 1000);
-	window.addEventListener('scroll', function onS() {
-		if (!armed) { return; }
-		var h = d.documentElement, p = (h.scrollTop || d.body.scrollTop) / Math.max(1, h.scrollHeight - h.clientHeight) * 100;
-		if (p >= (C.scroll || 40)) { window.removeEventListener('scroll', onS); open(false); }
-	}, { passive: true });
-	if (window.matchMedia && window.matchMedia('(pointer:fine)').matches) {
-		d.addEventListener('mouseout', function (e) { if (armed && !e.relatedTarget && e.clientY < 8) { open(false); } });
+	/* ---------- Slim slide-in bar (1.78.0) ----------
+	 * The centred pop-up no longer opens by itself (it covered product buttons).
+	 * New visitors only get a slim bar at the bottom, and only from their second
+	 * page view or after reading most of the page. The full pop-up opens only when
+	 * she taps the "Join The House" tab. */
+	function showBar() {
+		if (!bar || state() || !bar.hidden) { return; }
+		if (busy() || (box && !box.hidden)) { setTimeout(showBar, 8000); return; }
+		bar.hidden = false; d.documentElement.classList.add('nhs-bar-on');
+		requestAnimationFrame(function () { bar.classList.add('is-in'); });
+		if (tab) { tab.hidden = true; }
 	}
+	function hideBar(remember) {
+		if (!bar) { return; }
+		bar.classList.remove('is-in'); d.documentElement.classList.remove('nhs-bar-on');
+		setTimeout(function () { bar.hidden = true; }, 320);
+		if (remember && state() !== 'sub') { setC(KEY, 'x', C.days || 21); if (tab) { tab.hidden = false; setTimeout(function () { tab.classList.add('is-in'); }, 400); } }
+	}
+	if (bar) {
+		bar.querySelector('[data-nhs-barclose]').addEventListener('click', function () { hideBar(true); });
+		var bf = bar.querySelector('[data-nhs-barform]'), bm = bar.querySelector('[data-nhs-barmsg]');
+		bf.addEventListener('submit', function (e) {
+			e.preventDefault(); bm.hidden = true; bm.classList.remove('is-err');
+			var v = bf.email.value.trim();
+			if (!validEmail(v)) { bm.textContent = 'Please enter a valid e-mail address.'; bm.classList.add('is-err'); bm.hidden = false; bf.email.focus(); return; }
+			var bb = bf.querySelector('button'); bb.disabled = true;
+			post({ email: v, website: bf.website.value }).then(function (r) {
+				bb.disabled = false;
+				if (!r || !r.success) { bm.textContent = (r && r.data && r.data.message) || 'Please try again.'; bm.classList.add('is-err'); bm.hidden = false; return; }
+				setC(KEY, 'sub', 365); track('bar');
+				bm.textContent = (r.data && r.data.code) ? 'Welcome to the house! Your code: ' + r.data.code + ' (also in your inbox).' : 'Welcome to the house! Check your inbox.';
+				bf.hidden = true; bm.hidden = false;
+				setTimeout(function () { hideBar(false); }, 9000);
+			}).catch(function () { bb.disabled = false; bm.textContent = 'Network problem. Please try again.'; bm.classList.add('is-err'); bm.hidden = false; });
+		});
+	}
+
+	if (state()) { return; }
+	var pv = 0;
+	try { pv = (parseInt(localStorage.getItem('nura_house_pv'), 10) || 0) + 1; localStorage.setItem('nura_house_pv', String(pv)); } catch (e) { pv = 1; }
+	if (pv >= 2) { setTimeout(showBar, (C.delay || 4) * 1000); }
+	window.addEventListener('scroll', function onS() {
+		var h = d.documentElement, p = (h.scrollTop || d.body.scrollTop) / Math.max(1, h.scrollHeight - h.clientHeight) * 100;
+		if (p >= (C.scroll || 60)) { window.removeEventListener('scroll', onS); showBar(); }
+	}, { passive: true });
 }
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', nuraHouseInit); } else { nuraHouseInit(); }
 })();

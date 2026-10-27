@@ -1,4 +1,4 @@
-/* NURA "Join The House" - slim slide-in bar, pop-up on request + footer form (NURA Experience 1.78.0). */
+/* NURA "Join The House" - slim slide-in bar, pop-up on request + footer form (NURA Experience 1.79.2: closing it hides everything for 24 hours). */
 (function () {
 'use strict';
 function nuraHouseInit() {
@@ -7,10 +7,21 @@ function nuraHouseInit() {
 
 	function getC(n) { var m = d.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : ''; }
 	function setC(n, v, days) { var t = new Date(); t.setTime(t.getTime() + days * 864e5); d.cookie = n + '=' + encodeURIComponent(v) + ';expires=' + t.toUTCString() + ';path=/;SameSite=Lax'; try { localStorage.setItem(n, v + '|' + t.getTime()); } catch (e) {} }
+	var SNOOZE = 'nura_house_snooze';
+	function snoozed() {
+		var until = Number(getC(SNOOZE)) || 0;
+		try { until = Math.max(until, Number(localStorage.getItem(SNOOZE)) || 0, Number(sessionStorage.getItem(SNOOZE)) || 0); } catch (e) {}
+		return until > Date.now();
+	}
+	function snooze() {
+		var h = Math.max(1, Number(C.hours) || 24), until = Date.now() + h * 36e5;
+		d.cookie = SNOOZE + '=' + until + ';max-age=' + Math.round(h * 3600) + ';path=/;SameSite=Lax';
+		try { localStorage.setItem(SNOOZE, String(until)); sessionStorage.setItem(SNOOZE, String(until)); } catch (e) {}
+	}
 	function state() {
-		var c = getC(KEY); if (c) { return c; }
-		try { var l = (localStorage.getItem(KEY) || '').split('|'); if (l[0] && Number(l[1]) > Date.now()) { return l[0]; } } catch (e) {}
-		return '';
+		var c = getC(KEY); if (c === 'sub') { return c; }
+		try { var l = (localStorage.getItem(KEY) || '').split('|'); if (l[0] === 'sub' && Number(l[1]) > Date.now()) { return 'sub'; } } catch (e) {}
+		return snoozed() ? 'x' : '';
 	}
 	function track(where) {
 		try { if (window.gtag) { window.gtag('event', 'sign_up', { method: 'newsletter_' + where }); } } catch (e) {}
@@ -63,7 +74,7 @@ function nuraHouseInit() {
 	function close(remember) {
 		box.classList.remove('is-open'); d.documentElement.classList.remove('nhs-lock');
 		setTimeout(function () { box.hidden = true; }, 260);
-		if (remember && state() !== 'sub') { setC(KEY, 'x', C.days || 21); if (tab) { tab.hidden = false; setTimeout(function () { tab.classList.add('is-in'); }, 50); } }
+		if (remember && state() !== 'sub') { snooze(); if (tab) { tab.hidden = true; tab.classList.remove('is-in'); } }
 		if (lastFocus && lastFocus.focus) { lastFocus.focus({ preventScroll: true }); }
 	}
 
@@ -79,7 +90,7 @@ function nuraHouseInit() {
 	});
 	if (tab) {
 		tab.addEventListener('click', function () { open(true); });
-		if (state() === 'x' && !getC('nura_house_tab')) { tab.hidden = false; setTimeout(function () { tab.classList.add('is-in'); }, 1500); setC('nura_house_tab', '1', 1); }
+		// 1.79.2: the tab no longer slides in by itself; while snoozed nothing appears.
 	}
 
 	var f1 = box.querySelector('[data-nhs-form]'), f2 = box.querySelector('[data-nhs-more]'), err = box.querySelector('[data-nhs-err]');
@@ -108,7 +119,7 @@ function nuraHouseInit() {
 	var cp = box.querySelector('[data-nhs-copy]');
 	if (cp) { cp.addEventListener('click', function () { var t = box.querySelector('[data-nhs-codeval]').textContent; if (navigator.clipboard) { navigator.clipboard.writeText(t).then(function () { cp.textContent = 'Copied'; }); } }); }
 
-	if (C.preview) { setTimeout(function () { open(true); }, 800); return; }
+	if (C.preview) { if (!snoozed()) { setTimeout(function () { open(true); }, 800); } return; }
 
 	/* ---------- Slim slide-in bar (1.78.0) ----------
 	 * The centred pop-up no longer opens by itself (it covered product buttons).
@@ -126,7 +137,7 @@ function nuraHouseInit() {
 		if (!bar) { return; }
 		bar.classList.remove('is-in'); d.documentElement.classList.remove('nhs-bar-on');
 		setTimeout(function () { bar.hidden = true; }, 320);
-		if (remember && state() !== 'sub') { setC(KEY, 'x', C.days || 21); if (tab) { tab.hidden = false; setTimeout(function () { tab.classList.add('is-in'); }, 400); } }
+		if (remember && state() !== 'sub') { snooze(); if (tab) { tab.hidden = true; tab.classList.remove('is-in'); } }
 	}
 	if (bar) {
 		bar.querySelector('[data-nhs-barclose]').addEventListener('click', function () { hideBar(true); });

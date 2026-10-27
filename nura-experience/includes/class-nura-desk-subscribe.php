@@ -70,6 +70,7 @@ class NURAX_Desk_Sub {
 			'delay'  => max( 2, (int) $s['sub_delay'] ),
 			'scroll' => min( 90, max( 60, (int) $s['sub_scroll'] ) ),
 			'days'   => max( 1, (int) $s['sub_days'] ),
+			'hours'  => (int) apply_filters( 'nurax_sub_snooze_hours', max( 1, (int) ( isset( $s['sub_hours'] ) ? $s['sub_hours'] : 24 ) ) ),
 			'preview' => self::preview() ? 1 : 0,
 			'debug'   => self::preview() ? 1 : 0,
 		) );

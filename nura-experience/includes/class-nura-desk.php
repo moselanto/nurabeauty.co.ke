@@ -262,6 +262,7 @@ class NURAX_Desk {
 			'sub_delay'     => 4,
 			'sub_scroll'    => 60,
 			'sub_days'      => 21,
+			'sub_hours'     => 24,
 			'sub_title'     => 'Join The House',
 			'sub_text'      => 'Be first to see new wigs, restocks and members-only offers. Calm, useful e-mails - unsubscribe anytime.',
 			'sub_perks'     => "First look at new drops and restocks\nMembers-only offers and Lipa Mdogo Mdogo deals\nWig care tips from our stylists",
@@ -794,7 +795,7 @@ class NURAX_Desk {
 		self::field_check( 'sub_popup', 'Show the Join The House bar to new visitors', $s['sub_popup'], 'A slim bar at the bottom, never a pop-up over products. Once per visitor. Never on cart, checkout or account pages, never to staff.' );
 		self::field_num( 'sub_delay', 'On her 2nd page, show after (seconds)', $s['sub_delay'], 'Never on the first page she opens, unless she scrolls far down it.' );
 		self::field_num( 'sub_scroll', 'Or after scrolling (% of page, 60 minimum)', $s['sub_scroll'], '' );
-		self::field_num( 'sub_days', 'If closed, ask again after (days)', $s['sub_days'], 'Subscribers never see it again.' );
+		self::field_num( 'sub_hours', 'If closed, ask again after (hours)', $s['sub_hours'], 'Once closed, the bar, pop-up and tab stay hidden for this long on every page and reload. Subscribers never see it again.' );
 		self::field_text( 'sub_title', 'Headline', $s['sub_title'], '' );
 		self::field_text( 'sub_image', 'Side image URL (optional)', $s['sub_image'], 'A portrait photo of a model in a NURA wig works best. Leave empty for the black and gold design.', 'url' );
 		self::field_num( 'sub_coupon', 'Welcome code value (KSh, 0 = none)', $s['sub_coupon'], 'Creates a single-use code locked to her e-mail, valid 30 days, only for people who have never bought.' );
@@ -934,6 +935,7 @@ class NURAX_Desk {
 		$out['sub_delay']  = isset( $in['sub_delay'] ) ? max( 2, absint( $in['sub_delay'] ) ) : 4;
 		$out['sub_scroll'] = isset( $in['sub_scroll'] ) ? min( 90, max( 60, absint( $in['sub_scroll'] ) ) ) : 60;
 		$out['sub_days']   = isset( $in['sub_days'] ) ? max( 1, absint( $in['sub_days'] ) ) : 21;
+		$out['sub_hours']  = isset( $in['sub_hours'] ) ? min( 8760, max( 1, absint( $in['sub_hours'] ) ) ) : 24;
 		$out['sub_title']  = isset( $in['sub_title'] ) ? mb_substr( sanitize_text_field( $in['sub_title'] ), 0, 80 ) : 'Join The House';
 		$out['sub_text']   = isset( $in['sub_text'] ) ? mb_substr( sanitize_textarea_field( $in['sub_text'] ), 0, 300 ) : '';
 		$out['sub_perks']  = isset( $in['sub_perks'] ) ? mb_substr( sanitize_textarea_field( $in['sub_perks'] ), 0, 400 ) : '';

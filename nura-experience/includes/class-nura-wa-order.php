@@ -124,7 +124,7 @@ class NURAX_WA_Order {
 
 	/** Optional business name M-Pesa shows for the till (filter nurax_mpesa_till_name). */
 	public static function till_name() {
-		return trim( wp_strip_all_tags( (string) apply_filters( 'nurax_mpesa_till_name', '' ) ) );
+		return trim( wp_strip_all_tags( (string) apply_filters( 'nurax_mpesa_till_name', defined( 'NURAX_MPESA_TILL_NAME' ) ? (string) NURAX_MPESA_TILL_NAME : 'Nura Beauty & Crown' ) ) );
 	}
 
 	/** Normalise an M-Pesa confirmation code (10 letters/digits, e.g. TJR4ABC12D), or ''. */
@@ -699,6 +699,7 @@ class NURAX_WA_Order {
 								<li><?php esc_html_e( 'Open M-Pesa and choose Lipa na M-Pesa', 'nura-experience' ); ?></li>
 								<li><?php esc_html_e( 'Select Buy Goods and Services', 'nura-experience' ); ?></li>
 								<li><?php echo esc_html( sprintf( /* translators: %s: till number */ __( 'Enter Till number %s and the amount', 'nura-experience' ), $till ) ); ?></li>
+								<?php if ( '' !== $till_name ) : ?><li><?php echo esc_html( sprintf( /* translators: %s: business name */ __( 'Check the name shows %s, then enter your PIN', 'nura-experience' ), $till_name ) ); ?></li><?php endif; ?>
 								<li><?php esc_html_e( 'Enter your PIN and confirm', 'nura-experience' ); ?></li>
 							</ol>
 							<div class="nwo-f nwo-f--code">

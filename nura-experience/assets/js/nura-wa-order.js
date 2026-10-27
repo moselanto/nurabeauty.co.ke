@@ -1,5 +1,5 @@
 /*!
- * NURA WhatsApp Order pop-up (NURA Experience 1.79.0: M-Pesa Till payment, no cash on delivery).
+ * NURA WhatsApp Order pop-up (NURA Experience 1.79.1: M-Pesa Till payment, no cash on delivery).
  * Ported from the Tabarak Electronics order funnel, restyled for NURA.
  * Every trigger is a real wa.me link, so ordering still works without JS.
  */
@@ -412,7 +412,7 @@
     L.push(SEP);
     L.push('*PAYMENT*');
     if (payTill()) {
-      L.push('Method: M-Pesa Buy Goods, Till ' + TILL);
+      L.push('Method: M-Pesa Buy Goods, Till ' + TILL + (C.tillName ? ' (' + C.tillName + ')' : ''));
       var code = normCode(val('mpesa_code'));
       if (code) {
         L.push('Status: PAID - M-Pesa code ' + code + ' (please verify)');

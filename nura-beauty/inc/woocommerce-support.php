@@ -202,8 +202,8 @@ function nura_trust_strip() {
 	}
 	$items[] = __( 'Same-day delivery in Nairobi', 'nura-beauty' );
 	$nura_pay = function_exists( 'nura_payment_summary' )
-		? nura_payment_summary( __( 'M-Pesa, Cash on Delivery & Bank Transfer', 'nura-beauty' ) )
-		: __( 'M-Pesa, Cash on Delivery & Bank Transfer', 'nura-beauty' );
+		? nura_payment_summary( __( 'M-Pesa, Card & Bank Transfer', 'nura-beauty' ) )
+		: __( 'M-Pesa, Card & Bank Transfer', 'nura-beauty' );
 	/* translators: %s: list of accepted payment methods */
 	$items[] = sprintf( __( 'Pay with %s', 'nura-beauty' ), $nura_pay );
 	$items[] = __( 'Free virtual wig consultation', 'nura-beauty' );
@@ -592,7 +592,7 @@ add_action( 'woocommerce_after_checkout_validation', function ( $data, $errors )
  * Reassurance right above the payment options at checkout.
  */
 add_action( 'woocommerce_review_order_before_payment', function () {
-	$pay = function_exists( 'nura_payment_summary' ) ? nura_payment_summary( __( 'M-Pesa or Cash on Delivery', 'nura-beauty' ) ) : '';
+	$pay = function_exists( 'nura_payment_summary' ) ? nura_payment_summary( __( 'M-Pesa or card', 'nura-beauty' ) ) : '';
 	echo '<ul class="nura-checkout-trust">';
 	echo '<li>' . esc_html__( 'Secure checkout - your details stay private', 'nura-beauty' ) . '</li>';
 	if ( $pay ) {
@@ -636,9 +636,13 @@ if ( ! function_exists( 'nura_discount_percent' ) ) {
 }
 
 /* -----------------------------------------------------------------------------
- * v1.50.0 - Cash on Delivery is available in Nairobi only.
- * Hides COD once a non-Nairobi county is chosen (classic + block checkout both
- * read available gateways) and blocks it server-side as a safety net.
+ * v1.73.0 - No cash on delivery. The WooCommerce "Cash on delivery" gateway is
+ * offered only as "Pay at the shop on collection" when the shopper chooses
+ * studio pick-up (local_pickup / pickup_location). Every delivered order is
+ * paid online (M-Pesa / card via Paystack, or bank transfer) before dispatch.
+ * Hidden from available gateways and blocked server-side as a safety net.
+ * Helpers nura_is_nairobi_state() / nura_customer_county() are kept for other
+ * modules.
  * -------------------------------------------------------------------------- */
 if ( ! function_exists( 'nura_is_nairobi_state' ) ) {
 	function nura_is_nairobi_state( $state ) {
@@ -658,34 +662,74 @@ if ( ! function_exists( 'nura_customer_county' ) ) {
 		return $s;
 	}
 }
+if ( ! function_exists( 'nura_is_pickup_method' ) ) {
+	/** True when a shipping method id is studio pick-up. */
+	function nura_is_pickup_method( $id ) {
+		$id = strtolower( (string) $id );
+		return ( 0 === strpos( $id, 'local_pickup' ) || 0 === strpos( $id, 'pickup_location' ) );
+	}
+}
+if ( ! function_exists( 'nura_chosen_is_pickup' ) ) {
+	/** True only when every chosen shipping method in the cart session is pick-up. */
+	function nura_chosen_is_pickup( $chosen = null ) {
+		if ( null === $chosen ) {
+			$chosen = ( function_exists( 'WC' ) && WC()->session ) ? WC()->session->get( 'chosen_shipping_methods' ) : array();
+		}
+		$chosen = array_filter( (array) $chosen );
+		if ( empty( $chosen ) ) {
+			return false;
+		}
+		foreach ( $chosen as $m ) {
+			if ( ! nura_is_pickup_method( $m ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+}
 add_filter( 'woocommerce_available_payment_gateways', function ( $gateways ) {
 	if ( is_admin() && ! wp_doing_ajax() ) {
 		return $gateways;
 	}
-	if ( isset( $gateways['cod'] ) ) {
-		$county = nura_customer_county();
-		if ( '' !== $county && ! nura_is_nairobi_state( $county ) ) {
-			unset( $gateways['cod'] );
-		}
+	if ( isset( $gateways['cod'] ) && ! nura_chosen_is_pickup() && ! apply_filters( 'nura_allow_cod_delivery', false ) ) {
+		unset( $gateways['cod'] );
 	}
 	return $gateways;
 } );
+// Shopper-facing name and instructions for the gateway that remains (pick-up only).
+add_filter( 'woocommerce_gateway_title', function ( $title, $id = '' ) {
+	return 'cod' === $id ? __( 'Pay at the shop on collection (cash or M-Pesa)', 'nura-beauty' ) : $title;
+}, 10, 2 );
+add_filter( 'woocommerce_gateway_description', function ( $desc, $id = '' ) {
+	return 'cod' === $id ? __( 'Pay in person when you collect your order from our studio at Imenti House, Moi Avenue, Nairobi CBD. Available for studio pick-up only; we do not offer cash on delivery.', 'nura-beauty' ) : $desc;
+}, 10, 2 );
 add_action( 'woocommerce_after_checkout_validation', function ( $data, $errors ) {
-	if ( isset( $data['payment_method'] ) && 'cod' === $data['payment_method'] ) {
-		$county = ( ! empty( $data['ship_to_different_address'] ) && ! empty( $data['shipping_state'] ) ) ? $data['shipping_state'] : ( isset( $data['billing_state'] ) ? $data['billing_state'] : '' );
-		if ( '' !== (string) $county && ! nura_is_nairobi_state( $county ) ) {
-			$errors->add( 'nura_cod', __( 'Cash on Delivery is available in Nairobi only. Please pay with M-Pesa, card or bank transfer.', 'nura-beauty' ) );
+	if ( isset( $data['payment_method'] ) && 'cod' === $data['payment_method'] && ! apply_filters( 'nura_allow_cod_delivery', false ) ) {
+		$chosen = isset( $data['shipping_method'] ) ? (array) $data['shipping_method'] : null;
+		if ( ! nura_chosen_is_pickup( $chosen ) ) {
+			$errors->add( 'nura_cod', __( 'We do not offer cash on delivery. Please pay with M-Pesa or card, or choose studio pick-up to pay at the shop.', 'nura-beauty' ) );
 		}
 	}
 }, 10, 2 );
+// Block checkout (Store API) safety net.
+add_action( 'woocommerce_store_api_checkout_order_processed', function ( $order ) {
+	if ( ! $order instanceof WC_Order || 'cod' !== $order->get_payment_method() || apply_filters( 'nura_allow_cod_delivery', false ) ) {
+		return;
+	}
+	$ids = array();
+	foreach ( $order->get_shipping_methods() as $item ) {
+		$ids[] = $item->get_method_id();
+	}
+	if ( ! nura_chosen_is_pickup( $ids ) ) {
+		throw new \Exception( esc_html__( 'We do not offer cash on delivery. Please pay with M-Pesa or card, or choose studio pick-up to pay at the shop.', 'nura-beauty' ) );
+	}
+} );
 
 
 /**
- * Instant COD toggle at checkout (UX only; the server-side rules above still decide).
- * The block checkout refreshes payment methods after a debounce of several seconds,
- * so Cash on Delivery stayed visible briefly after picking a non-Nairobi county.
- * This hides it the moment the county changes and switches to another method if
- * COD was selected. Nairobi = state code KE30 or a label containing "Nairobi".
+ * Instant toggle at checkout (UX only; the server-side rules above decide).
+ * Shows "Pay at the shop" only while studio pick-up is selected and switches
+ * away from it as soon as a delivery method is chosen.
  */
 add_action( 'wp_footer', function () {
 	if ( ! function_exists( 'is_checkout' ) || ! is_checkout() || is_order_received_page() ) {
@@ -700,56 +744,39 @@ add_action( 'wp_footer', function () {
 	</style>
 	<script>
 	(function () {
-		var SEL_STATE = '#shipping-state, #billing-state, select[name="shipping_state"], select[name="billing_state"], input[name="shipping_state"], input[name="billing_state"]';
-		function countyValue() {
-			var ship = document.querySelector('#shipping-state, select[name="shipping_state"], input[name="shipping_state"]');
-			var bill = document.querySelector('#billing-state, select[name="billing_state"], input[name="billing_state"]');
-			var sameBox = document.querySelector('.wc-block-checkout__use-address-for-billing input[type="checkbox"]');
-			var shipDiff = document.querySelector('#ship-to-different-address-checkbox');
-			var el = ship;
-			if (shipDiff && !shipDiff.checked) { el = bill; }
-			if (!el || (!el.value && bill)) { el = el && el.value ? el : bill; }
-			if (!el) { return ''; }
-			var v = String(el.value || '');
-			if (el.tagName === 'SELECT' && el.selectedIndex > -1) { v += ' ' + el.options[el.selectedIndex].text; }
-			return v.trim();
-		}
-		function isNairobi(v) { return /(^|\s)KE30(\s|$)/i.test(v) || /nairobi/i.test(v); }
-		function codNodes() {
-			var out = [];
-			document.querySelectorAll('input[value="cod"]').forEach(function (inp) {
-				var row = inp.closest('.wc-block-components-radio-control__option, .wc-block-components-radio-control-accordion-option, li.wc_payment_method, li.payment_method_cod') || inp.parentNode;
-				out.push({ input: inp, row: row });
-			});
-			return out;
+		function isPickup() {
+			var classic = document.querySelectorAll('input[name^="shipping_method"]');
+			if (classic.length) {
+				var all = true, any = false;
+				classic.forEach(function (i) {
+					if (i.type === 'hidden' || i.checked) { any = true; if (!/^(local_pickup|pickup_location)/.test(i.value)) { all = false; } }
+				});
+				return any && all;
+			}
+			var blk = document.querySelector('.wc-block-checkout__shipping-method-option--selected');
+			if (blk) { return /pick/i.test(blk.textContent || '') || /pickup/i.test(blk.id || ''); }
+			return !!document.querySelector('.wc-block-checkout__pickup-options');
 		}
 		function apply() {
-			var v = countyValue();
-			var hide = v !== '' && !isNairobi(v);
+			var hide = !isPickup();
 			document.documentElement.classList.toggle('nura-no-cod', hide);
-			codNodes().forEach(function (n) {
-				n.row.style.display = hide ? 'none' : '';
-				if (hide && n.input.checked) {
+			var codIn = document.querySelector('input[value="cod"]');
+			if (hide && codIn && codIn.checked && !window.nuraCodSwitchTimer) {
+				window.nuraCodSwitchTimer = setTimeout(function () {
+					window.nuraCodSwitchTimer = null;
+					var c = document.querySelector('input[value="cod"]');
+					if (isPickup() || !c || !c.checked) { return; }
 					var alt = Array.prototype.find.call(document.querySelectorAll('input[name="radio-control-wc-payment-method-options"], input[name="payment_method"]'), function (i) {
 						return i.value !== 'cod' && i.offsetParent !== null;
 					});
-					// Defer the switch so it does not race the checkout's own address update
-					// (an immediate click could make the county snap back to Nairobi).
-					if (alt && !window.nuraCodSwitchTimer) {
-						window.nuraCodSwitchTimer = setTimeout(function () {
-							window.nuraCodSwitchTimer = null;
-							var still = countyValue();
-							var codIn = document.querySelector('input[value="cod"]');
-							if (still !== '' && !isNairobi(still) && codIn && codIn.checked && document.body.contains(alt)) { alt.click(); }
-						}, 1500);
-					}
-				}
-			});
+					if (alt) { alt.click(); }
+				}, 600);
+			}
 		}
-		document.addEventListener('change', function (e) { if (e.target && e.target.matches && e.target.matches(SEL_STATE)) { apply(); } }, true);
-		document.addEventListener('input', function (e) { if (e.target && e.target.matches && e.target.matches(SEL_STATE)) { apply(); } }, true);
+		document.addEventListener('change', function () { setTimeout(apply, 30); }, true);
+		document.addEventListener('click', function () { setTimeout(apply, 60); }, true);
 		var t;
-		new MutationObserver(function () { clearTimeout(t); t = setTimeout(apply, 60); }).observe(document.body, { childList: true, subtree: true });
+		new MutationObserver(function () { clearTimeout(t); t = setTimeout(apply, 80); }).observe(document.body, { childList: true, subtree: true });
 		apply();
 	})();
 	</script>

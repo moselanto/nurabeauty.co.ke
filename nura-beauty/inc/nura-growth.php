@@ -98,7 +98,7 @@ add_filter( 'nura_home_faqs', function ( $faqs ) {
 	}
 	$faqs[0][1] = sprintf(
 		/* translators: %s: list of price ranges. */
-		__( 'At NURA, %s. Every price is shown in Kenya Shillings on the product page, and you can pay by M-Pesa, card or cash on delivery in Nairobi.', 'nura-beauty' ),
+		__( 'At NURA, %s. Every price is shown in Kenya Shillings on the product page, and you can pay by M-Pesa or card.', 'nura-beauty' ),
 		implode( '; ', $parts )
 	);
 	return $faqs;

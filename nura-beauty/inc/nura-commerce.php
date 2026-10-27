@@ -23,7 +23,7 @@ if ( ! function_exists( 'nura_payment_methods' ) ) {
 	 *
 	 * Reads the gateways the merchant has switched on (not cart-conditional
 	 * availability), then maps well-known IDs to concise labels (M-Pesa, Card,
-	 * Pay on Delivery, ...), falling back to each gateway's own checkout title.
+	 * Bank Transfer, ...), falling back to each gateway's own checkout title.
 	 *
 	 * @return string[] De-duplicated labels, in the order set in WooCommerce.
 	 */
@@ -48,7 +48,7 @@ if ( ! function_exists( 'nura_payment_methods' ) ) {
 				if ( false !== strpos( $id, 'mpesa' ) || false !== stripos( $title, 'mpesa' ) || false !== stripos( $title, 'm-pesa' ) ) {
 					$label = __( 'M-Pesa', 'nura-beauty' );
 				} elseif ( 'cod' === $id || false !== stripos( $title, 'on delivery' ) || false !== stripos( $title, 'cash' ) ) {
-					$label = __( 'Cash on Delivery', 'nura-beauty' );
+					continue; // v1.73.0: pay-at-shop (pick-up only) is not advertised as a payment method.
 				} elseif ( 'bacs' === $id || false !== stripos( $title, 'bank' ) ) {
 					$label = __( 'Bank Transfer', 'nura-beauty' );
 				} elseif ( false !== strpos( $id, 'paypal' ) || false !== strpos( $id, 'ppcp' ) ) {
@@ -66,7 +66,6 @@ if ( ! function_exists( 'nura_payment_methods' ) ) {
 			// on in WooCommerce (the M-Pesa Till is still being processed).
 			return array(
 				__( 'M-Pesa', 'nura-beauty' ),
-				__( 'Cash on Delivery', 'nura-beauty' ),
 				__( 'Bank Transfer', 'nura-beauty' ),
 			);
 		}
@@ -78,7 +77,7 @@ if ( ! function_exists( 'nura_payment_summary' ) ) {
 	/**
 	 * A human summary of the enabled payment methods.
 	 *
-	 * e.g. "M-Pesa, Card & Pay on Delivery".
+	 * e.g. "M-Pesa & Card".
 	 *
 	 * @param string $fallback Copy to use when nothing can be derived.
 	 * @return string

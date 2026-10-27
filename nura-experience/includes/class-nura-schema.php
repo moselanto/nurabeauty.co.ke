@@ -82,7 +82,7 @@ class NURAX_Schema {
 			'telephone'   => apply_filters( 'nurax_schema_phone', $this->brand_phone() ),
 			'priceRange'  => apply_filters( 'nurax_schema_pricerange', 'KSh 1,500 - KSh 20,000' ),
 			'currenciesAccepted' => 'KES',
-			'paymentAccepted'    => 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash on Delivery',
+			'paymentAccepted'    => 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash (in store)',
 			'areaServed'  => array(
 				array( '@type' => 'Country', 'name' => 'Kenya' ),
 				array( '@type' => 'City', 'name' => 'Nairobi' ),
@@ -179,7 +179,7 @@ class NURAX_Schema {
 			),
 			array(
 				'How do I pay?',
-				'M-Pesa and Visa/Mastercard (both via Paystack), bank transfer, and cash on delivery within Nairobi.',
+				'M-Pesa and Visa/Mastercard (both via Paystack), M-Pesa Buy Goods Till 1679269, and bank transfer. No cash on delivery; pay in person when collecting from the studio.',
 			),
 			array(
 				'How fast is delivery?',

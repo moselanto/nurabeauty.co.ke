@@ -226,3 +226,26 @@ html.nwo-lock,html.nwo-lock body{overflow:hidden!important}
 .nwo-bill dd.is-pending{color:var(--nwo-mut);font-weight:500;font-style:italic}
 .nwo-foot__total strong{font-variant-numeric:tabular-nums}
 @media (max-width:640px){.nwo-bill{margin-bottom:8px;padding-bottom:8px}.nwo-bill>div{font-size:.82rem}}
+/* v1.79.0 M-Pesa Till payment panel (no cash on delivery) */
+.nwo-paynote{margin:10px 0 0;font-size:.8rem;line-height:1.45;color:var(--nwo-mut)}
+.nwo-paybox{margin:0 0 20px;padding:18px;border-radius:16px;background:linear-gradient(180deg,#f4fbf6,#fff);border:1.5px solid #bfe6cc;box-shadow:0 6px 18px rgba(31,170,83,.08)}
+.nwo-paybox[hidden],[data-nwo-shoponly][hidden],.nwo-done__pay[hidden]{display:none!important}
+.nwo-paybox__head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}
+.nwo-paybox__badge{display:inline-block;padding:4px 10px;border-radius:999px;background:var(--nwo-g);color:#fff;font-family:var(--nwo-ui);font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.nwo-paybox__kind{font-size:.82rem;color:#1d5c35;font-weight:600}
+.nwo-paybox__till{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:12px;background:#fff;border:1px dashed #9fd8b3}
+.nwo-paybox__lbl{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--nwo-mut)}
+.nwo-paybox__num{display:block;font-family:var(--nwo-ui);font-size:1.7rem;font-weight:700;letter-spacing:.12em;color:var(--nwo-txt);line-height:1.15}
+.nwo-paybox__name{display:block;font-size:.8rem;color:var(--nwo-mut)}
+.nwo .nwo-paybox__copy{flex:none;min-height:40px;padding:8px 16px;border:1.5px solid var(--nwo-g);border-radius:999px;background:#fff;color:#14783a;font-family:var(--nwo-ui);font-weight:600;font-size:.85rem;cursor:pointer}
+.nwo .nwo-paybox__copy:hover,.nwo .nwo-paybox__copy.is-done{background:var(--nwo-g);color:#fff}
+.nwo-paybox__amt{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:12px 2px 4px;font-size:.9rem;color:var(--nwo-mut)}
+.nwo-paybox__amt strong{font-size:1.05rem;color:var(--nwo-txt);text-align:right}
+.nwo-paybox__steps{margin:10px 0 14px;padding-left:20px;font-size:.86rem;line-height:1.6;color:var(--nwo-txt)}
+.nwo-paybox .nwo-f--code{margin:0}
+.nwo-paybox .nwo-f--code input{text-transform:uppercase;letter-spacing:.08em}
+.nwo-help{margin:6px 0 0;font-size:.78rem;line-height:1.45;color:var(--nwo-mut)}
+.nwo-done__pay{margin:14px auto;max-width:420px;padding:14px 16px;border-radius:14px;background:var(--nwo-gbg);border:1px solid #cdeedb;text-align:left;font-size:.9rem;line-height:1.5}
+.nwo-done__pay p{margin:0 0 4px}
+.nwo-done__paytitle{font-weight:700;color:#1d5c35}
+@media (max-width:480px){.nwo-paybox{padding:14px}.nwo-paybox__num{font-size:1.45rem}}

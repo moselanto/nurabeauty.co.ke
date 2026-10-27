@@ -54,7 +54,7 @@ class NURAX_Desk_Orders {
 		$d = is_array( $d ) ? $d : array();
 		return array_merge( array(
 			'ref' => '', 'name' => '', 'phone' => '', 'items' => array(), 'total' => 0, 'fulfil' => 'delivery',
-			'delivery' => '', 'county' => '', 'town' => '', 'payment' => '', 'note' => '', 'source' => '', 'page' => '', 'ship' => '',
+			'delivery' => '', 'county' => '', 'town' => '', 'payment' => '', 'mpesa_code' => '', 'code_flag' => '', 'note' => '', 'source' => '', 'page' => '', 'ship' => '',
 		), $d );
 	}
 
@@ -245,7 +245,7 @@ class NURAX_Desk_Orders {
 			echo '<td><span class="nd-clip">' . esc_html( self::items_line( $d ) ) . '</span></td>';
 			echo '<td><strong>' . esc_html( NURAX_Desk::money( self::grand( $d ) ) ) . '</strong><small>' . esc_html( 'pickup' === $d['fulfil'] ? 'pick-up, no delivery fee' : ( '' !== (string) $d['ship'] ? ( (float) $d['ship'] > 0 ? 'incl. delivery ' . NURAX_Desk::money( $d['ship'] ) : 'free delivery' ) : 'delivery not quoted' ) ) . '</small></td>';
 			echo '<td>' . esc_html( 'pickup' === $d['fulfil'] ? 'Pick-up' : ( $d['town'] ? $d['town'] . ', ' . $d['county'] : $d['delivery'] ) ) . '</td>';
-			echo '<td>' . ( self::is_paid( $post->ID ) ? NURAX_Desk::badge( 'confirmed', 'Paid' ) : NURAX_Desk::badge( 'muted', 'Unpaid' ) ) . '<small>' . esc_html( $d['payment'] ? $d['payment'] : '-' ) . '</small></td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '<td>' . ( self::is_paid( $post->ID ) ? NURAX_Desk::badge( 'confirmed', 'Paid' ) : NURAX_Desk::badge( 'muted', 'Unpaid' ) ) . '<small>' . esc_html( ( $d['payment'] ? $d['payment'] : '-' ) . ( $d['mpesa_code'] ? ' - code ' . $d['mpesa_code'] : '' ) ) . '</small>' . ( $d['code_flag'] ? '<small style="color:#b32d2e">' . esc_html( $d['code_flag'] ) . '</small>' : '' ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '<td>' . NURAX_Desk::badge( self::tone( $st ), self::status_label( $st ) ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '<td class="nd-col-act">';
 			self::quick( $post->ID, $d, $st );
@@ -320,6 +320,9 @@ class NURAX_Desk_Orders {
 		echo '<div><dt>Phone</dt><dd>' . ( $d['phone'] ? '<a href="' . esc_url( 'https://wa.me/' . $d['phone'] ) . '" target="_blank" rel="noopener">' . esc_html( NURAX_Desk::phone_label( $d['phone'] ) ) . '</a>' : '-' ) . '</dd></div>';
 		echo '<div><dt>' . ( 'pickup' === $d['fulfil'] ? 'Pick-up' : 'Deliver to' ) . '</dt><dd>' . esc_html( $d['delivery'] ) . '</dd></div>';
 		echo '<div><dt>Payment</dt><dd>' . esc_html( $d['payment'] ? $d['payment'] : '-' ) . '</dd></div>';
+		if ( $d['mpesa_code'] ) {
+			echo '<div><dt>M-Pesa code</dt><dd><code>' . esc_html( $d['mpesa_code'] ) . '</code> (verify on the till statement before dispatch)' . ( $d['code_flag'] ? '<br><strong style="color:#b32d2e">' . esc_html( $d['code_flag'] ) . '</strong>' : '' ) . '</dd></div>';
+		}
 		echo '<div><dt>Received</dt><dd>' . esc_html( get_the_date( 'D j M Y, H:i', $post ) ) . '</dd></div>';
 		echo '<div><dt>From</dt><dd>' . esc_html( ucfirst( $d['source'] ? $d['source'] : 'website' ) ) . '</dd></div>';
 		echo '</dl></section>';

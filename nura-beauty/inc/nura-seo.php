@@ -56,7 +56,7 @@ function nura_home_faqs() {
 		),
 		array(
 			__( 'How do I pay for my wig?', 'nura-beauty' ),
-			__( 'Pay with M-Pesa or card (Visa, Mastercard) securely through Paystack, by bank transfer, or cash on delivery within Nairobi.', 'nura-beauty' ),
+			__( 'Pay with M-Pesa or card (Visa, Mastercard) securely through Paystack, by bank transfer, or to our M-Pesa Buy Goods Till 1679269 when you order on WhatsApp. We do not offer cash on delivery; you can pay in person when you collect from our studio.', 'nura-beauty' ),
 		),
 		array(
 			__( 'Which wig is best for beginners?', 'nura-beauty' ),
@@ -90,7 +90,7 @@ function nura_home_seo_section() {
 						nura_seo_cat_link( 'curly-wigs', __( 'curly wigs', 'nura-beauty' ) ) // phpcs:ignore WordPress.Security.EscapeOutput
 					);
 				?></p>
-				<p><?php esc_html_e( 'Every wig is quality-checked and clearly labelled as human hair, human-hair blend (semi-human) or heat-resistant fibre, so you know exactly what you are paying for. Prices are in Kenya Shillings, with same-day delivery in Nairobi before 5pm, countrywide delivery in 1-3 days, and payment by M-Pesa, card or cash on delivery.', 'nura-beauty' ); ?></p>
+				<p><?php esc_html_e( 'Every wig is quality-checked and clearly labelled as human hair, human-hair blend (semi-human) or heat-resistant fibre, so you know exactly what you are paying for. Prices are in Kenya Shillings, with same-day delivery in Nairobi before 5pm, countrywide delivery in 1-3 days, and secure payment by M-Pesa or card.', 'nura-beauty' ); ?></p>
 				<ul class="nura-seo-home__facts"><li><strong>KSh 1,500+</strong><span><?php esc_html_e( 'Wigs from', 'nura-beauty' ); ?></span></li><li><strong><?php esc_html_e( 'Same day', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Nairobi delivery', 'nura-beauty' ); ?></span></li><li><strong>7 <?php esc_html_e( 'days', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Easy returns', 'nura-beauty' ); ?></span></li></ul>
 			</div>
 			<div class="nura-faq nura-seo-home__faq">

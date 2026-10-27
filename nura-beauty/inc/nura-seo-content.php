@@ -30,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function nura_category_intro_defaults() {
 	return array(
-		'wigs'            => __( 'Shop premium wigs in Kenya at NURA — human hair, human-hair blends and quality synthetic units in lace front, closure, glueless and headband styles. Every wig is quality-checked, with same-day delivery in Nairobi, countrywide shipping and payment by M-Pesa, card or on delivery.', 'nura-beauty' ),
+		'wigs'            => __( 'Shop premium wigs in Kenya at NURA — human hair, human-hair blends and quality synthetic units in lace front, closure, glueless and headband styles. Every wig is quality-checked, with same-day delivery in Nairobi, countrywide shipping and payment by M-Pesa or card.', 'nura-beauty' ),
 		'human-hair-wigs' => __( 'Discover 100% human-hair wigs at NURA Kenya — natural movement, heat-friendly styling and a flawless hairline. Perfect for everyday elegance, work and special occasions, with expert fitting and countrywide delivery.', 'nura-beauty' ),
 		'lace-front-wigs' => __( 'HD and transparent lace front wigs for an invisible, melt-into-skin hairline. Hand-finished for a natural parting and photograph-ready finish, with fitting and styling available in Nairobi.', 'nura-beauty' ),
 		'closure-wigs'    => __( '4x4, 5x5 and 6x6 closure wigs that give a natural crown with easy, protective installation — a versatile, everyday-friendly choice, quality-checked and ready to wear.', 'nura-beauty' ),
@@ -71,7 +71,7 @@ function nura_category_description_text( $term ) {
 		return $defaults[ $term->slug ];
 	}
 	/* translators: %s: category name */
-	return sprintf( __( 'Shop %s at NURA — quality-checked units with same-day Nairobi delivery, countrywide shipping and payment by M-Pesa, card or on delivery.', 'nura-beauty' ), $term->name );
+	return sprintf( __( 'Shop %s at NURA — quality-checked units with same-day Nairobi delivery, countrywide shipping and payment by M-Pesa or card.', 'nura-beauty' ), $term->name );
 }
 
 /**

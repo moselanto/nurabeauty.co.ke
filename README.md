@@ -10,8 +10,8 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.72.0-0E0E0E?style=for-the-badge)](nura-beauty)
-[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.77.1-C9A24B?style=for-the-badge)](nura-experience)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.73.0-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.79.0-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -41,7 +41,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Packages | Payments | Delivery | Back office |
 | :---: | :---: | :---: | :---: |
-| Theme, child theme, plugin | M-Pesa, card (Paystack), bank, COD Nairobi | Same-day Nairobi before 5 PM, 1-3 days countrywide | NURA Desk: till, orders, plans, bookings, sourcing, team |
+| Theme, child theme, plugin | M-Pesa, card (Paystack), M-Pesa Till 1679269, bank; pay in store on pick-up only | Same-day Nairobi before 5 PM, 1-3 days countrywide | NURA Desk: till, orders, plans, bookings, sourcing, team |
 
 ## Documentation
 
@@ -58,17 +58,17 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.72.0 | Parent theme |
+| `nura-beauty/` | 1.73.0 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
-| `nura-experience/` | 1.77.1 | Plugin |
+| `nura-experience/` | 1.79.0 | Plugin |
 
 ## Features
 
 ### Shopping
 - Catalogue of human hair, blend and fibre wigs with colour swatches (10 shades) and per-colour photos.
 - Live search, filters, quick view, mega menu, trust strips, Google reviews, journal guides.
-- Checkout with required phone; cash on delivery offered and enforced for Nairobi only.
-- One-tap **Order on WhatsApp** with colour, quantity, county delivery quote and reference `NURA-YYMMDD-XXXX`.
+- Checkout with required phone; no cash on delivery. Paying at the shop is offered only for studio pick-up.
+- One-tap **Order on WhatsApp** with colour, quantity, county delivery quote, reference `NURA-YYMMDD-XXXX` and payment to **M-Pesa Buy Goods Till 1679269** (optional M-Pesa code capture, dispatch after verification).
 - **Lipa Mdogo Mdogo**: 50% deposit today, balance within 1 or 2 weeks, published terms v2.0.
 - AI stylist chat, AI wig finder, wig quiz and in-browser virtual try-on.
 - **Studio bookings**: mornings only, 50% deposit by M-Pesa (minimum KSh 500), terms, 15-minute late rule; video and WhatsApp consultations free.
@@ -166,6 +166,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.73.0 | 1.79.0 | No cash on delivery; WhatsApp orders paid to M-Pesa Till 1679269; professional order message; pay-at-shop for pick-up only |
 | 1.72.0 | 1.77.1 | Self-hosted login fonts; payment-code label fix |
 | - | 1.77.0 | WhatsApp receipts for website orders, no duplicate till e-mails, contact fallback, sent badges, billed bookings |
 | - | 1.76.0 | Void sales, part payments, bill a booking from the till, automatic receipts |

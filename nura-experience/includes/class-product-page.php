@@ -133,8 +133,8 @@ class NURAX_Product_Page {
 		$delivery_line = ! empty( $delivery ) ? $delivery[0] : __( 'Same-day delivery in Nairobi', 'nura-experience' );
 		$pay           = function_exists( 'nura_payment_summary' ) ? nura_payment_summary( '' ) : '';
 		$pay_line      = '' !== $pay
-			? sprintf( /* translators: %s: list of payment methods, e.g. M-Pesa, Card & Pay on Delivery. */ __( 'Pay with %s', 'nura-experience' ), $pay )
-			: __( 'Pay with M-Pesa, card or on delivery', 'nura-experience' );
+			? sprintf( /* translators: %s: list of payment methods, e.g. M-Pesa & Card. */ __( 'Pay with %s', 'nura-experience' ), $pay )
+			: __( 'Pay with M-Pesa or card', 'nura-experience' );
 
 		$items = array(
 			$first,
@@ -212,7 +212,7 @@ class NURAX_Product_Page {
 		}
 		echo '<li>' . esc_html__( 'Countrywide delivery in 1-3 business days.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'International shipping available on request.', 'nura-experience' ) . '</li>';
-		echo '<li>' . esc_html__( 'Pay with M-Pesa or card at checkout, or cash on delivery within Nairobi.', 'nura-experience' ) . '</li>';
+		echo '<li>' . esc_html__( 'Pay with M-Pesa or card at checkout, or by M-Pesa Till 1679269 when you order on WhatsApp. No cash on delivery; pay at the shop when you collect.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'Unworn units in original condition may be returned within 7 days of delivery; worn, cut or installed units cannot be returned for hygiene reasons.', 'nura-experience' ) . '</li>';
 		echo '</ul>';
 	}

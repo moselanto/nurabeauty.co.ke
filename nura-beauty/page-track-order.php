@@ -24,7 +24,7 @@ $wa = nura_opt( 'nura_whatsapp' ) ? nura_opt( 'nura_whatsapp' ) : 'https://wa.me
 		<table class="nura-track__table">
 			<tbody>
 				<tr><th><?php esc_html_e( 'Pending payment', 'nura-beauty' ); ?></th><td><?php esc_html_e( 'We are waiting for your payment to come through.', 'nura-beauty' ); ?></td></tr>
-				<tr><th><?php esc_html_e( 'Processing', 'nura-beauty' ); ?></th><td><?php esc_html_e( 'Your order is confirmed and being packed. Cash on delivery orders show this too.', 'nura-beauty' ); ?></td></tr>
+				<tr><th><?php esc_html_e( 'Processing', 'nura-beauty' ); ?></th><td><?php esc_html_e( 'Your payment is confirmed and your order is being packed for dispatch or collection.', 'nura-beauty' ); ?></td></tr>
 				<tr><th><?php esc_html_e( 'Completed', 'nura-beauty' ); ?></th><td><?php esc_html_e( 'Your order has been delivered or collected.', 'nura-beauty' ); ?></td></tr>
 				<tr><th><?php esc_html_e( 'On hold', 'nura-beauty' ); ?></th><td><?php esc_html_e( 'We need to confirm something with you. We will call or WhatsApp you.', 'nura-beauty' ); ?></td></tr>
 				<tr><th><?php esc_html_e( 'Cancelled or refunded', 'nura-beauty' ); ?></th><td><?php esc_html_e( 'The order was cancelled or your refund has been sent.', 'nura-beauty' ); ?></td></tr>

@@ -9,7 +9,9 @@
  *     variation), every shop / category product card, and "Order whole cart on
  *     WhatsApp" on the cart page. Every trigger is a real wa.me link, so it still
  *     works without JavaScript.
- *   - Kenyan phone validation, delivery area / pick-up, payment preference,
+ *   - Kenyan phone validation, delivery area / pick-up, payment by M-Pesa
+ *     Buy Goods Till (v1.79.0: no cash on delivery; paying at the shop is only
+ *     offered for studio pick-up), optional M-Pesa code capture,
  *     order reference NURA-YYMMDD-XXXX and a cleanly formatted WhatsApp message.
  *   - Every order is saved as a lead (admin-ajax, no nonce so cached pages keep
  *     working; protected by a honeypot, a fill-time trap, link-spam filtering,
@@ -107,6 +109,30 @@ class NURAX_WA_Order {
 		return 'KSh ' . number_format( (float) $amount, 0, '.', ',' );
 	}
 
+	/* ------------------------------------------------------------------ */
+	/* Payment (v1.79.0): M-Pesa Till for every order, shop pay on pick-up */
+	/* ------------------------------------------------------------------ */
+
+	const PAY_TILL = 'M-Pesa Till (pay now)';
+	const PAY_SHOP = 'Pay at the shop on collection';
+
+	/** M-Pesa Buy Goods till number. Constant NURAX_MPESA_TILL or filter nurax_mpesa_till. */
+	public static function till() {
+		$t = defined( 'NURAX_MPESA_TILL' ) ? (string) NURAX_MPESA_TILL : '1679269';
+		return (string) preg_replace( '/\D+/', '', (string) apply_filters( 'nurax_mpesa_till', $t ) );
+	}
+
+	/** Optional business name M-Pesa shows for the till (filter nurax_mpesa_till_name). */
+	public static function till_name() {
+		return trim( wp_strip_all_tags( (string) apply_filters( 'nurax_mpesa_till_name', '' ) ) );
+	}
+
+	/** Normalise an M-Pesa confirmation code (10 letters/digits, e.g. TJR4ABC12D), or ''. */
+	public static function normalise_code( $raw ) {
+		$c = strtoupper( (string) preg_replace( '/[^A-Za-z0-9]/', '', (string) $raw ) );
+		return ( preg_match( '/^[A-Z0-9]{10}$/', $c ) && preg_match( '/[A-Z]/', $c ) && preg_match( '/\d/', $c ) ) ? $c : '';
+	}
+
 	/** Display price (incl./excl. tax as the shop shows it). */
 	private static function display_price( $product ) {
 		if ( ! $product instanceof WC_Product ) {
@@ -134,10 +160,11 @@ class NURAX_WA_Order {
 	}
 
 	private static function payments() {
+		// v1.79.0: cash / M-Pesa on delivery retired. Every delivered order is paid
+		// to the M-Pesa Till before dispatch; paying at the shop is pick-up only.
 		return apply_filters( 'nurax_wa_order_payments', array(
-			'M-Pesa on delivery',
-			'M-Pesa now',
-			'Cash on delivery',
+			self::PAY_TILL,
+			self::PAY_SHOP,
 		) );
 	}
 
@@ -441,6 +468,10 @@ class NURAX_WA_Order {
 			'brand'    => 'NURA Beauty',
 			'store'    => self::STORE_KEY,
 			'currency' => function_exists( 'get_woocommerce_currency' ) ? get_woocommerce_currency() : 'KES',
+			'till'     => self::till(),
+			'tillName' => self::till_name(),
+			'payTill'  => self::PAY_TILL,
+			'payShop'  => self::PAY_SHOP,
 		) );
 	}
 
@@ -542,13 +573,14 @@ class NURAX_WA_Order {
 		}
 		$steps = array(
 			__( 'Your details', 'nura-experience' ),
-			__( 'Send on WhatsApp', 'nura-experience' ),
-			__( 'We confirm & deliver', 'nura-experience' ),
+			__( 'Pay & send', 'nura-experience' ),
+			__( 'We confirm & dispatch', 'nura-experience' ),
 		);
+		$till      = self::till();
+		$till_name = self::till_name();
 		$pay_notes = array(
-			'M-Pesa on delivery' => __( 'Pay when it arrives', 'nura-experience' ),
-			'M-Pesa now'         => __( 'We send the till number', 'nura-experience' ),
-			'Cash on delivery'   => __( 'Pay the rider in cash', 'nura-experience' ),
+			self::PAY_TILL => sprintf( /* translators: %s: till number */ __( 'Buy Goods Till %s - we dispatch once payment is confirmed', 'nura-experience' ), $till ),
+			self::PAY_SHOP => __( 'Cash or M-Pesa at our Imenti House studio when you collect', 'nura-experience' ),
 		);
 		?>
 		<div class="nwo" id="nwo-modal" data-nwo-modal hidden>
@@ -643,10 +675,39 @@ class NURAX_WA_Order {
 							<legend><?php esc_html_e( 'How will you pay?', 'nura-experience' ); ?></legend>
 							<div class="nwo-cards">
 								<?php foreach ( self::payments() as $i => $pay ) : ?>
-									<label class="nwo-opt nwo-opt--row"><input type="radio" name="payment" value="<?php echo esc_attr( $pay ); ?>"<?php checked( 0, $i ); ?>><span class="nwo-opt__box"><span class="nwo-opt__txt"><strong><?php echo esc_html( $pay ); ?></strong><?php if ( isset( $pay_notes[ $pay ] ) ) : ?><small><?php echo esc_html( $pay_notes[ $pay ] ); ?></small><?php endif; ?></span><span class="nwo-opt__tick" aria-hidden="true"></span></span></label>
+									<label class="nwo-opt nwo-opt--row"<?php echo self::PAY_SHOP === $pay ? ' data-nwo-shoponly hidden' : ''; ?>><input type="radio" name="payment" value="<?php echo esc_attr( $pay ); ?>"<?php checked( 0, $i ); ?>><span class="nwo-opt__box"><span class="nwo-opt__txt"><strong><?php echo esc_html( $pay ); ?></strong><?php if ( isset( $pay_notes[ $pay ] ) ) : ?><small><?php echo esc_html( $pay_notes[ $pay ] ); ?></small><?php endif; ?></span><span class="nwo-opt__tick" aria-hidden="true"></span></span></label>
 								<?php endforeach; ?>
 							</div>
+							<p class="nwo-paynote" data-nwo-paynote><?php esc_html_e( 'We do not offer cash on delivery. Delivered orders are paid by M-Pesa before dispatch; paying in person is available when you collect from our studio.', 'nura-experience' ); ?></p>
 						</fieldset>
+
+						<div class="nwo-paybox" data-nwo-paybox>
+							<div class="nwo-paybox__head">
+								<span class="nwo-paybox__badge"><?php esc_html_e( 'Lipa na M-Pesa', 'nura-experience' ); ?></span>
+								<span class="nwo-paybox__kind"><?php esc_html_e( 'Buy Goods and Services', 'nura-experience' ); ?></span>
+							</div>
+							<div class="nwo-paybox__till">
+								<div>
+									<span class="nwo-paybox__lbl"><?php esc_html_e( 'Till number', 'nura-experience' ); ?></span>
+									<strong class="nwo-paybox__num" data-nwo-till><?php echo esc_html( $till ); ?></strong>
+									<?php if ( '' !== $till_name ) : ?><span class="nwo-paybox__name"><?php echo esc_html( $till_name ); ?></span><?php endif; ?>
+								</div>
+								<button type="button" class="nwo-paybox__copy" data-nwo-copy="<?php echo esc_attr( $till ); ?>"><?php esc_html_e( 'Copy', 'nura-experience' ); ?></button>
+							</div>
+							<div class="nwo-paybox__amt"><span><?php esc_html_e( 'Amount to pay', 'nura-experience' ); ?></span><strong data-nwo-payamt></strong></div>
+							<ol class="nwo-paybox__steps">
+								<li><?php esc_html_e( 'Open M-Pesa and choose Lipa na M-Pesa', 'nura-experience' ); ?></li>
+								<li><?php esc_html_e( 'Select Buy Goods and Services', 'nura-experience' ); ?></li>
+								<li><?php echo esc_html( sprintf( /* translators: %s: till number */ __( 'Enter Till number %s and the amount', 'nura-experience' ), $till ) ); ?></li>
+								<li><?php esc_html_e( 'Enter your PIN and confirm', 'nura-experience' ); ?></li>
+							</ol>
+							<div class="nwo-f nwo-f--code">
+								<label for="nwo-mpesa_code"><?php esc_html_e( 'M-Pesa confirmation code (if you have paid)', 'nura-experience' ); ?></label>
+								<input id="nwo-mpesa_code" name="mpesa_code" type="text" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="<?php esc_attr_e( 'e.g. TJR4ABC12D', 'nura-experience' ); ?>" aria-describedby="nwo-err-mpesa_code nwo-code-help">
+								<p class="nwo-help" id="nwo-code-help"><?php esc_html_e( 'You can also pay after we confirm stock and send the M-Pesa message on WhatsApp. Orders are dispatched only after payment is verified.', 'nura-experience' ); ?></p>
+								<p class="nwo-err" id="nwo-err-mpesa_code"></p>
+							</div>
+						</div>
 
 						<div class="nwo-f">
 							<label for="nwo-note"><?php esc_html_e( 'Anything else? (optional)', 'nura-experience' ); ?></label>
@@ -659,8 +720,8 @@ class NURAX_WA_Order {
 						</div>
 
 						<ul class="nwo-trust">
-							<li><?php esc_html_e( 'No payment now', 'nura-experience' ); ?></li>
-							<li><?php esc_html_e( 'We confirm stock first', 'nura-experience' ); ?></li>
+							<li><?php esc_html_e( 'Secure M-Pesa Till', 'nura-experience' ); ?></li>
+							<li><?php esc_html_e( 'Dispatched once payment is verified', 'nura-experience' ); ?></li>
 							<li><?php esc_html_e( '7-day returns', 'nura-experience' ); ?></li>
 						</ul>
 					</div>
@@ -673,17 +734,23 @@ class NURAX_WA_Order {
 						</dl>
 						<div class="nwo-foot__row">
 							<div class="nwo-foot__total"><span><?php esc_html_e( 'Total', 'nura-experience' ); ?></span><strong data-nwo-foottotal aria-live="polite"></strong></div>
-							<button type="submit" class="nwo-submit"><?php echo self::wa_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Send order', 'nura-experience' ); ?></span></button>
+							<button type="submit" class="nwo-submit"><?php echo self::wa_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Send order on WhatsApp', 'nura-experience' ); ?></span></button>
 						</div>
-						<p class="nwo-small"><?php esc_html_e( 'WhatsApp opens with your order ready. Just tap send.', 'nura-experience' ); ?></p>
+						<p class="nwo-small"><?php esc_html_e( 'WhatsApp opens with your order and payment details ready. Just tap send.', 'nura-experience' ); ?></p>
 					</div>
 				</form>
 
 				<div class="nwo-done" data-nwo-done hidden>
 					<div class="nwo-done__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.2 4.2L19 7"/></svg></div>
 					<h3 class="nwo-done__title" tabindex="-1"><?php esc_html_e( 'Almost done - tap send on WhatsApp', 'nura-experience' ); ?></h3>
-					<p class="nwo-done__text"><?php esc_html_e( 'WhatsApp has opened with your order already written. Tap send and a NURA stylist will confirm availability, delivery and payment within minutes.', 'nura-experience' ); ?></p>
+					<p class="nwo-done__text"><?php esc_html_e( 'WhatsApp has opened with your order already written. Tap send and a NURA stylist will confirm stock and your total within minutes.', 'nura-experience' ); ?></p>
 					<p class="nwo-done__ref"><?php esc_html_e( 'Your order reference', 'nura-experience' ); ?> <strong data-nwo-ref></strong></p>
+					<div class="nwo-done__pay" data-nwo-donepay hidden>
+						<p class="nwo-done__paytitle"><?php esc_html_e( 'Complete your payment', 'nura-experience' ); ?></p>
+						<p><?php echo esc_html( sprintf( /* translators: %s: till number */ __( 'Lipa na M-Pesa > Buy Goods and Services > Till %s', 'nura-experience' ), $till ) ); ?></p>
+						<p><?php esc_html_e( 'Amount:', 'nura-experience' ); ?> <strong data-nwo-doneamt></strong></p>
+						<p class="nwo-help"><?php esc_html_e( 'Send the M-Pesa confirmation message in the same WhatsApp chat. We dispatch as soon as it is verified.', 'nura-experience' ); ?></p>
+					</div>
 					<a class="nwo-submit nwo-done__wa" data-nwo-again href="#" target="_blank" rel="noopener nofollow"><?php echo self::wa_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Open WhatsApp again', 'nura-experience' ); ?></span></a>
 					<button type="button" class="nwo-done__close" data-nwo-close><?php esc_html_e( 'Continue shopping', 'nura-experience' ); ?></button>
 				</div>
@@ -843,7 +910,33 @@ class NURAX_WA_Order {
 		$place    = $town . ', ' . $location . ' County';
 		$payment  = isset( $in['payment'] ) ? sanitize_text_field( (string) $in['payment'] ) : '';
 		if ( ! in_array( $payment, self::payments(), true ) ) {
-			$payment = '';
+			$payment = self::PAY_TILL;
+		}
+		// No cash on delivery: paying at the shop is only allowed for studio pick-up.
+		if ( self::PAY_SHOP === $payment && 'pickup' !== $fulfil ) {
+			$payment = self::PAY_TILL;
+		}
+		$code      = self::PAY_TILL === $payment ? self::normalise_code( isset( $in['mpesa_code'] ) ? $in['mpesa_code'] : '' ) : '';
+		$code_flag = '';
+		if ( '' !== $code && class_exists( 'NURAX_Desk' ) && method_exists( 'NURAX_Desk', 'ref_used' ) ) {
+			$used = (string) NURAX_Desk::ref_used( $code );
+			if ( '' !== $used ) {
+				$code_flag = sprintf( 'Code already used on %s', $used );
+			}
+		}
+		if ( '' === $code_flag && '' !== $code ) {
+			$seen = get_posts( array(
+				'post_type'      => self::CPT,
+				'post_status'    => 'any',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+				'meta_key'       => '_nwo_pay_ref', // phpcs:ignore WordPress.DB.SlowDBQuery
+				'meta_value'     => $code, // phpcs:ignore WordPress.DB.SlowDBQuery
+			) );
+			if ( ! empty( $seen ) ) {
+				$code_flag = sprintf( 'Code already used on WhatsApp order %s', get_the_title( (int) $seen[0] ) );
+			}
 		}
 		$delivery = 'pickup' === $fulfil ? self::pickup_text() : trim( ( '' !== $area ? $area . ', ' : '' ) . $place, ', ' );
 		$source   = isset( $in['source'] ) && in_array( $in['source'], array( 'product', 'card', 'cart' ), true ) ? (string) $in['source'] : 'product';
@@ -863,6 +956,9 @@ class NURAX_WA_Order {
 			'county'   => $location,
 			'town'     => $town,
 			'payment'  => $payment,
+			'till'     => self::PAY_TILL === $payment ? self::till() : '',
+			'mpesa_code' => $code,
+			'code_flag'  => $code_flag,
 			'ship'     => isset( $in['ship'] ) && '' !== (string) $in['ship'] ? (int) $in['ship'] : '',
 			'note'     => self::cut( sanitize_textarea_field( $note ), 300 ),
 			'source'   => $source,
@@ -879,6 +975,9 @@ class NURAX_WA_Order {
 		}
 		update_post_meta( $post_id, self::META, $data );
 		update_post_meta( $post_id, self::STATUS, 'new' );
+		if ( '' !== $code ) {
+			update_post_meta( $post_id, '_nwo_pay_ref', $code ); // Staff verify against the till statement before dispatch.
+		}
 
 		/** Fires after a WhatsApp order lead is saved. */
 		do_action( 'nurax_wa_order_saved', $post_id, $data );
@@ -1018,7 +1117,7 @@ class NURAX_WA_Order {
 						</td>
 						<td><?php echo esc_html( self::money( isset( $d['total'] ) ? $d['total'] : 0 ) ); ?></td>
 						<td><?php echo esc_html( isset( $d['delivery'] ) ? $d['delivery'] : '' ); ?></td>
-						<td><?php echo esc_html( isset( $d['payment'] ) ? $d['payment'] : '' ); ?></td>
+						<td><?php echo esc_html( isset( $d['payment'] ) ? $d['payment'] : '' ); ?><?php if ( ! empty( $d['mpesa_code'] ) ) : ?><br><code><?php echo esc_html( $d['mpesa_code'] ); ?></code> <small><?php esc_html_e( '(verify on till statement)', 'nura-experience' ); ?></small><?php endif; ?><?php if ( ! empty( $d['code_flag'] ) ) : ?><br><strong style="color:#b32d2e"><?php echo esc_html( $d['code_flag'] ); ?></strong><?php endif; ?></td>
 						<td>
 							<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center">
 								<?php wp_nonce_field( 'nurax_wa_order_status' ); ?>

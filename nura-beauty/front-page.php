@@ -184,8 +184,8 @@ $slides = array(
 					echo '<li>' . esc_html( $nura_line ) . '</li>';
 				}
 				$nura_pay = function_exists( 'nura_payment_summary' )
-					? nura_payment_summary( __( 'M-Pesa & Pay on Delivery', 'nura-beauty' ) )
-					: __( 'M-Pesa & Pay on Delivery', 'nura-beauty' );
+					? nura_payment_summary( __( 'M-Pesa & Card', 'nura-beauty' ) )
+					: __( 'M-Pesa & Card', 'nura-beauty' );
 				?>
 				<li><?php echo esc_html( $nura_pay ); ?></li>
 			</ul>
@@ -335,7 +335,7 @@ $slides = array(
 				array(
 					'svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9.5h19"/></svg>',
 					't'   => __( 'Easy, Local Payment', 'nura-beauty' ),
-					'd'   => sprintf( /* translators: %s: enabled payment methods */ __( 'Pay with %s - whatever suits you.', 'nura-beauty' ), function_exists( 'nura_payment_summary' ) ? nura_payment_summary( __( 'M-Pesa or Cash on Delivery', 'nura-beauty' ) ) : __( 'M-Pesa or Cash on Delivery', 'nura-beauty' ) ),
+					'd'   => sprintf( /* translators: %s: enabled payment methods */ __( 'Pay with %s - whatever suits you.', 'nura-beauty' ), function_exists( 'nura_payment_summary' ) ? nura_payment_summary( __( 'M-Pesa or card', 'nura-beauty' ) ) : __( 'M-Pesa or card', 'nura-beauty' ) ),
 				),
 			);
 			echo '<div class="nura-why nura-reveal"><div class="nura-why__grid">';

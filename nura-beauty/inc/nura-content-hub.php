@@ -262,7 +262,7 @@ add_action( 'admin_init', function () {
 			'post_name'    => 'wig-prices-kenya',
 			'post_title'   => 'Wig Prices in Kenya',
 			'post_status'  => 'publish',
-			'post_content' => '<p class="nura-answer"><strong>Short answer:</strong> at NURA, heat-resistant fibre wigs are the most affordable, human-hair blend (semi-human) wigs sit in the middle, and 100% human hair wigs cost the most, rising with length. The table below is pulled live from our shop, so the prices are always current.</p>[nura_price_table list="1"]<h2>What affects the price of a wig?</h2><ul><li><strong>Hair type:</strong> human hair costs more than blend, and blend more than fibre.</li><li><strong>Length:</strong> longer wigs use more hair.</li><li><strong>Lace:</strong> lace front units cost more than closure or headband wigs.</li></ul><p>Pay by M-Pesa, card or cash on delivery in Nairobi, or spread the cost with <a href="{page:lipa-mdogo-mdogo}">Lipa Mdogo Mdogo</a> (50% deposit, balance within 1 or 2 weeks). Read <a href="{post:human-hair-vs-semi-human-vs-fibre-wigs-kenya}">human hair vs semi-human vs fibre</a>.</p>',
+			'post_content' => '<p class="nura-answer"><strong>Short answer:</strong> at NURA, heat-resistant fibre wigs are the most affordable, human-hair blend (semi-human) wigs sit in the middle, and 100% human hair wigs cost the most, rising with length. The table below is pulled live from our shop, so the prices are always current.</p>[nura_price_table list="1"]<h2>What affects the price of a wig?</h2><ul><li><strong>Hair type:</strong> human hair costs more than blend, and blend more than fibre.</li><li><strong>Length:</strong> longer wigs use more hair.</li><li><strong>Lace:</strong> lace front units cost more than closure or headband wigs.</li></ul><p>Pay by M-Pesa or card, or spread the cost with <a href="{page:lipa-mdogo-mdogo}">Lipa Mdogo Mdogo</a> (50% deposit, balance within 1 or 2 weeks). Read <a href="{post:human-hair-vs-semi-human-vs-fibre-wigs-kenya}">human hair vs semi-human vs fibre</a>.</p>',
 		), true );
 		if ( $id && ! is_wp_error( $id ) ) {
 			update_post_meta( $id, 'rank_math_title', 'Wig Prices in Kenya ' . wp_date( 'Y' ) . ': Live Price List | NURA Beauty' );
@@ -336,7 +336,7 @@ function nura_hub_price_page() {
 
 		<ul class="npg-facts">
 			<li><strong><?php esc_html_e( 'Same-day Nairobi', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Order before 5pm. 1-3 days countrywide.', 'nura-beauty' ); ?></span></li>
-			<li><strong><?php esc_html_e( 'M-Pesa, card or cash', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Cash on delivery within Nairobi.', 'nura-beauty' ); ?></span></li>
+			<li><strong><?php esc_html_e( 'M-Pesa or card', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Paid securely before dispatch.', 'nura-beauty' ); ?></span></li>
 			<li><strong><?php esc_html_e( 'Lipa Mdogo Mdogo', 'nura-beauty' ); ?></strong><span><?php esc_html_e( '50% deposit, balance within 1-2 weeks.', 'nura-beauty' ); ?></span></li>
 			<li><strong><?php esc_html_e( '7-day returns', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Unworn wigs, at the studio or by courier.', 'nura-beauty' ); ?></span></li>
 		</ul>

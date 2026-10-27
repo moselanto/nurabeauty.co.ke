@@ -20,9 +20,9 @@ The most trusted, best-looking wig store in Kenya with an international, profess
 | --- | --- | --- |
 | 1 | Catalogue of human hair, blend and heat-resistant fibre wigs with colour variations, 10-shade colour range and per-colour photos | Live (some colour photos pending from owner) |
 | 2 | Clear KES pricing, stock and categories | Live |
-| 3 | Checkout with required phone; M-Pesa, card (Paystack), bank transfer; cash on delivery Nairobi only | Live |
+| 3 | Checkout with required phone; M-Pesa, card (Paystack), bank transfer; no cash on delivery; pay at the shop only for studio pick-up | Live (theme 1.73.0) |
 | 4 | Delivery: same-day Nairobi before 5:00 PM; rider from KSh 300; bus/shuttle KSh 350; Fargo/G4S KSh 550; free Nairobi delivery over KSh 10,000 | Live |
-| 5 | One-tap WhatsApp ordering with product, colour, quantity, county delivery quote and subtotal | Live |
+| 5 | One-tap WhatsApp ordering with product, colour, quantity, county delivery quote, total and payment to M-Pesa Buy Goods Till 1679269 before dispatch | Live (plugin 1.79.0) |
 | 6 | AI stylist chat, AI wig finder, wig quiz and in-browser virtual try-on | Live |
 | 7 | Studio bookings: mornings only (cut-off 12:00), 50% deposit (minimum KSh 500) by M-Pesa, terms acceptance, 15-minute late rule, slot released if the deposit is not verified within 3 hours, one booking per phone per day; video/WhatsApp consultations free | Live (plugin 1.72.0) |
 | 8 | Lipa Mdogo Mdogo payment plans: 50% deposit, balance within 1 or 2 weeks, terms v2.0, reminders, staff cannot go below the deposit floor | Live (plugin 1.71.0+) |

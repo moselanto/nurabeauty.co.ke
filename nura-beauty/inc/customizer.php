@@ -41,7 +41,7 @@ function nura_settings_map() {
 		'nura_tagline'     => array( 'default' => 'The House of Radiant Confidence', 'label' => __( 'Tagline', 'nura-beauty' ), 'section' => 'nura_brand' ),
 		'nura_signoff'     => array( 'default' => 'Wear your crown. — NURA', 'label' => __( 'Signature sign-off', 'nura-beauty' ), 'section' => 'nura_brand' ),
 		'nura_bio'         => array( 'default' => "East Africa's house of radiant confidence. Premium wigs, hand-finished in Nairobi.", 'label' => __( 'One-line bio (footer)', 'nura-beauty' ), 'section' => 'nura_brand', 'control' => 'textarea' ),
-		'nura_announcement'=> array( 'default' => 'Same-day delivery in Nairobi on orders before 5 PM · Pay with M-Pesa or cash on delivery in Nairobi', 'label' => __( 'Announcement bar', 'nura-beauty' ), 'section' => 'nura_brand', 'control' => 'textarea' ),
+		'nura_announcement'=> array( 'default' => 'Same-day delivery in Nairobi on orders before 5 PM · Pay securely with M-Pesa or card', 'label' => __( 'Announcement bar', 'nura-beauty' ), 'section' => 'nura_brand', 'control' => 'textarea' ),
 		'nura_phone'       => array( 'default' => '+254 714 994 898', 'label' => __( 'Phone', 'nura-beauty' ), 'section' => 'nura_brand' ),
 		'nura_whatsapp'    => array( 'default' => 'https://wa.me/254714994898', 'label' => __( 'WhatsApp link (wa.me/...)', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'esc_url_raw' ),
 		'nura_email'       => array( 'default' => 'care@nurabeauty.co.ke', 'label' => __( 'Support email', 'nura-beauty' ), 'section' => 'nura_brand', 'sanitize' => 'sanitize_email' ),
@@ -67,11 +67,11 @@ function nura_settings_map() {
 		// ---- Trust bar (4 editable promises) ----
 		'nura_trust_1' => array( 'default' => 'Quality-checked, clearly labelled hair', 'label' => __( 'Trust item 1', 'nura-beauty' ), 'section' => 'nura_home' ),
 		'nura_trust_2' => array( 'default' => 'Same-day Nairobi delivery', 'label' => __( 'Trust item 2', 'nura-beauty' ), 'section' => 'nura_home' ),
-		'nura_trust_3' => array( 'default' => 'M-Pesa, card & pay on delivery', 'label' => __( 'Trust item 3', 'nura-beauty' ), 'section' => 'nura_home' ),
+		'nura_trust_3' => array( 'default' => 'M-Pesa & card, paid securely', 'label' => __( 'Trust item 3', 'nura-beauty' ), 'section' => 'nura_home' ),
 		'nura_trust_4' => array( 'default' => 'Written longevity guarantee', 'label' => __( 'Trust item 4', 'nura-beauty' ), 'section' => 'nura_home' ),
 
 		// ---- Payment badges (comma separated, fully editable) ----
-		'nura_payments' => array( 'default' => 'M-Pesa, Cash on Delivery, Bank Transfer', 'label' => __( 'Payment badges (comma separated)', 'nura-beauty' ), 'section' => 'nura_brand', 'control' => 'textarea' ),
+		'nura_payments' => array( 'default' => 'M-Pesa, Card, Bank Transfer', 'label' => __( 'Payment badges (comma separated)', 'nura-beauty' ), 'section' => 'nura_brand', 'control' => 'textarea' ),
 
 		// ---- Installation page (v1.47.0). Lists: one item per line, parts separated by | ----
 		'nura_inst_eyebrow' => array( 'default' => 'NURA Studio', 'label' => __( 'Eyebrow above the title', 'nura-beauty' ), 'section' => 'nura_install' ),
@@ -151,7 +151,7 @@ add_filter( 'theme_mod_nura_whatsapp', function ( $value ) {
 } );
 
 /**
- * Never render retired payment badges. NURA takes M-Pesa, Cash on Delivery and
+ * Never render retired payment badges. NURA takes M-Pesa (Paystack and Till) and
  * Bank Transfer only, so Visa, Mastercard, PayPal, Lipa Later and generic "Card"
  * are stripped from whatever is stored - even a value saved into the Customizer
  * before this change - and the field falls back to the curated list if that
@@ -173,8 +173,33 @@ add_filter( 'theme_mod_nura_payments', function ( $value ) {
 			$kept[] = $item;
 		}
 	}
-	return $kept ? implode( ', ', $kept ) : 'M-Pesa, Cash on Delivery, Bank Transfer';
+	return $kept ? implode( ', ', $kept ) : 'M-Pesa, Bank Transfer';
 } );
+
+/**
+ * v1.73.0 - NURA no longer offers cash on delivery. If a saved announcement or
+ * trust line still promises it, show the current wording instead.
+ */
+foreach ( array(
+	'nura_announcement' => 'Same-day delivery in Nairobi on orders before 5 PM · Pay securely with M-Pesa or card',
+	'nura_trust_3'      => 'M-Pesa & card, paid securely',
+) as $nura_mod => $nura_fallback ) {
+	add_filter( 'theme_mod_' . $nura_mod, function ( $value ) use ( $nura_fallback ) {
+		if ( is_string( $value ) && preg_match( '/(cash|pay|m-pesa)\s+on\s+delivery/i', $value ) ) {
+			return $nura_fallback;
+		}
+		return $value;
+	} );
+}
+add_filter( 'theme_mod_nura_payments', function ( $value ) {
+	if ( ! is_string( $value ) ) {
+		return $value;
+	}
+	$kept = array_filter( array_map( 'trim', explode( ',', $value ) ), function ( $i ) {
+		return ! preg_match( '/on\s+delivery|^cod$/i', $i );
+	} );
+	return $kept ? implode( ', ', $kept ) : 'M-Pesa, Bank Transfer';
+}, 20 );
 
 function nura_customize_register( $wp_customize ) {
 	$wp_customize->add_panel( 'nura_panel', array(

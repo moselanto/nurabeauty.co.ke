@@ -102,7 +102,7 @@ function nura_boost_cat_guides() {
 	return apply_filters( 'nura_cat_guides', array(
 		'wigs' => array(
 			'title'   => __( 'Wigs in Kenya', 'nura-beauty' ),
-			'intro'   => __( 'NURA is a Nairobi wig shop serving women across Kenya. Every unit is clearly labelled as 100% human hair, human-hair blend (semi-human) or heat-resistant fibre, so you always know what you are paying for. Choose by hair type, lace, length and texture, then pay by M-Pesa, card or cash on delivery in Nairobi.', 'nura-beauty' ),
+			'intro'   => __( 'NURA is a Nairobi wig shop serving women across Kenya. Every unit is clearly labelled as 100% human hair, human-hair blend (semi-human) or heat-resistant fibre, so you always know what you are paying for. Choose by hair type, lace, length and texture, then pay by M-Pesa or card.', 'nura-beauty' ),
 			'tips'    => array(
 				__( 'First wig? Headband and closure wigs are the easiest to wear - no glue and very little lace to cut.', 'nura-beauty' ),
 				__( 'Want the most natural look? Choose a lace front wig in human hair or a human-hair blend.', 'nura-beauty' ),
@@ -252,7 +252,7 @@ function nura_boost_current_guide() {
 			/* translators: %s: category name. */
 			sprintf( __( 'How much do %s cost?', 'nura-beauty' ), $name ),
 			/* translators: 1: category, 2: low price, 3: high price. */
-			sprintf( __( 'At NURA, %1$s currently cost from %2$s to %3$s. Prices are in Kenya Shillings and you can pay by M-Pesa, card or cash on delivery in Nairobi.', 'nura-beauty' ), $name, nura_boost_ksh( $px['lo'] ), nura_boost_ksh( $px['hi'] ) ),
+			sprintf( __( 'At NURA, %1$s currently cost from %2$s to %3$s. Prices are in Kenya Shillings and you can pay by M-Pesa or card.', 'nura-beauty' ), $name, nura_boost_ksh( $px['lo'] ), nura_boost_ksh( $px['hi'] ) ),
 		) );
 	}
 	$g['faqs'][] = array( __( 'Can I return a wig?', 'nura-beauty' ), __( 'Unworn, unaltered wigs in original condition can be returned within 7 days of delivery, either at our Imenti House studio in Nairobi CBD or by courier. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' ) );

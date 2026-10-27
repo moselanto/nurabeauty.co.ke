@@ -1,5 +1,5 @@
 /*!
- * NURA WhatsApp Order pop-up (NURA Experience 1.46.0).
+ * NURA WhatsApp Order pop-up (NURA Experience 1.79.0: M-Pesa Till payment, no cash on delivery).
  * Ported from the Tabarak Electronics order funnel, restyled for NURA.
  * Every trigger is a real wa.me link, so ordering still works without JS.
  */
@@ -31,6 +31,12 @@
   var pickupEl = modal.querySelector('[data-nwo-pickup]');
   var formErr = modal.querySelector('[data-nwo-formerr]');
   var steps = modal.querySelectorAll('[data-nwo-step]');
+  var payBox = modal.querySelector('[data-nwo-paybox]');
+  var payAmt = modal.querySelector('[data-nwo-payamt]');
+  var shopOpt = modal.querySelector('[data-nwo-shoponly]');
+  var TILL = String(C.till || '1679269');
+  var PAY_TILL = C.payTill || 'M-Pesa Till (pay now)';
+  var PAY_SHOP = C.payShop || 'Pay at the shop on collection';
   var STORE = C.store || 'nura_wa_order_contact';
   var SEP = '--------------------';
   var T0 = Date.now();
@@ -83,6 +89,11 @@
   function parseData(el) {
     try { return JSON.parse(el.getAttribute('data-nwo') || '{}') || {}; } catch (e) { return {}; }
   }
+  function normCode(raw) {
+    var c = String(raw || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+    return (/^[A-Z0-9]{10}$/.test(c) && /[A-Z]/.test(c) && /\d/.test(c)) ? c : '';
+  }
+  function payTill() { return val('payment') !== PAY_SHOP; }
   function qty() {
     var q = parseInt(qtyIn.value, 10);
     if (isNaN(q) || q < 1) { q = 1; }
@@ -129,6 +140,11 @@
     if (!l.value) { setErr(l, 'Please select your county.'); ok = false; first = first || l; } else { setErr(l, ''); }
     if (tw) {
       if (clean(tw.value).length < 2) { setErr(tw, 'Please enter your town.'); ok = false; first = first || tw; } else { setErr(tw, ''); }
+    }
+    var mc = form.elements.mpesa_code;
+    if (mc) {
+      if (payTill() && clean(mc.value) && !normCode(mc.value)) { setErr(mc, 'An M-Pesa code has 10 letters and numbers, e.g. TJR4ABC12D. Leave it empty if you have not paid yet.'); ok = false; first = first || mc; }
+      else { setErr(mc, ''); }
     }
     var sels = optsEl.querySelectorAll('select');
     for (var i = 0; i < sels.length; i++) {
@@ -221,6 +237,7 @@
       billShip.classList.toggle('is-free', pick || (shipKnown() && !(ship.fee > 0)));
       billShip.classList.toggle('is-pending', !pick && !shipKnown());
     }
+    syncPayAmount(sub, pick);
     if (footTotalEl) {
       var known = pick || shipKnown();
       footTotalEl.textContent = sub > 0 ? from + money(sub + (known && !pick ? ship.fee : 0)) + (known ? '' : ' + delivery') : 'To be confirmed';
@@ -235,6 +252,43 @@
         shipBox.hidden = false;
       } else { shipBox.hidden = true; }
     }
+  }
+
+  /* ---------- payment (v1.79.0) ---------- */
+  function amountDue() {
+    var sub = subtotal(), pick = val('fulfil') === 'pickup';
+    if (!(sub > 0)) { return null; }
+    if (pick) { return { known: true, value: sub }; }
+    if (shipKnown()) { return { known: true, value: sub + (ship.fee || 0) }; }
+    return { known: false, value: sub };
+  }
+  function amountText() {
+    var a = amountDue(), from = isFrom() ? 'From ' : '';
+    if (!a) { return 'Confirmed on WhatsApp'; }
+    return a.known ? from + money(a.value) : from + money(a.value) + ' + delivery (we confirm the total)';
+  }
+  function syncPayAmount() {
+    if (payAmt) { payAmt.textContent = amountText(); }
+  }
+  function syncPay() {
+    var pick = val('fulfil') === 'pickup';
+    if (shopOpt) {
+      shopOpt.hidden = !pick;
+      if (!pick && val('payment') === PAY_SHOP) { setRadio('payment', PAY_TILL); }
+    }
+    if (!val('payment')) { setRadio('payment', PAY_TILL); }
+    if (payBox) { payBox.hidden = !payTill(); }
+    syncPayAmount();
+  }
+  function copyTill(btn) {
+    var done = function () { var t = btn.textContent; btn.textContent = 'Copied'; btn.classList.add('is-done'); setTimeout(function () { btn.textContent = t; btn.classList.remove('is-done'); }, 1600); };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(TILL).then(done, function () {}); return; }
+    } catch (e) {}
+    try {
+      var ta = d.createElement('textarea'); ta.value = TILL; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      d.body.appendChild(ta); ta.select(); d.execCommand('copy'); d.body.removeChild(ta); done();
+    } catch (x) {}
   }
 
   /* ---------- variation helpers ---------- */
@@ -324,39 +378,56 @@
 
   /* ---------- message ---------- */
   function buildMessage(ref) {
-    var L = ['*NEW ORDER - ' + (C.brand || 'NURA Beauty') + '*', 'Ref: ' + ref, SEP];
+    var pick = val('fulfil') === 'pickup', sk = pick || shipKnown(), sub = subtotal(), from = isFrom() ? 'From ' : '';
+    var L = ['*' + String(C.brand || 'NURA Beauty').toUpperCase() + ' | NEW ORDER*', 'Order ref: *' + ref + '*', SEP, '*ORDER SUMMARY*'];
     if (state.mode === 'cart') {
-      L.push('*Items:*');
       state.items.forEach(function (it, i) {
-        L.push((i + 1) + '. ' + it.name + (it.option ? ' - ' + it.option : '') + ' x ' + it.qty + ' = ' + money(it.line));
+        L.push((i + 1) + '. ' + it.name);
+        if (it.option) { L.push('    Option: ' + it.option); }
+        L.push('    ' + it.qty + ' x ' + money(it.price) + ' = ' + money(it.line));
       });
-      L.push('*Subtotal:* ' + money(state.total));
     } else {
-      var q = qty(), from = (state.product.variable && !state.option) ? 'From ' : '';
-      L.push('*Product:* ' + state.product.name);
-      if (state.option) { L.push('*Option:* ' + state.option); }
-      if (state.price > 0) { L.push('*Price:* ' + from + money(state.price)); }
-      L.push('*Qty:* ' + q);
-      if (state.price > 0) { L.push('*Subtotal:* ' + from + money(state.price * q)); }
+      var q = qty();
+      L.push('1. ' + state.product.name);
+      if (state.option) { L.push('    Option: ' + state.option); }
+      L.push('    ' + q + ' x ' + (state.price > 0 ? from + money(state.price) + ' = ' + from + money(state.price * q) : 'price to be confirmed'));
     }
-    var pick = val('fulfil') === 'pickup', sk = pick || shipKnown(), sub = subtotal();
-    L.push('*Delivery fee:* ' + (pick ? 'Free (pick-up)' : (sk ? (ship.fee > 0 ? money(ship.fee) : 'Free') : 'To be confirmed')));
-    if (sub > 0 && sk) { L.push('*Total:* ' + (isFrom() ? 'From ' : '') + money(sub + (pick ? 0 : ship.fee))); }
     L.push(SEP);
-    L.push('*Customer:* ' + val('name'));
-    L.push('*Phone:* +' + normPhone(val('phone')));
-    if (val('fulfil') === 'pickup') {
-      L.push('*Location:* ' + val('town') + ', ' + val('location') + ' County');
-      L.push('*Delivery:* ' + (C.pickup || 'Pick-up at NURA studio'));
+    if (sub > 0) { L.push('Subtotal: ' + from + money(sub)); }
+    L.push((pick ? 'Collection' : 'Delivery') + ': ' + (pick ? 'Free (studio pick-up)' : (sk ? (ship.fee > 0 ? money(ship.fee) : 'Free') : 'To be confirmed')));
+    if (sub > 0) { L.push(sk ? '*TOTAL: ' + from + money(sub + (pick ? 0 : ship.fee)) + '*' : '*TOTAL: ' + from + money(sub) + ' + delivery*'); }
+    L.push(SEP);
+    L.push('*CUSTOMER*');
+    L.push('Name: ' + val('name'));
+    L.push('Phone: +' + normPhone(val('phone')));
+    if (pick) {
+      L.push('*COLLECTION*');
+      L.push(C.pickup || 'Pick-up at NURA studio');
     } else {
       var area = val('area');
-      L.push('*Delivery:* ' + (area ? area + ', ' : '') + val('town') + ', ' + val('location') + ' County');
+      L.push('*DELIVERY ADDRESS*');
+      L.push((area ? area + ', ' : '') + val('town') + ', ' + val('location') + ' County');
+      if (ship && ship.eta) { L.push('Timing: ' + ship.eta); }
     }
-    if (val('payment')) { L.push('*Payment:* ' + val('payment')); }
-    if (val('note')) { L.push('*Note:* ' + val('note')); }
+    L.push(SEP);
+    L.push('*PAYMENT*');
+    if (payTill()) {
+      L.push('Method: M-Pesa Buy Goods, Till ' + TILL);
+      var code = normCode(val('mpesa_code'));
+      if (code) {
+        L.push('Status: PAID - M-Pesa code ' + code + ' (please verify)');
+      } else if (sk && sub > 0 && !isFrom()) {
+        L.push('Status: Awaiting payment. I will pay ' + money(sub + (pick ? 0 : ship.fee)) + ' to Till ' + TILL + ' and share the M-Pesa message here.');
+      } else {
+        L.push('Status: Awaiting payment. Please confirm the final total and I will pay to Till ' + TILL + '.');
+      }
+    } else {
+      L.push('Method: Pay at the NURA studio on collection (cash or M-Pesa)');
+    }
+    if (val('note')) { L.push(SEP); L.push('*NOTE*'); L.push(val('note')); }
     L.push(SEP);
     if (state.mode !== 'cart' && state.product.url) { L.push(state.product.url); }
-    L.push(sk ? 'Please confirm availability. Thank you.' : 'Please confirm availability and the delivery fee. Thank you.');
+    L.push('Kindly confirm availability and my order. Thank you.');
     return L.join('\n');
   }
   function waUrl(text) { return 'https://wa.me/' + (C.wa || '') + '?text=' + encodeURIComponent(text); }
@@ -381,6 +452,7 @@
     fd.append('items', JSON.stringify(orderItems()));
     fd.append('ship', val('fulfil') === 'pickup' ? '0' : (shipKnown() ? String(Math.round(ship.fee)) : ''));
     ['name', 'phone', 'location', 'town', 'area', 'fulfil', 'payment', 'note', 'website'].forEach(function (k) { fd.append(k, val(k)); });
+    fd.append('mpesa_code', payTill() ? normCode(val('mpesa_code')) : '');
     var url = C.ajax || '/wp-admin/admin-ajax.php';
     try {
       if (window.fetch) { fetch(url, { method: 'POST', body: fd, credentials: 'same-origin', keepalive: true }).catch(function () {}); }
@@ -414,6 +486,7 @@
     var pick = val('fulfil') === 'pickup';
     deliveryEl.hidden = pick;
     pickupEl.hidden = !pick;
+    syncPay();
   }
   function focusables() {
     return [].filter.call(panel.querySelectorAll('a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'), function (el) {
@@ -516,6 +589,8 @@
   /* ---------- modal events ---------- */
   modal.addEventListener('click', function (e) {
     if (e.target.closest('[data-nwo-close]')) { e.preventDefault(); close(); return; }
+    var cp = e.target.closest('[data-nwo-copy]');
+    if (cp) { e.preventDefault(); copyTill(cp); return; }
     var qb = e.target.closest('[data-nwo-qty]');
     if (qb) {
       e.preventDefault();
@@ -528,6 +603,7 @@
   optsEl.addEventListener('change', onOptionChange);
   form.addEventListener('change', function (e) {
     if (e.target.name === 'fulfil') { syncFulfil(); }
+    if (e.target.name === 'payment') { syncPay(); }
     if (e.target.name === 'fulfil' || e.target.name === 'location') { refreshShip(); }
     if (e.target.name === 'location' && e.target.value) { setErr(e.target, ''); }
   });
@@ -536,6 +612,7 @@
     if (t.getAttribute('aria-invalid') === 'true') {
       if (t.name === 'phone' && normPhone(t.value)) { setErr(t, ''); }
       if ((t.name === 'name' || t.name === 'town') && clean(t.value).length >= 2) { setErr(t, ''); }
+      if (t.name === 'mpesa_code' && (!clean(t.value) || normCode(t.value))) { setErr(t, ''); }
     }
   });
 
@@ -569,6 +646,13 @@
     doneEl.hidden = false;
     doneEl.querySelector('[data-nwo-ref]').textContent = ref;
     doneEl.querySelector('[data-nwo-again]').href = url;
+    var dp = doneEl.querySelector('[data-nwo-donepay]');
+    if (dp) {
+      dp.hidden = !(payTill() && !normCode(val('mpesa_code')));
+      var da = dp.querySelector('[data-nwo-doneamt]');
+      if (da) { da.textContent = amountText(); }
+    }
+    if (form.elements.mpesa_code) { form.elements.mpesa_code.value = ''; }
     setStep(1);
     var title = doneEl.querySelector('.nwo-done__title');
     if (title) { title.focus(); }

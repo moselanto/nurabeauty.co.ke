@@ -1,6 +1,17 @@
 # HANDOVER.md - current state for the next developer / AI agent
 
-Last updated: 27 Oct 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+Last updated: 1 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+
+## 0. Working agreement with the owner (read first)
+
+- **Every session must end with a repo update.** Whatever is changed, decided or left pending goes into this file (sections 1, 2 and 6) and the session log below, committed to `main`, so the next AI agent knows exactly where things stand.
+- Code releases also update README badges/release table and PRD status where relevant.
+
+### Session log (newest first)
+
+| Date | Agent | What happened | Pending after this session |
+| --- | --- | --- | --- |
+| 1 Nov 2026 | Town assistant (Ray) | Onboarded: studied the repo (theme 1.73.0, plugin 1.79.2, child theme) and the live site. Live homepage matches the 1.79.x copy (no cash on delivery, Till 1679269, Lipa Mdogo Mdogo, same-day Nairobi). Docs only: fixed stale "Nairobi-only COD" wording in ARCHITECTURE.md, ARCHITECTURE-ESSENTIALS.md and PRD.md. No code or version change. | Owner to say which changes/updates come next. Section 6 items still open. |
 
 ## 1. Current versions (on `main`)
 

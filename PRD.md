@@ -7,7 +7,7 @@ The most trusted, best-looking wig store in Kenya with an international, profess
 
 | User | Needs |
 | --- | --- |
-| Shoppers in Nairobi | Same-day delivery, cash on delivery, studio fittings |
+| Shoppers in Nairobi | Same-day delivery, M-Pesa / card payment, pay at the shop on studio pick-up, studio fittings |
 | Shoppers across Kenya | Courier delivery, M-Pesa, WhatsApp help |
 | Diaspora / East Africa | Quoted shipping, trust signals |
 | Salons and wholesale | Bulk and corporate orders |

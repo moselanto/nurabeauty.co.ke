@@ -8,6 +8,6 @@
 - **Public endpoints:** REST `nurax/v1` (`/wig-finder`, `/stylist`, `/stylist-booking`, `/slots`, `/quickview`, WhatsApp webhook) and admin-ajax (`nurax_wa_order`, `nurax_wa_product`, `nurax_wa_ship`, `nurax_lmm_request`, `nurax_subscribe`, `nurax_cart_capture`, `nura_search`). All rate-limited.
 - **Integrations:** WhatsApp Cloud API (signed webhook), OpenAI / Gemini (optional), n8n, M-Pesa and card via Paystack, Google reviews, consent-gated Meta / TikTok / GA4.
 - **Security layers:** theme `inc/nura-security.php` (headers, XML-RPC off, enumeration and bot blocking, form guards) + plugin `class-nura-security.php` (REST limiter) + `class-nura-login-guard.php` (lockout, password policy, sessions, HTTPS, CORS) + `class-nura-hardening.php` (CSP frame-ancestors, uploads, no-store Desk, AJAX limits) + `class-nura-staff.php` (permissions, activity log) + `class-nura-vault.php` (encrypted contacts).
-- **Business rules:** same-day Nairobi before 5:00 PM; rider from KSh 300; free Nairobi delivery over KSh 10,000; COD Nairobi only; studio bookings mornings only with a 50% deposit; Lipa Mdogo Mdogo 50% deposit, balance within 2 weeks.
+- **Business rules:** same-day Nairobi before 5:00 PM; rider from KSh 300; free Nairobi delivery over KSh 10,000; no cash on delivery (pay at the shop only for studio pick-up; WhatsApp orders paid to M-Pesa Till 1679269); studio bookings mornings only with a 50% deposit; Lipa Mdogo Mdogo 50% deposit, balance within 2 weeks.
 
 See ARCHITECTURE.md for detail and SECURITY-AUDIT.md for security.

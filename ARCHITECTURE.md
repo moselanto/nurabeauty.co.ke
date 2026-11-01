@@ -25,7 +25,7 @@ Meta / TikTok / GA4 (consent-gated), e-mail (wp_mail).
 | --- | --- |
 | `functions.php` | `NURA_VERSION`, loads `inc/` modules via `nura_require()`, template routing |
 | `inc/setup.php`, `inc/enqueue.php` | Theme supports, menus, scripts, fonts |
-| `inc/woocommerce-support.php`, `nura-commerce.php`, `nura-product-ux.php`, `nura-filters.php`, `nura-search.php` | Shop, cart, checkout (required phone, Nairobi-only COD enforced server-side), product UX, filters, live search |
+| `inc/woocommerce-support.php`, `nura-commerce.php`, `nura-product-ux.php`, `nura-filters.php`, `nura-search.php` | Shop, cart, checkout (required phone; no cash on delivery - `cod` gateway only for local pick-up, enforced server-side in classic and Store API checkout), product UX, filters, live search |
 | `inc/nura-boost.php` + `assets/js/nura-boost.js` | Conversion features incl. Lipa Mdogo Mdogo product box |
 | `inc/nura-seo*.php`, `seo-schema.php`, `nura-schema-graph.php` | Titles, schema.org, canonical/noindex fixes |
 | `inc/nura-security.php` | Security headers, XML-RPC off, enumeration block, AI-bot blocking, form spam guards, `DISALLOW_FILE_EDIT` |
@@ -79,7 +79,7 @@ Meta / TikTok / GA4 (consent-gated), e-mail (wp_mail).
 
 ## 5. Request flows
 
-- **Checkout:** WooCommerce checkout; phone required; COD only for Nairobi, re-checked server-side.
+- **Checkout:** WooCommerce checkout; phone required; no cash on delivery - "Pay at the shop on collection" only when every shipping method is pick-up, re-checked server-side (filter `nura_allow_cod_delivery`).
 - **WhatsApp order:** pop-up -> `nurax_wa_order` (honeypot, time trap, rate limit) -> lead -> WhatsApp opens with formatted message.
 - **Booking:** page -> `GET nurax/v1/slots` -> `POST nurax/v1/stylist-booking` (rate limit, morning slot list, not past, one per phone/day, M-Pesa code format + re-use check, terms) -> appointment "request" -> staff "Deposit received" -> confirmed WhatsApp.
 - **Point of sale:** Desk till -> `nurax_pos_order` (nonce + capability + team permission checks) -> WooCommerce order, receipts, sourced lines.

@@ -109,7 +109,7 @@ function nura_boost_cat_guides() {
 				__( 'On a budget? Heat-resistant fibre wigs hold their style out of the box and cost the least.', 'nura-beauty' ),
 			),
 			'faqs'    => array(
-				array( __( 'Where can I buy wigs in Nairobi?', 'nura-beauty' ), __( 'Order online at nurabeauty.co.ke or on WhatsApp, or visit our studio at Imenti House, Moi Avenue, Nairobi CBD by appointment.', 'nura-beauty' ) ),
+				array( __( 'Where can I buy wigs in Nairobi?', 'nura-beauty' ), __( 'Order online at nurabeauty.co.ke or on WhatsApp, or visit our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD (walk-ins welcome, appointments available).', 'nura-beauty' ) ),
 				array( __( 'How fast is delivery?', 'nura-beauty' ), __( 'Same day in Nairobi on orders placed before 5pm, and 1 to 3 days to the rest of Kenya.', 'nura-beauty' ) ),
 			),
 			'related' => array( 'human-hair-wigs', 'headband-wigs', 'closure-wigs', 'lace-front-wigs', 'bob-wigs' ),
@@ -255,7 +255,7 @@ function nura_boost_current_guide() {
 			sprintf( __( 'At NURA, %1$s currently cost from %2$s to %3$s. Prices are in Kenya Shillings and you can pay by M-Pesa or card.', 'nura-beauty' ), $name, nura_boost_ksh( $px['lo'] ), nura_boost_ksh( $px['hi'] ) ),
 		) );
 	}
-	$g['faqs'][] = array( __( 'Can I return a wig?', 'nura-beauty' ), __( 'Unworn, unaltered wigs in original condition can be returned within 7 days of delivery, either at our Imenti House studio in Nairobi CBD or by courier. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' ) );
+	$g['faqs'][] = array( __( 'Can I return a wig?', 'nura-beauty' ), __( 'Unworn, unaltered wigs in original condition can be returned within 48 hours of delivery, either at our Stanbank House studio (2nd Floor, Room 20) in Nairobi CBD or by courier. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' ) );
 	$memo        = $g;
 	return $g;
 }
@@ -786,6 +786,6 @@ add_action( 'wp_enqueue_scripts', function () {
 		'lmmTerms'  => ( get_page_by_path( 'lipa-mdogo-mdogo-terms' ) ? get_permalink( get_page_by_path( 'lipa-mdogo-mdogo-terms' ) ) : home_url( '/lipa-mdogo-mdogo-terms/' ) ),
 		'lmmAjax'   => class_exists( 'NURAX_Desk_Plans' ) ? admin_url( 'admin-ajax.php' ) : '',
 		'slots'     => class_exists( 'NURAX_Desk_Appts' ) ? rest_url( 'nurax/v1/slots' ) : '',
-		'hoursText' => function_exists( 'nura_hours_text' ) ? nura_hours_text() : 'Mon-Sat 8:00-20:00',
+		'hoursText' => function_exists( 'nura_hours_text' ) ? nura_hours_text() : 'Mon-Sat 9:00am-7:30pm',
 	) );
 }, 21 );

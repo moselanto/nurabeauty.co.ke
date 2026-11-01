@@ -62,7 +62,7 @@ class NURAX_Community {
 	public static function google_review_url() {
 		$pid = defined( 'NURA_GOOGLE_PLACE_ID' ) && NURA_GOOGLE_PLACE_ID ? (string) NURA_GOOGLE_PLACE_ID : (string) get_option( 'nura_google_place_id', '' );
 		if ( '' === trim( $pid ) ) {
-			// 1.73.9: NURA Beauty, Imenti House, Nairobi (verified Google Business Profile).
+			// 1.73.9: NURA Beauty verified Google Business Profile. 1.80.0: the listing must be MOVED to Stanbank House (not duplicated) so this Place ID stays valid.
 			// A Place ID saved in WooCommerce > NURA Reviews & Photos always takes priority.
 			$pid = 'ChIJGx-_W1sRLxgRxNUNZe1z9ug';
 		}

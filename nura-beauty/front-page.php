@@ -489,13 +489,13 @@ $slides = array(
 					<span class="nura-contact-card__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg></span>
 					<span class="nura-contact-card__k"><?php esc_html_e( 'Studio', 'nura-beauty' ); ?></span>
 					<span class="nura-contact-card__v"><?php echo esc_html( nura_opt( 'nura_address' ) ); ?></span>
-					<span class="nura-contact-card__cta"><?php esc_html_e( 'Visits by appointment', 'nura-beauty' ); ?></span>
+					<span class="nura-contact-card__cta"><?php esc_html_e( 'Walk-ins & appointments', 'nura-beauty' ); ?></span>
 				</div>
 			</div>
 			<ul class="nura-contact-note">
 				<li><?php esc_html_e( 'Same-day delivery in Nairobi (order before 5pm)', 'nura-beauty' ); ?></li>
 				<li><?php esc_html_e( 'Kenya-wide in 1-3 days', 'nura-beauty' ); ?></li>
-				<li><?php esc_html_e( 'Worldwide shipping available', 'nura-beauty' ); ?></li>
+				<li><?php esc_html_e( 'International shipping on request', 'nura-beauty' ); ?></li>
 			</ul>
 		</div>
 	</section>

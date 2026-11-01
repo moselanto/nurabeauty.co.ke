@@ -121,7 +121,7 @@ function nura_product_schema() {
 		'description' => wp_strip_all_tags( $product->get_short_description() ? $product->get_short_description() : $product->get_description() ),
 		'sku'         => $product->get_sku(),
 		'image'       => wp_get_attachment_image_url( $product->get_image_id(), 'full' ),
-		'brand'       => array( '@type' => 'Brand', 'name' => 'NURA' ),
+		'brand'       => array( '@type' => 'Brand', 'name' => function_exists( 'nura_product_brand' ) ? nura_product_brand( $product ) : 'NURA Beauty' ),
 		'offers'      => array(
 			'@type'         => 'Offer',
 			'price'         => $product->get_price(),

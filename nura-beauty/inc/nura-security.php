@@ -120,9 +120,11 @@ add_filter( 'robots_txt', function ( $output, $public ) {
 		'Bytespider', 'Diffbot', 'ImagesiftBot', 'Omgili', 'Omgilibot', 'Timpibot',
 		'DataForSeoBot', 'magpie-crawler', 'Scrapy',
 	) );
+	// 1.75.0: shop filter combinations, Woo AJAX and sub-feeds waste crawl budget and caused 5xx (Search Console, Oct 2026).
+	$nura_crawl_waste = "Disallow: /*?*filter_\nDisallow: /*?*query_type_\nDisallow: /*?*min_price=\nDisallow: /*?*max_price=\nDisallow: /*?*instock=\nDisallow: /*?*wc-ajax=\nDisallow: /*/feed/\n";
 	$extra = "\n# NURA: AI search and answer engines are welcome (public pages only)\n";
 	foreach ( $ai_allowed as $bot ) {
-		$extra .= "User-agent: {$bot}\nAllow: /\nDisallow: /wp-admin/\nDisallow: /cart/\nDisallow: /checkout/\nDisallow: /my-account/\n\n";
+		$extra .= "User-agent: {$bot}\nAllow: /\nDisallow: /wp-admin/\nDisallow: /cart/\nDisallow: /checkout/\nDisallow: /my-account/\n" . $nura_crawl_waste . "\n";
 	}
 	$extra .= "# NURA: aggressive scrapers\n";
 	foreach ( $scrapers as $bot ) {
@@ -139,6 +141,7 @@ add_filter( 'robots_txt', function ( $output, $public ) {
 	$extra .= "Disallow: /*add-to-cart=\n";
 	$extra .= "Disallow: /*?*orderby=\n";
 	$extra .= "Disallow: /?s=\n";
+	$extra .= $nura_crawl_waste;
 	$extra .= "\n# Plain-language summary for AI assistants: " . home_url( '/llms.txt' ) . "\n";
 	return $output . $extra;
 }, 10, 2 );

@@ -580,7 +580,7 @@ class NURAX_WA_Order {
 		$till_name = self::till_name();
 		$pay_notes = array(
 			self::PAY_TILL => sprintf( /* translators: %s: till number */ __( 'Buy Goods Till %s - we dispatch once payment is confirmed', 'nura-experience' ), $till ),
-			self::PAY_SHOP => __( 'Cash or M-Pesa at our Imenti House studio when you collect', 'nura-experience' ),
+			self::PAY_SHOP => __( 'Cash or M-Pesa at our Stanbank House studio (2nd Floor, Room 20) when you collect', 'nura-experience' ),
 		);
 		?>
 		<div class="nwo" id="nwo-modal" data-nwo-modal hidden>
@@ -723,7 +723,7 @@ class NURAX_WA_Order {
 						<ul class="nwo-trust">
 							<li><?php esc_html_e( 'Secure M-Pesa Till', 'nura-experience' ); ?></li>
 							<li><?php esc_html_e( 'Dispatched once payment is verified', 'nura-experience' ); ?></li>
-							<li><?php esc_html_e( '7-day returns', 'nura-experience' ); ?></li>
+							<li><?php esc_html_e( '48-hour returns', 'nura-experience' ); ?></li>
 						</ul>
 					</div>
 

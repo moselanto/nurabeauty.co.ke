@@ -272,14 +272,14 @@ function nura_render_filter_bar() {
 		echo '<div class="nura-chips" aria-label="' . esc_attr__( 'Active filters', 'nura-beauty' ) . '">';
 		foreach ( $chips as $chip ) {
 			printf(
-				'<a class="nura-chip" href="%1$s" data-nura-filter><span>%2$s</span><span class="nura-chip__x" aria-hidden="true">&times;</span><span class="screen-reader-text">%3$s</span></a>',
+				'<a class="nura-chip" href="%1$s" rel="nofollow" data-nura-filter><span>%2$s</span><span class="nura-chip__x" aria-hidden="true">&times;</span><span class="screen-reader-text">%3$s</span></a>',
 				esc_url( $chip['url'] ),
 				esc_html( $chip['label'] ),
 				esc_attr__( 'Remove filter', 'nura-beauty' )
 			);
 		}
 		printf(
-			'<a class="nura-chip nura-chip--clear" href="%1$s" data-nura-filter>%2$s</a>',
+			'<a class="nura-chip nura-chip--clear" href="%1$s" rel="nofollow" data-nura-filter>%2$s</a>',
 			esc_url( nura_shop_base_url() ),
 			esc_html__( 'Clear all', 'nura-beauty' )
 		);
@@ -318,7 +318,7 @@ function nura_render_filter_bar() {
 				$box = '<span class="nura-facet__box" aria-hidden="true"></span>';
 			}
 			printf(
-				'<a class="nura-facet__opt%1$s%2$s" href="%3$s" data-nura-filter aria-pressed="%4$s">%5$s<span class="nura-facet__name">%6$s</span><em class="nura-facet__count">%7$d</em></a>',
+				'<a class="nura-facet__opt%1$s%2$s" href="%3$s" rel="nofollow" data-nura-filter aria-pressed="%4$s">%5$s<span class="nura-facet__name">%6$s</span><em class="nura-facet__count">%7$d</em></a>',
 				$is_active ? ' is-active' : '',
 				$is_colour ? ' nura-facet__opt--swatch' : '',
 				esc_url( nura_toggle_term_url( $tax, $term->slug ) ),
@@ -335,7 +335,7 @@ function nura_render_filter_bar() {
 
 	// Availability facet.
 	printf(
-		'<div class="nura-facet nura-facet--toggle"><a class="nura-facet__opt%1$s" href="%2$s" data-nura-filter aria-pressed="%3$s"><span class="nura-facet__box" aria-hidden="true"></span><span class="nura-facet__name">%4$s</span></a></div>',
+		'<div class="nura-facet nura-facet--toggle"><a class="nura-facet__opt%1$s" href="%2$s" rel="nofollow" data-nura-filter aria-pressed="%3$s"><span class="nura-facet__box" aria-hidden="true"></span><span class="nura-facet__name">%4$s</span></a></div>',
 		$instock ? ' is-active' : '',
 		esc_url( nura_toggle_instock_url() ),
 		$instock ? 'true' : 'false',

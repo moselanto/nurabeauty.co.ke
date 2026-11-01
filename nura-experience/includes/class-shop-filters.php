@@ -157,7 +157,7 @@ class NURAX_Shop_Filters {
 			echo '<details class="nura-facet"' . ( $chosen ? ' open' : '' ) . '><summary>' . esc_html( $label ) . '</summary><ul>';
 			foreach ( $terms as $t ) {
 				$active = in_array( $t->slug, $chosen, true );
-				echo '<li><a class="' . ( $active ? 'is-active' : '' ) . '" href="' . $this->toggle_url( $slug, $t->slug ) . '"><span class="nura-check" aria-hidden="true"></span>' . esc_html( $t->name ) . '</a></li>';
+				echo '<li><a class="' . ( $active ? 'is-active' : '' ) . '" href="' . $this->toggle_url( $slug, $t->slug ) . '" rel="nofollow"><span class="nura-check" aria-hidden="true"></span>' . esc_html( $t->name ) . '</a></li>';
 			}
 			echo '</ul></details>';
 		}

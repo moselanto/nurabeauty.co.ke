@@ -20,8 +20,8 @@ $na_phone = nura_opt( 'nura_phone' ) ? nura_opt( 'nura_phone' ) : '+254 714 994 
 $na_tel   = preg_replace( '/[^0-9+]/', '', $na_phone );
 $na_wa    = nura_opt( 'nura_whatsapp' ) ? nura_opt( 'nura_whatsapp' ) : 'https://wa.me/' . ltrim( $na_tel, '+' );
 $na_mail  = nura_opt( 'nura_email' ) ? nura_opt( 'nura_email' ) : 'care@nurabeauty.co.ke';
-$na_addr  = nura_opt( 'nura_address' ) ? nura_opt( 'nura_address' ) : 'Imenti House, Moi Avenue, Nairobi CBD';
-$na_hours = nura_opt( 'nura_hours' ) ? nura_opt( 'nura_hours' ) : 'Mon–Sat 8:00–20:00';
+$na_addr  = nura_opt( 'nura_address' ) ? nura_opt( 'nura_address' ) : 'Stanbank House, 2nd Floor, Room 20, Nairobi CBD';
+$na_hours = nura_opt( 'nura_hours' ) ? nura_opt( 'nura_hours' ) : 'Mon–Sat 9:00am–7:30pm';
 
 $na_page = function ( $slug, $fallback = '' ) {
 	$p = get_page_by_path( $slug );
@@ -66,7 +66,7 @@ $na_contact = $na_page( 'contact-us', $na_page( 'contact', '' ) );
 $na_circle  = $na_page( 'nura-circle' );
 $na_install = $na_page( 'installation' );
 $na_img     = get_template_directory_uri() . '/assets/images/model-editorial.webp';
-$na_map_q   = rawurlencode( 'Imenti House, Moi Avenue, Nairobi' );
+$na_map_q   = rawurlencode( nura_fact( 'lat' ) . ',' . nura_fact( 'lng' ) );
 
 $na_why = array(
 	array( 'shield', __( 'Honest hair', 'nura-beauty' ), __( 'Every unit is clearly labelled as 100% human hair, human-hair blend or heat-resistant fibre. We never sell a blend or fibre unit as human hair.', 'nura-beauty' ) ),
@@ -222,7 +222,7 @@ $na_shop_links = array(
 						<li><?php echo $na_icon( 'phone' ); // phpcs:ignore ?><a href="tel:<?php echo esc_attr( $na_tel ); ?>"><?php echo esc_html( $na_phone ); ?></a></li>
 						<li><?php echo $na_icon( 'mail' ); // phpcs:ignore ?><a href="mailto:<?php echo esc_attr( $na_mail ); ?>"><?php echo esc_html( $na_mail ); ?></a></li>
 					</ul>
-					<p class="nura-ct__note"><?php esc_html_e( 'Come in for a consultation, fitting, installation or styling. Visits are by appointment so a stylist is ready for you.', 'nura-beauty' ); ?></p>
+					<p class="nura-ct__note"><?php esc_html_e( 'Come in for a consultation, fitting, installation or styling. Walk-ins are welcome during opening hours; book ahead so a stylist is ready for you.', 'nura-beauty' ); ?></p>
 					<div class="nura-ab-studio__cta">
 						<a class="nura-in-btn nura-in-btn--gold" href="<?php echo esc_url( $na_book ); ?>"><?php esc_html_e( 'Book a visit', 'nura-beauty' ); ?></a>
 						<a class="nura-in-btn nura-in-btn--line" href="https://www.google.com/maps/search/?api=1&amp;query=<?php echo esc_attr( $na_map_q ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Get directions', 'nura-beauty' ); ?></a>

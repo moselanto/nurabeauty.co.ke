@@ -173,7 +173,8 @@ final class NURAX_Retargeting {
 			$primary = '' !== $ga4 ? $ga4 : $ads;
 			echo "\n<!-- NURA Google tag -->\n";
 			echo "<script>\nwindow.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());\n";
-			echo "window.nuraLater&&nuraLater('https://www.googletagmanager.com/gtag/js?id=" . esc_js( $primary ) . "');\n";
+			// 1.80.1: load the Google tag straight away (not delayed) so every visit is counted.
+			echo "(function(){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=" . esc_js( $primary ) . "';document.head.appendChild(s);})();\n";
 			if ( '' !== $ga4 ) {
 				echo "gtag('config','" . esc_js( $ga4 ) . "');\n";
 			}

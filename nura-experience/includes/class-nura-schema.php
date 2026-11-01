@@ -92,28 +92,10 @@ class NURAX_Schema {
 				array( '@type' => 'City', 'name' => 'Eldoret' ),
 			),
 			'knowsAbout'  => array( 'Wigs', 'Human hair wigs', 'Lace front wigs', 'Glueless wigs', 'Wig installation', 'Wig revamp' ),
-			'hasMap'      => 'https://www.google.com/maps/search/?api=1&query=Imenti+House+Moi+Avenue+Nairobi',
-			'address'     => array(
-				'@type'           => 'PostalAddress',
-				'streetAddress'   => 'Imenti House, Moi Avenue, Nairobi CBD',
-				'addressLocality' => 'Nairobi',
-				'addressRegion'   => 'Nairobi County',
-				'postalCode'      => '00100',
-				'addressCountry'  => 'KE',
-			),
-			'geo'         => array(
-				'@type'     => 'GeoCoordinates',
-				'latitude'  => '-1.2837',
-				'longitude' => '36.8272',
-			),
-			'openingHoursSpecification' => array(
-				array(
-					'@type'     => 'OpeningHoursSpecification',
-					'dayOfWeek' => array( 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ),
-					'opens'     => '08:00',
-					'closes'    => '20:00',
-				),
-			),
+			'hasMap'      => (string) nura_fact( 'map_url' ),
+			'address'     => nura_fact_postal_address(),
+			'geo'         => nura_fact_geo(),
+			'openingHoursSpecification' => nura_fact_hours_spec(),
 		);
 		if ( $logo ) {
 			$business['logo']  = $logo;
@@ -187,7 +169,7 @@ class NURAX_Schema {
 			),
 			array(
 				'Can I return or exchange a wig?',
-				'Unworn, unaltered units can be returned within 7 days of delivery. Worn, cut or installed units cannot be returned for hygiene reasons.',
+				'Unworn, unaltered units can be returned within 48 hours of delivery. Worn, cut or installed units cannot be returned for hygiene reasons.',
 			),
 			array(
 				'Do you install wigs?',

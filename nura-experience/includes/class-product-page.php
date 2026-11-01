@@ -213,7 +213,7 @@ class NURAX_Product_Page {
 		echo '<li>' . esc_html__( 'Countrywide delivery in 1-3 business days.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'International shipping available on request.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'Pay with M-Pesa or card at checkout, or by M-Pesa Till 1679269 when you order on WhatsApp. No cash on delivery; pay at the shop when you collect.', 'nura-experience' ) . '</li>';
-		echo '<li>' . esc_html__( 'Unworn units in original condition may be returned within 7 days of delivery; worn, cut or installed units cannot be returned for hygiene reasons.', 'nura-experience' ) . '</li>';
+		echo '<li>' . esc_html__( 'Unworn units in original condition may be returned within 48 hours of delivery; worn, cut or installed units cannot be returned for hygiene reasons.', 'nura-experience' ) . '</li>';
 		echo '</ul>';
 	}
 

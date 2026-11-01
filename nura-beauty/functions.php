@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.73.0' );
+define( 'NURA_VERSION', '1.75.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -29,6 +29,7 @@ function nura_require( $relative ) {
 }
 
 // Core setup and assets.
+nura_require( 'nura-facts' );     // 1.74.0 business facts (address, hours, policies) - single source of truth.
 nura_require( 'setup' );
 nura_require( 'enqueue' );
 
@@ -57,6 +58,7 @@ nura_require( 'seo-schema' );
 nura_require( 'nura-seo-content' );
 nura_require( 'nura-seo' );
 nura_require( 'nura-seo-fixes' );
+nura_require( 'nura-crawl' );        // 1.75.0 Search Console clean-up: redirects, feed/REST noindex, empty categories.
 nura_require( 'nura-seo-plus' );
 nura_require( 'nura-schema-variants' ); // 1.65.0 ProductGroup + variants.
 nura_require( 'nura-geo' );

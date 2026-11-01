@@ -44,7 +44,7 @@ function nura_home_faqs() {
 		array(
 			__( 'Where can I buy wigs in Nairobi?', 'nura-beauty' ),
 			/* translators: %s: phone number */
-			sprintf( __( 'Shop online at nurabeauty.co.ke or visit our studio at Imenti House, Moi Avenue, Nairobi CBD (by appointment). You can also order on WhatsApp at %s.', 'nura-beauty' ), $phone ),
+			sprintf( __( 'Shop online at nurabeauty.co.ke or visit our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD (walk-ins welcome, appointments available). You can also order on WhatsApp at %s.', 'nura-beauty' ), $phone ),
 		),
 		array(
 			__( 'Do you deliver wigs countrywide in Kenya?', 'nura-beauty' ),
@@ -64,7 +64,7 @@ function nura_home_faqs() {
 		),
 		array(
 			__( 'Can I return a wig?', 'nura-beauty' ),
-			__( 'Unworn, unaltered wigs in original condition can be returned within 7 days of delivery. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' ),
+			__( 'Unworn, unaltered wigs in original condition can be returned within 48 hours of delivery. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' ),
 		),
 	) );
 }
@@ -91,7 +91,7 @@ function nura_home_seo_section() {
 					);
 				?></p>
 				<p><?php esc_html_e( 'Every wig is quality-checked and clearly labelled as human hair, human-hair blend (semi-human) or heat-resistant fibre, so you know exactly what you are paying for. Prices are in Kenya Shillings, with same-day delivery in Nairobi before 5pm, countrywide delivery in 1-3 days, and secure payment by M-Pesa or card.', 'nura-beauty' ); ?></p>
-				<ul class="nura-seo-home__facts"><li><strong>KSh 1,500+</strong><span><?php esc_html_e( 'Wigs from', 'nura-beauty' ); ?></span></li><li><strong><?php esc_html_e( 'Same day', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Nairobi delivery', 'nura-beauty' ); ?></span></li><li><strong>7 <?php esc_html_e( 'days', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Easy returns', 'nura-beauty' ); ?></span></li></ul>
+				<ul class="nura-seo-home__facts"><li><strong>KSh 1,500+</strong><span><?php esc_html_e( 'Wigs from', 'nura-beauty' ); ?></span></li><li><strong><?php esc_html_e( 'Same day', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Nairobi delivery', 'nura-beauty' ); ?></span></li><li><strong>48 <?php esc_html_e( 'hours', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Easy returns', 'nura-beauty' ); ?></span></li></ul>
 			</div>
 			<div class="nura-faq nura-seo-home__faq">
 				<p class="nura-eyebrow"><?php esc_html_e( 'FAQ', 'nura-beauty' ); ?></p>
@@ -140,7 +140,7 @@ function nura_seo_enrich_offer( $offer ) {
 		'@type'                => 'MerchantReturnPolicy',
 		'applicableCountry'    => 'KE',
 		'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
-		'merchantReturnDays'   => 7,
+		'merchantReturnDays'   => 2,
 		'returnMethod'         => array( 'https://schema.org/ReturnInStore', 'https://schema.org/ReturnByMail' ),
 		'returnFees'           => 'https://schema.org/ReturnFeesCustomerResponsibility',
 		'refundType'           => 'https://schema.org/FullRefund',
@@ -154,7 +154,7 @@ function nura_seo_enrich_product( $data ) {
 		return $data;
 	}
 	if ( empty( $data['brand'] ) ) {
-		$data['brand'] = array( '@type' => 'Brand', 'name' => 'NURA' );
+		$data['brand'] = array( '@type' => 'Brand', 'name' => function_exists( 'nura_product_brand' ) && is_singular( 'product' ) ? nura_product_brand( get_the_ID() ) : 'NURA Beauty' );
 	}
 	if ( isset( $data['offers'] ) && is_array( $data['offers'] ) ) {
 		if ( isset( $data['offers']['@type'] ) || isset( $data['offers']['price'] ) || isset( $data['offers']['lowPrice'] ) ) {

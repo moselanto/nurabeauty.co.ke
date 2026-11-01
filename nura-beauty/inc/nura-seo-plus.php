@@ -59,7 +59,7 @@ function nura_seo_ke_shipping_rate() {
 				if ( 'yes' !== $m->enabled ) {
 					continue;
 				}
-				if ( 'flat_rate' === $m->id || 'local_pickup' === $m->id ) {
+				if ( 'flat_rate' === $m->id ) { // 1.74.0: pick-up is not a delivery charge, never count it.
 					$c = trim( (string) $m->get_option( 'cost' ) );
 					if ( '' === $c ) {
 						$c = '0';
@@ -254,7 +254,7 @@ function nura_seo_return_policy() {
 		'applicableCountry'    => 'KE',
 		'returnPolicyCountry'  => 'KE',
 		'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
-		'merchantReturnDays'   => 7,
+		'merchantReturnDays'   => 2,
 		'returnMethod'         => array( 'https://schema.org/ReturnInStore', 'https://schema.org/ReturnByMail' ),
 		'returnFees'           => 'https://schema.org/ReturnFeesCustomerResponsibility',
 		'refundType'           => 'https://schema.org/FullRefund',
@@ -363,42 +363,6 @@ add_action( 'wp_head', function () {
 	}
 }, 2 );
 
-/* ---------------------------------------------------------------------------
- * 5. /llms.txt - a plain summary for AI assistants (ChatGPT, Perplexity, Gemini,
- *    Google AI Overviews) so they describe and recommend NURA accurately.
- * ------------------------------------------------------------------------- */
-add_action( 'init', function () {
-	$path = isset( $_SERVER['REQUEST_URI'] ) ? strtok( wp_unslash( $_SERVER['REQUEST_URI'] ), '?' ) : ''; // phpcs:ignore
-	if ( '/llms.txt' !== $path ) {
-		return;
-	}
-	$c   = function_exists( 'nura_seo_brand_contact' ) ? nura_seo_brand_contact() : array( 'email' => '', 'telephone' => '' );
-	$out = "# NURA Beauty\n\n> Online wig shop in Nairobi, Kenya. Human hair, human-hair blend (semi-human) and heat-resistant fibre wigs - lace front, closure, glueless, headband, bob and curly styles - plus hair extensions and wig care. Prices in Kenya Shillings; pay by M-Pesa or card via Paystack. Same-day delivery in Nairobi, countrywide delivery across Kenya. Studio at Imenti House, Moi Avenue, Nairobi CBD (by appointment).\n\n";
-	$out .= "Every product page states its hair type (100% human hair, human-hair blend or fibre). Contact: " . $c['telephone'] . ' / ' . $c['email'] . "\n\n## Shop by category\n\n";
-	$terms = get_terms( array( 'taxonomy' => 'product_cat', 'hide_empty' => true, 'number' => 40, 'orderby' => 'count', 'order' => 'DESC' ) );
-	if ( ! is_wp_error( $terms ) ) {
-		foreach ( $terms as $t ) {
-			if ( 'uncategorized' === $t->slug ) {
-				continue;
-			}
-			$f    = nura_seo_term_facts( $t );
-			$note = $f['min'] ? ' - ' . $f['count'] . ' styles from ' . nura_seo_ksh( $f['min'] ) : '';
-			$out .= '- [' . $t->name . '](' . get_term_link( $t ) . ')' . $note . "\n";
-		}
-	}
-	$out .= "\n## Help\n\n";
-	foreach ( array( 'about' => 'About NURA', 'faq' => 'FAQ', 'delivery' => 'Delivery', 'returns' => 'Returns', 'contact' => 'Contact', 'book-appointment' => 'Book a fitting or installation' ) as $slug => $label ) {
-		$pg = get_page_by_path( $slug );
-		if ( $pg && 'publish' === $pg->post_status ) {
-			$out .= '- [' . $label . '](' . get_permalink( $pg ) . ")\n";
-		}
-	}
-	if ( function_exists( 'wc_get_page_permalink' ) ) {
-		$out .= '- [All products](' . wc_get_page_permalink( 'shop' ) . ")\n";
-	}
-	nocache_headers();
-	header( 'Content-Type: text/plain; charset=utf-8' );
-	header( 'X-Robots-Tag: noindex' );
-	echo $out; // phpcs:ignore WordPress.Security.EscapeOutput
-	exit;
-}, 1 );
+/* 5. /llms.txt moved (1.74.0): the legacy init handler here exited before the GEO
+ *    handler and served the old address with an empty category list. /llms.txt and
+ *    /llms-full.txt are now served only by inc/nura-geo.php from the business facts. */

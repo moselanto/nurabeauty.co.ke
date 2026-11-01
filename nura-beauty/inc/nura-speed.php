@@ -274,11 +274,12 @@ add_filter( 'nura_defer_handles', function ( $handles ) {
  * v1.69.1 - mobile LCP / TBT
  * ------------------------------------------------------------------------- */
 
-/* 13. Third-party tags added by other plugins (Site Kit, Google for WooCommerce, Meta)
- *     load after the first tap/scroll or 3.5 s. Their inline config still runs and
+/* 13. Third-party marketing tags (Meta, TikTok) load after the first tap/scroll or 3.5 s.
+ *     1.75.0: the Google tag (Site Kit / GA4 / Tag Manager) is NOT delayed any more, so
+ *     visitors who leave quickly are still counted in Google Analytics. Their inline config still runs and
  *     queues into dataLayer / fbq, so nothing is lost. Off: add_filter( 'nura_delay_tags', '__return_false' ). */
 function nura_delay_hosts() {
-	return (array) apply_filters( 'nura_delay_tag_hosts', array( 'googletagmanager.com/gtag/js', 'googletagmanager.com/gtm.js', 'connect.facebook.net', 'analytics.tiktok.com' ) );
+	return (array) apply_filters( 'nura_delay_tag_hosts', array( 'connect.facebook.net', 'analytics.tiktok.com' ) );
 }
 add_filter( 'script_loader_tag', function ( $tag, $handle, $src ) {
 	if ( ! nura_speed_on() || is_admin() || ! apply_filters( 'nura_delay_tags', true ) || ! $src ) {

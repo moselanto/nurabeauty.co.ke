@@ -371,7 +371,7 @@ class NURAX_Desk {
 	public static function shop_address() {
 		$addr = function_exists( 'nura_opt' ) ? (string) nura_opt( 'nura_address' ) : '';
 		$addr = trim( wp_strip_all_tags( $addr ) );
-		return '' !== $addr ? $addr : 'Imenti House, Moi Avenue, Nairobi CBD';
+		return '' !== $addr ? $addr : (string) nura_fact( 'address_short' );
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -780,7 +780,7 @@ class NURAX_Desk {
 		self::field_text( 'biz_phone', 'Phone on invoices', $s['biz_phone'], 'Leave empty to use the site phone number.' );
 		self::field_text( 'biz_email', 'E-mail on invoices', $s['biz_email'], '', 'email' );
 		self::logo_field( $s['invoice_logo'] );
-		echo '</div><label class="nd-field"><span class="nd-label">Footer note on invoices and receipts</span><textarea name="invoice_note" rows="2" placeholder="Thank you for choosing NURA Beauty. Unworn wigs can be returned within 7 days with this receipt.">' . esc_textarea( $s['invoice_note'] ) . '</textarea></label></section>';
+		echo '</div><label class="nd-field"><span class="nd-label">Footer note on invoices and receipts</span><textarea name="invoice_note" rows="2" placeholder="Thank you for choosing NURA Beauty. Unworn wigs can be returned within 48 hours with this receipt.">' . esc_textarea( $s['invoice_note'] ) . '</textarea></label></section>';
 
 		echo '<section class="nd-card"><header class="nd-card__h"><h2>Marketing</h2></header><div class="nd-fields nd-fields--2">';
 		self::field_text( 'mkt_from_name', 'E-mails come from (name)', $s['mkt_from_name'], '' );

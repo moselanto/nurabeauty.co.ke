@@ -53,19 +53,19 @@ class NURAX_Pages {
 <li><strong>Made for Kenya.</strong> Same-day delivery in Nairobi, fast countrywide shipping and M-Pesa checkout, designed around how our clients actually shop for wigs in Kenya.</li>
 </ul>
 <h3>The NURA Experience</h3>
-<p>We are more than a wig shop. Our team handles installation, revamp, styling, colouring and consultation end to end, and members of <em>The NURA Circle</em> enjoy care reminders, scheduled revamps and loyalty rewards. Visit us at Imenti House, Moi Avenue, Nairobi CBD - hand-finished in Nairobi, made for you.</p>
+<p>We are more than a wig shop. Our team handles installation, revamp, styling, colouring and consultation end to end, and members of <em>The NURA Circle</em> enjoy care reminders, scheduled revamps and loyalty rewards. Visit us at Stanbank House, 2nd Floor, Room 20, Nairobi CBD - hand-finished in Nairobi, made for you.</p>
 <p>Have a question or want a recommendation? Message us on WhatsApp at <strong>$phone</strong> or email <strong>$email</strong>.</p>
 HTML;
 
 		$contact = <<<HTML
 <h2>Contact Us</h2>
-<p>We would love to hear from you. Reach us by WhatsApp, phone or email, or visit our Nairobi studio by appointment.</p>
+<p>We would love to hear from you. Reach us by WhatsApp, phone or email, or visit our Nairobi CBD shop (walk-ins welcome, or book an appointment).</p>
 <h3>Talk to us</h3>
 <ul>
 <li><strong>WhatsApp &amp; phone:</strong> $phone - fastest for orders, consultations and bookings.</li>
 <li><strong>Email:</strong> $email</li>
-<li><strong>Studio:</strong> Nairobi, Kenya (by appointment)</li>
-<li><strong>Hours:</strong> Monday to Saturday, 8:00am to 8:00pm</li>
+<li><strong>Studio:</strong> Stanbank House, 2nd Floor, Room 20, Nairobi CBD, Kenya (walk-ins welcome, appointments available)</li>
+<li><strong>Hours:</strong> Monday to Saturday, 9:00am to 7:30pm</li>
 </ul>
 <h3>Visit the studio</h3>
 <p>Come in for a consultation, fitting, installation or styling. So we can give you our full concierge attention, please book an appointment on WhatsApp before visiting.</p>
@@ -81,7 +81,7 @@ HTML;
 <li><strong>Nairobi - rider delivery:</strong> same day for orders confirmed before 5:00pm (Monday to Saturday), otherwise the next working day. Fees start from KSh 300 depending on your area.</li>
 <li><strong>Outside Nairobi - bus &amp; shuttle parcel:</strong> usually 1 to 2 working days to your town's stage or office (for example Mombasa, Kisumu, Nakuru, Eldoret, Nyeri, Embu). You collect with your ID and the parcel code we send you.</li>
 <li><strong>Outside Nairobi - courier (Fargo / G4S):</strong> 1 to 3 working days to the courier branch nearest you, or to your door where the courier offers it.</li>
-<li><strong>Free pick-up:</strong> collect from our studio at Imenti House, Moi Avenue, Nairobi CBD, Monday to Saturday.</li>
+<li><strong>Free pick-up:</strong> collect from our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD, Monday to Saturday.</li>
 </ul>
 <p>The exact fee for your location is shown at checkout (and in our WhatsApp order form) before you pay. Free delivery applies to qualifying orders where shown at checkout.</p>
 <h3>Processing</h3>
@@ -105,7 +105,7 @@ HTML;
 <p>For hygiene and safety reasons, wigs and hair products are intimate items. We follow Kenyan consumer-protection guidance and offer returns and exchanges under the clear conditions below. Nothing here removes any right you have under the Consumer Protection Act.</p>
 <h3>What can be returned</h3>
 <ul>
-<li><strong>Unworn, unaltered units</strong> in original condition with tags on, lace uncut and all packaging intact - within <strong>7 days</strong> of delivery.</li>
+<li><strong>Unworn, unaltered units</strong> in original condition with tags on, lace uncut and all packaging intact - within <strong>48 hours</strong> of delivery.</li>
 <li><strong>Wrong item received</strong> - we cover return shipping and send the correct unit or a full refund.</li>
 <li><strong>Faulty or damaged on arrival</strong> - reported with photos within 48 hours of delivery (see Warranty for full coverage terms).</li>
 </ul>
@@ -119,13 +119,13 @@ HTML;
 <h3>Who pays for return shipping</h3>
 <ul>
 <li><strong>Wrong item received or faulty on arrival:</strong> NURA covers return shipping in full.</li>
-<li><strong>Change-of-mind returns</strong> (unworn unit, within 7 days): return shipping is the customer's responsibility. We recommend a tracked courier so we can confirm arrival before processing your refund.</li>
+<li><strong>Change-of-mind returns</strong> (unworn unit, within 48 hours): return shipping is the customer's responsibility. We recommend a tracked courier so we can confirm arrival before processing your refund.</li>
 </ul>
 <h3>Orders shipped outside Kenya</h3>
 <p>Because of the cost of international return freight, change-of-mind returns are not available for orders shipped outside Kenya. These orders are still covered for wrong or faulty items under our <a href="/warranty/">Warranty</a>. If you are unsure about size, colour or texture, book a free virtual consultation before you order.</p>
 <h3>How to start a return</h3>
 <ol>
-<li>Contact us on WhatsApp or email within 7 days of delivery, quoting your order number.</li>
+<li>Contact us on WhatsApp or email within 48 hours of delivery, quoting your order number.</li>
 <li>Share clear photos of the item and packaging.</li>
 <li>We confirm approval and share return instructions, including the return address.</li>
 <li>Send the item back (unworn, in original packaging) via a tracked courier.</li>
@@ -148,7 +148,7 @@ HTML;
 <ul>
 <li>NURA CROWN &amp; BEAUTY (trading as NURA Beauty)</li>
 <li>Business Registration No. BN-MJS7ALRV</li>
-<li>Imenti House, Moi Avenue, Nairobi CBD, Kenya</li>
+<li>Stanbank House, 2nd Floor, Room 20, Nairobi CBD, Kenya</li>
 <li>Email: $email</li>
 <li>Phone / WhatsApp: $phone</li>
 </ul>
@@ -185,7 +185,7 @@ HTML;
 <p><em>Last updated: September 2026.</em></p>
 <p>Welcome to $biz. By accessing or using nurabeauty.co.ke, placing an order, or booking an appointment, you agree to the terms below.</p>
 <h3>About NURA</h3>
-<p>$biz (registered as NURA CROWN &amp; BEAUTY, Business Registration No. BN-MJS7ALRV) is East Africa's house of radiant confidence, offering premium human-hair and fashion wigs, hair care and beauty products, hand-finished and serviced from our studio at Imenti House, Moi Avenue, Nairobi CBD.</p>
+<p>$biz (registered as NURA CROWN &amp; BEAUTY, Business Registration No. BN-MJS7ALRV) is East Africa's house of radiant confidence, offering premium human-hair and fashion wigs, hair care and beauty products, hand-finished and serviced from our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD.</p>
 <h3>Orders &amp; payment</h3>
 <ul>
 <li>All prices are in Kenyan Shillings (KES) and include any applicable taxes. Delivery fees are shown separately at checkout.</li>
@@ -244,7 +244,7 @@ HTML;
 <li><strong>M-Pesa:</strong> choose M-Pesa at checkout, enter your Safaricom number and approve the prompt on your phone with your M-Pesa PIN. Processed securely by Paystack.</li>
 <li><strong>Card:</strong> Visa and Mastercard, processed securely by Paystack.</li>
 <li><strong>Bank transfer:</strong> our bank details are shown at checkout and in your order email. Your order ships once the transfer reflects.</li>
-<li><strong>M-Pesa Till:</strong> Lipa na M-Pesa, Buy Goods and Services, Till 1679269. Orders are dispatched once payment is confirmed.</li><li><strong>Pay at the shop:</strong> cash or M-Pesa when you collect from Imenti House. We do not offer cash on delivery.</li>
+<li><strong>M-Pesa Till:</strong> Lipa na M-Pesa, Buy Goods and Services, Till 1679269. Orders are dispatched once payment is confirmed.</li><li><strong>Pay at the shop:</strong> cash or M-Pesa when you collect from our shop at Stanbank House, 2nd Floor, Room 20, Nairobi CBD. We do not offer cash on delivery.</li>
 </ul>
 <h3>Security</h3>
 <p>Payments are handled by trusted, encrypted providers. We never see or store your full card details. If a payment fails or you need help, message us on WhatsApp at <strong>$phone</strong>.</p>
@@ -265,7 +265,7 @@ HTML;
 <li>Custom wig making and bridal hair</li>
 </ul>
 <h3>Book your appointment</h3>
-<p>Message us on WhatsApp at <strong>$phone</strong> or email <strong>$email</strong> to book. Studio hours are Monday to Saturday, 8:00am to 8:00pm. We recommend booking ahead so we can reserve dedicated time for you.</p>
+<p>Message us on WhatsApp at <strong>$phone</strong> or email <strong>$email</strong> to book. Studio hours are Monday to Saturday, 9:00am to 7:30pm. We recommend booking ahead so we can reserve dedicated time for you.</p>
 HTML;
 
 		$faq = <<<HTML
@@ -281,7 +281,7 @@ HTML;
 <h3>How fast is delivery?</h3>
 <p>Same-day within Nairobi (order before 5:00pm), 1 to 3 business days countrywide, and and shipping abroad on request. See <a href="/shipping-delivery/">Shipping &amp; Delivery</a>.</p>
 <h3>Can I return or exchange a wig?</h3>
-<p>Unworn, unaltered units can be returned within 7 days of delivery. Worn, cut or installed units cannot be returned for hygiene reasons. See <a href="/returns-refunds/">Refund &amp; Returns</a>.</p>
+<p>Unworn, unaltered units can be returned within 48 hours of delivery. Worn, cut or installed units cannot be returned for hygiene reasons. See <a href="/returns-refunds/">Refund &amp; Returns</a>.</p>
 <h3>Can I pay in instalments?</h3>
 <p>Yes - Lipa Mdogo Mdogo on wigs from KSh 7,000: pay a 50% deposit to reserve your wig, then clear the balance within a maximum of 2 weeks, with no interest and no extra fees. Your wig is released once fully paid. See the <a href="/lipa-mdogo-mdogo-terms/">Lipa Mdogo Mdogo Terms</a>.</p>
 <h3>Do you install wigs?</h3>

@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /** The single source for opening hours. */
 function nura_hours_text() {
 	$h = function_exists( 'nura_opt' ) ? trim( (string) nura_opt( 'nura_hours' ) ) : '';
-	return '' !== $h ? $h : 'Mon–Sat 8:00–20:00';
+	return '' !== $h ? $h : 'Mon–Sat 9:00am–7:30pm';
 }
 
 /* ---------------------------------------------------------------------------

@@ -19,8 +19,8 @@ $nf_phone = nura_opt( 'nura_phone' ) ? nura_opt( 'nura_phone' ) : '+254 714 994 
 $nf_tel   = preg_replace( '/[^0-9+]/', '', $nf_phone );
 $nf_wa    = nura_opt( 'nura_whatsapp' ) ? nura_opt( 'nura_whatsapp' ) : 'https://wa.me/' . ltrim( $nf_tel, '+' );
 $nf_mail  = nura_opt( 'nura_email' ) ? nura_opt( 'nura_email' ) : 'care@nurabeauty.co.ke';
-$nf_addr  = nura_opt( 'nura_address' ) ? nura_opt( 'nura_address' ) : 'Imenti House, Moi Avenue, Nairobi CBD';
-$nf_hours = nura_opt( 'nura_hours' ) ? nura_opt( 'nura_hours' ) : 'Mon–Sat 8:00–20:00';
+$nf_addr  = nura_opt( 'nura_address' ) ? nura_opt( 'nura_address' ) : 'Stanbank House, 2nd Floor, Room 20, Nairobi CBD';
+$nf_hours = nura_opt( 'nura_hours' ) ? nura_opt( 'nura_hours' ) : 'Mon–Sat 9:00am–7:30pm';
 
 $nf_page = function ( $slug, $fallback = '' ) {
 	$p = get_page_by_path( $slug );

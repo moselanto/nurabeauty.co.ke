@@ -338,7 +338,7 @@ function nura_hub_price_page() {
 			<li><strong><?php esc_html_e( 'Same-day Nairobi', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Order before 5pm. 1-3 days countrywide.', 'nura-beauty' ); ?></span></li>
 			<li><strong><?php esc_html_e( 'M-Pesa or card', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Paid securely before dispatch.', 'nura-beauty' ); ?></span></li>
 			<li><strong><?php esc_html_e( 'Lipa Mdogo Mdogo', 'nura-beauty' ); ?></strong><span><?php esc_html_e( '50% deposit, balance within 1-2 weeks.', 'nura-beauty' ); ?></span></li>
-			<li><strong><?php esc_html_e( '7-day returns', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Unworn wigs, at the studio or by courier.', 'nura-beauty' ); ?></span></li>
+			<li><strong><?php esc_html_e( '48-hour returns', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Unworn wigs, at the studio or by courier.', 'nura-beauty' ); ?></span></li>
 		</ul>
 
 		<section class="npg-list" id="price-list" aria-labelledby="npg-list-h">

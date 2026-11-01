@@ -701,7 +701,7 @@ add_filter( 'woocommerce_gateway_title', function ( $title, $id = '' ) {
 	return 'cod' === $id ? __( 'Pay at the shop on collection (cash or M-Pesa)', 'nura-beauty' ) : $title;
 }, 10, 2 );
 add_filter( 'woocommerce_gateway_description', function ( $desc, $id = '' ) {
-	return 'cod' === $id ? __( 'Pay in person when you collect your order from our studio at Imenti House, Moi Avenue, Nairobi CBD. Available for studio pick-up only; we do not offer cash on delivery.', 'nura-beauty' ) : $desc;
+	return 'cod' === $id ? __( 'Pay in person when you collect your order from our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD. Available for studio pick-up only; we do not offer cash on delivery.', 'nura-beauty' ) : $desc;
 }, 10, 2 );
 add_action( 'woocommerce_after_checkout_validation', function ( $data, $errors ) {
 	if ( isset( $data['payment_method'] ) && 'cod' === $data['payment_method'] && ! apply_filters( 'nura_allow_cod_delivery', false ) ) {

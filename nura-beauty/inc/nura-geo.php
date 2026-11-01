@@ -46,7 +46,7 @@ function nura_geo_llms( $full = false ) {
 	$o[] = '## Business facts';
 	$o[] = '- Trading name: NURA Beauty. Registered business name: NURA CROWN & BEAUTY (Kenya Business Registration Service, Business No. BN-MJS7ALRV).';
 	$o[] = '- Website: ' . $home;
-	$o[] = '- Studio: Imenti House, Moi Avenue, Nairobi CBD, Kenya (visits by appointment). Hours: Monday to Saturday, 8:00 to 20:00 (EAT).';
+	$o[] = '- Shop and studio: ' . nura_fact( 'address_full' ) . ' (Plus Code ' . nura_fact( 'plus_code' ) . '). ' . nura_fact( 'visits' ) . '. Hours: ' . nura_fact( 'hours_long' ) . '. Map: ' . nura_fact( 'map_url' );
 	$o[] = '- Phone and WhatsApp: ' . $c['telephone'] . '. Email: ' . $c['email'] . '.';
 	if ( $range ) {
 		$o[] = '- Price range: ' . $range . ' (Kenya Shillings).';
@@ -54,7 +54,7 @@ function nura_geo_llms( $full = false ) {
 	$o[] = '- Delivery: same day in Nairobi for orders before 5:00 PM; 1 to 3 days to the rest of Kenya (Mombasa, Kisumu, Nakuru, Eldoret and more); rider from KSh 300; free Nairobi delivery over KSh 10,000; international shipping on request.';
 	$o[] = '- Payment: M-Pesa, Visa and Mastercard (via Paystack), M-Pesa Buy Goods Till 1679269 for WhatsApp orders, bank transfer. No cash on delivery; customers collecting from the studio may pay in person.';
 	$o[] = '- Lipa Mdogo Mdogo (pay in instalments): 50% deposit, balance within 1 or 2 weeks, wig released when fully paid.';
-	$o[] = '- Returns: unworn, unaltered wigs within 7 days of delivery, returned at the studio or by courier. Worn, cut or installed wigs cannot be returned for hygiene reasons.';
+	$o[] = '- Returns: ' . nura_fact( 'returns_text' ) . ' Returns are accepted at the shop or by courier.';
 	$o[] = '- Services: wig consultation, fitting, installation, revamp, styling and bridal units at the studio (morning appointments, deposit secures a slot); free video and WhatsApp consultations.';
 	$o[] = '- Every product states its hair type (100% human hair, human-hair blend or heat-resistant fibre) so shoppers know exactly what they are buying.';
 	$o[] = '';
@@ -119,7 +119,7 @@ function nura_geo_llms( $full = false ) {
 
 	if ( $full && function_exists( 'wc_get_products' ) ) {
 		$o[] = '## Catalogue (live)';
-		$products = wc_get_products( array( 'status' => 'publish', 'limit' => 400, 'orderby' => 'title', 'order' => 'ASC', 'visibility' => 'catalog' ) );
+		$products = wc_get_products( array( 'status' => 'publish', 'limit' => -1, 'orderby' => 'title', 'order' => 'ASC', 'visibility' => 'catalog' ) );
 		foreach ( $products as $p ) {
 			$hair  = trim( (string) $p->get_attribute( 'pa_hair-type' ) );
 			$stock = $p->is_in_stock() ? 'in stock' : 'out of stock';
@@ -161,12 +161,12 @@ add_action( 'save_post_product', function () {
 add_filter( 'nura_home_faqs', function ( $faqs ) {
 	foreach ( $faqs as $i => $qa ) {
 		if ( false !== stripos( $qa[0], 'return' ) ) {
-			$faqs[ $i ][1] = __( 'Yes. Unworn, unaltered wigs in their original condition can be returned within 7 days of delivery, either at our Imenti House studio in Nairobi CBD or by courier. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' );
+			$faqs[ $i ][1] = __( 'Yes. Unworn, unaltered wigs in their original condition can be returned within 48 hours of delivery, either at our Stanbank House studio (2nd Floor, Room 20) in Nairobi CBD or by courier. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' );
 		}
 	}
 	$faqs[] = array(
 		__( 'Is NURA Beauty a registered business in Kenya?', 'nura-beauty' ),
-		__( 'Yes. NURA Beauty trades under the registered business name NURA CROWN & BEAUTY (Business No. BN-MJS7ALRV, Registration of Business Names Act, Kenya), with its studio at Imenti House, Moi Avenue, Nairobi CBD.', 'nura-beauty' ),
+		__( 'Yes. NURA Beauty trades under the registered business name NURA CROWN & BEAUTY (Business No. BN-MJS7ALRV, Registration of Business Names Act, Kenya), with its studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD.', 'nura-beauty' ),
 	);
 	$faqs[] = array(
 		__( 'Can I pay for a wig in instalments in Kenya?', 'nura-beauty' ),

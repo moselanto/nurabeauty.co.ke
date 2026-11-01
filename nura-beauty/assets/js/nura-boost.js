@@ -131,7 +131,7 @@
 			modal.className = 'nura-plan';
 			modal.setAttribute('hidden', '');
 			var wkBtns = weekOpts.map(function (w) { return '<button type="button" class="nura-plan__wk" role="radio" data-weeks="' + w + '">' + w + ' ' + esc(t('weeks', 'weeks')) + '</button>'; }).join('');
-			var where = [t('w1', 'Pick up - Imenti House, Nairobi CBD'), t('w2', 'Delivery within Nairobi'), t('w3', 'Delivery elsewhere in Kenya'), t('w4', 'Delivery outside Kenya')];
+			var where = [t('w1', 'Pick up - Stanbank House, 2nd Floor, Room 20, Nairobi CBD'), t('w2', 'Delivery within Nairobi'), t('w3', 'Delivery elsewhere in Kenya'), t('w4', 'Delivery outside Kenya')];
 			modal.innerHTML =
 				'<div class="nura-plan__backdrop" data-plan-close></div>' +
 				'<div class="nura-plan__panel" role="dialog" aria-modal="true" aria-labelledby="nura-plan-title" tabindex="-1">' +
@@ -162,7 +162,7 @@
 				'<label class="nura-plan__agree"><input type="checkbox" data-nura-agree> <span>' + esc(t('agree1', 'I have read and agree to the')) + ' <a href="' + esc(L.lmmTerms || '/lipa-mdogo-mdogo-terms/') + '" target="_blank" rel="noopener">' + esc(t('agree2', 'Lipa Mdogo Mdogo Terms & Conditions')) + '</a></span></label>' +
 				'<footer class="nura-plan__foot"><a class="nura-plan__send" target="_blank" rel="noopener" data-p="send"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.3-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.5-.6-2.7-1.2-4.4-3.9-4.6-4.1-.1-.2-1.1-1.4-1.1-2.7s.7-1.9.9-2.2c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.1.1.3 0 .5l-.3.5-.4.5c-.1.1-.3.3-.1.6.2.3.7 1.2 1.6 2 1.1.9 2 1.2 2.3 1.4.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.1.1.6-.1 1.2Z"/></svg><span>' + esc(t('send', 'Send my plan on WhatsApp')) + '</span></a>' +
 				'<button type="button" class="nura-plan__later" data-plan-close>' + esc(t('later', 'Not now')) + '</button>' +
-				'<p class="nura-plan__hours">' + esc(fill(t('hours', 'Our team replies %1$s (East Africa Time).'), [t('hoursText', 'Mon-Sat 8:00-20:00')])) + '</p></footer>' +
+				'<p class="nura-plan__hours">' + esc(fill(t('hours', 'Our team replies %1$s (East Africa Time).'), [t('hoursText', 'Mon-Sat 9:00am-7:30pm')])) + '</p></footer>' +
 				'</div>';
 			document.body.appendChild(modal);
 			each(modal.querySelectorAll('[data-plan-close]'), function (c) { c.addEventListener('click', close); });

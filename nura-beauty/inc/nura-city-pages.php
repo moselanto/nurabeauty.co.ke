@@ -44,7 +44,7 @@ function nura_city_faqs( $city, $d ) {
 	return array(
 		array( sprintf( __( 'Do you deliver wigs to %s?', 'nura-beauty' ), $city ), __( 'Yes.', 'nura-beauty' ) . ' ' . $fee ),
 		array( sprintf( __( 'How do I pay for a wig delivered to %s?', 'nura-beauty' ), $city ), __( 'Pay by M-Pesa or card (Visa, Mastercard) securely through Paystack, or by bank transfer, or to our M-Pesa Buy Goods Till 1679269 for WhatsApp orders. We do not offer cash on delivery.', 'nura-beauty' ) ),
-		array( sprintf( __( 'Can I return a wig from %s?', 'nura-beauty' ), $city ), __( 'Yes. Unworn, unaltered wigs can be returned within 7 days of delivery by courier, or at our Imenti House studio in Nairobi CBD. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' ) ),
+		array( sprintf( __( 'Can I return a wig from %s?', 'nura-beauty' ), $city ), __( 'Yes. Unworn, unaltered wigs can be returned within 48 hours of delivery by courier, or at our Stanbank House studio (2nd Floor, Room 20) in Nairobi CBD. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' ) ),
 		array( __( 'Can I pay in instalments?', 'nura-beauty' ), __( 'Yes, with Lipa Mdogo Mdogo: a 50% deposit today and the balance within 1 or 2 weeks. We send the wig once it is fully paid.', 'nura-beauty' ) ),
 	);
 }
@@ -179,7 +179,7 @@ add_action( 'admin_init', function () {
 		), true );
 		if ( $id && ! is_wp_error( $id ) ) {
 			update_post_meta( $id, 'rank_math_title', sprintf( 'Wigs in %s: Delivery, Prices & Payment | NURA Beauty', $c[0] ) );
-			update_post_meta( $id, 'rank_math_description', sprintf( 'Buy human hair, semi-human and fibre wigs in %s. Live prices, delivery fee and time to %s County, M-Pesa and card payment, 7-day returns. Order online or on WhatsApp.', $c[0], $c[1] ) );
+			update_post_meta( $id, 'rank_math_description', sprintf( 'Buy human hair, semi-human and fibre wigs in %s. Live prices, delivery fee and time to %s County, M-Pesa and card payment, 48-hour returns. Order online or on WhatsApp.', $c[0], $c[1] ) );
 			update_post_meta( $id, 'rank_math_focus_keyword', strtolower( 'wigs in ' . $c[0] ) );
 		}
 	}

@@ -614,7 +614,7 @@ class NURAX_Desk_POS {
 		$html .= '<tr><td style="padding:18px 32px 0;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' . $band . '</tr></table></td></tr>';
 		$html .= '<tr><td align="center" style="padding:26px 32px 8px;"><a href="' . esc_url( $link ) . '" style="' . $f . 'display:inline-block;padding:15px 30px;background:#C9A24B;border-radius:999px;color:#0E0E0E;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;">View &amp; download ' . ( $paid ? 'receipt' : 'invoice' ) . '</a></td></tr>';
 		$html .= '<tr><td align="center" style="padding:6px 32px 26px;' . $f . 'font-size:12px;color:#8a8174;">Open the link to print or save it as a PDF.</td></tr>';
-		$html .= '<tr><td style="padding:20px 32px;background:#faf6ef;border-top:1px solid #eee6d8;' . $f . 'font-size:12px;line-height:1.6;color:#6f675d;">' . ( '' !== trim( $b['note'] ) ? esc_html( $b['note'] ) : 'Unworn wigs in their original condition can be returned within 7 days of delivery.' ) . '<br>Questions? WhatsApp or call <strong style="color:#0E0E0E;">' . esc_html( $b['phone'] ) . '</strong> or reply to this e-mail.</td></tr>';
+		$html .= '<tr><td style="padding:20px 32px;background:#faf6ef;border-top:1px solid #eee6d8;' . $f . 'font-size:12px;line-height:1.6;color:#6f675d;">' . ( '' !== trim( $b['note'] ) ? esc_html( $b['note'] ) : 'Unworn wigs in their original condition can be returned within 48 hours of delivery.' ) . '<br>Questions? WhatsApp or call <strong style="color:#0E0E0E;">' . esc_html( $b['phone'] ) . '</strong> or reply to this e-mail.</td></tr>';
 		$html .= '<tr><td align="center" style="padding:22px 32px;background:#0E0E0E;' . $f . 'font-size:12px;line-height:1.7;color:#cfc6b8;"><span style="font-family:Georgia,serif;font-style:italic;font-size:16px;color:#E4C983;">Thank you for wearing NURA.</span><br>' . esc_html( $b['name'] ) . ' · ' . esc_html( $b['addr'] ) . '<br><a href="' . esc_url( home_url( '/' ) ) . '" style="color:#E4C983;text-decoration:none;">' . esc_html( $b['web'] ) . '</a>' . ( $b['pin'] ? ' · KRA PIN ' . esc_html( $b['pin'] ) : '' ) . '</td></tr>';
 		$html .= '</table></td></tr></table></body></html>';
 		return $html;
@@ -1452,7 +1452,7 @@ class NURAX_Desk_POS {
 		}
 
 		$note    = $order->get_customer_note() ? esc_html( $order->get_customer_note() ) : '';
-		$footer  = '' !== trim( $b['note'] ) ? esc_html( $b['note'] ) : 'Thank you for choosing ' . esc_html( $b['name'] ) . '. Unworn wigs in their original condition can be returned within 7 days of delivery with this document.';
+		$footer  = '' !== trim( $b['note'] ) ? esc_html( $b['note'] ) : 'Thank you for choosing ' . esc_html( $b['name'] ) . '. Unworn wigs in their original condition can be returned within 48 hours of delivery with this document.';
 		$qr      = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&color=14-14-14&data=' . rawurlencode( self::public_url( $order, $type ) );
 		$brand   = $logo
 			? '<img class="logo" src="' . esc_url( $logo ) . '" alt="' . esc_attr( $b['name'] ) . '">'

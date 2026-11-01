@@ -19,19 +19,12 @@ defined( 'ABSPATH' ) || exit;
 
 /** Default studio address (current). Override with the Customizer field nura_address. */
 function nura_schema_address() {
-	$default = 'Imenti House, Moi Avenue, Nairobi CBD';
+	$default = (string) nura_fact( 'address_short' );
 	$street  = trim( (string) get_theme_mod( 'nura_address', '' ) );
 	$street  = '' !== $street ? $street : $default;
 	return array(
 		'is_default' => ( $street === $default ),
-		'node'       => array(
-			'@type'           => 'PostalAddress',
-			'streetAddress'   => $street,
-			'addressLocality' => 'Nairobi',
-			'addressRegion'   => 'Nairobi County',
-			'postalCode'      => '00100',
-			'addressCountry'  => 'KE',
-		),
+		'node'       => ( $street === $default ) ? nura_fact_postal_address() : array_merge( nura_fact_postal_address(), array( 'streetAddress' => $street ) ),
 	);
 }
 
@@ -72,7 +65,7 @@ add_action( 'save_post_product', function () {
 
 /** One factual sentence AI engines and Google can quote about the business. */
 function nura_schema_org_description() {
-	return 'NURA Beauty (registered in Kenya as NURA CROWN & BEAUTY, BN-MJS7ALRV) is a Nairobi wig shop selling 100% human hair, human-hair blend and heat-resistant fibre wigs online across Kenya, with a fitting and installation studio at Imenti House, Moi Avenue, Nairobi CBD. Prices in Kenya Shillings; same-day Nairobi delivery before 5pm; M-Pesa and card (no cash on delivery); Lipa Mdogo Mdogo payment plans.';
+	return 'NURA Beauty (registered in Kenya as NURA CROWN & BEAUTY, BN-MJS7ALRV) is a Nairobi wig shop selling 100% human hair, human-hair blend and heat-resistant fibre wigs online across Kenya, with a fitting and installation studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD. Prices in Kenya Shillings; same-day Nairobi delivery before 5pm; M-Pesa and card (no cash on delivery); Lipa Mdogo Mdogo payment plans.';
 }
 
 /** Services from the Installation page settings: [ name, price text, description ]. */
@@ -208,7 +201,7 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 			'@type'                     => 'HealthAndBeautyBusiness',
 			'@id'                       => $home . '#studio',
 			'name'                      => 'NURA Beauty Studio',
-			'description'               => 'Wig fitting, installation, revamp and styling studio in Nairobi CBD. Visits by appointment; collection of online orders.',
+			'description'               => 'Wig fitting, installation, revamp and styling studio in Nairobi CBD. Walk-ins welcome and appointments available; collection of online orders.',
 			'url'                       => $home,
 			'parentOrganization'        => array( '@id' => $org_id ),
 			'telephone'                 => $c['telephone'],
@@ -217,22 +210,18 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 			'priceRange'                => nura_schema_price_range(),
 			'currenciesAccepted'        => 'KES',
 			'paymentAccepted'           => 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash',
-			'openingHoursSpecification' => array(
-				array(
-					'@type'     => 'OpeningHoursSpecification',
-					'dayOfWeek' => array( 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ),
-					'opens'     => '08:00',
-					'closes'    => '20:00',
-				),
-			),
+			'openingHoursSpecification' => nura_fact_hours_spec(),
 			'areaServed'                => array( '@type' => 'City', 'name' => 'Nairobi' ),
 		);
 		if ( $logo_i ) {
 			$studio['image'] = wp_get_attachment_image_url( $logo_i, 'full' );
 		}
 		if ( $addr['is_default'] ) {
-			$studio['geo']    = array( '@type' => 'GeoCoordinates', 'latitude' => '-1.2837', 'longitude' => '36.8272' );
-			$studio['hasMap'] = 'https://www.google.com/maps/search/?api=1&query=Imenti+House+Moi+Avenue+Nairobi';
+			$geo = nura_fact_geo();
+			if ( $geo ) {
+				$studio['geo'] = $geo;
+			}
+			$studio['hasMap'] = (string) nura_fact( 'map_url' );
 		}
 		$book = get_page_by_path( 'book-appointment' );
 		if ( $book && 'publish' === $book->post_status ) {

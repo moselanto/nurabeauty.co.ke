@@ -76,13 +76,13 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 				<div class="nura-bk__studio">
 					<div>
 						<p class="nura-bk__studio-k"><?php esc_html_e( 'Studio', 'nura-beauty' ); ?></p>
-						<p class="nura-bk__studio-v"><?php esc_html_e( 'Imenti House, Moi Avenue, Nairobi CBD', 'nura-beauty' ); ?></p>
-						<p class="nura-bk__studio-n"><?php esc_html_e( 'Visits by appointment so a stylist is ready for you.', 'nura-beauty' ); ?></p>
+						<p class="nura-bk__studio-v"><?php echo esc_html( nura_fact( 'address_short' ) ); ?></p>
+						<p class="nura-bk__studio-n"><?php esc_html_e( 'Walk-ins welcome during opening hours; book ahead so a stylist is ready for you.', 'nura-beauty' ); ?></p>
 					</div>
 					<div>
 						<p class="nura-bk__studio-k"><?php esc_html_e( 'Hours', 'nura-beauty' ); ?></p>
 						<p class="nura-bk__studio-v"><?php echo esc_html( nura_hours_text() ); ?></p>
-						<p class="nura-bk__studio-n"><a href="https://www.google.com/maps/search/?api=1&amp;query=<?php echo rawurlencode( 'Imenti House, Moi Avenue, Nairobi' ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Get directions', 'nura-beauty' ); ?> &#8594;</a></p>
+						<p class="nura-bk__studio-n"><a href="https://www.google.com/maps/search/?api=1&amp;query=<?php echo rawurlencode( nura_fact( 'lat' ) . ',' . nura_fact( 'lng' ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Get directions', 'nura-beauty' ); ?> &#8594;</a></p>
 					</div>
 				</div>
 

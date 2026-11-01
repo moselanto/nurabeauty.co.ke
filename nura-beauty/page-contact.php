@@ -20,9 +20,9 @@ $nc_phone = nura_opt( 'nura_phone' ) ? nura_opt( 'nura_phone' ) : '+254 714 994 
 $nc_tel   = preg_replace( '/[^0-9+]/', '', $nc_phone );
 $nc_wa    = nura_opt( 'nura_whatsapp' ) ? nura_opt( 'nura_whatsapp' ) : 'https://wa.me/' . ltrim( $nc_tel, '+' );
 $nc_mail  = nura_opt( 'nura_email' ) ? nura_opt( 'nura_email' ) : 'care@nurabeauty.co.ke';
-$nc_addr  = nura_opt( 'nura_address' ) ? nura_opt( 'nura_address' ) : 'Imenti House, Moi Avenue, Nairobi CBD';
-$nc_hours = nura_opt( 'nura_hours' ) ? nura_opt( 'nura_hours' ) : 'Mon–Sat 8:00–20:00';
-$nc_map_q = rawurlencode( 'Imenti House, Moi Avenue, Nairobi' );
+$nc_addr  = nura_opt( 'nura_address' ) ? nura_opt( 'nura_address' ) : 'Stanbank House, 2nd Floor, Room 20, Nairobi CBD';
+$nc_hours = nura_opt( 'nura_hours' ) ? nura_opt( 'nura_hours' ) : 'Mon–Sat 9:00am–7:30pm';
+$nc_map_q = rawurlencode( nura_fact( 'lat' ) . ',' . nura_fact( 'lng' ) );
 $nc_sent  = isset( $_GET['nura_sent'] ); // phpcs:ignore WordPress.Security.NonceVerification
 
 $nc_page = function ( $slug ) {
@@ -87,7 +87,7 @@ $nc_icon = function ( $name ) {
 					<span class="nura-ct-card__ic"><?php echo $nc_icon( 'pin' ); // phpcs:ignore ?></span>
 					<span class="nura-ct-card__k"><?php esc_html_e( 'Visit the studio', 'nura-beauty' ); ?></span>
 					<span class="nura-ct-card__v"><?php echo esc_html( $nc_addr ); ?></span>
-					<span class="nura-ct-card__n"><?php esc_html_e( 'By appointment', 'nura-beauty' ); ?></span>
+					<span class="nura-ct-card__n"><?php esc_html_e( 'Walk-ins & appointments', 'nura-beauty' ); ?></span>
 					<span class="nura-ct-card__go"><?php esc_html_e( 'Get directions', 'nura-beauty' ); ?> <?php echo $nc_icon( 'arrow' ); // phpcs:ignore ?></span>
 				</a>
 			</div>
@@ -163,7 +163,7 @@ $nc_icon = function ( $name ) {
 						<p class="nura-bk__studio-k"><?php esc_html_e( 'The NURA studio', 'nura-beauty' ); ?></p>
 						<p class="nura-ct__line"><?php echo $nc_icon( 'pin' ); // phpcs:ignore ?><span><?php echo esc_html( $nc_addr ); ?></span></p>
 						<p class="nura-ct__line"><?php echo $nc_icon( 'clock' ); // phpcs:ignore ?><span><?php echo esc_html( $nc_hours ); ?></span></p>
-						<p class="nura-ct__note"><?php esc_html_e( 'Come in for a consultation, fitting, installation or styling. Visits are by appointment so a stylist is ready for you.', 'nura-beauty' ); ?></p>
+						<p class="nura-ct__note"><?php esc_html_e( 'Come in for a consultation, fitting, installation or styling. Walk-ins are welcome during opening hours; book ahead so a stylist is ready for you.', 'nura-beauty' ); ?></p>
 						<?php if ( $nc_book ) : ?>
 							<a class="nura-ct__book" href="<?php echo esc_url( $nc_book ); ?>"><?php esc_html_e( 'Book an appointment', 'nura-beauty' ); ?></a>
 						<?php endif; ?>

@@ -11,6 +11,7 @@ Last updated: 1 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing 
 
 | Date | Agent | What happened | Pending after this session |
 | --- | --- | --- | --- |
+| 1 Nov 2026 (later) | Town assistant (Ray) | Owner reported "Join The House" bar re-appearing after every reload even after cancelling. Reviewed `nura-subscribe.js`, its `.min.js` twin and `class-nura-desk-subscribe.php`: the 24 h snooze (cookie + localStorage + sessionStorage `nura_house_snooze`, hours from `NURAX_SUB.hours`) is already in `main` as plugin 1.79.2, and the min file contains it. No code change made. Most likely cause: 1.79.2 not yet uploaded to the live site, or a stale LiteSpeed/browser cache. | Owner to confirm the live plugin version (Plugins page should say 1.79.2), upload if older, LiteSpeed Purge All, then test in a normal (non-incognito) window: close the bar, reload. If it still reappears on 1.79.2, check that `nura_house_snooze` cookie is being set (browser dev tools) and whether a cache/consent plugin clears cookies. |
 | 1 Nov 2026 | Town assistant (Ray) | Onboarded: studied the repo (theme 1.73.0, plugin 1.79.2, child theme) and the live site. Live homepage matches the 1.79.x copy (no cash on delivery, Till 1679269, Lipa Mdogo Mdogo, same-day Nairobi). Docs only: fixed stale "Nairobi-only COD" wording in ARCHITECTURE.md, ARCHITECTURE-ESSENTIALS.md and PRD.md. No code or version change. | Owner to say which changes/updates come next. Section 6 items still open. |
 
 ## 1. Current versions (on `main`)

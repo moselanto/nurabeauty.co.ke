@@ -1,7 +1,7 @@
 # Product Requirements - NURA Beauty online store
 
 ## 1. Vision
-The most trusted, best-looking wig store in Kenya with an international, professional feel: premium wigs, clear prices, fast delivery, flexible payment and real stylist help - online, on WhatsApp and in the studio at Imenti House, Moi Avenue, Nairobi CBD.
+The most trusted, best-looking wig store in Kenya with an international, professional feel: premium wigs, clear prices, fast delivery, flexible payment and real stylist help - online, on WhatsApp and in the studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD.
 
 ## 2. Users
 
@@ -40,6 +40,7 @@ The most trusted, best-looking wig store in Kenya with an international, profess
 - No feature removed without the owner's approval.
 
 ## 5. Open items
+- Relocation to Stanbank House, 2nd Floor, Room 20, Nairobi CBD across site, schema, AI files and listings; one business-facts source of truth (see `docs/SEO-AEO-GEO-AUDIT-2026-11.md`, PR #1).
 - Colour photos for the remaining colour options (owner).
 - Products for Wig Care, Beauty and Hair Extensions categories.
 - Two-factor authentication for administrator accounts (plugin install by owner).

@@ -1,257 +1,271 @@
-# NURA Beauty — SEO, AEO, GEO & Structured Data Audit (1 November 2026)
+# NURA Beauty: Search, Answer-Engine and AI Discovery Strategy
 
-## Executive summary
+**Global SEO, AEO, GEO and Structured Data Programme**
 
-Repository: https://github.com/moselanto/nurabeauty.co.ke  
-Website: https://nurabeauty.co.ke/  
-Platform: WordPress + WooCommerce, custom NURA theme, NURA Experience plugin, Rank Math.
+| | |
+| --- | --- |
+| Version | 2.0 (supersedes the 1 November 2026 draft) |
+| Date | 1 November 2026 |
+| Owner | Sene, NURA Beauty (NURA CROWN & BEAUTY, BN-MJS7ALRV) |
+| Website | https://nurabeauty.co.ke |
+| Code | github.com/moselanto/nurabeauty.co.ke (theme `nura-beauty` 1.73.0, plugin `nura-experience` 1.79.2) |
+| Status | Strategy approved for planning. No production code changed. Owner decisions in section 10 block the first release. |
 
-NURA has a substantial custom discovery foundation. The repository contains custom SEO title/description logic, category introductions, product/offer enrichment, product-variant schema, an Organization/OnlineStore plus physical studio graph, FAQ/AEO content, AI crawler rules, `/llms.txt` and `/llms-full.txt`, buying guides, city pages and a custom catalogue.
+---
 
-The most important issue found is not absence of SEO code. It is inconsistent business and product facts. The owner confirms the physical store has moved from Imenti House to Stanbank House, 2nd Floor, Room 20, Nairobi CBD. The live site, schema defaults, AI knowledge files, maps and some transaction copy still refer to Imenti House. Public pages and repository content also contain contradictory delivery cut-offs, returns windows and payment/COD claims.
+## 1. Executive summary
 
-This is a repository and public-site audit. It is not an authenticated crawl and did not include access to Search Console, GA4, Merchant Center, Bing Webmaster Tools or Google Business Profile. Therefore no verified ranking positions, traffic trends, total index coverage or AI citation rates are claimed. No fixes have been deployed in WordPress.
+NURA's ambition is to be the most trusted wig and beauty retailer in Kenya, then East Africa, then the diaspora, and to be the business that Google, Bing, shopping platforms and AI assistants (ChatGPT, Gemini, Perplexity, Claude, Copilot) describe accurately and recommend with confidence.
 
-## 1. Existing implementation found
+The technical foundation is unusually strong for a Kenyan retailer: a custom WooCommerce theme and plugin, Rank Math, connected schema, product-variant markup, buying guides, city pages, an AI stylist and a machine-readable summary for AI systems. The problem is not a lack of SEO features. **The problem is that the website currently tells search engines and AI systems several different stories about the same business.**
 
-Relevant code files:
+Verified on 1 November 2026 (section 3 lists the evidence):
 
-- `nura-beauty/inc/nura-seo.php`: homepage Kenya wig guide and FAQs, WooCommerce/Rank Math product Offer enrichment, image alt-text fallbacks.
-- `nura-beauty/inc/nura-seo-content.php`: category archive intros and collection/list schema.
-- `nura-beauty/inc/nura-seo-plus.php`: dynamic product/category titles and descriptions, category facts, shipping/returns policy enrichment, en-KE hints and an LLMS endpoint.
-- `nura-beauty/inc/nura-seo-fixes.php`: contact details in Rank Math schema, homepage Article/Person cleanup, filtered URL noindex rules, hair-type claim conflict warnings.
-- `nura-beauty/inc/nura-schema-graph.php`: Rank Math graph enrichment; connected Organization/OnlineStore and studio node; service and CollectionPage additions.
-- `nura-beauty/inc/nura-schema-variants.php`: custom ProductGroup and variation Product schema.
-- `nura-beauty/inc/nura-geo.php`: GEO/AEO, `/llms.txt`, `/llms-full.txt`, catalogue/category facts and FAQ augmentation.
-- `nura-beauty/inc/seo-schema.php`: fallback standalone schema when no SEO plugin is active.
-- `nura-experience/includes/class-nura-schema.php`: supplementary/fallback schema, intentionally deferring to Rank Math/Yoast/SEOPress.
-- `nura-beauty/inc/nura-guide-links.php`: category-to-guide links.
-- `nura-beauty/functions.php`: loads the relevant theme discovery modules.
-- `nura-beauty/content/guides/`: topical buying/care guides and guide metadata.
-- `nura-beauty/inc/nura-city-pages.php` and `nura-content-hub.php`: additional location/content hubs.
+1. The shop has moved to **Stanbank House, 2nd Floor, Room 20, Nairobi CBD**, but the old Imenti House address still appears in **26 source files**, the live homepage, the live `/llms.txt`, schema coordinates, checkout text, the WhatsApp order pop-up and the AI stylist's instructions.
+2. The live `/llms.txt` is served by an **older, superseded handler**. It shows the old address and an empty category list, and the newer, richer AI summary never runs.
+3. Customer policies conflict across the codebase: same-day cut-off (5 PM vs 2 PM), returns (7 days vs 48 hours), and one buying guide still offers **cash on delivery**, which was withdrawn in release 1.79.0.
+4. Product markup assigns the brand "NURA" or "NURA Beauty" to **every** product, and the shipping-rate logic can publish a **KSh 0 delivery charge** by counting free studio pick-up as delivery.
 
-The architecture and handover document Rank Math as the main graph owner when enabled. Preserve this principle. Do not add a second SEO plugin or duplicate schema system.
+**Strategy in one sentence:** make every channel describe one verified business, then compete on product data quality and genuine expertise, then expand market by market only where NURA can actually deliver.
 
-## 2. Critical findings
+The first release (R1, section 8) is therefore not "more SEO". It is relocation, one source of truth for business facts and policies, one AI-summary endpoint and a validated schema graph. Everything after that compounds on an accurate base.
 
-### P0 — physical relocation
+> No implementation can guarantee a first-position ranking or an AI recommendation. This programme maximises eligibility and trust, and measures real outcomes against a baseline.
 
-Current business location provided by owner:
+---
 
-**Stanbank House, 2nd Floor, Room 20, Nairobi CBD, Kenya.**
+## 2. Principles (international standard)
 
-Old Imenti address remains in:
-- Live homepage, location/FAQ/footer and studio text.
-- Contact template defaults and map query in `nura-beauty/page-contact.php`.
-- Homepage FAQ in `nura-beauty/inc/nura-seo.php`.
-- Business description, schema default address and old coordinate/Map URL logic in `nura-beauty/inc/nura-schema-graph.php`.
-- `nura-beauty/inc/nura-seo-plus.php` / `nura-geo.php` AI facts and FAQ extension.
-- `nura-experience/includes/class-nura-schema.php` fallback graph, including Imenti map and coordinates.
-- Guides such as `wig-installation-nairobi-what-to-expect`.
-- Checkout, pickup and WhatsApp copy in relevant plugin modules.
-- README, PRD, architecture and handover documentation.
+These principles govern every decision in the programme and align with Google Search Essentials, Google's helpful-content and E-E-A-T guidance, Google Merchant Center policies, Bing Webmaster Guidelines and schema.org.
 
-Do not reuse Imenti coordinates. Do not invent Stanbank coordinates, street number, map URL, postal code or Google Business Profile URL. Owner must supply a verified Maps share link/pin and confirm exact address wording.
+1. **One business, one truth.** Address, hours, policies, payments and contact details come from a single controlled source and feed every page, schema node, AI file, checkout message and WhatsApp template.
+2. **Verified or omitted.** Never publish an unverified address detail, coordinate, opening time, brand, identifier, rating or claim. An omitted property is better than a false one.
+3. **People first.** Content exists to help a woman choose, buy and care for a wig. Rankings follow usefulness, not keyword density.
+4. **Demonstrated expertise.** Original photos, real stylists, real products, real prices. Generic AI-written articles are not a competitive advantage.
+5. **Product data is the revenue engine.** Complete, accurate product and variant data serves organic search, Merchant Center, Meta catalogues and AI shopping answers at once.
+6. **Earn expansion.** A market gets its own pages only when shipping, payment, currency, returns and support are operational there.
+7. **Measured, not assumed.** Every task has an acceptance test, and every claim of success has evidence.
+8. **Never break the shop.** Checkout, M-Pesa/Paystack, WhatsApp ordering, bookings, NURA Desk, loyalty and staff permissions are protected throughout (see AGENTS.md).
 
-Centralise address and location facts. The physical studio must be a distinct node related to the online organisation/store using stable `@id` references. Do not make the online-only business inherit a studio address incorrectly.
+---
 
-### P0 — factual/policy contradictions
+## 3. Verified baseline (1 November 2026)
 
-Public/demo content and code contain incompatible claims:
-- Same-day Nairobi delivery cut-off: 5:00 PM vs 2:00 PM.
-- Returns deadline: 7 days vs 48 hours.
-- No delivery COD vs old demo FAQ claiming pay-on-delivery.
-- Warranty and provenance/certification claims require evidence.
-- About-page sample/demo content contains placeholder and potentially obsolete contacts and claims.
-- Service/visit descriptions may say appointment-only despite the move to a physical shop.
+Each finding below was checked against the `main` branch and the live website, not inferred.
 
-Never choose the most frequent value as truth. Record conflicts and require owner-approved policies. Create one centrally managed business/policy source for visible pages, checkout, WhatsApp, metadata, schema and AI files. Do not deploy invented or unconfirmed policies.
+| # | Severity | Finding | Evidence |
+| --- | --- | --- | --- |
+| F1 | Critical | Old address (Imenti House) in 26 source files, including checkout, WhatsApp order pop-up, AI stylist prompt, contact page, Customizer default, schema, city pages and four guides. Live homepage and FAQ still show it. | `woocommerce-support.php:704`, `class-nura-wa-order.php:583`, `class-nura-ai.php:231`, `customizer.php:48`, `page-contact.php:23-25`, `nura-city-pages.php:47`, `nura-boost.php:258`, `nura-geo.php:164`; live homepage |
+| F2 | Critical | Old map coordinates (-1.2837, 36.8272) hard-coded in two schema emitters; contact-page map query points to Imenti House. | `nura-schema-graph.php:234`, `class-nura-schema.php:106-107`, `page-contact.php:25` |
+| F3 | Critical | Live `/llms.txt` is produced by the legacy handler in `nura-seo-plus.php` (runs on `init` priority 1 and exits). The newer GEO handler in `nura-geo.php` (`parse_request`) is never reached, so `/llms.txt` shows the old address, an **empty category list** (product categories are not yet registered at `init` priority 1) and is missing About, Returns and Contact links. | `nura-seo-plus.php:370-405`, `nura-geo.php:135-153`; live `/llms.txt` |
+| F4 | Critical | Same-day cut-off conflict: 5 PM in live code and copy (15+ places) vs 2 PM in demo/importer pages (FAQ, delivery, shipping, track order). | `demo/pages/faq.html:8`, `demo/pages/shipping-delivery.html:6,16`, `demo/pages/delivery.html:4` vs `nura-seo.php:51`, `nura-geo.php:54` |
+| F5 | Critical | Returns conflict: 7 days in live code and copy vs 48 hours in demo FAQ and returns page; `class-nura-pages.php` header says 48 hours while its body says 7 days. | `demo/pages/returns-refunds.html:8,23`, `demo/pages/faq.html:11`, `class-nura-pages.php:21,108` |
+| F6 | Critical | A live buying guide still offers cash on delivery, contradicting the 1.79.0 no-COD policy enforced at checkout. | `content/guides/how-to-buy-wigs-online-in-kenya-safely.html:1,5` |
+| F7 | High | Opening hours (Mon-Sat 08:00-20:00) hard-coded in two schema emitters and never confirmed by the owner (HANDOVER section 5). | `nura-schema-graph.php:220-224`, `class-nura-schema.php:109-113` |
+| F8 | High | Every product is given a brand in schema, with inconsistent names ("NURA" in two places, "NURA Beauty" in another), regardless of the actual manufacturer. | `nura-seo.php:157`, `seo-schema.php:124`, `nura-growth.php:241` |
+| F9 | High | `nura_seo_ke_shipping_rate()` takes the minimum cost across flat-rate **and local pick-up** methods, so product offers can advertise KSh 0 delivery. | `nura-seo-plus.php:39-70, 339` |
+| F10 | High | Three to four independent schema emitters enrich or duplicate the Rank Math graph; rendered pages must be checked for duplicate Organization/LocalBusiness/Product nodes. | `nura-seo-plus.php:265`, `nura-schema-graph.php`, `nura-schema-variants.php`, `class-nura-schema.php`, `seo-schema.php` |
+| F11 | Medium | `/llms-full.txt` catalogue capped at 400 products; both AI summaries cached 6 hours and only invalidated on product save, not on address or policy changes. | `nura-geo.php:122,148,155` |
+| F12 | Medium | Variant URLs use `$variation->get_permalink()`; must be proven in a browser to preselect the right colour/length, image, price and stock. | `nura-schema-variants.php:96,117` |
+| F13 | Medium | Google Place ID fallback is hard-coded. Correct only if the existing Business Profile is moved (not duplicated). | `class-nura-community.php:67` |
+| F14 | Decision | robots.txt allows both AI **search** crawlers (OAI-SearchBot, ChatGPT-User, PerplexityBot, Claude-SearchBot) and AI **training** crawlers (GPTBot, CCBot, Google-Extended, Applebot-Extended, meta-externalagent, cohere-ai). Training access is a business choice that should be made deliberately. | live `/robots.txt` |
+| F15 | Low | `hreflang` (en-KE, x-default) is printed on the homepage only. Acceptable for a single-locale site; must be expanded properly or removed when markets are added. | `nura-seo-plus.php:360-364` |
 
-### P1 — duplicated LLMS endpoints
+What is working and must be preserved: Rank Math as graph owner, connected Organization/OnlineStore + HealthAndBeautyBusiness concept, ProductGroup variant markup, KES pricing, no-COD checkout enforcement, crawler-friendly robots.txt with scraper blocking, city pages, buying guides, LiteSpeed + Redis performance work, and the security controls documented in SECURITY-AUDIT.md.
 
-Both `nura-seo-plus.php` and `nura-geo.php` register `/llms.txt` handlers using different hooks and content. The older handler may terminate before the newer handler. Consolidate into one route and one rendering source. Ensure:
-- `/llms.txt` returns HTTP 200 and text/markdown.
-- `/llms-full.txt` returns HTTP 200 and text/markdown.
-- Both use the same current business facts and approved policies.
-- Catalogue is paginated, not silently capped at 400 products.
-- Only published/catalog-visible public products are listed.
-- Hidden products, customer/order/account/support data and private URLs are never exposed.
-- Product URLs are canonical.
-- Price, stock and variation data are current.
-- Policy/address changes invalidate caches immediately.
-- Last-updated text is accurate.
-- Treat LLMS files as optional machine-readable convenience, not a Google ranking factor or guarantee of AI recommendation.
+Not yet measured (requires account access, section 11): Search Console coverage and queries, indexed page count, Core Web Vitals field data, Merchant Center status, Business Profile insights, backlink profile and AI-assistant mention rate.
 
-### P1 — structured-data graph
+---
 
-Rank Math is the main schema graph owner. Audit all `rank_math/json_ld` filters, plugin additions and fallback emitters. Inspect final rendered HTML JSON-LD on homepage, product, variable product, category, service, contact, FAQ and article pages.
+## 4. Target architecture
 
-Requirements:
-- One coherent Organisation/OnlineStore entity, one physical Studio/Store entity and stable IDs/relationships.
-- No duplicate competing Organization/Product/WebSite nodes.
-- Product/ProductGroup/variant relationships accurate.
-- Offer price, currency, availability, URL, seller, shipping and return policy match visible content and WooCommerce state.
-- Product manufacturer/brand must be real. NURA is retailer/trading brand; do not claim it manufactures every third-party wig.
-- Do not invent SKU, GTIN, MPN, ratings, reviews, hours, coordinates, guarantees, certifications or product materials.
-- ProductGroup schema only when actual variation data supports it and Google requirements are met.
-- FAQPage only when the FAQ is visible and factual. Do not sell FAQ schema as a reliable rich-result/ranking lever.
-- Use Article/BlogPosting only on genuine editorial pages, with real authors/reviewers where known.
-- Service/OfferCatalog only for published services with current prices and accurate descriptions.
-- Use MerchantReturnPolicy and OfferShippingDetails only if exact policies/rates are confirmed and match visible terms.
+### 4.1 Business facts registry (single source of truth)
 
-### P1 — product and shopping data
+One owner-controlled settings object (NURA Desk > Settings > Business facts, with code defaults only as a last resort) holds:
 
-Audit every published product/variation. Report completeness for:
-- accurate title and unique useful description;
-- actual manufacturer/brand;
-- hair type (human hair, human-hair blend, heat-resistant fibre);
-- texture, length, density, lace construction, colour and cap/fit attributes where applicable;
-- unique SKU and real GTIN/MPN only where assigned;
-- price/currency and stock;
-- high-quality product and variation-specific images;
-- useful descriptive alt text;
-- category assignment and internal links;
-- valid metadata and schema.
-Flag contradictions such as blend/synthetic attributes while copy claims 100% human hair. Never auto-rewrite product facts based on assumptions.
+| Group | Fields |
+| --- | --- |
+| Identity | Trading name, registered name, business number, logo, official social profiles (`sameAs`) |
+| Location | Building, floor, room, street, locality, county, postcode, country, verified map URL, verified coordinates, Place ID |
+| Hours | Opening days and hours, walk-in vs appointment, holiday closures |
+| Contact | Phone, WhatsApp, e-mail |
+| Fulfilment | Same-day cut-off, delivery windows by region, rates by method, pick-up availability, international shipping status |
+| Payments | Accepted methods, Till number and name, COD status, Lipa Mdogo Mdogo terms version |
+| After-sale | Returns window and exclusions, warranty terms, damage-report window |
 
-Audit Merchant Center separately: feed completeness, title quality, identifiers, price/stock parity, shipping, return settings, image issues, destination URLs, disapprovals and account issues. Do not assume schema replaces a shopping feed.
+Every output reads from this registry: visible pages, footer, contact page and map, checkout and gateway text, WhatsApp order messages, AI stylist instructions, Rank Math filters, custom schema, `/llms.txt`, `/llms-full.txt`, city pages, guides (via shortcodes or placeholders) and receipts. Saving the registry purges the AI-summary caches and LiteSpeed. A relocation becomes one edit.
 
-### P1 — technical SEO and crawling
+### 4.2 Entity graph
 
-Verify live:
-- current `robots.txt` (static file may override dynamic PHP filter);
-- XML sitemap contents, response and last-modified;
-- canonical URLs and meta robots;
-- indexability of important products/categories/guides;
-- noindex behaviour for filters/sort/search URLs;
-- redirects, chains, 404s, 5xx and mixed content;
-- pagination and product variation URL crawl paths;
-- orphan pages and internal links;
-- initial HTML availability of important text and JSON-LD;
-- sitemap vs published catalogue reconciliation;
-- mobile usability and Core Web Vitals.
+| Entity | Type | Stable `@id` | Notes |
+| --- | --- | --- | --- |
+| NURA Beauty | Organization + OnlineStore | `/#organization` | Legal name, logo, contact, `sameAs`, `hasMerchantReturnPolicy` |
+| NURA Studio, Stanbank House | Store / HealthAndBeautyBusiness | `/#studio` | `parentOrganization` -> `/#organization`; address, geo and hours **only when verified** |
+| Website | WebSite | `/#website` | `publisher` -> `/#organization` |
+| Pages | WebPage / CollectionPage / AboutPage / ContactPage | `{url}#webpage` | Breadcrumbs on every page |
+| Products | Product or ProductGroup + variant Products | `{url}#product`, `{url}#variant-{id}` | Real brand only; Offer with live KES price and stock; shipping and returns from the registry |
+| Services | Service + OfferCatalog | `/services/#service-{slug}` | Installation, revamp, styling, consultation; `provider` -> `/#studio` |
+| Guides | Article / BlogPosting | `{url}#article` | Real named author and reviewer (Person), dates |
+| FAQs | FAQPage | `{url}#faq` | Only where the Q&A is visible on that page |
 
-The project handover records 97 sitemap URLs submitted on 17 Oct 2026; this is historic evidence, not current indexing state.
+Rank Math owns the graph; NURA code only enriches it through one coordinator filter. `seo-schema.php` remains the fallback when Rank Math is inactive. No page emits a second Organization, LocalBusiness or Product node. No Review or AggregateRating is published unless it comes from genuine on-site customer reviews of that product.
 
-Recommended current Core Web Vitals targets: LCP <= 2.5s, INP <= 200ms and CLS <= 0.1 at the 75th percentile. Verify with field data and lab tests; do not infer performance from one run.
+### 4.3 AI discovery layer
 
-### P1 — AEO and topical authority
+- One route serves `/llms.txt` (concise business summary, policies, key links) and `/llms-full.txt` (full catalogue, paginated, no cap), both rendered from the registry and live WooCommerce data.
+- Public, catalogue-visible products only. No account, order, customer, hidden or draft data.
+- Accurate "last updated" timestamp; cache purged on product, registry and policy changes.
+- Treated as a convenience for systems that choose to read it, not as a ranking factor.
 
-Existing content has a useful start: human hair vs blend vs fibre, wig longevity/care, frontal vs closure, glueless/headband, cap sizing, face-shape advice, bridal and Nairobi installation. Improve with original stylist expertise, photos, demonstrations, real product examples, accurate prices, first-hand product experience, genuine reviews and sources. Avoid scaled generic AI pages and keyword stuffing.
+---
 
-Build useful clusters:
-- materials and wig types;
-- lace/closure construction;
-- styling, textures and lengths;
-- beginner/glueless/headband;
-- budgets and pricing;
-- cap size, density and face shape;
-- washing, conditioning, storage and revamp;
-- local shop, fittings and installation;
-- delivery/payment/returns;
-- wholesale and salon supply.
+## 5. SEO: search intent and product excellence
 
-Every guide should answer intent fully, link to relevant products/categories, include original imagery and be reviewed for factual claims.
+### 5.1 Intent map (one best page per intent)
 
-### P1 — GEO and AI search
+| Intent cluster | Example searches (Kenya) | Target page | Supporting content |
+| --- | --- | --- | --- |
+| Buy online | buy wigs online Kenya, wig shop Kenya | Homepage / Shop | How to buy wigs online safely |
+| Local shop | wig shop Nairobi CBD, wigs Moi Avenue | Contact / Studio page | Visit guide, directions, Business Profile |
+| Hair type | human hair wigs Kenya, semi-human wigs, synthetic wigs | Hair-type categories | Human vs blend vs fibre guide |
+| Construction | HD lace front Kenya, 13x4 frontal, 4x4 closure, 5x5 closure | Lace categories | Frontal vs closure guide |
+| Convenience | glueless wigs Kenya, headband wigs | Glueless / Headband categories | Beginner guide |
+| Style | bob wigs, curly wigs, body wave, bone straight | Style categories | Face-shape guide |
+| Price | wig prices Kenya, affordable wigs | Price guide with live price table | Category price ranges |
+| Services | wig installation Nairobi, wig revamp, bridal wigs | Service pages + booking | Installation and revamp guides |
+| Delivery | wigs delivered to Mombasa / Kisumu / Nakuru / Eldoret | City pages (distinct delivery facts) | Delivery page |
+| Business | wholesale wigs Kenya, salon supply | Bulk and corporate orders | Wholesale terms |
 
-Crawler rules presently list OAI-SearchBot, ChatGPT-User and other AI search crawlers as allowed in the dynamic robots output. Verify actual public robots and server/WAF handling. Distinguish search crawlers from training crawlers and choose policies deliberately. OpenAI documents OAI-SearchBot for ChatGPT search discovery; access is not a guarantee that NURA will be cited.
+Keyword themes are research targets, validated against Search Console and inventory before content is written. No two pages target the same primary intent.
 
-Track ChatGPT Search, Google AI features, Perplexity and Bing/Copilot with a fixed prompt sample. Save exact prompt, date, model/product result, citations, NURA mention, competitor mentions and click-through URL. Treat as directional manual monitoring, not comprehensive share-of-voice.
+### 5.2 Product pages (the revenue layer)
 
-### P2 — local authority and international expansion
+Every product and variation should carry: descriptive title (type, construction, texture, length), unique description, hair type, texture, length, density, lace type and size, cap size, colour per variation, unique SKU, actual brand (or none), current KES price, real stock, original images per variation with descriptive alt text, care and heat guidance, what is included, and delivery/returns summary from the registry.
 
-Update existing Google Business Profile, not create a duplicate listing. Confirm category, address, pin, phone, hours, photos, website, products/services and reviews. Update genuine business directories and social profiles to consistent NAP.
+A catalogue-wide data audit (CSV) lists missing or conflicting fields per product and variation, with an editor-friendly correction workflow in wp-admin.
 
-Expand first in Kenya, then East Africa where fulfilment is supported. International country pages should only be launched where NURA can genuinely support delivery, payment, currency, returns, duties/tax clarity and customer support. Avoid thin doorway pages and mechanically cloned location pages.
+### 5.3 Category pages
 
-## 3. Owner decisions required before production truth changes
+Unique title and meta description, one H1, a short decision-focused introduction, live product count and price range, links to the relevant guides, breadcrumbs, an optimised category image and CollectionPage/ItemList markup. Filter combinations stay `noindex` to avoid crawl traps; only collections with real demand and inventory become indexable landing pages.
 
-1. Exact public address wording beyond Stanbank House, 2nd Floor, Room 20, Nairobi CBD.
-2. Verified Google Maps share URL/pin/coordinates.
-3. Postal code if applicable.
-4. Opening days and hours.
-5. Walk-in vs appointment-only and collection procedure.
-6. Same-day Nairobi order cut-off and delivery promise.
-7. National/international shipping zones, delivery times, fees and free-shipping thresholds.
-8. Returns/exchange deadline and conditions (48 hours or 7 days must be resolved).
-9. Warranty terms and exactly which product types qualify.
-10. Whether any product has provenance/certificates and supporting evidence.
-11. Confirm COD availability/absence and current payment methods.
-12. International target countries actually served and terms.
-13. Correct brands/manufacturers per catalogue.
-14. Official phone, WhatsApp, email and profile URLs.
-15. Read-only exports/access for GSC, GA4, Merchant Center, Bing Webmaster and GBP.
+### 5.4 Technical standards
 
-Until confirmed, keep unresolved facts out of generated claims/schema or visibly mark them for owner approval. The confirmed Stanbank building/floor/room string can replace Imenti in current location copy without inventing additional details.
+| Area | Standard |
+| --- | --- |
+| Core Web Vitals (mobile, field data) | LCP <= 2.5 s, INP <= 200 ms, CLS <= 0.1 at the 75th percentile |
+| Indexing | Every important product, category, guide and service page indexable, canonical, in the sitemap and internally linked |
+| Crawl control | Cart, checkout, account, search and filter URLs excluded; no accidental blocks |
+| Redirects | 301 for permanent changes, no chains, no blanket redirects to the homepage |
+| Images | Responsive sizes, WebP, compressed, discoverable in the image sitemap |
+| Rendering | Prices, stock and key content present in the initial HTML |
+| Security | HTTPS everywhere, no mixed content, existing headers preserved |
 
-## 4. Implementation sequence
+---
 
-1. Branch, backup and baseline crawl. Keep checkout/production safe.
-2. Inventory all old addresses, map coordinates, delivery/returns/COD/warranty/brand claims. Produce CSV with path, line, current value, risk, recommended disposition and owner-confirmation flag.
-3. Create one business facts/policy source and migrate consumers.
-4. Update live-content templates, FAQ, contact/about, delivery/returns, installation guides, pickup/WhatsApp/checkout and all AI/schema outputs.
-5. Consolidate LLMS routes and implement safe paginated public catalogue output.
-6. Consolidate schema graph and remove duplication; test final HTML.
-7. Run product and variation audit; produce exceptions CSV, do not silently invent/fix.
-8. Fix technical crawl/index issues and sitemap.
-9. Improve highest-value AEO pages and category/product content with original expertise.
-10. Update external business listings and Merchant Center with owner/admin access.
-11. Add repeatable baseline and reporting.
-12. Update README, PRD, architecture, HANDOVER and session log. Bump theme/plugin versions as needed.
-13. Deliver reviewable pull request on a branch, not direct production deployment.
+## 6. AEO: becoming the answer
 
-## 5. Required QA and release gates
+Goal: when a customer asks a direct question, NURA has the clearest, most accurate answer on a relevant indexable page, and every page gives the same answer.
 
-Before release:
-- `php -l` every changed PHP file.
-- JavaScript syntax/build and regenerate served `.min.js` twin files where applicable.
-- Run tests/static scans and full text audit for obsolete Imenti address and stale policy variants.
-- Inspect public endpoint responses for robots, sitemap, LLMS.
-- Validate JSON-LD in rendered page HTML using Schema.org Validator and Google Rich Results Test on representative simple/variable product, home, category, FAQ, contact, service and article pages.
-- Compare schema prices/stock/brands/policies with visible content and WooCommerce.
-- Test checkout, M-Pesa/card payment handoff, WhatsApp ordering, studio pickup, delivery quote, bookings, My Account, POS and staff permissions.
-- Mobile test and measure Core Web Vitals.
-- Test cache invalidation.
-- Review privacy and prevent catalogue endpoint exposure of hidden/private information.
+- **One canonical answer per question**, written once in the registry or a central FAQ source and reused, so the homepage, FAQ page, product pages and AI files never disagree.
+- **Answer first, then explain.** A one or two sentence direct answer, followed by detail, comparisons and links to products.
+- **Priority questions:** where to buy quality human hair wigs in Kenya; affordable wigs in Nairobi; human hair vs semi-human vs fibre; 13x4 vs 5x5 lace price and differences; best wig for beginners; glueless wigs in Nairobi; wig installation in Nairobi CBD; delivery to Mombasa and other towns; paying with M-Pesa; Lipa Mdogo Mdogo; returns and warranty.
+- **First-hand evidence:** stylist-authored guides with named authors and review dates, original product and installation photography, short videos of lace, texture and fit, and comparisons using NURA's own stock.
+- **FAQ markup** only where the Q&A is visible on that page. Google shows FAQ rich results only to a limited set of sites; the value is clarity for users and machines, not a snippet guarantee.
 
-No task is complete until evidence is recorded. Code written is not the same as code deployed; code deployed is not the same as indexed; indexed is not the same as ranking or AI citation.
+---
 
-## 6. Tracking baseline
+## 7. GEO: trusted by AI assistants
 
-Use authorized exports:
-- GSC: query/page/country/device performance, indexing, sitemap, enhancements, manual actions.
-- GA4: organic sessions, landing pages, product views, add-to-cart, checkout, purchases/revenue and conversion.
-- Merchant Center: disapprovals, account issues, price/stock/shipping mismatch and free listings.
-- Bing Webmaster: indexing, errors and query performance.
-- GBP: profile status, address/pin, views/actions/calls/directions/reviews.
-- AI benchmark: fixed query set, date, assistant, NURA mention, citation/source, competitor reference and linked landing page.
+AI assistants recommend businesses they can verify across several independent sources. The levers are accuracy, accessibility and reputation.
 
-Do not claim rank 1, full indexation, SEO completion or guaranteed AI recommendation.
+1. **Consistent facts everywhere:** website, schema, `/llms.txt`, Google Business Profile, Bing Places, Apple Business Connect, Instagram, TikTok, Facebook and directories all show the same name, address, phone, hours and policies.
+2. **Crawl access, chosen deliberately:** keep search and user-triggered crawlers allowed (Googlebot, Bingbot, OAI-SearchBot, ChatGPT-User, PerplexityBot, Perplexity-User, Claude-SearchBot, Claude-User, Applebot). Decide separately whether to allow training crawlers (GPTBot, Google-Extended, CCBot, Applebot-Extended, ClaudeBot, meta-externalagent). Verify at robots.txt **and** firewall/CDN level.
+3. **Complete machine-readable catalogue** via `/llms-full.txt`, Merchant Center and the Meta catalogue, all from one WooCommerce source.
+4. **Earned authority:** genuine customer reviews on Google, features by Kenyan beauty and lifestyle media, collaborations with stylists, salons, bridal vendors and creators, and listings in reputable directories. No paid link schemes, fake reviews or doorway pages.
+5. **Measured monthly:** a fixed set of 25 to 30 buyer prompts tested in Google AI Overviews/AI Mode, ChatGPT Search, Perplexity, Gemini and Copilot, logging date, prompt, whether NURA is mentioned, cited sources and landing URL. Reported as directional evidence.
 
-## 7. Acceptance criteria
+---
 
-- No customer-facing live content, checkout, maps, schema or AI endpoint claims Imenti as current location.
-- Stanbank building/floor/room is consistent; no fabricated geo/map/hours.
-- Delivery/payment/COD/returns/warranty facts match owner-approved policy and transactional behaviour.
-- One authoritative business/policy source powers website, schema and AI files.
-- One LLMS route per endpoint, complete paginated catalogue, no private data, immediate cache invalidation.
-- No duplicate competing schema nodes; graph validated on actual page HTML.
-- Product and variant schema matches the current product state.
-- Product feed aligns with WooCommerce and merchant settings.
-- Sitemap/indexability/internal linking and redirects verified.
-- Checkout and business workflows regression-tested.
-- All external-account tasks clearly listed as pending until verified.
-- Reports distinguish technical implementation from actual rankings, traffic and AI citations.
+## 8. Roadmap and release gates
 
-## 8. External documentation
+| Release | Window | Scope | Exit criteria (all must pass) |
+| --- | --- | --- | --- |
+| **R1 Facts and relocation** | Weeks 1-2 | Business facts registry; replace Imenti House in all 26 files; remove old coordinates and map query; resolve cut-off, returns and COD conflicts; correct demo/importer content; AI stylist and WhatsApp text from registry | Zero "Imenti" in source and rendered pages (except an optional dated move notice); visible policy text identical on homepage, FAQ, delivery, returns, checkout, WhatsApp and AI files; checkout regression test passed |
+| **R2 AI endpoint and schema** | Weeks 2-4 | One `/llms.txt` + `/llms-full.txt` route; paginated catalogue; cache purge on registry save; one schema coordinator; correct brand handling; fix shipping-rate logic; verify variant URLs | Both endpoints 200 with correct facts; no duplicate entity nodes on 10 representative pages; Rich Results Test and Schema Validator clean; offer shipping matches WooCommerce |
+| **R3 Local and platforms** | Weeks 3-5 | Move (not duplicate) Google Business Profile; Bing Places, Apple Business Connect, social profiles, directories; Search Console, Bing Webmaster, GA4 checks; Merchant Center feed | Profile verified at Stanbank House; citations updated; baseline report captured |
+| **R4 Product data** | Weeks 4-8 | Full catalogue audit; titles, attributes, SKUs, variation images, alt text; category page upgrades | 100% of catalogue-visible products have hair type, length, lace type, colour, SKU, price, stock and image; Merchant Center disapprovals under 2% |
+| **R5 Content authority** | Months 2-4 | Intent map content; stylist-authored guides with original media; review programme; PR and partnerships | Each priority intent has one page; guides carry named authors and update dates |
+| **R6 Regional and international** | Month 4+ | East Africa first, then UK/US/UAE diaspora, only where fulfilment, payment and returns are operational | Market readiness checklist signed off before any localised page or hreflang |
 
-- Google AI features and website guidance: https://developers.google.com/search/docs/appearance/ai-features
-- Google Search generative AI guidance: https://developers.google.com/search/docs/fundamentals/ai-optimization-guide
-- Google product structured data: https://developers.google.com/search/docs/appearance/structured-data/product
-- Google product variants: https://developers.google.com/search/docs/appearance/structured-data/product-variants
-- Google LocalBusiness structured data: https://developers.google.com/search/docs/appearance/structured-data/local-business
-- OpenAI bots and crawlers: https://developers.openai.com/api/docs/bots
-- Core Web Vitals: https://web.dev/articles/vitals
+Every release follows AGENTS.md: feature branch, version bumps, `php -l`, minified JS regenerated, staging or careful live test, owner approval, zip upload, LiteSpeed purge, live verification and a HANDOVER.md entry.
 
-Google's current guidance does not require special AI schema or an LLMS file for inclusion in AI features. Useful content, crawlability, indexing eligibility, internal links and accurate structured data remain essential.
+---
+
+## 9. KPIs and reporting
+
+Baselines are captured in R3; targets are set once the baseline is known rather than guessed.
+
+| KPI | Source | Cadence |
+| --- | --- | --- |
+| Indexed vs submitted URLs (products, categories, guides, services) | Search Console | Monthly |
+| Organic clicks, impressions, CTR, average position for priority intents | Search Console | Monthly |
+| Organic sessions, product views, add-to-cart, revenue | GA4 | Monthly |
+| Core Web Vitals pass rate (mobile) | Search Console / CrUX | Monthly |
+| Merchant Center approved vs disapproved products | Merchant Center | Weekly in R4, then monthly |
+| Business Profile calls, direction requests, website clicks, review count and rating | Business Profile | Monthly |
+| AI assistant mention rate on the fixed prompt set | Manual log | Monthly |
+| Referring domains from relevant, reputable sites | Backlink tool / Search Console links | Quarterly |
+| Facts consistency (automated stale-string and schema tests) | Repository test script | Every release |
+
+---
+
+## 10. Owner decisions required before R1 ships
+
+| # | Decision | Current state |
+| --- | --- | --- |
+| D1 | Exact street name for Stanbank House (and postcode, if used) | Building, floor and room confirmed; street and postcode unconfirmed |
+| D2 | Google Maps pin or share link for the new shop | Not provided |
+| D3 | Opening days and hours | Site shows Mon-Sat 8:00-20:00, never confirmed |
+| D4 | Walk-ins, appointments only, or both | Site says "by appointment" |
+| D5 | Same-day Nairobi cut-off | Live site says 5 PM; old content says 2 PM |
+| D6 | Returns window | Live site says 7 days; old content says 48 hours |
+| D7 | Studio pick-up available at the new shop, and how it works | Assumed yes, unconfirmed |
+| D8 | International shipping: not available, quote on request, or named countries | Site says "worldwide shipping available" |
+| D9 | Allow AI training crawlers, or search crawlers only | Currently all allowed |
+| D10 | Product brands: own NURA brand, supplier brands, or unbranded | Every product currently labelled NURA |
+
+---
+
+## 11. Access and security
+
+Implementation needs least-privilege access, granted by the owner and revocable at any time:
+
+- **WordPress:** a dedicated named account for the assistant (not the owner's personal login), strong unique password, two-factor authentication, removed or downgraded after each phase. Every change is logged in HANDOVER.md.
+- **Google:** add the working account as a user (not owner) in Search Console, Business Profile (Manager), Merchant Center and GA4 (Viewer or Analyst), rather than sharing an owner password.
+- **Credentials are never pasted into chat, documents, code or the repository.** Sign-in happens only through a secure sign-in prompt.
+
+---
+
+## 12. Risk register
+
+| Risk | Impact | Mitigation |
+| --- | --- | --- |
+| Relocation edits break checkout or WhatsApp ordering | Lost sales | Registry-driven text only; full checkout and WhatsApp regression test before release |
+| Duplicate Business Profile created for the new shop | Split reviews, ranking loss | Move the existing listing; never create a second |
+| Conflicting facts persist in caches or third-party listings | AI assistants repeat old data | Cache purge on registry save; citation clean-up checklist |
+| Incorrect brand or identifiers in feeds | Merchant Center disapprovals | Brand only from verified data; omit GTIN where none exists |
+| Schema changes introduce duplicates | Rich result loss | Validate rendered HTML on 10 representative pages each release |
+| International pages without real fulfilment | Trust and policy issues | Market readiness checklist gate |
+
+---
+
+## 13. Repository deliverables
+
+| File | Purpose |
+| --- | --- |
+| `docs/SEO-AEO-GEO-AUDIT-2026-11.md` | This strategy and audit |
+| `docs/NURA-BUSINESS-FACTS.md` | Confirmed facts and open owner decisions (source for the registry) |
+| `docs/NURA-SEO-AEO-GEO-AGENT-PROMPT.md` | Implementation brief for coding agents |
+| `HANDOVER.md` | Session log and current status, updated after every session |
+
+*Prepared for NURA Beauty. This document distinguishes verified findings from recommendations and targets. It makes no ranking or recommendation guarantees.*

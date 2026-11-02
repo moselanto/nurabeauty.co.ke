@@ -199,17 +199,20 @@ if ( ! function_exists( 'nura_facts' ) ) {
 			'(M-Pesa, card or cash on delivery)'           => '(M-Pesa or card; no cash on delivery)',
 			'bank transfer, or cash on delivery in Nairobi' => 'bank transfer, or M-Pesa Till 1679269 for WhatsApp orders. No cash on delivery',
 			'by appointment)'                              => 'walk-ins welcome)',
+			'M-Pesa or pay on delivery'                    => 'M-Pesa or card (no cash on delivery)',
+			'or pay on delivery'                           => 'or card (no cash on delivery)',
+			'Imenti picking point'                         => 'Stanbank House studio (2nd Floor, Room 20)',
 		);
 	}
 
 	add_action( 'admin_init', function () {
-		$ver = '1.80.0';
+		$ver = '1.81.0'; // 1.81.0: also fixes 'pay on delivery' in product descriptions.
 		if ( get_option( 'nura_facts_migrated' ) === $ver || ! current_user_can( 'manage_options' ) || ! apply_filters( 'nura_facts_migrate', true ) ) {
 			return;
 		}
 		global $wpdb;
 		$map  = nura_facts_replacements();
-		$like = array( '%Imenti%', '%7 days of delivery%', '%<strong>7 days</strong>%', '%8:00am to 8:00pm%', '%8am to 8pm%', '%8:00–20:00%', '%2:00 PM%', '%cash on delivery in Nairobi%', '%card or cash on delivery%', '%7-day returns%' );
+		$like = array( '%Imenti%', '%7 days of delivery%', '%<strong>7 days</strong>%', '%8:00am to 8:00pm%', '%8am to 8pm%', '%8:00–20:00%', '%2:00 PM%', '%cash on delivery in Nairobi%', '%card or cash on delivery%', '%7-day returns%', '%pay on delivery%' );
 		$where = implode( ' OR ', array_fill( 0, count( $like ), 'post_content LIKE %s' ) );
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders only.
 		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_status IN ('publish','private','draft','future') AND post_type IN ('page','post','product','nura_guide','nura_journal') AND ( {$where} ) LIMIT 500", $like ) );
@@ -230,4 +233,33 @@ if ( ! function_exists( 'nura_facts' ) ) {
 		update_option( 'nura_facts_migrated_ids', $changed, false );
 		nura_facts_purge();
 	} );
+}
+
+/* ---- 1.81.0: runtime safety net for stale wording stored outside post content ----
+ * Live check on 2 Nov 2026 found the checkout pickup method titled "Pickup from our
+ * Imenti picking point", product descriptions saying "pay on delivery" and a
+ * "7-day returns" note at checkout. Shipping labels are rewritten through the
+ * WooCommerce rate filter; descriptions through the content filters. Text only:
+ * rates, costs and method IDs are never touched, so checkout logic is unchanged. */
+if ( ! function_exists( 'nura_facts_fix_text' ) ) {
+	function nura_facts_fix_text( $s ) {
+		return is_string( $s ) && '' !== $s ? strtr( $s, nura_facts_replacements() ) : $s;
+	}
+	add_filter( 'woocommerce_package_rates', function ( $rates ) {
+		foreach ( (array) $rates as $rate ) {
+			if ( is_object( $rate ) && method_exists( $rate, 'get_label' ) && method_exists( $rate, 'set_label' ) ) {
+				$rate->set_label( nura_facts_fix_text( $rate->get_label() ) );
+			}
+		}
+		return $rates;
+	}, 99 );
+	add_filter( 'woocommerce_shipping_rate_label', 'nura_facts_fix_text', 99 );
+	add_filter( 'woocommerce_cart_shipping_method_full_label', 'nura_facts_fix_text', 99 );
+	add_filter( 'woocommerce_order_shipping_method', 'nura_facts_fix_text', 99 );
+	add_filter( 'woocommerce_short_description', 'nura_facts_fix_text', 99 );
+	add_filter( 'the_content', 'nura_facts_fix_text', 99 );
+	add_filter( 'woocommerce_gateway_description', 'nura_facts_fix_text', 99 );
+	add_filter( 'gettext', function ( $t ) {
+		return ( false !== strpos( $t, '7-day' ) || false !== strpos( $t, 'Imenti' ) || false !== strpos( $t, 'pay on delivery' ) ) ? nura_facts_fix_text( $t ) : $t;
+	}, 99 );
 }

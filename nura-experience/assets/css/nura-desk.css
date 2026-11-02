@@ -878,3 +878,9 @@ a.nt-who:hover{color:#a07a24}
 .nd-btn--lg{min-height:46px;padding:0 24px;font-size:14px}
 .nc-msg{margin:0 0 16px}
 @media (max-width:782px){.nc-t thead{display:none}.nc-t tr{display:block;border-bottom:1px solid var(--line);padding:8px 0}.nc-t td{display:block;border:0!important;padding:6px 10px}.nc-on{width:auto;text-align:left}.nc-in--p,.nc-sel{max-width:none}}
+
+/* 1.89.0 colour sync */
+.nc-colh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.nc-colh h3{margin:0}
+.nc-ct td b{color:var(--ink)}
+.nc-r--muted td{color:var(--mut)}

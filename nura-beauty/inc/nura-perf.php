@@ -166,3 +166,38 @@ add_action( 'wp_head', function () {
 		( $srcset && $sizes ) ? ' imagesizes="' . esc_attr( $sizes ) . '"' : ''
 	);
 }, 1 );
+
+
+/* 1.102.0: product-page Total Blocking Time. PageSpeed (Minky closure wig, TBT 280 ms) showed the
+ * blocking long tasks were third-party: Meta Pixel (fbevents.js + config, ~300 ms; loaded by two
+ * identical inline Pixel snippets) and the Google Ads tag AW-... (~190 ms; printed directly by
+ * Google for WooCommerce, so the 1.69.1 delay list never caught it). On product pages:
+ * - a standard fbq queue stub is defined first, so both inline Pixel snippets queue their
+ *   init/PageView instead of loading fbevents.js; fbevents.js then loads on the first tap /
+ *   scroll / key press (nura-speed.php #13) and replays the queue - no events are lost;
+ * - the Google Ads <script src=...gtag/js?id=AW-...> becomes a delayed placeholder too
+ *   (gtag() calls already queue into dataLayer);
+ * - the no-interaction fallback for these tags is 15 s instead of 8 s.
+ * GA4 / Site Kit (GT-...) is NOT delayed (kept from 1.75.0). Cart, checkout and account untouched.
+ * Off: add_filter( 'nura_tbt_product', '__return_false' ). */
+function nura_tbt_on() {
+	return function_exists( 'is_product' ) && is_product() && ! nura_perf_protected() && apply_filters( 'nura_delay_tags', true ) && apply_filters( 'nura_tbt_product', true );
+}
+add_action( 'wp_head', function () {
+	if ( ! nura_tbt_on() ) {
+		return;
+	}
+	echo "<script id=\"nura-fbq-stub\">!function(f){if(f.fbq)return;var n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[]}(window);</script>\n";
+	echo '<script type="text/plain" data-nura-src="https://connect.facebook.net/en_US/fbevents.js"></script>' . "\n";
+}, 1 );
+add_action( 'template_redirect', function () {
+	if ( ! nura_tbt_on() ) {
+		return;
+	}
+	ob_start( function ( $html ) {
+		return preg_replace( '#<script\s+async\s+src="(https://www\.googletagmanager\.com/gtag/js\?id=AW-[^"]+)"\s*>\s*</script>#i', '<script type="text/plain" data-nura-src="$1"></script>', $html );
+	} );
+}, 99 );
+add_filter( 'nura_delay_tags_timeout', function ( $ms ) {
+	return ( function_exists( 'is_product' ) && is_product() && apply_filters( 'nura_tbt_product', true ) ) ? 15000 : $ms;
+}, 20 );

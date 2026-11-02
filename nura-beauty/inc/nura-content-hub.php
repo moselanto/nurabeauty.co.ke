@@ -592,7 +592,7 @@ function nura_hub_link_list( $slugs, $title, $class = 'nura-hub-links' ) {
 function nura_hub_footer_links() {
 	$guides = nura_hub_link_list( array( 'best-wigs-in-kenya-buying-guide', 'human-hair-vs-semi-human-vs-fibre-wigs-kenya', 'frontal-vs-closure-wig', 'how-long-does-a-wig-last', 'best-wigs-for-beginners-kenya', 'wig-installation-nairobi-what-to-expect', 'how-to-buy-wigs-online-in-kenya-safely' ), __( 'Wig guides', 'nura-beauty' ), 'nura-foot-links' );
 	$cities = '';
-	foreach ( array( 'find-your-wig' => __( 'Find your wig (AI Stylist)', 'nura-beauty' ), 'wig-questions' => __( 'Wig questions answered', 'nura-beauty' ), 'wig-prices-kenya' => __( 'Wig prices in Kenya', 'nura-beauty' ), 'wigs-mombasa' => __( 'Wigs in Mombasa', 'nura-beauty' ), 'wigs-kisumu' => __( 'Wigs in Kisumu', 'nura-beauty' ), 'wigs-nakuru' => __( 'Wigs in Nakuru', 'nura-beauty' ), 'wigs-eldoret' => __( 'Wigs in Eldoret', 'nura-beauty' ) ) as $slug => $label ) {
+	foreach ( array( 'wig-installation-nairobi' => __( 'Wig installation Nairobi', 'nura-beauty' ), 'maswali-ya-wigi' => __( 'Maswali ya wigi (Kiswahili)', 'nura-beauty' ), 'find-your-wig' => __( 'Find your wig (AI Stylist)', 'nura-beauty' ), 'wig-questions' => __( 'Wig questions answered', 'nura-beauty' ), 'wig-prices-kenya' => __( 'Wig prices in Kenya', 'nura-beauty' ), 'wigs-mombasa' => __( 'Wigs in Mombasa', 'nura-beauty' ), 'wigs-kisumu' => __( 'Wigs in Kisumu', 'nura-beauty' ), 'wigs-nakuru' => __( 'Wigs in Nakuru', 'nura-beauty' ), 'wigs-eldoret' => __( 'Wigs in Eldoret', 'nura-beauty' ) ) as $slug => $label ) {
 		$u = nura_hub_url( $slug, 'page' );
 		if ( $u ) {
 			$cities .= '<li><a href="' . esc_url( $u ) . '">' . esc_html( $label ) . '</a></li>';

@@ -105,11 +105,13 @@ add_filter( 'rank_math/opengraph/twitter/image', function ( $img ) {
 	return ( nura_brand_on() && empty( $img ) ) ? nura_brand_url( 'og' ) : $img;
 }, 20 );
 
-/** Sizing: clean, balanced, never stretched. Wide lockup, so height-driven. */
+/** Sizing: clean, balanced, never stretched. Wide lockup, so height-driven.
+ * 1.82.1: when logged in, the WordPress admin bar (fixed, 32px / 46px) covered the top of the
+ * sticky header while scrolling; the header now sticks just below it. Visitors are unaffected. */
 add_action( 'wp_head', function () {
 	if ( ! nura_brand_on() ) {
 		return;
 	}
-	echo '<style id="nura-brand-css">html body .nura-logo-wrap .custom-logo-link{display:inline-flex;align-items:center;line-height:0}html body .nura-logo-wrap img,html body .nura-logo-wrap .custom-logo{display:block;height:auto;width:auto;max-height:58px;max-width:min(150px,42vw);object-fit:contain}.nura-drawer__logo img{max-height:54px;width:auto}.login h1 a{background-image:url(' . esc_url( nura_brand_url( 'png' ) ) . ')!important;background-size:contain!important;width:240px!important;height:104px!important}@media(max-width:900px){html body .nura-logo-wrap img,html body .nura-logo-wrap .custom-logo{max-height:46px;max-width:min(128px,40vw)}}@media(max-width:520px){html body .nura-logo-wrap img,html body .nura-logo-wrap .custom-logo{max-height:40px;max-width:min(112px,38vw)}}</style>' . "\n";
+	echo '<style id="nura-brand-css">html body .nura-logo-wrap .custom-logo-link{display:inline-flex;align-items:center;line-height:0}html body .nura-logo-wrap img,html body .nura-logo-wrap .custom-logo{display:block;height:auto;width:auto;max-height:58px;max-width:min(150px,42vw);object-fit:contain}.nura-drawer__logo img{max-height:54px;width:auto}.login h1 a{background-image:url(' . esc_url( nura_brand_url( 'png' ) ) . ')!important;background-size:contain!important;width:240px!important;height:104px!important}html body.admin-bar .site-header{top:32px}@media screen and (max-width:782px){html body.admin-bar .site-header{top:46px}}@media screen and (max-width:600px){html body.admin-bar .site-header{top:0}}@media(max-width:900px){html body .nura-logo-wrap img,html body .nura-logo-wrap .custom-logo{max-height:46px;max-width:min(128px,40vw)}}@media(max-width:520px){html body .nura-logo-wrap img,html body .nura-logo-wrap .custom-logo{max-height:40px;max-width:min(112px,38vw)}}</style>' . "\n";
 	echo '<link rel="preload" as="image" type="image/webp" href="' . esc_url( nura_brand_url( 'logo' ) ) . '" fetchpriority="high">' . "\n";
 }, 3 );

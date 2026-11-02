@@ -263,3 +263,22 @@ if ( ! function_exists( 'nura_facts_fix_text' ) ) {
 		return ( false !== strpos( $t, '7-day' ) || false !== strpos( $t, 'Imenti' ) || false !== strpos( $t, 'pay on delivery' ) ) ? nura_facts_fix_text( $t ) : $t;
 	}, 99 );
 }
+
+/* 1.84.1: block checkout shows pickup location names from WooCommerce settings
+ * (not through shipping rate labels), so "Imenti picking point" survived 1.81.0.
+ * Rewrite the stored pickup settings text when read. Text only. */
+if ( ! function_exists( 'nura_facts_fix_deep' ) ) {
+	function nura_facts_fix_deep( $v ) {
+		if ( is_array( $v ) ) {
+			foreach ( $v as $k => $x ) {
+				$v[ $k ] = nura_facts_fix_deep( $x );
+			}
+			return $v;
+		}
+		return is_string( $v ) ? nura_facts_fix_text( $v ) : $v;
+	}
+	add_filter( 'option_pickup_location_pickup_locations', 'nura_facts_fix_deep', 99 );
+	add_filter( 'option_woocommerce_pickup_location_settings', 'nura_facts_fix_deep', 99 );
+	add_filter( 'option_woocommerce_local_pickup_settings', 'nura_facts_fix_deep', 99 );
+	add_filter( 'woocommerce_shipping_method_title', 'nura_facts_fix_text', 99 );
+}

@@ -154,7 +154,7 @@ $slides = array(
 						<p class="nura-eyebrow"><?php echo esc_html( $s['eyebrow'] ); ?></p>
 						<?php endif; ?>
 						<h2 class="nura-hero-h"><?php echo esc_html( $s['title'] ); ?></h2>
-						<p class="nura-lede"><?php echo esc_html( $s['sub'] ); ?></p>
+						<?php if ( apply_filters( 'nura_home_show', false, 'hero_sub' ) ) : // 1.94.0: calmer hero - title and buttons only. ?><p class="nura-lede"><?php echo esc_html( $s['sub'] ); ?></p><?php endif; ?>
 						<div class="nura-hero__cta">
 							<a class="nura-btn nura-btn--gold" href="<?php echo esc_url( $wigs_url ); ?>"><?php esc_html_e( 'Shop Wigs', 'nura-beauty' ); ?></a>
 							<a class="nura-btn nura-btn--ghost" href="<?php echo esc_url( $finder_url ); ?>"><?php esc_html_e( 'Find Your Wig', 'nura-beauty' ); ?></a>
@@ -299,16 +299,18 @@ $slides = array(
 	</section>
 	<?php endif; ?>
 
-	<!-- WIG FINDER PROMPT (secondary path for visitors not ready to browse) -->
+	<!-- WIG FINDER PROMPT - 1.94.0: off by default (the NURA Stylist block at the end covers it). Restore: add_filter( 'nura_home_show', function ( $on, $k ) { return 'finderbar' === $k ? true : $on; }, 10, 2 ); -->
+	<?php if ( apply_filters( 'nura_home_show', false, 'finderbar' ) ) : ?>
 	<div class="nura-finderbar">
 		<div class="nura-container nura-finderbar__inner">
 			<p class="nura-finderbar__text"><strong><?php esc_html_e( 'Not sure which wig is right for you?', 'nura-beauty' ); ?></strong> <?php esc_html_e( 'Answer a few quick questions and NURA Stylist will match you.', 'nura-beauty' ); ?></p>
 			<a class="nura-btn nura-btn--gold" href="<?php echo esc_url( $finder_url ); ?>"><?php esc_html_e( 'Find My Wig', 'nura-beauty' ); ?> &#8594;</a>
 		</div>
 	</div>
+	<?php endif; ?>
 
 	<!-- RAIL: TRENDING (more products, never repeats the grid above) -->
-	<?php if ( class_exists( 'WooCommerce' ) ) : ?>
+	<?php if ( class_exists( 'WooCommerce' ) && apply_filters( 'nura_home_show', false, 'trending' ) ) : // 1.94.0: off by default - repeated the product grid. ?>
 	<?php nura_query_rail( __( 'Trending now', 'nura-beauty' ), __( 'You may also love', 'nura-beauty' ), array( 'orderby' => 'rand', 'posts_per_page' => 24 ), 10, $shop_url, __( 'View all', 'nura-beauty' ) ); ?>
 	<?php endif; ?>
 
@@ -351,7 +353,7 @@ $slides = array(
 
 	<!-- REAL NURA WOMEN (social proof, moved high) -->
 	<?php $ig = nura_opt( 'nura_instagram' ); $ig_url = $ig ? $ig : $wa; ?>
-	<section class="section section--ink text-center" id="real-women">
+	<section class="section text-center nura-home-community" id="real-women"><?php /* 1.94.0: light band - the NURA Experience is now the only dark band. */ ?>
 		<div class="nura-container nura-reveal">
 			<p class="nura-eyebrow">@nurabeautyke</p>
 			<h2><?php esc_html_e( 'Real women. Real crowns.', 'nura-beauty' ); ?></h2>

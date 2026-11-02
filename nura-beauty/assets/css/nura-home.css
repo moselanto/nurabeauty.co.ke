@@ -86,3 +86,33 @@ body.home .nura-stylist-cta__panel{border-radius:20px!important;border:1px solid
 /* Responsive */
 @media (max-width:820px){body.home .section{padding-block:clamp(40px,9vw,64px)}body.home .nura-shead h2,body.home .nura-shop-now__head h2{font-size:clamp(1.6rem,7vw,2.1rem)}body.home li.product .button,body.home li.product a.add_to_cart_button{font-size:.62rem!important;letter-spacing:.1em!important}}
 @media (prefers-reduced-motion:reduce){body.home li.product{transition:none}}
+
+/* ---------- 1.94.0: calmer, shorter homepage ---------- */
+/* Hero: title + buttons only, softer overlay, quieter arrows */
+body.home .nura-slide__inner .nura-eyebrow:not(.nura-hero-kw){font-size:.68rem;letter-spacing:.3em}
+body.home .nura-hero-h{font-size:clamp(2.2rem,5.2vw,4.2rem);margin-bottom:1.4rem}
+body.home .nura-slider-nav{opacity:.55;background:transparent;border:1px solid rgba(255,255,255,.45)}
+body.home .nura-slider-nav:hover{opacity:1}
+@media (max-width:820px){body.home .nura-slider-nav{display:none}}
+/* Category + budget read as one "Shop" chapter */
+body.home .nura-pillars-section{padding-bottom:clamp(20px,3vw,36px)}
+body.home .nura-pillars-section+.nura-budget-section{padding-top:0}
+body.home .nura-budget-section .nura-shead{margin-bottom:clamp(18px,2.5vw,28px)}
+body.home .nura-budget-section .nura-shead h2{font-size:clamp(1.4rem,2.4vw,1.9rem)}
+body.home .nura-budget-section .nura-shead h2::after{display:none}
+/* Community: light band */
+body.home .nura-home-community{background:#fff}
+body.home .nura-home-community .nura-eyebrow{color:var(--nh-gold)}
+body.home .nura-home-community .nura-lede,body.home .nura-follow__note{color:var(--nh-muted)}
+body.home .nura-home-community .nura-follow__btn{border-color:var(--nh-line);color:var(--nh-ink);background:#fff}
+body.home .nura-home-community .nura-follow__btn:hover,body.home .nura-home-community .nura-follow__btn:focus-visible{background:var(--nh-ink);border-color:var(--nh-ink);color:#fff}
+body.home .nura-community__item img{border-radius:10px}
+/* NURA Stylist: light cream panel instead of a second black block */
+body.home .nura-stylist-cta__panel{background:var(--nh-cream)!important;border:1px solid var(--nh-line)}
+body.home .nura-stylist-cta__panel::before{border-color:rgba(176,138,62,.3)}
+body.home .nura-stylist-cta__panel h2{color:var(--nh-ink)}
+body.home .nura-stylist-cta__panel .nura-eyebrow{color:var(--nh-gold)}
+body.home .nura-stylist-cta__panel .nura-lede{color:var(--nh-muted)}
+body.home .nura-stylist-cta__panel .nura-btn--ghost{color:var(--nh-ink);border-color:var(--nh-ink)}
+body.home .nura-stylist-cta__panel .nura-btn--ghost:hover{background:var(--nh-ink);color:#fff}
+body.home .nura-stylist-cta__points li{color:var(--nh-muted)}

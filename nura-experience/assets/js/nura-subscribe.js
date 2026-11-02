@@ -1,4 +1,4 @@
-/* NURA "Join The House" - slim slide-in bar, pop-up on request + footer form (NURA Experience 1.79.2: closing it hides everything for 24 hours). */
+/* NURA "Join The House" - slim slide-in bar, pop-up on request + footer form (NURA Experience 1.79.2: closing it hides everything for 24 hours; 1.82.5: pop-up content in an inert template until tapped). */
 (function () {
 'use strict';
 function nuraHouseInit() {
@@ -57,6 +57,22 @@ function nuraHouseInit() {
 	var box = d.querySelector('[data-nhs]'), tab = d.querySelector('[data-nhs-tab]'), bar = d.querySelector('[data-nhs-bar]');
 	function hideAll() { if (box) { box.hidden = true; } if (tab) { tab.hidden = true; } if (bar) { bar.hidden = true; d.documentElement.classList.remove('nhs-bar-on'); } }
 	if (!box || !C.popup) { return; }
+	// 1.82.5: the pop-up content ships inside an inert <template>. Nothing in it (photo, text) exists on
+	// the page - so it cannot load, paint, open by itself or be measured as the largest image - until a
+	// real tap on the tab or a [data-nhs-open] button (or a preview link) puts it in place.
+	var lazy = box.querySelector('template[data-nhs-tpl]');
+	function mount() { if (lazy && lazy.parentNode) { box.appendChild(lazy.content.cloneNode(true)); lazy.parentNode.removeChild(lazy); } }
+	if (lazy) {
+		var pend = function (ev) {
+			var o = ev.target && ev.target.closest ? ev.target.closest('[data-nhs-open],[data-nhs-tab]') : null;
+			if (!o || !ev.isTrusted) { return; }
+			ev.preventDefault(); ev.stopPropagation(); d.removeEventListener('click', pend, true);
+			mount(); nuraPopup(true);
+		};
+		d.addEventListener('click', pend, true);
+		if (C.preview) { d.removeEventListener('click', pend, true); mount(); nuraPopup(false); return; }
+	} else { nuraPopup(false); if (C.preview) { return; } }
+	function nuraPopup(openNow) {
 	var card = box.querySelector('.nhs__card'), opened = false, lastFocus = null;
 
 	function step(n) { Array.prototype.forEach.call(box.querySelectorAll('[data-nhs-step]'), function (s) { s.classList.toggle('is-on', s.getAttribute('data-nhs-step') === String(n)); }); }
@@ -130,7 +146,9 @@ function nuraHouseInit() {
 	var cp = box.querySelector('[data-nhs-copy]');
 	if (cp) { cp.addEventListener('click', function () { var t = box.querySelector('[data-nhs-codeval]').textContent; if (navigator.clipboard) { navigator.clipboard.writeText(t).then(function () { cp.textContent = 'Copied'; }); } }); }
 
-	if (C.preview) { setTimeout(function () { open(true); }, 800); return; } // 1.82.4: preview ignores the 24 h snooze.
+	if (openNow) { window.__nhsGo = 1; open(true); return; }
+	if (C.preview) { window.__nhsGo = 1; setTimeout(function () { open(true); }, 800); } // 1.82.4: preview ignores the 24 h snooze.
+	}
 
 	/* ---------- Slim slide-in bar (1.78.0) ----------
 	 * The centred pop-up no longer opens by itself (it covered product buttons).

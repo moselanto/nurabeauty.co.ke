@@ -90,6 +90,7 @@ class NURAX_Desk_Sub {
 		$perks  = array_filter( array_map( 'trim', explode( "\n", (string) $s['sub_perks'] ) ) );
 		?>
 		<div class="nhs" data-nhs hidden>
+		<template data-nhs-tpl><?php /* 1.82.5: inert until a real tap - cannot load, paint or open by itself. */ ?>
 			<div class="nhs__veil" data-nhs-close></div>
 			<div class="nhs__card" role="dialog" aria-modal="true" aria-labelledby="nhs-title" tabindex="-1">
 				<button type="button" class="nhs__x" data-nhs-close aria-label="<?php esc_attr_e( 'Close', 'nura-experience' ); ?>"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
@@ -138,6 +139,7 @@ class NURAX_Desk_Sub {
 					</div>
 				</div>
 			</div>
+				</template>
 		</div>
 		<button type="button" class="nhs-tab" data-nhs-tab hidden><span class="nhs-tab__dot" aria-hidden="true"></span><?php echo esc_html( $coupon > 0 ? sprintf( __( 'Get %s off', 'nura-experience' ), NURAX_Desk::money( $coupon ) ) : __( 'Join The House', 'nura-experience' ) ); ?></button>
 		<div class="nhs-bar" data-nhs-bar role="region" aria-label="<?php esc_attr_e( 'Join The House', 'nura-experience' ); ?>" hidden>

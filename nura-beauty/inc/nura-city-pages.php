@@ -20,6 +20,11 @@ function nura_city_list() {
 		'wigs-kisumu'  => array( 'Kisumu', 'Kisumu', 'Kisumu CBD, Milimani, Mamboleo and Kondele' ),
 		'wigs-nakuru'  => array( 'Nakuru', 'Nakuru', 'Nakuru town, Milimani, Lanet and Naivasha' ),
 		'wigs-eldoret' => array( 'Eldoret', 'Uasin Gishu', 'Eldoret town, Elgon View, Kapsoya and Langas' ),
+		'wigs-thika'    => array( 'Thika', 'Kiambu', 'Thika town, Makongeni, Section 9 and Juja' ),
+		'wigs-kiambu'   => array( 'Kiambu', 'Kiambu', 'Kiambu town, Ruiru, Kikuyu and Limuru' ),
+		'wigs-machakos' => array( 'Machakos', 'Machakos', 'Machakos town, Athi River, Syokimau and Mlolongo' ),
+		'wigs-nyeri'    => array( 'Nyeri', 'Nyeri', 'Nyeri town, Karatina, Othaya and Mweiga' ),
+		'wigs-kakamega' => array( 'Kakamega', 'Kakamega', 'Kakamega town, Mumias, Lurambi and Malava' ),
 	) );
 }
 
@@ -162,10 +167,10 @@ add_action( 'wp_head', function () {
 
 /** Create the four pages once (never overwrites an existing slug). */
 add_action( 'admin_init', function () {
-	if ( ! current_user_can( 'manage_options' ) || '1.68.0' === get_option( 'nura_city_import' ) ) {
+	if ( ! current_user_can( 'manage_options' ) || '1.86.0' === get_option( 'nura_city_import' ) ) {
 		return;
 	}
-	update_option( 'nura_city_import', '1.68.0', false );
+	update_option( 'nura_city_import', '1.86.0', false ); // 1.86.0: adds Thika, Kiambu, Machakos, Nyeri, Kakamega (existing pages skipped).
 	foreach ( nura_city_list() as $slug => $c ) {
 		if ( get_page_by_path( $slug ) ) {
 			continue;

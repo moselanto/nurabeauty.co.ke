@@ -87,10 +87,16 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 			$node['caption']    = 'NURA Beauty';
 		}
 		if ( isset( $node['logo'] ) && is_array( $node['logo'] ) && ( isset( $node['logo']['@type'] ) || isset( $node['logo']['url'] ) ) ) {
-			$node['logo']['url'] = nura_brand_url( 'large' );
-			if ( isset( $node['logo']['contentUrl'] ) ) {
-				$node['logo']['contentUrl'] = nura_brand_url( 'large' );
-			}
+			$node['logo']['url']        = nura_brand_url( 'large' );
+			$node['logo']['contentUrl'] = nura_brand_url( 'large' );
+			$node['logo']['width']      = $f['large'][1];
+			$node['logo']['height']     = $f['large'][2];
+		}
+		// 1.83.0: Organization / studio 'image' still pointed at the old uploaded logo.
+		if ( isset( $node['image'] ) && is_string( $node['image'] ) && false !== stripos( $node['image'], 'logo' ) ) {
+			$node['image'] = nura_brand_url( 'large' );
+		} elseif ( isset( $node['image']['url'] ) && is_string( $node['image']['url'] ) && false !== stripos( $node['image']['url'], 'logo' ) ) {
+			$node['image']['url'] = nura_brand_url( 'large' );
 		}
 	}
 	unset( $node );

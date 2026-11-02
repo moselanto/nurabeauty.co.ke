@@ -83,3 +83,67 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 	unset( $node );
 	return $data;
 }, 999 );
+
+/**
+ * 1.83.0 (live Rich Results / validator audit, 2 Nov 2026):
+ * - OnlineStore does not accept priceRange, currenciesAccepted or paymentAccepted
+ *   (33 validator warnings); they are removed from the online-store entity and kept
+ *   on the physical studio (LocalBusiness), where "Cash" is labelled as pay-in-person
+ *   at studio pick-up only (no cash on delivery).
+ * - Each colour variant gets the brand and a short description (Merchant listings
+ *   warning), and the ProductGroup gets productGroupID matching the variants'
+ *   inProductGroupWithID.
+ */
+function nura_schema_tidy_r3( &$node ) {
+	if ( ! is_array( $node ) ) {
+		return;
+	}
+	$types = isset( $node['@type'] ) ? (array) $node['@type'] : array();
+	if ( in_array( 'OnlineStore', $types, true ) && ! array_intersect( $types, array( 'LocalBusiness', 'HealthAndBeautyBusiness', 'Store', 'BeautySalon' ) ) ) {
+		unset( $node['priceRange'], $node['currenciesAccepted'], $node['paymentAccepted'] );
+	}
+	if ( array_intersect( $types, array( 'HealthAndBeautyBusiness', 'LocalBusiness', 'BeautySalon', 'Store' ) ) && isset( $node['paymentAccepted'] ) ) {
+		$node['paymentAccepted'] = 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash (in person at studio pick-up only; no cash on delivery)';
+	}
+	if ( in_array( 'ProductGroup', $types, true ) && ! empty( $node['hasVariant'] ) && is_array( $node['hasVariant'] ) ) {
+		$brand = isset( $node['brand'] ) ? $node['brand'] : array( '@type' => 'Brand', 'name' => 'NURA Beauty' );
+		$gname = isset( $node['name'] ) ? wp_strip_all_tags( (string) $node['name'] ) : '';
+		$gdesc = isset( $node['description'] ) ? wp_strip_all_tags( (string) $node['description'] ) : '';
+		$gid   = '';
+		foreach ( $node['hasVariant'] as &$v ) {
+			if ( ! is_array( $v ) ) {
+				continue;
+			}
+			if ( empty( $v['brand'] ) ) {
+				$v['brand'] = $brand;
+			}
+			if ( empty( $v['description'] ) ) {
+				$colour = isset( $v['color'] ) ? (string) $v['color'] : '';
+				$base   = $gdesc ? $gdesc : $gname;
+				$v['description'] = trim( ( $colour ? $gname . ' in ' . $colour . '. ' : '' ) . wp_trim_words( $base, 40, '...' ) );
+			}
+			if ( '' === $gid && ! empty( $v['inProductGroupWithID'] ) ) {
+				$gid = (string) $v['inProductGroupWithID'];
+			}
+		}
+		unset( $v );
+		if ( empty( $node['productGroupID'] ) ) {
+			$node['productGroupID'] = '' !== $gid ? $gid : ( ! empty( $node['sku'] ) ? (string) $node['sku'] : (string) get_queried_object_id() );
+		}
+	}
+	foreach ( $node as $k => &$child ) {
+		if ( is_array( $child ) && 'hasVariant' !== $k ) {
+			nura_schema_tidy_r3( $child );
+		}
+	}
+	unset( $child );
+}
+add_filter( 'rank_math/json_ld', function ( $data ) {
+	if ( is_array( $data ) && apply_filters( 'nura_schema_tidy', true ) ) {
+		foreach ( $data as $key => &$node ) {
+			nura_schema_tidy_r3( $node );
+		}
+		unset( $node );
+	}
+	return $data;
+}, 1000 );

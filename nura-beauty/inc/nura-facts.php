@@ -40,7 +40,7 @@ if ( ! function_exists( 'nura_facts' ) ) {
 			'locality'       => 'Nairobi',
 			'region'         => 'Nairobi County',
 			'country'        => 'KE',
-			'postcode'       => '',
+			'postcode'       => '00100', // Nairobi GPO, as on the Google Business Profile (1.83.0).
 			'address_short'  => 'Stanbank House, 2nd Floor, Room 20, Nairobi CBD',
 			'address_full'   => 'Stanbank House, 2nd Floor, Room 20, between Moi Avenue and Tom Mboya Street, Nairobi CBD, Kenya',
 			'street_address' => 'Stanbank House, 2nd Floor, Room 20, between Moi Avenue and Tom Mboya Street',

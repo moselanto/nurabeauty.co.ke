@@ -47,7 +47,8 @@ if ( ! function_exists( 'nura_facts' ) ) {
 			'plus_code'      => 'PR8G+554 Nairobi',
 			'lat'            => '-1.2843125',
 			'lng'            => '36.8255969',
-			'map_url'        => 'https://www.google.com/maps/place/Stanbank+House/@-1.2843125,36.8255969,17z/data=!3m1!4b1!4m6!3m5!1s0x182f1173fe0c8899:0x9d5d42a5748c26ea!8m2!3d-1.2843125!4d36.8255969!16s%2Fg%2F11j8tlnn8_',
+			'place_id'       => 'ChIJGx-_W1sRLxgRxNUNZe1z9ug', // Google Business Profile listing (1.78.0).
+			'map_url'        => 'https://www.google.com/maps/search/?api=1&query=NURA+Beauty+Stanbank+House+Nairobi&query_place_id=ChIJGx-_W1sRLxgRxNUNZe1z9ug',
 			'map_embed'      => 'https://www.google.com/maps?q=-1.2843125,36.8255969&z=17&output=embed',
 			'directions_url' => 'https://www.google.com/maps/dir/?api=1&destination=-1.2843125,36.8255969',
 			'days'           => array( 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ),

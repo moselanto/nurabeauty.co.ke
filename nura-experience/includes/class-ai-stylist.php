@@ -79,11 +79,14 @@ class NURAX_AI_Stylist {
 					<button type="button" data-q="<?php esc_attr_e( 'Show me 100% human hair wigs', 'nura-experience' ); ?>"><?php esc_html_e( 'Human hair', 'nura-experience' ); ?></button>
 					<button type="button" data-q="<?php esc_attr_e( 'I need a wig for my wedding', 'nura-experience' ); ?>"><?php esc_html_e( 'Bridal', 'nura-experience' ); ?></button>
 					<button type="button" data-q="<?php esc_attr_e( 'Which wig suits a beginner? I want glueless', 'nura-experience' ); ?>"><?php esc_html_e( 'Beginner / glueless', 'nura-experience' ); ?></button>
+					<button type="button" data-q="<?php esc_attr_e( 'Where can I get a wig installed in Nairobi?', 'nura-experience' ); ?>"><?php esc_html_e( 'Installation', 'nura-experience' ); ?></button>
+					<button type="button" data-q="<?php esc_attr_e( 'Which wig suits my face shape?', 'nura-experience' ); ?>"><?php esc_html_e( 'Face shape', 'nura-experience' ); ?></button>
+					<button type="button" data-q="Ni wig gani poa ya kutumia daily?">Wig ya daily?</button>
 					<button type="button" data-q="<?php esc_attr_e( 'How does delivery and payment work?', 'nura-experience' ); ?>"><?php esc_html_e( 'Delivery & M-Pesa', 'nura-experience' ); ?></button>
 					<button type="button" data-q="<?php esc_attr_e( 'How do I care for my wig?', 'nura-experience' ); ?>"><?php esc_html_e( 'Wig care', 'nura-experience' ); ?></button>
 				</div>
 				<form class="nurax-stylist__input" data-stylist-form>
-					<input type="text" name="msg" autocomplete="off" placeholder="<?php esc_attr_e( 'Type your question, e.g. curly wig under 8K', 'nura-experience' ); ?>" required>
+					<input type="text" name="msg" autocomplete="off" placeholder="<?php esc_attr_e( 'Ask in English or Kiswahili, e.g. curly wig under 8K', 'nura-experience' ); ?>" required>
 					<button type="submit" aria-label="<?php esc_attr_e( 'Send', 'nura-experience' ); ?>">&#10148;</button>
 				</form>
 			</div>
@@ -452,9 +455,12 @@ class NURAX_AI_Stylist {
 			. "The catalog includes 100% human hair, human-hair blend and heat-resistant fibre wigs; always state a unit's hair type exactly as its name says and never call a blend or fibre unit human hair. "
 			. "Help customers choose the right wig by face shape, occasion, texture, length, lace type and budget (prices are in Kenyan Shillings, KES). "
 			. "Be concise, friendly and practical - reply in 2 to 4 short sentences. Recommend specific units from the catalog below by name when relevant, and suggest booking a free consultation or chatting on WhatsApp for fittings and orders. "
-			. "Mention same-day Nairobi delivery, M-Pesa and pay-on-delivery when relevant. Only discuss NURA, wigs, hair care, orders and delivery. Never invent prices or products that are not in the catalog; if unsure, offer a free consultation.\n\nCATALOG:\n{$cat}";
+			. "Mention same-day Nairobi delivery and M-Pesa or card payment when relevant; NURA does not offer cash on delivery. Only discuss NURA, wigs, hair care, orders and delivery. Never invent prices or products that are not in the catalog; if unsure, offer a free consultation.\n\nCATALOG:\n{$cat}";
 		if ( ! empty( $custom ) ) {
 			$base .= "\n\nADDITIONAL BRAND NOTES:\n" . $custom;
+		}
+		if ( class_exists( 'NURAX_Knowledge' ) ) {
+			$base .= NURAX_Knowledge::prompt_block();
 		}
 		return $base;
 	}
@@ -537,6 +543,13 @@ class NURAX_AI_Stylist {
 
 	/** Rule-based fallback so the widget always helps, even with no key. */
 	private function guided( $text ) {
+		// 1.81.0: answer from the NURA customer-question knowledge base first.
+		if ( class_exists( 'NURAX_Knowledge' ) ) {
+			$k = NURAX_Knowledge::respond( $text );
+			if ( '' !== $k['reply'] ) {
+				return array( 'reply' => $k['reply'], 'products' => $k['products'] );
+			}
+		}
 		$t     = strtolower( $text );
 		$reply = __( 'I can help with that. Tell me your budget and the occasion, or book a free consultation and a stylist will guide you.', 'nura-experience' );
 		if ( false !== strpos( $t, 'bridal' ) || false !== strpos( $t, 'wedding' ) ) {
@@ -548,7 +561,7 @@ class NURAX_AI_Stylist {
 		} elseif ( false !== strpos( $t, 'lace' ) || false !== strpos( $t, 'hd' ) || false !== strpos( $t, 'frontal' ) ) {
 			$reply = __( 'Our HD lace fronts give an invisible, melt-into-skin hairline. Here are some favourites - I can also help you book a fitting.', 'nura-experience' );
 		} elseif ( false !== strpos( $t, 'deliver' ) || false !== strpos( $t, 'ship' ) || false !== strpos( $t, 'mpesa' ) || false !== strpos( $t, 'm-pesa' ) || false !== strpos( $t, 'pay' ) ) {
-			$reply = __( 'We offer same-day delivery in Nairobi and countrywide shipping, with M-Pesa, card or pay-on-delivery. Ready to order?', 'nura-experience' );
+			$reply = __( 'We offer same-day delivery in Nairobi for orders before 5 PM and 1 to 3 day delivery countrywide. Pay by M-Pesa or card; there is no cash on delivery. Ready to order?', 'nura-experience' );
 		}
 		return array( 'reply' => $reply, 'products' => $this->suggest_products( $text ) );
 	}
@@ -564,6 +577,12 @@ class NURAX_AI_Stylist {
 	private function suggest_products( $text ) {
 		if ( ! function_exists( 'wc_get_products' ) ) {
 			return array();
+		}
+		if ( class_exists( 'NURAX_Knowledge' ) ) { // 1.81.0: intent-aware picks (budget, hair, construction, texture, colour).
+			$k = NURAX_Knowledge::respond( $text );
+			if ( ! empty( $k['products'] ) ) {
+				return $k['products'];
+			}
 		}
 		$signals = $this->parse_signals( $text );
 		$ids     = $this->recommend_ids( $signals, 3 );

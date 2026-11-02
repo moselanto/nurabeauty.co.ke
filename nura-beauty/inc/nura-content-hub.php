@@ -225,10 +225,10 @@ function nura_hub_links( $html ) {
 }
 
 add_action( 'admin_init', function () {
-	if ( ! current_user_can( 'manage_options' ) || '1.66.0' === get_option( 'nura_hub_import' ) || ! defined( 'NURA_DIR' ) ) {
+	if ( ! current_user_can( 'manage_options' ) || '1.78.0' === get_option( 'nura_hub_import' ) || ! defined( 'NURA_DIR' ) ) {
 		return;
 	}
-	update_option( 'nura_hub_import', '1.66.0', false );
+	update_option( 'nura_hub_import', '1.78.0', false ); // 1.78.0: imports the 6 new guides; existing posts are skipped.
 	$dir   = NURA_DIR . 'content/guides/';
 	$index = file_exists( $dir . 'index.json' ) ? json_decode( (string) file_get_contents( $dir . 'index.json' ), true ) : array();
 	$ref   = get_page_by_path( 'semi-human-wigs-kenya-guide', OBJECT, 'post' );
@@ -555,6 +555,12 @@ function nura_hub_guides() {
 		'how-to-buy-wigs-online-in-kenya-safely'       => __( 'Buying wigs online safely', 'nura-beauty' ),
 		'bridal-wigs-kenya'                            => __( 'Bridal wigs in Kenya', 'nura-beauty' ),
 		'best-wigs-for-beginners-kenya'                => __( 'Best wigs for beginners', 'nura-beauty' ),
+		'best-wigs-in-kenya-buying-guide'              => __( 'Best wigs in Kenya: buying guide', 'nura-beauty' ),
+		'best-human-hair-wigs-kenya'                   => __( 'Best human hair wigs in Kenya', 'nura-beauty' ),
+		'affordable-wigs-under-3000-kenya'             => __( 'Wigs under KSh 3,000', 'nura-beauty' ),
+		'best-everyday-wigs-for-working-women'         => __( 'Everyday wigs for work', 'nura-beauty' ),
+		'wig-colours-guide-kenya'                      => __( 'Wig colours guide', 'nura-beauty' ),
+		'wig-lengths-and-textures-explained'           => __( 'Wig lengths and textures', 'nura-beauty' ),
 	);
 }
 
@@ -584,9 +590,9 @@ function nura_hub_link_list( $slugs, $title, $class = 'nura-hub-links' ) {
 
 /** Footer: guides + delivery cities + price list, on every page (crawlable links). */
 function nura_hub_footer_links() {
-	$guides = nura_hub_link_list( array( 'human-hair-vs-semi-human-vs-fibre-wigs-kenya', 'frontal-vs-closure-wig', 'how-long-does-a-wig-last', 'best-wigs-for-beginners-kenya', 'wig-installation-nairobi-what-to-expect', 'how-to-buy-wigs-online-in-kenya-safely' ), __( 'Wig guides', 'nura-beauty' ), 'nura-foot-links' );
+	$guides = nura_hub_link_list( array( 'best-wigs-in-kenya-buying-guide', 'human-hair-vs-semi-human-vs-fibre-wigs-kenya', 'frontal-vs-closure-wig', 'how-long-does-a-wig-last', 'best-wigs-for-beginners-kenya', 'wig-installation-nairobi-what-to-expect', 'how-to-buy-wigs-online-in-kenya-safely' ), __( 'Wig guides', 'nura-beauty' ), 'nura-foot-links' );
 	$cities = '';
-	foreach ( array( 'wig-prices-kenya' => __( 'Wig prices in Kenya', 'nura-beauty' ), 'wigs-mombasa' => __( 'Wigs in Mombasa', 'nura-beauty' ), 'wigs-kisumu' => __( 'Wigs in Kisumu', 'nura-beauty' ), 'wigs-nakuru' => __( 'Wigs in Nakuru', 'nura-beauty' ), 'wigs-eldoret' => __( 'Wigs in Eldoret', 'nura-beauty' ) ) as $slug => $label ) {
+	foreach ( array( 'wig-questions' => __( 'Wig questions answered', 'nura-beauty' ), 'wig-prices-kenya' => __( 'Wig prices in Kenya', 'nura-beauty' ), 'wigs-mombasa' => __( 'Wigs in Mombasa', 'nura-beauty' ), 'wigs-kisumu' => __( 'Wigs in Kisumu', 'nura-beauty' ), 'wigs-nakuru' => __( 'Wigs in Nakuru', 'nura-beauty' ), 'wigs-eldoret' => __( 'Wigs in Eldoret', 'nura-beauty' ) ) as $slug => $label ) {
 		$u = nura_hub_url( $slug, 'page' );
 		if ( $u ) {
 			$cities .= '<li><a href="' . esc_url( $u ) . '">' . esc_html( $label ) . '</a></li>';

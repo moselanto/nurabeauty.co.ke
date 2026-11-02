@@ -190,7 +190,7 @@ HTML;
 <ul>
 <li>All prices are in Kenyan Shillings (KES) and include any applicable taxes. Delivery fees are shown separately at checkout.</li>
 <li>We accept M-Pesa and card (via Paystack), M-Pesa Buy Goods Till 1679269 for WhatsApp orders, and bank transfer. There is no cash on delivery; you can pay in person when you collect from our studio.</li>
-<li>Orders are confirmed once payment is received or, for pay-on-delivery orders, once we have confirmed the order details with you.</li>
+<li>Orders are confirmed once payment is received, or for studio pick-up orders paid in person, once we have confirmed the order details with you.</li>
 <li>We may cancel or refuse an order - for example in cases of suspected fraud, pricing errors or stock unavailability - and will notify you promptly.</li>
 </ul>
 <h3>Product information</h3>

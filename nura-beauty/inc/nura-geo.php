@@ -117,6 +117,8 @@ function nura_geo_llms( $full = false ) {
 		}
 	}
 
+	$o = (array) apply_filters( 'nura_llms_extra', $o, $full ); // 1.78.0: customer Q&A (inc/nura-wig-questions.php).
+
 	if ( $full && function_exists( 'wc_get_products' ) ) {
 		$o[] = '## Catalogue (live)';
 		$products = wc_get_products( array( 'status' => 'publish', 'limit' => -1, 'orderby' => 'title', 'order' => 'ASC', 'visibility' => 'catalog' ) );

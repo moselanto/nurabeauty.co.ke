@@ -26,6 +26,8 @@ final class NURAX_AI {
 
 	private static $instance = null;
 	private static $booted   = false;
+	/** @var string Message being answered (1.81.0, for knowledge matching). */
+	private $current_text = '';
 
 	public function __construct() {
 		if ( null === self::$instance ) {
@@ -248,6 +250,9 @@ final class NURAX_AI {
 		if ( '' !== trim( $opt_extra ) ) {
 			$p .= "\n\nAdditional instructions: " . trim( $opt_extra );
 		}
+		if ( class_exists( 'NURAX_Knowledge' ) ) { // 1.81.0 master instructions + customer-question knowledge.
+			$p .= NURAX_Knowledge::prompt_block( $this->current_text );
+		}
 		$p .= "\n\nCatalogue facts:\n" . $this->catalog_context();
 
 		return $p;
@@ -284,11 +289,13 @@ final class NURAX_AI {
 			);
 		}
 
+		$this->current_text = $text;
 		$provider = $this->pick_provider();
 		if ( null === $provider ) {
+			$kb = class_exists( 'NURAX_Knowledge' ) ? NURAX_Knowledge::match( $text ) : null; // 1.81.0: answer from knowledge when no AI key.
 			return array(
-				'ok'       => false,
-				'reply'    => $this->fallback_reply(),
+				'ok'       => (bool) $kb,
+				'reply'    => $kb ? $kb['a'] : $this->fallback_reply(),
 				'provider' => '',
 			);
 		}

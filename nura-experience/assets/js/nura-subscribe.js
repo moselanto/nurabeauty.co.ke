@@ -67,6 +67,8 @@ function nuraHouseInit() {
 		if (!force && state()) { return; }
 		if (!force && busy()) { setTimeout(function () { open(false); }, 8000); return; }
 		opened = true; lastFocus = d.activeElement;
+		// 1.82.2: the photo only downloads when the pop-up opens (it was the product page LCP).
+		var ph = box.querySelector('img[data-src]'); if (ph && !ph.getAttribute('src')) { ph.src = ph.getAttribute('data-src'); }
 		box.hidden = false; d.documentElement.classList.add('nhs-lock');
 		requestAnimationFrame(function () { box.classList.add('is-open'); var i = box.querySelector('[name=name]'); setTimeout(function () { (i || card).focus({ preventScroll: true }); }, 250); });
 		if (tab) { tab.hidden = true; }

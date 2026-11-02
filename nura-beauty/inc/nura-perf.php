@@ -126,3 +126,37 @@ add_action( 'wp_head', function () {
 add_action( 'wp_head', function () {
 	echo '<style id="nura-join-css">.nura-join-house{margin:.2rem 0 .9rem;cursor:pointer}body:not(:has(.nhs)) .nura-join-house{display:none}</style>' . "\n";
 }, 3 );
+
+
+/* 1.100.0: product page LCP. WooCommerce prints the gallery with inline opacity:0 and only
+ * reveals it after the deferred gallery script (flexslider) has downloaded and run - on a phone
+ * on Slow 4G that held the main photo back to ~7.8 s. Now: the gallery is visible from the
+ * first paint (only the first photo shows until the slider starts, so nothing jumps), and the
+ * first photo is preloaded at the displayed size (same srcset/sizes as the <img>).
+ * Off: add_filter( 'nura_pdp_lcp', '__return_false' ). */
+add_action( 'wp_head', function () {
+	if ( ! function_exists( 'is_product' ) || ! is_product() || ! apply_filters( 'nura_pdp_lcp', true ) ) {
+		return;
+	}
+	echo '<style id="nura-pdp-lcp">.woocommerce-product-gallery{opacity:1!important}'
+		. '.woocommerce-product-gallery>.woocommerce-product-gallery__wrapper>.woocommerce-product-gallery__image:nth-child(n+2){display:none}'
+		. '.woocommerce-product-gallery>.woocommerce-product-gallery__wrapper>.woocommerce-product-gallery__image:first-child img{width:100%;height:auto}</style>' . "\n";
+	$product = wc_get_product( get_queried_object_id() );
+	$id      = $product ? (int) $product->get_image_id() : 0;
+	if ( ! $id ) {
+		return;
+	}
+	$size   = apply_filters( 'woocommerce_gallery_image_size', 'woocommerce_single' );
+	$src    = wp_get_attachment_image_src( $id, $size );
+	if ( ! $src ) {
+		return;
+	}
+	$srcset = wp_get_attachment_image_srcset( $id, $size );
+	$sizes  = wp_get_attachment_image_sizes( $id, $size );
+	printf(
+		'<link rel="preload" as="image" href="%1$s"%2$s%3$s fetchpriority="high">' . "\n",
+		esc_url( $src[0] ),
+		$srcset ? ' imagesrcset="' . esc_attr( $srcset ) . '"' : '',
+		( $srcset && $sizes ) ? ' imagesizes="' . esc_attr( $sizes ) . '"' : ''
+	);
+}, 1 );

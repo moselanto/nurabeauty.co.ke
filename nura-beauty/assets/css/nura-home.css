@@ -1,0 +1,88 @@
+/* =========================================================================
+ * NURA Beauty - homepage, classic international polish (theme 1.93.0)
+ * Front page only (body.home). Visual layer: rhythm, typography, cards,
+ * banners. No markup, cart or checkout behaviour changes.
+ * ========================================================================= */
+body.home{--nh-ink:#141414;--nh-text:#2b2b2b;--nh-muted:#6e675c;--nh-gold:#B08A3E;--nh-gold-soft:#C9A24B;--nh-cream:#FAF6EE;--nh-paper:#FFFDF9;--nh-line:#E8DECA;--nh-r:14px}
+
+/* Section rhythm and headers */
+body.home .section{padding-block:clamp(56px,7vw,104px)}
+body.home .nura-shead{max-width:720px;margin:0 auto clamp(30px,4vw,52px)}
+body.home .nura-shead .nura-eyebrow,body.home .nura-shop-now__head .nura-eyebrow{font-size:.7rem;letter-spacing:.3em;color:var(--nh-gold)}
+body.home .nura-shead h2,body.home .nura-shop-now__head h2{font-family:var(--font-display);font-weight:500;font-size:clamp(1.9rem,3.4vw,2.8rem);letter-spacing:-.01em;line-height:1.15}
+body.home .nura-shead:not(.nura-shead--row) h2::after{content:"";display:block;width:48px;height:1px;background:var(--nh-gold-soft);margin:1.1rem auto 0}
+body.home .nura-lede{color:var(--nh-muted);font-size:1.05rem;line-height:1.75}
+
+/* Hero */
+body.home .nura-hero-h,body.home .nura-slide h1,body.home .nura-slide h2{font-weight:500;letter-spacing:-.015em}
+body.home .nura-hero__cta .nura-btn{min-width:150px;letter-spacing:.16em}
+
+/* Trust bar under the hero */
+body.home .nura-trustbar{background:var(--nh-paper);border-color:var(--nh-line)}
+body.home .nura-trustbar li{color:var(--nh-muted);font-size:.68rem;letter-spacing:.16em;border-color:var(--nh-line)}
+
+/* Shop now: filters and product cards */
+body.home .nura-shop-now{padding-block:clamp(48px,6vw,88px)}
+body.home .nura-quickchip{border-color:var(--nh-line)!important;font-family:var(--font-ui);letter-spacing:.04em}
+body.home .nura-shop-now ul.products li.product,body.home .nura-rail li.product{background:#fff;border:1px solid var(--nh-line);border-radius:var(--nh-r);overflow:hidden;transition:box-shadow .25s ease,transform .25s ease;padding-bottom:.9rem!important}
+body.home .nura-shop-now ul.products li.product:hover,body.home .nura-rail li.product:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(20,20,20,.08)}
+body.home li.product .woocommerce-loop-product__title{font-family:var(--font-display)!important;font-weight:500!important;font-size:1rem!important;line-height:1.35!important;padding-inline:1rem!important}
+body.home li.product .price{font-family:var(--font-ui);font-weight:600;padding-inline:1rem}
+body.home li.product .button,body.home li.product a.add_to_cart_button{background:transparent!important;color:var(--nh-ink)!important;border:1px solid var(--nh-ink)!important;border-radius:999px!important;font-size:.68rem!important;letter-spacing:.16em!important;margin-inline:1rem!important;width:calc(100% - 2rem)!important;transition:background .2s ease,color .2s ease}
+body.home li.product .button:hover,body.home li.product a.add_to_cart_button:hover{background:var(--nh-ink)!important;color:#fff!important}
+body.home li.product .nwo-btn--card{background:transparent!important;border:0!important;box-shadow:none!important;color:var(--nh-muted)!important;font-size:.72rem!important;letter-spacing:.06em;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--nh-line);padding:.35rem 1rem 0!important;justify-content:center}
+body.home .nura-shop-now__more .nura-btn{min-width:220px}
+
+/* Category tiles */
+body.home .nura-pillars-section .nura-tile{border-radius:var(--nh-r)!important}
+body.home .nura-pillars-section .nura-tile__label{font-family:var(--font-display);font-weight:500;font-size:1.3rem}
+body.home .nura-pillars-section .nura-tile__label small{font-family:var(--font-ui);letter-spacing:.14em;color:#E9D9B4}
+
+/* Shop by budget */
+body.home .nura-budget__card{background:#fff!important;border:1px solid var(--nh-line)!important;border-radius:var(--nh-r)!important;padding:1.4rem 1.4rem 1.2rem!important;text-align:left}
+body.home .nura-budget__k{font-family:var(--font-ui);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--nh-gold)}
+body.home .nura-budget__v{font-family:var(--font-display);font-size:1.55rem;font-weight:500;color:var(--nh-ink)}
+body.home .nura-budget__cta{font-family:var(--font-ui);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--nh-muted)}
+body.home .nura-budget__card:hover{border-color:var(--nh-gold-soft)!important}
+
+/* Finder banner: from plum strip to a quiet black band with gold */
+body.home .nura-finderbar{background:var(--nh-ink)!important;border-block:1px solid rgba(201,162,75,.35)}
+body.home .nura-finderbar__text{color:#E9E2D4!important;letter-spacing:.02em}
+body.home .nura-finderbar__text strong{color:var(--nh-gold-soft)!important}
+
+/* Promise / why cards */
+body.home .nura-why__grid{gap:20px}
+body.home .nura-why__item{background:#fff;border:1px solid var(--nh-line);border-radius:var(--nh-r);padding:1.6rem 1.5rem!important;box-shadow:none}
+body.home .nura-why__t{font-family:var(--font-display);font-weight:500;font-size:1.12rem}
+body.home .nura-why__d{color:var(--nh-muted);line-height:1.7}
+body.home .nura-why__ic{color:var(--nh-gold)}
+
+/* Ivory and ink sections */
+body.home .section--ivory{background:var(--nh-cream)}
+body.home .section--ink{background:#111}
+body.home .section--ink h2{color:#F4EEE2;font-weight:500}
+body.home .section--ink .nura-eyebrow{color:var(--nh-gold-soft)}
+
+/* Brand story split */
+body.home .nura-split__media img{border-radius:var(--nh-r)}
+body.home .nura-split__body h2{font-weight:500}
+
+/* Contact cards */
+body.home .nura-contact-grid{gap:18px}
+body.home .nura-contact-card{border-radius:var(--nh-r)!important;border-color:var(--nh-line)!important;box-shadow:none!important}
+body.home .nura-contact-card__k{font-family:var(--font-ui);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--nh-gold)}
+body.home .nura-contact-card__v{font-family:var(--font-display);font-size:1.08rem}
+
+/* FAQ accordions (guides + questions block) */
+body.home details{border-bottom:1px solid var(--nh-line)}
+body.home details>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1rem 0;font-family:var(--font-display);font-weight:500}
+body.home details>summary::-webkit-details-marker{display:none}
+body.home details>summary::after{content:"+";flex:none;width:26px;height:26px;border:1px solid var(--nh-line);border-radius:50%;display:grid;place-items:center;color:var(--nh-gold);font-family:var(--font-ui)}
+body.home details[open]>summary::after{content:"\2212"}
+
+/* Stylist call-to-action */
+body.home .nura-stylist-cta__panel{border-radius:20px!important;border:1px solid rgba(201,162,75,.35)}
+
+/* Responsive */
+@media (max-width:820px){body.home .section{padding-block:clamp(40px,9vw,64px)}body.home .nura-shead h2,body.home .nura-shop-now__head h2{font-size:clamp(1.6rem,7vw,2.1rem)}body.home li.product .button,body.home li.product a.add_to_cart_button{font-size:.62rem!important;letter-spacing:.1em!important}}
+@media (prefers-reduced-motion:reduce){body.home li.product{transition:none}}

@@ -66,3 +66,10 @@ function nura_inner_unautop( $html ) {
 add_filter( 'the_content', function ( $content ) {
 	return ( is_page() && ( false !== strpos( $content, 'class="npg"' ) || false !== strpos( $content, 'class="ncp"' ) ) ) ? nura_inner_unautop( $content ) : $content;
 }, 999 );
+
+/* 1.93.0: homepage polish layer (front page only). Off: add_filter( 'nura_home_design', '__return_false' ). */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( is_front_page() && apply_filters( 'nura_home_design', true ) ) {
+		wp_enqueue_style( 'nura-home', NURA_URI . 'assets/css/nura-home.css', array( 'nura-main' ), NURA_VERSION );
+	}
+}, 41 );

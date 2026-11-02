@@ -218,3 +218,11 @@ body.nura-inner .nura-helpcard__cta{margin:0!important;display:flex;flex-wrap:wr
   body.nura-inner .nura-helpcard__cta .nura-btn{flex:1 1 100%;justify-content:center;text-align:center}
   body.nura-inner .nura-faq-item__a{padding-right:0}
 }
+
+/* 1.98.0: R4 answer pages ([nura_r4]) - reading column, wide band only for product picks. */
+body.nura-inner .nura-page .entry-content>.nura-r4{max-width:var(--ni-wide)}
+body.nura-inner .nura-r4>*:not(.nura-wq-picks):not(table):not(ul.nura-wq-picks){max-width:var(--ni-measure);margin-left:auto;margin-right:auto}
+body.nura-inner .nura-r4 .nura-cta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:2.4rem}
+body.nura-inner .nura-r4 h2+.nura-faq-item{border-top:1px solid var(--ni-line)}
+body.nura-inner #kiswahili-sheng table{max-width:var(--ni-measure)}
+body.nura-inner #kiswahili-sheng td[lang=sw]{font-family:var(--font-display);font-size:1.02rem;color:var(--ni-ink)}

@@ -29,3 +29,9 @@ R5 inquiries + measurement: GA4 key events (WhatsApp, call, Stylist chat, Finder
 
 ## 90-day targets
 Top 3 on Maps for "wig shop Nairobi"; 100+ reviews at 4.7+; named by 2 of ChatGPT/Gemini/Perplexity for "best wig shop in Nairobi"; inquiries tracked weekly and growing.
+
+## Progress
+- R3 shipped in theme 1.96.0 (commit b59bff2).
+- Page formatting for all content pages: theme 1.97.0 (commit 6d3ae08).
+- R4 shipped in theme 1.98.0: where-to-buy question group, conversational table, 8 answer pages (3 Kiswahili). Docx question list was already complete in the knowledge base.
+- Next: R5 (GA4 inquiry events, AI referral tracking, monthly AI visibility check).

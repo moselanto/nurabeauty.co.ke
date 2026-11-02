@@ -366,3 +366,20 @@ html body ul.products li.product a img{object-position:center top}
 .nura-colour-guide li span:last-child{grid-column:2;color:#5c5c5c;font-size:.78rem}
 .nura-colour-guide__dot{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);grid-row:span 2}
 .nura-colour-guide p{margin:0;padding:.3rem .9rem .8rem;font-size:.76rem;color:#6b6b6b}
+
+/* ---------- 1.103.0: product page conversion ---------- */
+.nura-eta{display:flex;align-items:flex-start;gap:.6rem;margin:.6rem 0 1rem;padding:.7rem .9rem;border:1px solid #e6dcc6;border-radius:10px;background:#fffaf0;font-family:var(--font-ui);font-size:.86rem;line-height:1.45;color:#2b2b2b}
+.nura-eta b{color:#0E0E0E}
+.nura-eta__dot{flex:none;width:9px;height:9px;margin-top:.35rem;border-radius:50%;background:#1f8a4c;box-shadow:0 0 0 4px rgba(31,138,76,.15)}
+.nura-payrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:.9rem 0 .4rem}
+.nura-payrow__k{font-family:var(--font-ui);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#6e675c;margin-right:2px}
+.nura-payrow__p{display:inline-flex;align-items:center;padding:4px 10px;border:1px solid #e6dcc6;border-radius:999px;background:#fff;font-family:var(--font-ui);font-size:.74rem;font-weight:600;color:#1b1b1b}
+.nura-why-buy{margin:1.2rem 0 .4rem;padding:1rem 1.1rem;border:1px solid #e6dcc6;border-radius:12px;background:#fff}
+.nura-why-buy__h{margin:0 0 .6rem!important;font-family:var(--font-ui);font-size:.68rem!important;letter-spacing:.2em;text-transform:uppercase;color:#B08A3E}
+.nura-why-buy ul{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+.nura-why-buy li{position:relative;padding-left:1.2rem;font-size:.86rem;line-height:1.45;color:#3a3a3a}
+.nura-why-buy li::before{content:"";position:absolute;left:.15rem;top:.5em;width:6px;height:6px;transform:rotate(45deg);background:#C9A24B}
+.nura-why-buy strong{display:block;color:#0E0E0E;font-weight:600}
+.nura-sticky-atc__eta{display:block;font-family:var(--font-ui);font-size:.7rem;color:#E4C983;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nura-sticky-atc__eta b{font-weight:600;color:#E4C983}
+@media (max-width:480px){.nura-payrow__p{font-size:.7rem;padding:3px 8px}.nura-eta{font-size:.82rem}}

@@ -334,9 +334,58 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 	return $data;
 }, 100 );
 
-/** Real Kenya delivery cost + full return policy on each Offer (extends nura-seo.php). */
+/**
+ * 1.77.0: countrywide delivery rate for Google product data.
+ *
+ * Google cannot take per-county rates for Kenya, so one KE rate is published.
+ * It used to be the lowest flat rate (the KSh 300 Nairobi rider), which
+ * under-stated delivery for every county outside Nairobi. Now it is the highest
+ * real fee across all 47 counties, read from the same WooCommerce zones and
+ * fallback fee table the checkout and WhatsApp pop-up use
+ * (NURAX_WA_Order::ship_quote, order subtotal 0 so no free-delivery threshold).
+ * Counties the shop does not price are skipped. Falls back to the old lowest
+ * rate if the plugin or zones are missing. Filter: nura_seo_countrywide_rate.
+ */
+function nura_seo_ke_countrywide_rate() {
+	$key = 'nura_seo_ship_ke_' . nura_seo_cache_v();
+	$hit = get_transient( $key );
+	if ( false !== $hit ) {
+		return '' === $hit ? null : (float) $hit;
+	}
+	$max = null;
+	if ( class_exists( 'NURAX_WA_Order' ) && method_exists( 'NURAX_WA_Order', 'ship_quote' ) ) {
+		$counties = (array) apply_filters( 'nurax_wa_order_counties', array( 'Nairobi', 'Baringo', 'Bomet', 'Bungoma', 'Busia', 'Elgeyo-Marakwet', 'Embu', 'Garissa', 'Homa Bay', 'Isiolo', 'Kajiado', 'Kakamega', 'Kericho', 'Kiambu', 'Kilifi', 'Kirinyaga', 'Kisii', 'Kisumu', 'Kitui', 'Kwale', 'Laikipia', 'Lamu', 'Machakos', 'Makueni', 'Mandera', 'Marsabit', 'Meru', 'Migori', 'Mombasa', "Murang'a", 'Nakuru', 'Nandi', 'Narok', 'Nyamira', 'Nyandarua', 'Nyeri', 'Samburu', 'Siaya', 'Taita-Taveta', 'Tana River', 'Tharaka-Nithi', 'Trans Nzoia', 'Turkana', 'Uasin Gishu', 'Vihiga', 'Wajir', 'West Pokot' ) );
+		foreach ( $counties as $county ) {
+			try {
+				$q = NURAX_WA_Order::ship_quote( $county, 0 );
+			} catch ( \Throwable $e ) {
+				continue;
+			}
+			if ( is_array( $q ) && ! empty( $q['known'] ) && isset( $q['fee'] ) && is_numeric( $q['fee'] ) ) {
+				$max = null === $max ? (float) $q['fee'] : max( $max, (float) $q['fee'] );
+			}
+		}
+	}
+	if ( null === $max || $max <= 0 ) {
+		$max = nura_seo_ke_shipping_rate();
+	}
+	$max = apply_filters( 'nura_seo_countrywide_rate', $max );
+	set_transient( $key, null === $max ? '' : (string) $max, 12 * HOUR_IN_SECONDS );
+	return null === $max ? null : (float) $max;
+}
+add_action( 'woocommerce_shipping_zone_method_status_toggled', function () {
+	update_option( 'nura_seo_cache_v', nura_seo_cache_v() + 1, false );
+} );
+add_action( 'woocommerce_update_options_shipping', function () {
+	update_option( 'nura_seo_cache_v', nura_seo_cache_v() + 1, false );
+} );
+add_action( 'admin_post_nurax_wa_fees', function () {
+	update_option( 'nura_seo_cache_v', nura_seo_cache_v() + 1, false );
+}, 1 );
+
+/** Real Kenya delivery cost (countrywide rate since 1.77.0) + full return policy on each Offer (extends nura-seo.php). */
 add_filter( 'nura_seo_offer', function ( $offer ) {
-	$rate = nura_seo_ke_shipping_rate();
+	$rate = nura_seo_ke_countrywide_rate();
 	if ( null !== $rate && isset( $offer['shippingDetails'] ) && is_array( $offer['shippingDetails'] ) ) {
 		$offer['shippingDetails']['shippingRate'] = array(
 			'@type'    => 'MonetaryAmount',

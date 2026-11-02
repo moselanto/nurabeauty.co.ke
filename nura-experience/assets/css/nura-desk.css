@@ -804,3 +804,40 @@ a.nt-who:hover{color:#a07a24}
 @media (max-width:1200px){.na-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.na-grid,.na-grid--entries{grid-template-columns:1fr}}
 @media (max-width:700px){.na-kpis{grid-template-columns:1fr 1fr}.na-f{grid-template-columns:1fr}.na-pnl{padding:20px}.na-bars li{grid-template-columns:1fr;gap:6px}.na-bars__v{text-align:left}.na-period__l{margin-left:0;width:100%}}
 @media print{.nd-top,.nd-head__actions,.na-period,.na-tabs,.na-side .na-help{display:none!important}.na-grid{display:block}}
+
+/* ---------- Accounts polish + buying prices (1.84.0) ---------- */
+/* Desk tabs: one tidy row that scrolls on small screens instead of wrapping to two lines. */
+.nd-tabs{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.nd-tabs .nd-tab{flex:0 0 auto;white-space:nowrap}
+.na .nd-kpi__s{line-height:1.45}
+/* Profit at a glance */
+.na-eq{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:0 0 18px;padding:14px 16px;background:#fff;border:1px solid var(--line);border-radius:14px}
+.na-eq__t{display:flex;flex-direction:column;justify-content:center;min-width:120px;padding:6px 12px;border-radius:10px;background:var(--ivory)}
+.na-eq__t small{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.na-eq__t b{font-size:16px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.na-eq__op{display:flex;align-items:center;font-size:20px;color:var(--gold);font-weight:300;padding:0 2px}
+.na-eq__t--res{background:var(--ink)}
+.na-eq__t--res small{color:var(--gold2)}
+.na-eq__t--res.is-pos b{color:#7fd6a2}
+.na-eq__t--res.is-neg b{color:#ff9b93}
+.na-alert{margin:0 0 18px;padding:12px 16px;border:1px solid #f0d9a8;border-left:4px solid var(--amber);border-radius:10px;background:#fffaf0;font-size:13px;line-height:1.55}
+/* Statement */
+.na-st th,.na-st td{font-size:14.5px}
+.na-st__sub th,.na-st__sub td{color:var(--mut);font-style:italic;border-bottom:0}
+.na-st__net th small{font-family:inherit;font-size:12px;font-weight:400;color:var(--mut)}
+.na-amt--neg{color:var(--na-neg)}
+/* Profit by product */
+.na-prod__h h2{margin:0 0 4px;font-family:Georgia,'Times New Roman',serif;font-weight:500}
+.na-prod__h p{margin:0 0 14px}
+.na-ptbl tbody tr.is-missing{background:#fffaf0}
+.na-ptbl td a{color:var(--ink)}
+.na-warn{color:var(--amber)!important;font-weight:600}
+.na-warn a{color:var(--amber)}
+@media (max-width:700px){
+  .na-eq{gap:6px;padding:10px}
+  .na-eq__t{min-width:calc(50% - 20px);flex:1 1 calc(50% - 20px)}
+  .na-eq__op{display:none}
+  .na-eq__t--res{flex-basis:100%}
+  .na-st th,.na-st td{font-size:13.5px}
+  .na-pnl__h h2{font-size:20px}
+}

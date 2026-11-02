@@ -1,6 +1,6 @@
 <?php
 /**
- * NURA Desk - Accounts: expenses, sales and profit (NURA Experience 1.83.0).
+ * NURA Desk - Accounts: expenses, sales and profit (NURA Experience 1.83.0; buying prices 1.84.0).
  *
  * A simple, accountant-friendly book for the studio:
  *  - Record every shilling going out (rent, renovation, stock, salaries, M-Pesa charges...)
@@ -13,6 +13,12 @@
  *    deposits, furniture & equipment, owner capital and owner drawings.
  *  - Receipts (photo/PDF) attached to entries, CSV export for an accountant, soft delete with
  *    an audit trail (who added / edited / removed).
+ *
+ * 1.84.0: a private "Buying price" on every product and colour/variation. The cost of each wig
+ *  is saved on the order line when it is sold, so Cost of sales = what the wigs you actually sold
+ *  cost you (not what you bought this month), and a "Profit by product" table shows each wig.
+ *  Stock purchases are now recorded as stock (inventory) and kept out of profit, so nothing is
+ *  counted twice. Sourced (out-of-stock) sales use the supplier cost from Sourced sales.
  *
  * Storage: {prefix}nurax_ledger. Owner-only (manage_options); filter nurax_accounts_cap.
  *
@@ -40,6 +46,13 @@ class NURAX_Desk_Accounts {
 		add_action( 'admin_post_nurax_acc_csv', array( __CLASS__, 'h_csv' ) );
 		add_action( 'woocommerce_order_status_changed', array( __CLASS__, 'bust' ) );
 		add_action( 'woocommerce_order_refunded', array( __CLASS__, 'bust' ) );
+		add_action( 'woocommerce_update_product', array( __CLASS__, 'bust' ) );
+		// 1.84.0: buying price on products and variations.
+		add_action( 'woocommerce_product_options_pricing', array( __CLASS__, 'cost_field' ) );
+		add_action( 'woocommerce_admin_process_product_object', array( __CLASS__, 'cost_save' ) );
+		add_action( 'woocommerce_variation_options_pricing', array( __CLASS__, 'cost_field_var' ), 10, 3 );
+		add_action( 'woocommerce_save_product_variation', array( __CLASS__, 'cost_save_var' ), 10, 2 );
+		add_action( 'woocommerce_new_order_item', array( __CLASS__, 'snapshot_cost' ), 10, 3 );
 	}
 
 	public static function table() {
@@ -101,7 +114,8 @@ class NURAX_Desk_Accounts {
 
 	/**
 	 * key => [ label, group, hint ]. Groups:
-	 *  cogs  - cost of sales (what the wigs/products you sold cost you)
+	 *  stock - stock bought; inventory until sold (cost then comes from the buying price)
+	 *  cogs  - extra cost of sales not in the buying price (freight, free packaging)
 	 *  opex  - operating expenses (the running costs of the shop)
 	 *  setup - one-off start-up costs (renovation, lease fees, licences)
 	 *  income - other income (not through the website or the till)
@@ -110,9 +124,9 @@ class NURAX_Desk_Accounts {
 	 */
 	public static function categories() {
 		return apply_filters( 'nurax_ledger_categories', array(
-			'stock'      => array( 'Stock purchases (wigs, hair, products)', 'cogs', 'Wigs, hair and products bought to sell.' ),
-			'freight'    => array( 'Import, freight & customs', 'cogs', 'Shipping in, clearing, duty on stock.' ),
-			'packaging'  => array( 'Packaging & wig accessories', 'cogs', 'Boxes, bags, caps, stands given with sales.' ),
+			'stock'      => array( 'Stock bought (wigs, hair, products)', 'stock', 'Goes into stock. It becomes a cost only when the wig is sold, using its buying price.' ),
+			'freight'    => array( 'Import, freight & customs', 'cogs', 'Shipping in, clearing, duty - only if NOT already in the buying price.' ),
+			'packaging'  => array( 'Packaging & free accessories', 'cogs', 'Boxes, bags, wig caps given free with sales.' ),
 			'rent'       => array( 'Rent', 'opex', 'Monthly shop rent.' ),
 			'salaries'   => array( 'Salaries & wages', 'opex', 'Staff pay, stylists, casuals.' ),
 			'utilities'  => array( 'Electricity, water & internet', 'opex', 'KPLC tokens, water, Wi-Fi, airtime.' ),
@@ -138,7 +152,8 @@ class NURAX_Desk_Accounts {
 
 	public static function groups() {
 		return array(
-			'cogs'   => 'Cost of sales',
+			'stock'  => 'Stock bought (inventory - not in profit)',
+			'cogs'   => 'Cost of sales (extras)',
 			'opex'   => 'Operating expenses',
 			'setup'  => 'One-off setup costs',
 			'income' => 'Other income',
@@ -220,14 +235,87 @@ class NURAX_Desk_Accounts {
 		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '\\_transient\\_nurax\\_acc\\_%' OR option_name LIKE '\\_transient\\_timeout\\_nurax\\_acc\\_%'" ); // phpcs:ignore WordPress.DB
 	}
 
-	/** WooCommerce sales (website + Point of sale) paid in the period. */
+	/* ------------------------------------------------------------ buying price (1.84.0) */
+
+	public static function can_see_cost() {
+		return current_user_can( self::cap() ) || ( class_exists( 'NURAX_Staff' ) && current_user_can( NURAX_Desk::CAP ) && NURAX_Staff::can( 'see_totals' ) );
+	}
+
+	public static function cost_field() {
+		if ( ! self::can_see_cost() ) {
+			return;
+		}
+		woocommerce_wp_text_input( array(
+			'id'          => '_nura_cost',
+			'label'       => 'Buying price (KSh)',
+			'data_type'   => 'price',
+			'desc_tip'    => true,
+			'description' => 'What one unit cost you, including transport to the shop. Private - customers never see it. Used for profit in NURA Desk > Accounts. For colours/variations, set it on each variation.',
+		) );
+	}
+
+	public static function cost_save( $product ) {
+		if ( self::can_see_cost() && isset( $_POST['_nura_cost'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$v = wc_format_decimal( sanitize_text_field( wp_unslash( $_POST['_nura_cost'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
+			'' === $v ? $product->delete_meta_data( '_nura_cost' ) : $product->update_meta_data( '_nura_cost', $v );
+		}
+	}
+
+	public static function cost_field_var( $loop, $data, $variation ) {
+		if ( ! self::can_see_cost() ) {
+			return;
+		}
+		woocommerce_wp_text_input( array(
+			'id'            => '_nura_cost' . $loop,
+			'name'          => '_nura_cost[' . $loop . ']',
+			'value'         => get_post_meta( $variation->ID, '_nura_cost', true ),
+			'label'         => 'Buying price (KSh)',
+			'data_type'     => 'price',
+			'wrapper_class' => 'form-row form-row-full',
+			'desc_tip'      => true,
+			'description'   => 'Private. Leave empty to use the main product\'s buying price.',
+		) );
+	}
+
+	public static function cost_save_var( $variation_id, $i ) {
+		if ( self::can_see_cost() && isset( $_POST['_nura_cost'][ $i ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$v = wc_format_decimal( sanitize_text_field( wp_unslash( $_POST['_nura_cost'][ $i ] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
+			'' === $v ? delete_post_meta( $variation_id, '_nura_cost' ) : update_post_meta( $variation_id, '_nura_cost', $v );
+		}
+	}
+
+	/** Current buying price for a product/variation (variation first, then the main product). */
+	public static function current_cost( $product_id, $variation_id = 0 ) {
+		foreach ( array( (int) $variation_id, (int) $product_id ) as $id ) {
+			if ( $id ) {
+				$v = get_post_meta( $id, '_nura_cost', true );
+				if ( '' !== $v && is_numeric( $v ) && (float) $v > 0 ) {
+					return (float) $v;
+				}
+			}
+		}
+		return null;
+	}
+
+	/** Save the buying price on the order line at the moment of sale, so later price edits never change past profit. */
+	public static function snapshot_cost( $item_id, $item, $order_id ) {
+		if ( ! $item instanceof WC_Order_Item_Product || '' !== (string) wc_get_order_item_meta( $item_id, '_nura_cost', true ) ) {
+			return;
+		}
+		$c = self::current_cost( $item->get_product_id(), $item->get_variation_id() );
+		if ( null !== $c ) {
+			wc_update_order_item_meta( $item_id, '_nura_cost', $c );
+		}
+	}
+
+	/** WooCommerce sales (website + Point of sale) paid in the period, plus cost of each item sold. */
 	public static function sales( $from, $to ) {
-		$key = 'nurax_acc_s_' . md5( $from . $to );
+		$key = 'nurax_acc_v2_' . md5( $from . $to );
 		$hit = get_transient( $key );
 		if ( is_array( $hit ) ) {
 			return $hit;
 		}
-		$out = array( 'online' => 0.0, 'pos' => 0.0, 'shipping' => 0.0, 'refunds' => 0.0, 'orders' => 0, 'fees' => 0.0 );
+		$out = array( 'online' => 0.0, 'pos' => 0.0, 'shipping' => 0.0, 'refunds' => 0.0, 'orders' => 0, 'cost' => 0.0, 'units' => 0, 'missing' => 0, 'missing_rev' => 0.0, 'products' => array() );
 		if ( function_exists( 'wc_get_orders' ) ) {
 			$ids = wc_get_orders( array(
 				'type'         => 'shop_order',
@@ -250,8 +338,50 @@ class NURAX_Desk_Accounts {
 				$out['shipping'] += (float) $o->get_shipping_total() + (float) $o->get_shipping_tax();
 				$out['refunds']  += (float) $o->get_total_refunded();
 				$out['orders']++;
+				foreach ( $o->get_items( 'line_item' ) as $iid => $it ) {
+					$qty = (int) $it->get_quantity() + (int) $o->get_qty_refunded_for_item( $iid ); // refunded qty is negative
+					if ( $qty <= 0 ) {
+						continue;
+					}
+					$rev = (float) $it->get_total() - (float) $o->get_total_refunded_for_item( $iid );
+					$src = $it->get_meta( '_nura_sourced', true );
+					$how = 'sold';
+					if ( is_array( $src ) && ! empty( $src['cost'] ) ) {
+						$unit = (float) $src['cost'];
+						$how  = 'sourced';
+					} elseif ( '' !== (string) $it->get_meta( '_nura_cost', true ) ) {
+						$unit = (float) $it->get_meta( '_nura_cost', true );
+					} else {
+						$unit = self::current_cost( $it->get_product_id(), $it->get_variation_id() );
+					}
+					$pid = (int) $it->get_product_id();
+					$k   = $pid ? $pid : 'x' . md5( $it->get_name() );
+					if ( ! isset( $out['products'][ $k ] ) ) {
+						$p = $pid ? wc_get_product( $pid ) : null;
+						$out['products'][ $k ] = array( 'name' => $p ? $p->get_name() : $it->get_name(), 'id' => $pid, 'qty' => 0, 'rev' => 0.0, 'cost' => 0.0, 'missing' => 0, 'sourced' => 0 );
+					}
+					$row = &$out['products'][ $k ];
+					$row['qty'] += $qty;
+					$row['rev'] += $rev;
+					$out['units'] += $qty;
+					if ( null === $unit ) {
+						$row['missing']      += $qty;
+						$out['missing']      += $qty;
+						$out['missing_rev']  += $rev;
+					} else {
+						$row['cost'] += $unit * $qty;
+						$out['cost'] += $unit * $qty;
+						if ( 'sourced' === $how ) {
+							$row['sourced'] += $qty;
+						}
+					}
+					unset( $row );
+				}
 			}
 		}
+		uasort( $out['products'], function ( $a, $b ) {
+			return $b['rev'] <=> $a['rev'];
+		} );
 		set_transient( $key, $out, 10 * MINUTE_IN_SECONDS );
 		return $out;
 	}
@@ -276,7 +406,10 @@ class NURAX_Desk_Accounts {
 		$r = array( 'sales' => $s, 'by' => $by );
 		$r['other_income'] = $sum( 'income' );
 		$r['revenue']      = $s['online'] + $s['pos'] + $s['shipping'] + $r['other_income'] - $s['refunds'];
-		$r['cogs']         = $sum( 'cogs' );
+		$r['cogs_items']   = $s['cost'];
+		$r['cogs_extra']   = $sum( 'cogs' );
+		$r['cogs']         = $r['cogs_items'] + $r['cogs_extra'];
+		$r['stock']        = $sum( 'stock' );
 		$r['gross']        = $r['revenue'] - $r['cogs'];
 		$r['opex']         = $sum( 'opex' );
 		$r['setup']        = $sum( 'setup' );
@@ -285,7 +418,7 @@ class NURAX_Desk_Accounts {
 		$r['asset']        = $sum( 'asset' );
 		$r['capital']      = isset( $by['capital'] ) ? $by['capital'] : 0;
 		$r['drawings']     = isset( $by['drawings'] ) ? $by['drawings'] : 0;
-		$r['spent']        = $r['cogs'] + $r['opex'] + $r['setup'] + $r['asset'];
+		$r['spent']        = $r['stock'] + $r['cogs_extra'] + $r['opex'] + $r['setup'] + $r['asset'];
 		return $r;
 	}
 
@@ -409,13 +542,14 @@ class NURAX_Desk_Accounts {
 
 	/* ------------------------------------------------------------ page */
 
+	/** Accounting format: negatives (losses) in brackets, e.g. (KSh 25,000). */
 	private static function m( $n ) {
-		$n = (float) $n;
-		return ( $n < 0 ? '- ' : '' ) . NURAX_Desk::money( abs( $n ) );
+		$n = round( (float) $n );
+		return $n < 0 ? '(' . NURAX_Desk::money( abs( $n ) ) . ')' : NURAX_Desk::money( $n );
 	}
 
 	private static function pct( $a, $b ) {
-		return $b > 0 ? round( $a / $b * 100, 1 ) . '%' : '-';
+		return $b > 0 ? round( $a / $b * 100, 1 ) . '%' : 'n/a';
 	}
 
 	public static function page() {
@@ -451,15 +585,32 @@ class NURAX_Desk_Accounts {
 		echo '<span class="na-period__l">' . esc_html( $label ) . '</span></form>';
 
 		// KPIs.
+		$costs = $r['cogs'] + $r['opex'] + $r['setup'];
 		echo '<div class="nd-kpis na-kpis">';
-		NURAX_Desk::kpi( 'Revenue', self::m( $r['revenue'] ), $r['sales']['orders'] . ' paid order(s) + other income', 'ink' );
-		NURAX_Desk::kpi( 'Gross profit', self::m( $r['gross'] ), 'margin ' . self::pct( $r['gross'], $r['revenue'] ), $r['gross'] >= 0 ? 'gold' : 'red' );
-		NURAX_Desk::kpi( 'Expenses', self::m( $r['cogs'] + $r['opex'] + $r['setup'] ), 'stock ' . self::m( $r['cogs'] ) . ' - running ' . self::m( $r['opex'] ) . ' - setup ' . self::m( $r['setup'] ), '' );
-		NURAX_Desk::kpi( 'Net profit', self::m( $r['net'] ), $r['net'] >= 0 ? 'net margin ' . self::pct( $r['net'], $r['revenue'] ) : 'a loss for this period', $r['net'] >= 0 ? 'green' : 'red' );
-		NURAX_Desk::kpi( 'Deposits & equipment', self::m( $r['asset'] ), 'yours to keep - not counted as a cost', '' );
+		NURAX_Desk::kpi( 'Revenue', self::m( $r['revenue'] ), $r['sales']['orders'] ? $r['sales']['orders'] . ' paid order(s), ' . $r['sales']['units'] . ' item(s)' : 'No paid orders yet', 'ink' );
+		NURAX_Desk::kpi( 'Gross profit', self::m( $r['gross'] ), $r['revenue'] > 0 ? 'Margin ' . self::pct( $r['gross'], $r['revenue'] ) : 'Starts with your first sale', $r['gross'] >= 0 ? 'gold' : 'red' );
+		NURAX_Desk::kpi( 'Costs', self::m( $costs ), 'Cost of sales ' . self::m( $r['cogs'] ) . ' | Running ' . self::m( $r['opex'] ) . ' | Setup ' . self::m( $r['setup'] ), '' );
+		NURAX_Desk::kpi( $r['net'] >= 0 ? 'Net profit' : 'Net loss', self::m( $r['net'] ), $r['revenue'] > 0 ? 'Net margin ' . self::pct( $r['net'], $r['revenue'] ) : 'Setup period - no sales yet', $r['net'] >= 0 ? 'green' : 'red' );
+		NURAX_Desk::kpi( 'Stock, deposits & equipment', self::m( $r['stock'] + $r['asset'] ), 'Still yours - not a cost', '' );
 		echo '</div>';
 
-		$tabs = array( 'overview' => 'Profit & Loss', 'entries' => 'Expenses & income', 'breakdown' => 'Where the money goes' );
+		// Profit at a glance (transparent equation).
+		echo '<div class="na-eq" aria-label="How net profit is calculated">';
+		foreach ( array(
+			array( 'Revenue', $r['revenue'], '' ),
+			array( 'Cost of sales', $r['cogs'], '-' ),
+			array( 'Running costs', $r['opex'], '-' ),
+			array( 'Setup costs', $r['setup'], '-' ),
+		) as $i => $x ) {
+			echo ( $i ? '<span class="na-eq__op" aria-hidden="true">' . esc_html( $x[2] ) . '</span>' : '' ) . '<span class="na-eq__t"><small>' . esc_html( $x[0] ) . '</small><b>' . esc_html( NURAX_Desk::money( $x[1] ) ) . '</b></span>';
+		}
+		echo '<span class="na-eq__op" aria-hidden="true">=</span><span class="na-eq__t na-eq__t--res ' . ( $r['net'] >= 0 ? 'is-pos' : 'is-neg' ) . '"><small>' . esc_html( $r['net'] >= 0 ? 'Net profit' : 'Net loss' ) . '</small><b>' . esc_html( self::m( $r['net'] ) ) . '</b></span></div>';
+
+		if ( $r['sales']['missing'] > 0 ) {
+			echo '<div class="na-alert"><strong>' . (int) $r['sales']['missing'] . ' item(s) sold have no buying price</strong>, so their cost is missing and profit looks higher than it is (' . esc_html( NURAX_Desk::money( $r['sales']['missing_rev'] ) ) . ' of sales). Add a buying price to these products - see <a href="' . esc_url( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => 'products' ) ) ) ) . '">Profit by product</a>.</div>';
+		}
+
+		$tabs = array( 'overview' => 'Profit & Loss', 'products' => 'Profit by product', 'entries' => 'Expenses & income', 'breakdown' => 'Where the money goes' );
 		echo '<nav class="nt-tabs na-tabs">';
 		foreach ( $tabs as $k => $l ) {
 			echo '<a class="nt-tab' . ( $k === $tab ? ' is-on' : '' ) . '" href="' . esc_url( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => $k ) ) ) ) . '">' . esc_html( $l ) . '</a>';
@@ -468,6 +619,8 @@ class NURAX_Desk_Accounts {
 
 		if ( 'entries' === $tab ) {
 			self::render_entries( $from, $to, $cat, $q, $edit, $keep );
+		} elseif ( 'products' === $tab ) {
+			self::render_products( $r );
 		} elseif ( 'breakdown' === $tab ) {
 			self::render_breakdown( $r );
 		} else {
@@ -480,65 +633,112 @@ class NURAX_Desk_Accounts {
 		echo '<tr class="' . esc_attr( $cls ) . '"><th scope="row">' . esc_html( $label ) . ( $sub ? '<small>' . esc_html( $sub ) . '</small>' : '' ) . '</th><td>' . esc_html( self::m( $v ) ) . '</td></tr>';
 	}
 
+	private static function sec( $label ) {
+		echo '<tr class="na-st__sec"><th colspan="2">' . esc_html( $label ) . '</th></tr>';
+	}
+
+	private static function lines_for( $r, $group ) {
+		$n = 0;
+		foreach ( self::categories() as $k => $c ) {
+			if ( $group === $c[1] && ! empty( $r['by'][ $k ] ) ) {
+				self::line( $c[0], $r['by'][ $k ] );
+				$n++;
+			}
+		}
+		return $n;
+	}
+
 	private static function render_pnl( $r, $label ) {
-		$cats = self::categories();
-		$s    = $r['sales'];
-		echo '<div class="na-grid"><section class="nd-card na-pnl"><header class="na-pnl__h"><span>NURA Beauty</span><h2>Profit &amp; Loss statement</h2><p>' . esc_html( $label ) . ' - Kenyan Shillings</p></header><table class="na-st">';
-		echo '<tbody><tr class="na-st__sec"><th colspan="2">Revenue</th></tr>';
-		self::line( 'Website sales', $s['online'], '', 'Paid website orders (excl. delivery)' );
+		$s = $r['sales'];
+		echo '<div class="na-grid"><section class="nd-card na-pnl"><header class="na-pnl__h"><span>NURA Beauty</span><h2>Profit &amp; Loss statement</h2><p>' . esc_html( $label ) . ' &middot; Kenyan Shillings &middot; losses shown in brackets</p></header><table class="na-st"><tbody>';
+
+		self::sec( 'Revenue' );
+		self::line( 'Website sales', $s['online'], '', 'Paid website orders, after discounts' );
 		self::line( 'In-shop sales', $s['pos'], '', 'Point of sale' );
 		self::line( 'Delivery charged to customers', $s['shipping'] );
-		self::line( 'Other income', $r['other_income'] );
+		if ( $r['other_income'] > 0 ) {
+			self::line( 'Other income', $r['other_income'] );
+		}
 		if ( $s['refunds'] > 0 ) {
 			self::line( 'Less: refunds', -$s['refunds'] );
 		}
 		self::line( 'Total revenue', $r['revenue'], 'na-st__tot' );
-		echo '<tr class="na-st__sec"><th colspan="2">Cost of sales</th></tr>';
-		foreach ( $cats as $k => $c ) {
-			if ( 'cogs' === $c[1] && ! empty( $r['by'][ $k ] ) ) {
-				self::line( $c[0], -$r['by'][ $k ] );
-			}
+
+		self::sec( 'Cost of sales' );
+		self::line( 'Cost of wigs & products sold', $r['cogs_items'], '', $s['units'] ? $s['units'] . ' item(s) at their buying price' . ( $s['missing'] ? ' - ' . $s['missing'] . ' without a buying price' : '' ) : 'No items sold' );
+		self::lines_for( $r, 'cogs' );
+		self::line( 'Total cost of sales', $r['cogs'], 'na-st__sub' );
+		self::line( 'Gross profit', $r['gross'], 'na-st__tot', $r['revenue'] > 0 ? 'Gross margin ' . self::pct( $r['gross'], $r['revenue'] ) : '' );
+
+		self::sec( 'Operating expenses' );
+		if ( ! self::lines_for( $r, 'opex' ) ) {
+			echo '<tr class="na-st__empty"><td colspan="2">None recorded in this period.</td></tr>';
 		}
-		self::line( 'Gross profit', $r['gross'], 'na-st__tot', 'Margin ' . self::pct( $r['gross'], $r['revenue'] ) );
-		echo '<tr class="na-st__sec"><th colspan="2">Operating expenses</th></tr>';
-		$any = false;
-		foreach ( $cats as $k => $c ) {
-			if ( 'opex' === $c[1] && ! empty( $r['by'][ $k ] ) ) {
-				self::line( $c[0], -$r['by'][ $k ] );
-				$any = true;
-			}
-		}
-		if ( ! $any ) {
-			echo '<tr class="na-st__empty"><td colspan="2">No running costs recorded in this period.</td></tr>';
-		}
+		self::line( 'Total operating expenses', $r['opex'], 'na-st__sub' );
 		self::line( 'Operating profit', $r['operating'], 'na-st__tot' );
+
 		if ( $r['setup'] > 0 ) {
-			echo '<tr class="na-st__sec"><th colspan="2">One-off setup costs</th></tr>';
-			foreach ( $cats as $k => $c ) {
-				if ( 'setup' === $c[1] && ! empty( $r['by'][ $k ] ) ) {
-					self::line( $c[0], -$r['by'][ $k ] );
-				}
-			}
+			self::sec( 'One-off setup costs' );
+			self::lines_for( $r, 'setup' );
+			self::line( 'Total setup costs', $r['setup'], 'na-st__sub' );
 		}
-		self::line( 'Net profit', $r['net'], 'na-st__net ' . ( $r['net'] >= 0 ? 'is-pos' : 'is-neg' ), 'Net margin ' . self::pct( $r['net'], $r['revenue'] ) );
+		self::line( $r['net'] >= 0 ? 'Net profit' : 'Net loss', $r['net'], 'na-st__net ' . ( $r['net'] >= 0 ? 'is-pos' : 'is-neg' ), $r['revenue'] > 0 ? 'Net margin ' . self::pct( $r['net'], $r['revenue'] ) : 'No sales in this period yet' );
 		echo '</tbody></table></section>';
 
-		echo '<aside class="na-side"><section class="nd-card na-bs"><h3>Not part of profit</h3><p class="na-muted">Money you paid out that you still own, and money moved in or out by the owner.</p><dl>';
-		foreach ( $cats as $k => $c ) {
-			if ( in_array( $c[1], array( 'asset', 'owner' ), true ) ) {
+		echo '<aside class="na-side"><section class="nd-card na-bs"><h3>Not part of profit</h3><p class="na-muted">Money paid out that is still yours, and money the owner put in or took out.</p><dl>';
+		foreach ( self::categories() as $k => $c ) {
+			if ( in_array( $c[1], array( 'stock', 'asset', 'owner' ), true ) ) {
 				echo '<div><dt>' . esc_html( $c[0] ) . '</dt><dd>' . esc_html( self::m( isset( $r['by'][ $k ] ) ? $r['by'][ $k ] : 0 ) ) . '</dd></div>';
 			}
 		}
 		echo '</dl></section>';
-		echo '<section class="nd-card na-cash"><h3>Cash out this period</h3><strong>' . esc_html( self::m( $r['spent'] + $r['drawings'] ) ) . '</strong><p class="na-muted">Everything paid out: stock, running costs, setup, deposits, equipment and drawings.</p></section>';
-		echo '<section class="nd-card na-help"><h3>How profit is worked out</h3><ol><li><b>Revenue</b> - paid website and shop orders come in automatically, plus any other income you record.</li><li><b>Cost of sales</b> - what you paid for the stock you sell.</li><li><b>Operating expenses</b> - rent, staff, ads, delivery, charges.</li><li><b>Setup costs</b> - renovation and lease fees, shown on their own line so your running profit stays clear.</li><li>Deposits and equipment are <b>not</b> costs - you still own them.</li></ol></section></aside></div>';
+		echo '<section class="nd-card na-cash"><h3>Cash paid out this period</h3><strong>' . esc_html( self::m( $r['spent'] + $r['drawings'] ) ) . '</strong><p class="na-muted">Everything you paid: stock, running and setup costs, deposits, equipment and drawings.</p></section>';
+		echo '<section class="nd-card na-help"><h3>How profit is worked out</h3><ol>'
+			. '<li><b>Revenue</b> comes in automatically from paid website and shop orders.</li>'
+			. '<li><b>Cost of sales</b> is the buying price of each wig you actually sold. Stock you buy is not a cost until it sells, so it is never counted twice.</li>'
+			. '<li><b>Operating expenses</b> are the running costs: rent, staff, ads, delivery, charges.</li>'
+			. '<li><b>Setup costs</b> (renovation, lease fees, permits) have their own line so your monthly running profit stays clear.</li>'
+			. '<li>Stock, deposits and equipment are <b>not costs</b> - you still own them.</li></ol></section></aside></div>';
+	}
+
+	private static function render_products( $r ) {
+		$rows = $r['sales']['products'];
+		echo '<section class="nd-card na-prod"><div class="na-prod__h"><h2>Profit by product</h2><p class="na-muted">Each wig or product sold in this period: what customers paid, what it cost you (its buying price at the time of sale) and what you made.</p></div>';
+		if ( ! $rows ) {
+			echo '<p class="nd-empty">No paid sales in this period yet.</p></section>';
+			return;
+		}
+		$t = array( 'qty' => 0, 'rev' => 0, 'cost' => 0 );
+		echo '<div class="nd-table-wrap"><table class="nd-table na-tbl na-ptbl"><thead><tr><th>Product</th><th class="na-r">Sold</th><th class="na-r">Sales</th><th class="na-r">Cost</th><th class="na-r">Profit</th><th class="na-r">Margin</th></tr></thead><tbody>';
+		foreach ( $rows as $p ) {
+			$known  = $p['qty'] - $p['missing'];
+			$profit = $p['rev'] - $p['cost'];
+			$t['qty'] += $p['qty'];
+			$t['rev'] += $p['rev'];
+			$t['cost'] += $p['cost'];
+			$edit = $p['id'] ? get_edit_post_link( $p['id'] ) : '';
+			echo '<tr' . ( $p['missing'] ? ' class="is-missing"' : '' ) . '><td><strong>' . ( $edit ? '<a href="' . esc_url( $edit ) . '">' . esc_html( $p['name'] ) . '</a>' : esc_html( $p['name'] ) ) . '</strong>';
+			if ( $p['missing'] ) {
+				echo '<small class="na-warn">No buying price on ' . (int) $p['missing'] . ' sold - <a href="' . esc_url( $edit ) . '">add it</a></small>';
+			}
+			if ( $p['sourced'] ) {
+				echo '<small>' . (int) $p['sourced'] . ' sourced from a supplier (cost from Sourced sales)</small>';
+			}
+			echo '</td><td class="na-r">' . (int) $p['qty'] . '</td><td class="na-r">' . esc_html( NURAX_Desk::money( $p['rev'] ) ) . '</td>';
+			echo '<td class="na-r">' . ( $known ? esc_html( NURAX_Desk::money( $p['cost'] ) ) : '<span class="na-muted">not set</span>' ) . '</td>';
+			echo '<td class="na-r na-amt ' . ( $profit >= 0 ? 'na-amt--in' : 'na-amt--neg' ) . '">' . ( $p['missing'] === $p['qty'] ? '<span class="na-muted">-</span>' : esc_html( self::m( $profit ) ) ) . '</td>';
+			echo '<td class="na-r">' . ( $p['missing'] === $p['qty'] ? '<span class="na-muted">-</span>' : esc_html( self::pct( $profit, $p['rev'] ) ) ) . '</td></tr>';
+		}
+		$tp = $t['rev'] - $t['cost'];
+		echo '</tbody><tfoot><tr><th>Total</th><th class="na-r">' . (int) $t['qty'] . '</th><th class="na-r">' . esc_html( NURAX_Desk::money( $t['rev'] ) ) . '</th><th class="na-r">' . esc_html( NURAX_Desk::money( $t['cost'] ) ) . '</th><th class="na-r">' . esc_html( self::m( $tp ) ) . '</th><th class="na-r">' . esc_html( self::pct( $tp, $t['rev'] ) ) . '</th></tr></tfoot></table></div>';
+		echo '<p class="na-muted na-tip">Sales here are product sales after discounts and refunds; delivery charges are not included. Set buying prices under Products &gt; Edit &gt; General (or on each colour under Variations).</p></section>';
 	}
 
 	private static function render_breakdown( $r ) {
 		$cats  = self::categories();
 		$items = array();
 		foreach ( $r['by'] as $k => $v ) {
-			if ( isset( $cats[ $k ] ) && in_array( $cats[ $k ][1], array( 'cogs', 'opex', 'setup', 'asset' ), true ) && $v > 0 ) {
+			if ( isset( $cats[ $k ] ) && in_array( $cats[ $k ][1], array( 'stock', 'cogs', 'opex', 'setup', 'asset' ), true ) && $v > 0 ) {
 				$items[ $k ] = $v;
 			}
 		}
@@ -603,7 +803,7 @@ class NURAX_Desk_Accounts {
 			echo '<a class="nd-btn nd-btn--ghost" href="' . esc_url( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => 'entries' ) ) ) ) . '">Cancel</a>';
 		}
 		echo '</p></form>';
-		echo '<p class="na-muted na-tip">Tip: refundable deposits and furniture/equipment are recorded but kept out of profit - you still own them.</p></section>';
+		echo '<p class="na-muted na-tip">Tip: stock you buy, refundable deposits and furniture/equipment are recorded but kept out of profit - you still own them. Stock becomes a cost when it sells, at its buying price.</p></section>';
 
 		// List.
 		$list = self::entries( $from, $to, $cat, $q );

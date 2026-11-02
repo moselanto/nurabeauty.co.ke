@@ -970,7 +970,7 @@ class NURAX_Desk {
 	/** "Excel report" button + small CSV link. */
 	public static function export_btns( $type, $label = 'Excel report', $extra = '' ) {
 		return '<a class="nd-btn nd-btn--xl" href="' . esc_url( self::export_url( $type ) . $extra ) . '" title="Branded Excel report with logo, totals and filters"><span class="nd-xl-ic" aria-hidden="true">X</span>' . esc_html( $label ) . '</a>'
-			. '<a class="nd-btn nd-btn--ghost nd-btn--csv" href="' . esc_url( self::export_url( $type, 'csv' ) . $extra ) . '" title="Plain CSV for importing into other systems">CSV</a>';
+			. '<a class="nd-btn nd-btn--ghost nd-btn--csv" href="' . esc_url( self::export_url( $type, 'csv' ) . $extra ) . '" title="Plain data file for accountants and other software. CSV is text only - it cannot hold colours or a logo; use Excel report for the branded version.">CSV data</a>';
 	}
 
 	public function export() {

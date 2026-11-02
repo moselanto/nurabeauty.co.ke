@@ -36,6 +36,9 @@ class NURAX_Xlsx {
 			'plans'      => 'Payment plans',
 			'team'       => 'Team performance',
 			'activity'   => 'Team activity log',
+			'acc_pnl'      => 'Profit & Loss statement',
+			'acc_entries'  => 'Expenses & income',
+			'acc_products' => 'Profit by product',
 		);
 	}
 
@@ -354,7 +357,7 @@ class NURAX_Xlsx {
 		$lastr = max( 6, $r );
 
 		/* Totals. */
-		$has = in_array( 'money', $kinds, true );
+		$has = in_array( 'money', $kinds, true ) && empty( $meta['no_totals'] ); // 1.85.0: statements carry their own totals.
 		if ( $has && $count ) {
 			$r++;
 			$tx = '';

@@ -506,37 +506,108 @@ class NURAX_Desk_Accounts {
 		self::back( array( 'nd_msg' => 'deleted', 'tab' => 'entries' ) );
 	}
 
+	/**
+	 * 1.85.0: downloads. Excel (.xlsx) is the presentation format - NURA black & gold header band
+	 * with the logo, title, period, frozen headers, KSh number formats and print-ready A4 - built by
+	 * NURAX_Xlsx. A CSV file is plain text by definition (it cannot hold colours, fonts or a logo),
+	 * so CSV is kept only as a clean data file for accountants and other software: one header row,
+	 * ISO dates (YYYY-MM-DD), plain numbers, UTF-8.
+	 * ?sheet=pnl|entries|products  &fmt=xlsx|csv
+	 */
+	public static function export_rows( $sheet, $from, $to ) {
+		$cats = self::categories();
+		$grp  = self::groups();
+		if ( 'entries' === $sheet ) {
+			$rows = array( array( 'Date', 'Type', 'Category', 'Description', 'Amount (KES)', 'Paid by', 'Reference', 'Paid to / received from', 'Note', 'Receipt link' ) );
+			foreach ( array_reverse( self::entries( $from, $to ) ) as $e ) {
+				$g      = self::group_of( $e->category );
+				$rows[] = array( $e->entry_date, $grp[ $g ], isset( $cats[ $e->category ] ) ? $cats[ $e->category ][0] : $e->category, $e->description, round( (float) $e->amount, 2 ), self::methods()[ $e->method ] ?? $e->method, $e->ref, $e->payee, $e->note, $e->receipt_id ? (string) wp_get_attachment_url( $e->receipt_id ) : '' );
+			}
+			return $rows;
+		}
+		$r = self::pnl( $from, $to );
+		if ( 'products' === $sheet ) {
+			$rows = array( array( 'Product', 'Qty sold', 'Sales (KES)', 'Cost (KES)', 'Profit (KES)', 'Margin', 'Buying price set' ) );
+			foreach ( $r['sales']['products'] as $p ) {
+				$profit = $p['rev'] - $p['cost'];
+				$rows[] = array( $p['name'], (int) $p['qty'], round( $p['rev'], 2 ), round( $p['cost'], 2 ), round( $profit, 2 ), $p['rev'] > 0 && $p['missing'] < $p['qty'] ? round( $profit / $p['rev'] * 100, 1 ) . '%' : '', $p['missing'] ? 'No' : 'Yes' );
+			}
+			return $rows;
+		}
+		$s    = $r['sales'];
+		$rows = array( array( 'Section', 'Line item', 'Amount (KES)' ) );
+		$add  = function ( $sec, $line, $v ) use ( &$rows ) {
+			$rows[] = array( $sec, $line, round( (float) $v, 2 ) );
+		};
+		$add( 'Revenue', 'Website sales', $s['online'] );
+		$add( 'Revenue', 'In-shop sales (Point of sale)', $s['pos'] );
+		$add( 'Revenue', 'Delivery charged to customers', $s['shipping'] );
+		$add( 'Revenue', 'Other income', $r['other_income'] );
+		$add( 'Revenue', 'Less: refunds', -$s['refunds'] );
+		$add( 'TOTAL REVENUE', '', $r['revenue'] );
+		$add( 'Cost of sales', 'Cost of wigs & products sold (buying price)', -$r['cogs_items'] );
+		foreach ( $cats as $k => $c ) {
+			if ( 'cogs' === $c[1] && ! empty( $r['by'][ $k ] ) ) {
+				$add( 'Cost of sales', $c[0], -$r['by'][ $k ] );
+			}
+		}
+		$add( 'GROSS PROFIT', $r['revenue'] > 0 ? 'Gross margin ' . self::pct( $r['gross'], $r['revenue'] ) : '', $r['gross'] );
+		foreach ( $cats as $k => $c ) {
+			if ( 'opex' === $c[1] && ! empty( $r['by'][ $k ] ) ) {
+				$add( 'Operating expenses', $c[0], -$r['by'][ $k ] );
+			}
+		}
+		$add( 'OPERATING PROFIT', '', $r['operating'] );
+		foreach ( $cats as $k => $c ) {
+			if ( 'setup' === $c[1] && ! empty( $r['by'][ $k ] ) ) {
+				$add( 'One-off setup costs', $c[0], -$r['by'][ $k ] );
+			}
+		}
+		$add( $r['net'] >= 0 ? 'NET PROFIT' : 'NET LOSS', $r['revenue'] > 0 ? 'Net margin ' . self::pct( $r['net'], $r['revenue'] ) : 'No sales in this period', $r['net'] );
+		foreach ( $cats as $k => $c ) {
+			if ( in_array( $c[1], array( 'stock', 'asset', 'owner' ), true ) ) {
+				$add( 'Not part of profit', $c[0], isset( $r['by'][ $k ] ) ? $r['by'][ $k ] : 0 );
+			}
+		}
+		return $rows;
+	}
+
 	public static function h_csv() {
 		if ( ! current_user_can( self::cap() ) ) {
 			wp_die( 'No permission', 403 );
 		}
 		check_admin_referer( 'nurax_acc_csv' );
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		list( $from, $to, $label ) = self::period( isset( $_GET['p'] ) ? sanitize_key( wp_unslash( $_GET['p'] ) ) : '', isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : '', isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : '' );
-		$cats = self::categories();
-		$grp  = self::groups();
-		$r    = self::pnl( $from, $to );
+		$sheet = isset( $_GET['sheet'] ) ? sanitize_key( wp_unslash( $_GET['sheet'] ) ) : 'pnl';
+		$fmt   = isset( $_GET['fmt'] ) ? sanitize_key( wp_unslash( $_GET['fmt'] ) ) : 'xlsx';
+		// phpcs:enable
+		$sheet = in_array( $sheet, array( 'pnl', 'entries', 'products' ), true ) ? $sheet : 'pnl';
+		$rows  = self::export_rows( $sheet, $from, $to );
+		if ( class_exists( 'NURAX_Vault' ) && method_exists( 'NURAX_Vault', 'log' ) ) {
+			NURAX_Vault::log( 'Report downloaded', 'Accounts - ' . $sheet . ' (' . strtoupper( $fmt ) . ', ' . $label . ')' );
+		}
+		if ( 'csv' !== $fmt && class_exists( 'NURAX_Xlsx' ) && NURAX_Xlsx::available() ) {
+			$meta = array( 'period' => 'Period: ' . $label . ' (' . date_i18n( 'j M Y', strtotime( $from ) ) . ' - ' . date_i18n( 'j M Y', strtotime( $to ) ) . ')' );
+			if ( 'products' !== $sheet ) {
+				$meta['no_totals'] = true;
+			}
+			if ( NURAX_Xlsx::send( $rows, 'acc_' . $sheet, $meta ) ) {
+				exit;
+			}
+		}
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename="nura-accounts-' . $from . '-to-' . $to . '.csv"' );
-		$f = fopen( 'php://output', 'w' );
-		fwrite( $f, "\xEF\xBB\xBF" );
-		fputcsv( $f, array( 'NURA Beauty - Profit & Loss', $label ) );
-		foreach ( array(
-			array( 'Website sales', $r['sales']['online'] ), array( 'In-shop sales (Point of sale)', $r['sales']['pos'] ), array( 'Delivery charged', $r['sales']['shipping'] ),
-			array( 'Other income', $r['other_income'] ), array( 'Less refunds', -$r['sales']['refunds'] ), array( 'Revenue', $r['revenue'] ),
-			array( 'Cost of sales', -$r['cogs'] ), array( 'Gross profit', $r['gross'] ), array( 'Operating expenses', -$r['opex'] ),
-			array( 'Operating profit', $r['operating'] ), array( 'One-off setup costs', -$r['setup'] ), array( 'Net profit', $r['net'] ),
-			array( 'Assets & deposits (not in profit)', $r['asset'] ), array( 'Owner capital in', $r['capital'] ), array( 'Owner drawings out', $r['drawings'] ),
-		) as $l ) {
-			fputcsv( $f, array( $l[0], round( $l[1], 2 ) ) );
+		header( 'Content-Disposition: attachment; filename="nura-beauty-' . ( 'pnl' === $sheet ? 'profit-and-loss' : ( 'entries' === $sheet ? 'expenses-and-income' : 'profit-by-product' ) ) . '_' . $from . '_to_' . $to . '.csv"' );
+		$f = fopen( 'php://output', 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		fwrite( $f, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions
+		foreach ( $rows as $row ) {
+			fputcsv( $f, array_map( function ( $v ) {
+				$v = (string) $v;
+				return preg_match( '/^[=+\-@]/', $v ) && ! is_numeric( $v ) ? "'" . $v : $v; // spreadsheet formula-injection guard
+			}, $row ) );
 		}
-		fputcsv( $f, array() );
-		fputcsv( $f, array( 'Date', 'Group', 'Category', 'Description', 'Amount (KSh)', 'Paid by', 'Reference', 'Paid to / from', 'Note', 'Receipt' ) );
-		foreach ( array_reverse( self::entries( $from, $to ) ) as $e ) {
-			$g = self::group_of( $e->category );
-			fputcsv( $f, array( $e->entry_date, $grp[ $g ], isset( $cats[ $e->category ] ) ? $cats[ $e->category ][0] : $e->category, $e->description, $e->amount, self::methods()[ $e->method ] ?? $e->method, $e->ref, $e->payee, $e->note, $e->receipt_id ? wp_get_attachment_url( $e->receipt_id ) : '' ) );
-		}
-		fclose( $f );
+		fclose( $f ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		exit;
 	}
 
@@ -569,9 +640,13 @@ class NURAX_Desk_Accounts {
 		list( $from, $to, $label ) = self::period( $p, $fr, $tt );
 		$keep = array( 'p' => $p, 'from' => $fr, 'to' => $tt );
 		$r    = self::pnl( $from, $to );
-		$csv  = wp_nonce_url( add_query_arg( array_merge( $keep, array( 'action' => 'nurax_acc_csv' ) ), admin_url( 'admin-post.php' ) ), 'nurax_acc_csv' );
+		$dl   = function ( $sheet, $fmt ) use ( $keep ) {
+			return wp_nonce_url( add_query_arg( array_merge( $keep, array( 'action' => 'nurax_acc_csv', 'sheet' => $sheet, 'fmt' => $fmt ) ), admin_url( 'admin-post.php' ) ), 'nurax_acc_csv' );
+		};
+		$sheet_for = 'entries' === $tab ? 'entries' : ( 'products' === $tab ? 'products' : 'pnl' );
 		$act  = NURAX_Desk::btn( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => 'entries', 'edit' => 'new' ) ) ), '+ Record expense or income', 'nd-btn--primary' )
-			. '<a class="nd-btn nd-btn--ghost" href="' . esc_url( $csv ) . '">Download for accountant (CSV)</a>';
+			. '<a class="nd-btn nd-btn--xl" href="' . esc_url( $dl( $sheet_for, 'xlsx' ) ) . '" title="Branded Excel report: NURA black and gold header, logo, KSh formats, print-ready"><span class="nd-xl-ic" aria-hidden="true">X</span>Excel report</a>'
+			. '<a class="nd-btn nd-btn--ghost nd-btn--csv" href="' . esc_url( $dl( $sheet_for, 'csv' ) ) . '" title="Plain data file for accountants and other software (CSV cannot hold colours or a logo)">CSV data</a>';
 		NURAX_Desk::header( self::PAGE, 'Accounts', $act );
 
 		echo '<div class="na">';

@@ -47,6 +47,8 @@ if ( ! function_exists( 'nura_footer_help_menu' ) ) {
 			array( __( 'Track / View Cart', 'nura-beauty' ), $cart ),
 			array( __( 'Find Your Wig', 'nura-beauty' ),     home_url( '/ai-wig-finder/' ) ),
 			array( __( 'Book a Fitting', 'nura-beauty' ),    home_url( '/book-appointment/' ) ),
+			array( __( 'Where to buy human hair wigs', 'nura-beauty' ), home_url( '/where-to-buy-human-hair-wigs-nairobi/' ) ),
+			array( __( 'Find our Nairobi CBD shop', 'nura-beauty' ), home_url( '/wig-shop-nairobi-cbd/' ) ),
 			array( __( 'Chat on WhatsApp', 'nura-beauty' ),  nura_opt( 'nura_whatsapp' ) ),
 		) );
 	}

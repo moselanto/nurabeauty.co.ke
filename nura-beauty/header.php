@@ -64,6 +64,7 @@
 			array( __( 'FAQ', 'nura-beauty' ), home_url( '/faq/' ) ),
 			array( __( 'Help & support', 'nura-beauty' ), home_url( '/help-support/' ) ),
 			array( __( 'Contact us', 'nura-beauty' ), home_url( '/contact-us/' ) ),
+			array( __( 'Find our shop (Nairobi CBD)', 'nura-beauty' ), home_url( '/wig-shop-nairobi-cbd/' ) ),
 		);
 		$GLOBALS['nura_help_links'] = $nura_help_links;
 		?>

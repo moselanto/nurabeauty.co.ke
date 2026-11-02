@@ -383,3 +383,23 @@ add_filter( 'nura_llms_extra', function ( $lines ) {
 	$lines[] = '';
 	return $lines;
 }, 20, 1 );
+
+
+/* 1.99.0: link the two key local pages from the footer Help menu, the footer fallback and the header Help dropdown. */
+function nura_r4_nav_links() {
+	return (array) apply_filters( 'nura_r4_nav_links', array(
+		array( __( 'Where to buy human hair wigs', 'nura-beauty' ), home_url( '/where-to-buy-human-hair-wigs-nairobi/' ) ),
+		array( __( 'Find our Nairobi CBD shop', 'nura-beauty' ), home_url( '/wig-shop-nairobi-cbd/' ) ),
+	) );
+}
+add_filter( 'wp_nav_menu_items', function ( $items, $args ) {
+	if ( empty( $args->theme_location ) || 'footer_help' !== $args->theme_location ) {
+		return $items;
+	}
+	foreach ( nura_r4_nav_links() as $l ) {
+		if ( false === strpos( $items, $l[1] ) ) {
+			$items .= '<li class="menu-item"><a href="' . esc_url( $l[1] ) . '">' . esc_html( $l[0] ) . '</a></li>';
+		}
+	}
+	return $items;
+}, 10, 2 );

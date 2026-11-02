@@ -841,3 +841,15 @@ a.nt-who:hover{color:#a07a24}
   .na-st th,.na-st td{font-size:13.5px}
   .na-pnl__h h2{font-size:20px}
 }
+
+/* 1.86.0: rent paid in advance */
+.na-adv{padding:12px 14px;border:1px dashed var(--gold);border-radius:12px;background:#fffdf8}
+.na-adv[hidden]{display:none}
+.na-adv__t{margin:0 0 8px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.na-adv__g{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.na-adv input[type=month],.na-adv input[type=number]{min-height:40px;border:1px solid var(--line);border-radius:10px;padding:0 10px;width:100%}
+.na-adv .na-muted{margin:8px 0 0}
+.na-cover{color:var(--amber)!important}
+.na-bs__adv dt small{display:block;color:var(--mut);font-size:11px;font-weight:400}
+.na-bs__adv{background:#fffaf0;margin:0 -8px;padding:8px!important;border-radius:8px}
+@media (max-width:700px){.na-adv__g{grid-template-columns:1fr}}

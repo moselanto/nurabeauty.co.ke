@@ -527,6 +527,7 @@ class NURAX_Desk {
 			'full'      => array( 'warning', 'Saved, but this time slot is now over its capacity.' ),
 			'notfound'  => array( 'error', 'That record could not be found.' ),
 			'deleted'   => array( 'success', 'Deleted.' ),
+			'acc_invalid' => array( 'error', 'Please complete the entry: what it is for, a description, an amount above zero and a valid date. Nothing was saved.' ),
 			'synced'    => array( 'success', 'Audience refreshed from the shop, accounts, WhatsApp orders, plans and appointments.' ),
 			'tested'    => array( 'success', 'Test e-mail sent. Check your inbox (and spam folder).' ),
 		);

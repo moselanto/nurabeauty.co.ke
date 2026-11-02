@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class NURAX_Desk_Accounts {
 
-	const DBV     = '1.0.0';
+	const DBV     = '1.1.0'; // 1.1.0 (plugin 1.86.0): cover_from / cover_months for rent paid in advance.
 	const DBV_OPT = 'nurax_ledger_db';
 	const PAGE    = 'nurax-accounts';
 
@@ -85,6 +85,8 @@ class NURAX_Desk_Accounts {
 			updated_by bigint(20) unsigned NOT NULL DEFAULT 0,
 			deleted tinyint(1) NOT NULL DEFAULT 0,
 			deleted_by bigint(20) unsigned NOT NULL DEFAULT 0,
+			cover_from date NULL DEFAULT NULL,
+			cover_months smallint(5) unsigned NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id),
 			KEY entry_date (entry_date),
 			KEY category (category),
@@ -92,6 +94,22 @@ class NURAX_Desk_Accounts {
 		) {$c};" );
 		update_option( self::DBV_OPT, self::DBV, false );
 		self::seed();
+		self::migrate_advance();
+	}
+
+	/**
+	 * 1.86.0: the owner confirmed the 2-month "deposit" is NOT refundable - it is two months of
+	 * rent paid in advance that the shop then "sits on" (uses as rent). Move the seeded entry from
+	 * 'Deposits paid (refundable)' to 'Rent paid in advance'. Months stay unset until the owner
+	 * picks them, so it is not counted as rent in the wrong month.
+	 */
+	private static function migrate_advance() {
+		if ( get_option( 'nurax_ledger_m_advance' ) ) {
+			return;
+		}
+		global $wpdb;
+		$wpdb->query( $wpdb->prepare( 'UPDATE ' . self::table() . " SET category = 'prepaid', description = %s, cover_months = 2, note = %s WHERE category = 'deposit' AND created_by = 0 AND description = %s", 'Rent paid in advance - 2 months (non-refundable, used as rent)', 'Two months of rent paid ahead. Set the months it covers (e.g. the last two months of the lease) so it is counted as rent in those months.', 'Rent deposit - 2 months (refundable)' ) ); // phpcs:ignore WordPress.DB
+		update_option( 'nurax_ledger_m_advance', time(), false );
 	}
 
 	/** The owner's first entries (2 Nov 2026 brief). Added once; editable / removable like any entry. */
@@ -104,7 +122,7 @@ class NURAX_Desk_Accounts {
 		$note = 'Added at set-up from the owner\'s brief - please check the date and payment details.';
 		foreach ( array(
 			array( 'rent', 'Shop rent - Stanbank House, 2nd Floor, Room 20 (first month)', 22000 ),
-			array( 'deposit', 'Rent deposit - 2 months (refundable)', 44000 ),
+			array( 'deposit', 'Rent deposit - 2 months (refundable)', 44000 ), // converted to 'prepaid' by migrate_advance().
 			array( 'legal', 'Lease agreement fee', 3000 ),
 		) as $r ) {
 			$wpdb->insert( self::table(), array( 'entry_date' => '2026-11-01', 'category' => $r[0], 'description' => $r[1], 'amount' => $r[2], 'method' => 'mpesa', 'note' => $note, 'created' => $now ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -143,7 +161,8 @@ class NURAX_Desk_Accounts {
 			'legal'      => array( 'Legal, lease & registration fees', 'setup', 'Lease agreement, business registration.' ),
 			'licences'   => array( 'Licences & permits', 'setup', 'County single business permit, fire, health.' ),
 			'income'     => array( 'Other income', 'income', 'Cash/M-Pesa income not rung up at the till (e.g. a service).' ),
-			'deposit'    => array( 'Deposits paid (refundable)', 'asset', 'Rent or utility deposits you get back - not a cost.' ),
+			'prepaid'    => array( 'Rent paid in advance (non-refundable)', 'prepaid', 'Months of rent paid ahead, e.g. a 2-month advance you later sit on. Becomes rent in the months it covers.' ),
+			'deposit'    => array( 'Deposits paid (refundable)', 'asset', 'Only money you will get back (e.g. KPLC/water deposit) - not a cost.' ),
 			'equipment'  => array( 'Furniture & equipment', 'asset', 'Chairs, mirrors, wig heads, POS phone, steamers - kept for years.' ),
 			'capital'    => array( 'Owner capital in', 'owner', 'Money the owner puts into the business.' ),
 			'drawings'   => array( 'Owner drawings out', 'owner', 'Money the owner takes out for personal use.' ),
@@ -157,7 +176,8 @@ class NURAX_Desk_Accounts {
 			'opex'   => 'Operating expenses',
 			'setup'  => 'One-off setup costs',
 			'income' => 'Other income',
-			'asset'  => 'Assets & deposits (not in profit)',
+			'prepaid' => 'Paid in advance (becomes a cost month by month)',
+			'asset'  => 'Assets & refundable deposits (not in profit)',
 			'owner'  => 'Owner capital & drawings (not in profit)',
 		);
 	}
@@ -386,6 +406,58 @@ class NURAX_Desk_Accounts {
 		return $out;
 	}
 
+	/**
+	 * Rent paid in advance: how much is used up as rent inside [from, to], and the balance still
+	 * to use at the end of the period. Months not yet set = nothing used (balance only).
+	 */
+	public static function cover_text( $e ) {
+		$n = max( 1, (int) $e->cover_months );
+		if ( empty( $e->cover_from ) || '0000-00-00' === $e->cover_from ) {
+			return $n . ' month(s) of rent paid ahead - months not set yet (set them to count it as rent)';
+		}
+		$a = strtotime( $e->cover_from );
+		$b = strtotime( '+' . ( $n - 1 ) . ' months', $a );
+		return 'Counts as rent: ' . date_i18n( 'M Y', $a ) . ( $n > 1 ? ' - ' . date_i18n( 'M Y', $b ) : '' ) . ' (' . NURAX_Desk::money( (float) $e->amount / $n ) . ' a month)';
+	}
+
+	public static function advance( $from, $to ) {
+		global $wpdb;
+		$rows = (array) $wpdb->get_results( $wpdb->prepare( 'SELECT amount, entry_date, cover_from, cover_months FROM ' . self::table() . " WHERE deleted = 0 AND category = 'prepaid' AND entry_date <= %s", $to ) ); // phpcs:ignore WordPress.DB
+		$used = 0.0;
+		$bal  = 0.0;
+		$unset = 0;
+		$pf   = strtotime( $from );
+		$pt   = strtotime( $to . ' 23:59:59' );
+		foreach ( $rows as $e ) {
+			$amt = (float) $e->amount;
+			$n   = max( 1, (int) $e->cover_months );
+			if ( empty( $e->cover_from ) || '0000-00-00' === $e->cover_from ) {
+				$bal += $amt;
+				$unset++;
+				continue;
+			}
+			$per    = $amt / $n;
+			$before = 0.0;
+			for ( $k = 0; $k < $n; $k++ ) {
+				$ms   = strtotime( '+' . $k . ' months', strtotime( gmdate( 'Y-m-01', strtotime( $e->cover_from ) ) ) );
+				$me   = strtotime( gmdate( 'Y-m-t 23:59:59', $ms ) );
+				$days = ( $me - $ms + 1 ) / 86400;
+				$a    = max( $ms, $pf );
+				$b    = min( $me, $pt );
+				if ( $b > $a ) {
+					$used += $per * ( ( $b - $a + 1 ) / 86400 ) / $days;
+				}
+				if ( $me <= $pt ) {
+					$before += $per;
+				} elseif ( $ms <= $pt ) {
+					$before += $per * ( ( $pt - $ms + 1 ) / 86400 ) / $days;
+				}
+			}
+			$bal += max( 0, $amt - $before );
+		}
+		return array( 'used' => round( $used, 2 ), 'balance' => round( $bal, 2 ), 'unset' => $unset );
+	}
+
 	/** Profit & Loss for a period. */
 	public static function pnl( $from, $to ) {
 		$s    = self::sales( $from, $to );
@@ -394,7 +466,7 @@ class NURAX_Desk_Accounts {
 		foreach ( self::entries( $from, $to ) as $e ) {
 			$by[ $e->category ] = ( isset( $by[ $e->category ] ) ? $by[ $e->category ] : 0 ) + (float) $e->amount;
 		}
-		$sum = function ( $group ) use ( $by, $cats ) {
+		$sum = function ( $group ) use ( &$by, &$cats ) {
 			$t = 0;
 			foreach ( $by as $k => $v ) {
 				if ( isset( $cats[ $k ] ) && $cats[ $k ][1] === $group ) {
@@ -403,7 +475,13 @@ class NURAX_Desk_Accounts {
 			}
 			return $t;
 		};
-		$r = array( 'sales' => $s, 'by' => $by );
+		// 1.86.0: rent paid in advance becomes rent in the months it covers (straight-line by day).
+		$adv = self::advance( $from, $to );
+		if ( $adv['used'] > 0 ) {
+			$by['rent_advance'] = $adv['used'];
+			$cats['rent_advance'] = array( 'Rent (from rent paid in advance)', 'opex', '' );
+		}
+		$r = array( 'sales' => $s, 'by' => $by, 'advance' => $adv );
 		$r['other_income'] = $sum( 'income' );
 		$r['revenue']      = $s['online'] + $s['pos'] + $s['shipping'] + $r['other_income'] - $s['refunds'];
 		$r['cogs_items']   = $s['cost'];
@@ -418,7 +496,8 @@ class NURAX_Desk_Accounts {
 		$r['asset']        = $sum( 'asset' );
 		$r['capital']      = isset( $by['capital'] ) ? $by['capital'] : 0;
 		$r['drawings']     = isset( $by['drawings'] ) ? $by['drawings'] : 0;
-		$r['spent']        = $r['stock'] + $r['cogs_extra'] + $r['opex'] + $r['setup'] + $r['asset'];
+		$r['prepaid_paid'] = $sum( 'prepaid' );
+		$r['spent']        = $r['stock'] + $r['cogs_extra'] + ( $r['opex'] - ( isset( $by['rent_advance'] ) ? $by['rent_advance'] : 0 ) ) + $r['setup'] + $r['asset'] + $r['prepaid_paid'];
 		return $r;
 	}
 
@@ -451,9 +530,12 @@ class NURAX_Desk_Accounts {
 		$amt  = isset( $_POST['amount'] ) ? (float) preg_replace( '/[^0-9.]/', '', wp_unslash( $_POST['amount'] ) ) : 0; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		$desc = isset( $_POST['description'] ) ? sanitize_text_field( wp_unslash( $_POST['description'] ) ) : '';
 		if ( ! $date || ! isset( self::categories()[ $cat ] ) || $amt <= 0 || '' === $desc ) {
-			self::back( array( 'nd_msg' => 'invalid', 'tab' => 'entries', 'edit' => $id ? $id : 'new' ) );
+			self::back( array( 'nd_msg' => 'acc_invalid', 'tab' => 'entries', 'edit' => $id ? $id : 'new' ) );
 		}
 		$method = isset( $_POST['method'] ) ? sanitize_key( wp_unslash( $_POST['method'] ) ) : 'mpesa';
+		$cover_m = isset( $_POST['cover_months'] ) ? max( 0, min( 60, absint( $_POST['cover_months'] ) ) ) : 0;
+		$cover_f = isset( $_POST['cover_from'] ) ? sanitize_text_field( wp_unslash( $_POST['cover_from'] ) ) : '';
+		$cover_f = preg_match( '/^\d{4}-\d{2}$/', $cover_f ) ? $cover_f . '-01' : null;
 		$row    = array(
 			'entry_date'  => $date,
 			'category'    => $cat,
@@ -463,6 +545,8 @@ class NURAX_Desk_Accounts {
 			'ref'         => mb_substr( isset( $_POST['ref'] ) ? sanitize_text_field( wp_unslash( $_POST['ref'] ) ) : '', 0, 60 ),
 			'payee'       => mb_substr( isset( $_POST['payee'] ) ? sanitize_text_field( wp_unslash( $_POST['payee'] ) ) : '', 0, 120 ),
 			'note'        => mb_substr( isset( $_POST['note'] ) ? sanitize_text_field( wp_unslash( $_POST['note'] ) ) : '', 0, 255 ),
+			'cover_from'  => 'prepaid' === $cat ? $cover_f : null,
+			'cover_months' => 'prepaid' === $cat ? max( 1, $cover_m ) : 0,
 		);
 		if ( ! empty( $_FILES['receipt']['name'] ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -521,7 +605,7 @@ class NURAX_Desk_Accounts {
 			$rows = array( array( 'Date', 'Type', 'Category', 'Description', 'Amount (KES)', 'Paid by', 'Reference', 'Paid to / received from', 'Note', 'Receipt link' ) );
 			foreach ( array_reverse( self::entries( $from, $to ) ) as $e ) {
 				$g      = self::group_of( $e->category );
-				$rows[] = array( $e->entry_date, $grp[ $g ], isset( $cats[ $e->category ] ) ? $cats[ $e->category ][0] : $e->category, $e->description, round( (float) $e->amount, 2 ), self::methods()[ $e->method ] ?? $e->method, $e->ref, $e->payee, $e->note, $e->receipt_id ? (string) wp_get_attachment_url( $e->receipt_id ) : '' );
+				$rows[] = array( $e->entry_date, $grp[ $g ], isset( $cats[ $e->category ] ) ? $cats[ $e->category ][0] : $e->category, $e->description, round( (float) $e->amount, 2 ), self::methods()[ $e->method ] ?? $e->method, $e->ref, $e->payee, trim( $e->note . ( 'prepaid' === $e->category ? ' ' . self::cover_text( $e ) : '' ) ), $e->receipt_id ? (string) wp_get_attachment_url( $e->receipt_id ) : '' );
 			}
 			return $rows;
 		}
@@ -557,6 +641,9 @@ class NURAX_Desk_Accounts {
 				$add( 'Operating expenses', $c[0], -$r['by'][ $k ] );
 			}
 		}
+		if ( ! empty( $r['by']['rent_advance'] ) ) {
+			$add( 'Operating expenses', 'Rent (from rent paid in advance)', -$r['by']['rent_advance'] );
+		}
 		$add( 'OPERATING PROFIT', '', $r['operating'] );
 		foreach ( $cats as $k => $c ) {
 			if ( 'setup' === $c[1] && ! empty( $r['by'][ $k ] ) ) {
@@ -564,9 +651,10 @@ class NURAX_Desk_Accounts {
 			}
 		}
 		$add( $r['net'] >= 0 ? 'NET PROFIT' : 'NET LOSS', $r['revenue'] > 0 ? 'Net margin ' . self::pct( $r['net'], $r['revenue'] ) : 'No sales in this period', $r['net'] );
+		$add( 'Not part of profit', 'Rent paid in advance - not yet used (balance at period end)', $r['advance']['balance'] );
 		foreach ( $cats as $k => $c ) {
-			if ( in_array( $c[1], array( 'stock', 'asset', 'owner' ), true ) ) {
-				$add( 'Not part of profit', $c[0], isset( $r['by'][ $k ] ) ? $r['by'][ $k ] : 0 );
+			if ( in_array( $c[1], array( 'prepaid', 'stock', 'asset', 'owner' ), true ) ) {
+				$add( 'Not part of profit', 'prepaid' === $c[1] ? 'Rent paid in advance during the period' : $c[0], isset( $r['by'][ $k ] ) ? $r['by'][ $k ] : 0 );
 			}
 		}
 		return $rows;
@@ -666,7 +754,7 @@ class NURAX_Desk_Accounts {
 		NURAX_Desk::kpi( 'Gross profit', self::m( $r['gross'] ), $r['revenue'] > 0 ? 'Margin ' . self::pct( $r['gross'], $r['revenue'] ) : 'Starts with your first sale', $r['gross'] >= 0 ? 'gold' : 'red' );
 		NURAX_Desk::kpi( 'Costs', self::m( $costs ), 'Cost of sales ' . self::m( $r['cogs'] ) . ' | Running ' . self::m( $r['opex'] ) . ' | Setup ' . self::m( $r['setup'] ), '' );
 		NURAX_Desk::kpi( $r['net'] >= 0 ? 'Net profit' : 'Net loss', self::m( $r['net'] ), $r['revenue'] > 0 ? 'Net margin ' . self::pct( $r['net'], $r['revenue'] ) : 'Setup period - no sales yet', $r['net'] >= 0 ? 'green' : 'red' );
-		NURAX_Desk::kpi( 'Stock, deposits & equipment', self::m( $r['stock'] + $r['asset'] ), 'Still yours - not a cost', '' );
+		NURAX_Desk::kpi( 'Paid ahead, stock & equipment', self::m( $r['stock'] + $r['asset'] + $r['advance']['balance'] ), 'Rent paid in advance not yet used ' . self::m( $r['advance']['balance'] ) . ' | not a cost yet', '' );
 		echo '</div>';
 
 		// Profit at a glance (transparent equation).
@@ -746,7 +834,11 @@ class NURAX_Desk_Accounts {
 		self::line( 'Gross profit', $r['gross'], 'na-st__tot', $r['revenue'] > 0 ? 'Gross margin ' . self::pct( $r['gross'], $r['revenue'] ) : '' );
 
 		self::sec( 'Operating expenses' );
-		if ( ! self::lines_for( $r, 'opex' ) ) {
+		$adv_line = ! empty( $r['by']['rent_advance'] );
+		if ( $adv_line ) {
+			self::line( 'Rent (from rent paid in advance)', $r['by']['rent_advance'], '', 'Share of the advance for the months in this period' );
+		}
+		if ( ! self::lines_for( $r, 'opex' ) && ! $adv_line ) {
 			echo '<tr class="na-st__empty"><td colspan="2">None recorded in this period.</td></tr>';
 		}
 		self::line( 'Total operating expenses', $r['opex'], 'na-st__sub' );
@@ -761,9 +853,10 @@ class NURAX_Desk_Accounts {
 		echo '</tbody></table></section>';
 
 		echo '<aside class="na-side"><section class="nd-card na-bs"><h3>Not part of profit</h3><p class="na-muted">Money paid out that is still yours, and money the owner put in or took out.</p><dl>';
+		echo '<div class="na-bs__adv"><dt>Rent paid in advance - not yet used<small>Balance at the end of this period' . ( $r['advance']['unset'] ? '; months not set yet' : '' ) . '</small></dt><dd>' . esc_html( self::m( $r['advance']['balance'] ) ) . '</dd></div>';
 		foreach ( self::categories() as $k => $c ) {
-			if ( in_array( $c[1], array( 'stock', 'asset', 'owner' ), true ) ) {
-				echo '<div><dt>' . esc_html( $c[0] ) . '</dt><dd>' . esc_html( self::m( isset( $r['by'][ $k ] ) ? $r['by'][ $k ] : 0 ) ) . '</dd></div>';
+			if ( in_array( $c[1], array( 'prepaid', 'stock', 'asset', 'owner' ), true ) ) {
+				echo '<div><dt>' . esc_html( ( 'prepaid' === $c[1] ? 'Paid in advance this period' : $c[0] ) ) . '</dt><dd>' . esc_html( self::m( isset( $r['by'][ $k ] ) ? $r['by'][ $k ] : 0 ) ) . '</dd></div>';
 			}
 		}
 		echo '</dl></section>';
@@ -773,7 +866,7 @@ class NURAX_Desk_Accounts {
 			. '<li><b>Cost of sales</b> is the buying price of each wig you actually sold. Stock you buy is not a cost until it sells, so it is never counted twice.</li>'
 			. '<li><b>Operating expenses</b> are the running costs: rent, staff, ads, delivery, charges.</li>'
 			. '<li><b>Setup costs</b> (renovation, lease fees, permits) have their own line so your monthly running profit stays clear.</li>'
-			. '<li>Stock, deposits and equipment are <b>not costs</b> - you still own them.</li></ol></section></aside></div>';
+			. '<li><b>Rent paid in advance</b> (e.g. a 2-month non-refundable advance) is not a cost when you pay it - it becomes rent in the months it covers.</li><li>Stock, refundable deposits and equipment are <b>not costs</b> - you still own them.</li></ol></section></aside></div>';
 	}
 
 	private static function render_products( $r ) {
@@ -813,7 +906,7 @@ class NURAX_Desk_Accounts {
 		$cats  = self::categories();
 		$items = array();
 		foreach ( $r['by'] as $k => $v ) {
-			if ( isset( $cats[ $k ] ) && in_array( $cats[ $k ][1], array( 'stock', 'cogs', 'opex', 'setup', 'asset' ), true ) && $v > 0 ) {
+			if ( isset( $cats[ $k ] ) && in_array( $cats[ $k ][1], array( 'prepaid', 'stock', 'cogs', 'opex', 'setup', 'asset' ), true ) && $v > 0 ) {
 				$items[ $k ] = $v;
 			}
 		}
@@ -872,12 +965,18 @@ class NURAX_Desk_Accounts {
 		echo '<label><span>M-Pesa / bank reference</span><input type="text" name="ref" maxlength="60" placeholder="e.g. SKL4X7Y2ZQ" value="' . esc_attr( $row ? $row->ref : '' ) . '"></label>';
 		echo '<label class="na-f__w"><span>Paid to / received from</span><input type="text" name="payee" maxlength="120" placeholder="Landlord, supplier, staff name..." value="' . esc_attr( $row ? $row->payee : '' ) . '"></label>';
 		echo '<label class="na-f__w"><span>Note</span><input type="text" name="note" maxlength="255" value="' . esc_attr( $row ? $row->note : '' ) . '"></label>';
+		$cf = $row && ! empty( $row->cover_from ) ? substr( $row->cover_from, 0, 7 ) : '';
+		echo '<div class="na-f__w na-adv" data-na-adv><p class="na-adv__t">Rent paid in advance</p><div class="na-adv__g">';
+		echo '<label><span>First month it covers</span><input type="month" name="cover_from" value="' . esc_attr( $cf ) . '"></label>';
+		echo '<label><span>Number of months</span><input type="number" min="1" max="60" name="cover_months" value="' . esc_attr( $row && $row->cover_months ? (int) $row->cover_months : 2 ) . '"></label></div>';
+		echo '<p class="na-muted">It is counted as rent month by month in the months it covers. Not sure yet? Leave the month empty - it stays as "paid in advance, not yet used" and never inflates any month.</p></div>';
 		echo '<label class="na-f__w"><span>Receipt (photo or PDF)' . ( $row && $row->receipt_id ? ' - <a href="' . esc_url( wp_get_attachment_url( $row->receipt_id ) ) . '" target="_blank" rel="noopener">view current</a>' : '' ) . '</span><input type="file" name="receipt" accept="image/*,application/pdf"></label></div>';
 		echo '<p class="na-f__acts"><button class="nd-btn nd-btn--primary">' . ( $row ? 'Save changes' : 'Save entry' ) . '</button> ';
 		if ( $row ) {
 			echo '<a class="nd-btn nd-btn--ghost" href="' . esc_url( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => 'entries' ) ) ) ) . '">Cancel</a>';
 		}
 		echo '</p></form>';
+		echo '<script>(function(){var s=document.querySelector(\'.na-form select[name=category]\'),b=document.querySelector(\'[data-na-adv]\');if(!s||!b)return;function t(){b.hidden=s.value!==\'prepaid\';}s.addEventListener(\'change\',t);t();})();</script>';
 		echo '<p class="na-muted na-tip">Tip: stock you buy, refundable deposits and furniture/equipment are recorded but kept out of profit - you still own them. Stock becomes a cost when it sells, at its buying price.</p></section>';
 
 		// List.
@@ -904,7 +1003,7 @@ class NURAX_Desk_Accounts {
 			$g    = self::group_of( $e->category );
 			$tot += (float) $e->amount;
 			echo '<tr><td class="na-nowrap">' . esc_html( date_i18n( 'j M Y', strtotime( $e->entry_date ) ) ) . '</td>';
-			echo '<td><strong>' . esc_html( $e->description ) . '</strong>' . ( $e->payee ? '<small>' . esc_html( $e->payee ) . '</small>' : '' ) . ( $e->note ? '<small class="na-note">' . esc_html( $e->note ) . '</small>' : '' ) . '</td>';
+			echo '<td><strong>' . esc_html( $e->description ) . '</strong>' . ( $e->payee ? '<small>' . esc_html( $e->payee ) . '</small>' : '' ) . ( $e->note ? '<small class="na-note">' . esc_html( $e->note ) . '</small>' : '' ) . ( 'prepaid' === $e->category ? '<small class="na-cover">' . esc_html( self::cover_text( $e ) ) . '</small>' : '' ) . '</td>';
 			echo '<td><span class="na-chip na-g--' . esc_attr( $g ) . '">' . esc_html( isset( $cats[ $e->category ] ) ? $cats[ $e->category ][0] : $e->category ) . '</span></td>';
 			echo '<td class="na-nowrap">' . esc_html( self::methods()[ $e->method ] ?? $e->method ) . ( $e->ref ? '<small>' . esc_html( $e->ref ) . '</small>' : '' ) . '</td>';
 			echo '<td class="na-r na-amt na-amt--' . esc_attr( 'income' === $g || 'capital' === $e->category ? 'in' : 'out' ) . '">' . esc_html( ( 'income' === $g || 'capital' === $e->category ? '+ ' : '' ) . NURAX_Desk::money( $e->amount ) ) . '</td>';

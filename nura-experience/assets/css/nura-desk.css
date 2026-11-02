@@ -711,3 +711,96 @@ a.nt-who:hover{color:#a07a24}
 @media (max-width:1000px){.nb-board{grid-template-columns:1fr}.nb-slot{grid-template-columns:60px minmax(0,1fr);}.nb-slot__st{text-align:left}}
 
 .nb-dep--exp{background:#fdecea;color:#b3261e!important}
+
+/* =========================================================================
+ * NURA Desk - Accounts (1.83.0): expenses, sales and profit
+ * ========================================================================= */
+.na{--na-pos:#1f8a4c;--na-neg:#b3261e}
+.na-period{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:4px 0 18px}
+.na-seg{display:inline-flex;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:3px}
+.na-seg__b{padding:8px 14px;border-radius:9px;color:var(--mut);font-weight:600;font-size:13px;text-decoration:none}
+.na-seg__b:hover{color:var(--ink)}
+.na-seg__b.is-on{background:var(--ink);color:var(--gold2)}
+.na-custom{display:inline-flex;flex-wrap:wrap;align-items:center;gap:8px}
+.na-custom label{display:inline-flex;align-items:center;gap:6px;color:var(--mut);font-size:12px}
+.na-custom input[type=date]{min-height:36px;border:1px solid var(--line);border-radius:9px;padding:0 8px}
+.na-period__l{margin-left:auto;font-family:Georgia,'Times New Roman',serif;font-size:18px;color:var(--ink)}
+.na-kpis{grid-template-columns:repeat(5,minmax(0,1fr))}
+.na-tabs{margin:6px 0 16px}
+.na-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:18px;align-items:start}
+.na-grid--entries{grid-template-columns:minmax(300px,420px) minmax(0,1fr)}
+.na-muted{color:var(--mut);font-size:12.5px;line-height:1.55}
+
+/* Profit & Loss statement */
+.na-pnl{padding:28px 32px}
+.na-pnl__h{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:6px}
+.na-pnl__h span{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.na-pnl__h h2{margin:6px 0 2px;font-family:Georgia,'Times New Roman',serif;font-weight:500;font-size:24px;color:var(--ink)}
+.na-pnl__h p{margin:0;color:var(--mut);font-size:12.5px}
+.na-st{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.na-st th,.na-st td{padding:9px 0;border-bottom:1px solid #f0ebe2;text-align:left;font-weight:400;font-size:14px;vertical-align:top}
+.na-st td{text-align:right;white-space:nowrap;padding-left:16px}
+.na-st th small{display:block;color:var(--mut);font-size:11.5px;margin-top:2px}
+.na-st__sec th{padding-top:20px;border-bottom:1px solid var(--line);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.na-st__tot th,.na-st__tot td{font-weight:700;color:var(--ink);border-top:1px solid var(--ink);border-bottom:0;padding-top:11px}
+.na-st__net th,.na-st__net td{font-family:Georgia,'Times New Roman',serif;font-size:19px;font-weight:600;border-top:2px solid var(--ink);border-bottom:3px double var(--ink);padding:14px 0}
+.na-st__net.is-pos td{color:var(--na-pos)}
+.na-st__net.is-neg td{color:var(--na-neg)}
+.na-st__empty td{text-align:left;color:var(--mut);font-style:italic}
+.na-side .nd-card h3{margin:0 0 6px;font-size:14px}
+.na-bs dl{margin:10px 0 0}
+.na-bs dl div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0ebe2;font-size:13px}
+.na-bs dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
+.na-cash strong{display:block;font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:500;margin:4px 0}
+.na-help ol{margin:8px 0 0 18px;padding:0;font-size:12.5px;line-height:1.6;color:#333}
+.na-help li{margin-bottom:6px}
+
+/* Breakdown */
+.na-bd h2{margin:0 0 16px;font-family:Georgia,'Times New Roman',serif;font-weight:500}
+.na-bars{list-style:none;margin:0;padding:0}
+.na-bars li{display:grid;grid-template-columns:minmax(180px,1.1fr) 2fr minmax(140px,auto);gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid #f0ebe2}
+.na-bars__l small{display:block;color:var(--mut);font-size:11px}
+.na-bars__t{height:12px;background:#f4efe6;border-radius:999px;overflow:hidden}
+.na-bars__t i{display:block;height:100%;border-radius:999px}
+.na-bars__v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.na-bars__v small{color:var(--mut);font-weight:400;margin-left:4px}
+.na-bd__tot{text-align:right;margin:14px 0 0;color:var(--mut)}
+.na-bd__tot strong{color:var(--ink);font-size:16px}
+.na-g--cogs{background:#C9A24B}
+.na-g--opex{background:#0E0E0E}
+.na-g--setup{background:#8a6d3b}
+.na-g--asset{background:#9aa3ab}
+.na-g--income{background:#1f8a4c}
+.na-g--owner{background:#6f675d}
+
+/* Entry form + list */
+.na-form h2,.na-list h2{margin:0 0 14px;font-size:16px}
+.na-f{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.na-f label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#333}
+.na-f__w{grid-column:1/-1}
+.na-f input[type=text],.na-f input[type=date],.na-f select{min-height:40px;border:1px solid var(--line);border-radius:10px;padding:0 10px;font-size:14px;background:#fff;width:100%;max-width:none}
+.na-f input:focus,.na-f select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,75,.18);outline:0}
+.na-f input[type=file]{font-size:12px}
+.na-f__acts{margin:16px 0 4px}
+.na-tip{margin:10px 0 0}
+.na-form.is-open{border-color:var(--gold);box-shadow:0 10px 30px rgba(14,14,14,.06)}
+.na-filter{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.na-filter select,.na-filter input[type=search]{min-height:36px;border:1px solid var(--line);border-radius:9px;padding:0 10px}
+.na-filter input[type=search]{flex:1 1 220px}
+.na-tbl td{vertical-align:top}
+.na-tbl td small{display:block;color:var(--mut);font-size:11.5px;margin-top:2px}
+.na-tbl .na-note{font-style:italic}
+.na-r{text-align:right}
+.na-nowrap{white-space:nowrap}
+.na-amt{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.na-amt--in{color:var(--na-pos)}
+.na-chip{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11.5px;font-weight:600;color:#fff;white-space:nowrap}
+.na-chip.na-g--asset,.na-chip.na-g--cogs{color:#1b1b1b}
+.na-acts{white-space:nowrap;text-align:right}
+.na-acts form{display:inline}
+.na-acts .nd-btn{margin-left:4px}
+.na-tbl tfoot th{text-align:left;font-weight:700}
+
+@media (max-width:1200px){.na-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.na-grid,.na-grid--entries{grid-template-columns:1fr}}
+@media (max-width:700px){.na-kpis{grid-template-columns:1fr 1fr}.na-f{grid-template-columns:1fr}.na-pnl{padding:20px}.na-bars li{grid-template-columns:1fr;gap:6px}.na-bars__v{text-align:left}.na-period__l{margin-left:0;width:100%}}
+@media print{.nd-top,.nd-head__actions,.na-period,.na-tabs,.na-side .na-help{display:none!important}.na-grid{display:block}}

@@ -853,3 +853,28 @@ a.nt-who:hover{color:#a07a24}
 .na-bs__adv dt small{display:block;color:var(--mut);font-size:11px;font-weight:400}
 .na-bs__adv{background:#fffaf0;margin:0 -8px;padding:8px!important;border-radius:8px}
 @media (max-width:700px){.na-adv__g{grid-template-columns:1fr}}
+
+/* ---------- Catalogue sync (1.87.0) ---------- */
+.nc-intro h2{margin:0 0 6px;font-family:Georgia,'Times New Roman',serif;font-weight:500}
+.nc-intro p{margin:0 0 8px;color:#333;line-height:1.6}
+.nc-legend{display:flex;flex-wrap:wrap;gap:8px}
+.nc-b{display:inline-block;margin-top:6px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.02em}
+.nc-b--high{background:#e7f5ec;color:#1f8a4c}
+.nc-b--check{background:#fff4dd;color:#9a6a12}
+.nc-b--none{background:#fbe9e7;color:#b3261e}
+.nc-t td{vertical-align:top}
+.nc-t small{display:block;color:var(--mut);font-size:11.5px;margin-top:4px}
+.nc-on{width:56px;text-align:center}
+.nc-on input{width:18px;height:18px}
+.nc-in{width:100%;min-height:38px;border:1px solid var(--line);border-radius:9px;padding:0 10px;font-size:14px}
+.nc-in--p{max-width:120px}
+.nc-sel{width:100%;max-width:340px;min-height:38px;border:1px solid var(--line);border-radius:9px}
+.nc-r--none{background:#fffaf9}
+.nc-r--check{background:#fffdf6}
+.nc-drafts{list-style:none;margin:10px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+.nc-drafts label{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer}
+.nc-drafts small{margin-left:auto;color:var(--mut);white-space:nowrap}
+.nc-go{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:6px 0 30px}
+.nd-btn--lg{min-height:46px;padding:0 24px;font-size:14px}
+.nc-msg{margin:0 0 16px}
+@media (max-width:782px){.nc-t thead{display:none}.nc-t tr{display:block;border-bottom:1px solid var(--line);padding:8px 0}.nc-t td{display:block;border:0!important;padding:6px 10px}.nc-on{width:auto;text-align:left}.nc-in--p,.nc-sel{max-width:none}}

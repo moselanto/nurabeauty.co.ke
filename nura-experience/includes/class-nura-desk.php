@@ -83,6 +83,7 @@ class NURAX_Desk {
 		NURAX_Desk_POS::hooks();
 		NURAX_Desk_Source::hooks();
 		NURAX_Desk_Accounts::hooks();
+		NURAX_Desk_Catalogue::hooks();
 		NURAX_Desk_Mkt::hooks();
 		NURAX_Desk_Social::hooks();
 		NURAX_Desk_Sub::hooks();
@@ -556,6 +557,7 @@ class NURAX_Desk {
 			unset( $tabs[ NURAX_Desk_Accounts::PAGE ] );
 		}
 		if ( current_user_can( 'manage_options' ) ) {
+			$tabs[ NURAX_Desk_Catalogue::PAGE ] = 'Catalogue';
 			$tabs['nurax-team'] = 'Team';
 		} else {
 			unset( $tabs[ self::P_SET ] );
@@ -610,6 +612,7 @@ class NURAX_Desk {
 		add_submenu_page( self::MENU, 'Point of sale', 'Point of sale', self::CAP, self::P_POS, array( 'NURAX_Desk_POS', 'page' ) );
 		add_submenu_page( self::MENU, 'Sourced sales', 'Sourced sales', self::CAP, NURAX_Desk_Source::PAGE, array( 'NURAX_Desk_Source', 'page' ) );
 		add_submenu_page( self::MENU, 'Accounts', 'Accounts', NURAX_Desk_Accounts::cap(), NURAX_Desk_Accounts::PAGE, array( 'NURAX_Desk_Accounts', 'page' ) );
+		add_submenu_page( self::MENU, 'Catalogue sync', 'Catalogue sync', 'manage_options', NURAX_Desk_Catalogue::PAGE, array( 'NURAX_Desk_Catalogue', 'page' ) );
 		add_submenu_page( self::MENU, 'WhatsApp orders', 'WhatsApp orders', self::CAP, self::P_ORDERS, array( 'NURAX_Desk_Orders', 'page' ) );
 		add_submenu_page( self::MENU, 'Payment plans', 'Payment plans', self::CAP, self::P_PLANS, array( 'NURAX_Desk_Plans', 'page' ) );
 		add_submenu_page( self::MENU, 'Appointments', 'Appointments', self::CAP, self::P_APPTS, array( 'NURAX_Desk_Appts', 'page' ) );
@@ -621,7 +624,7 @@ class NURAX_Desk {
 
 	public function assets( $hook ) {
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! in_array( $page, array( self::MENU, self::P_POS, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_MKT, self::P_SOC, self::P_SET, 'nurax-team', NURAX_Desk_Source::PAGE, NURAX_Desk_Accounts::PAGE ), true ) ) {
+		if ( ! in_array( $page, array( self::MENU, self::P_POS, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_MKT, self::P_SOC, self::P_SET, 'nurax-team', NURAX_Desk_Source::PAGE, NURAX_Desk_Accounts::PAGE, NURAX_Desk_Catalogue::PAGE ), true ) ) {
 			return;
 		}
 		wp_enqueue_style( 'nurax-desk', NURAX_URL . 'assets/css/nura-desk.css', array(), NURAX_VERSION );

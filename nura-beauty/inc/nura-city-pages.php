@@ -45,7 +45,7 @@ function nura_city_delivery( $county ) {
 }
 
 function nura_city_faqs( $city, $d ) {
-	$fee = '' !== $d['fee'] ? sprintf( __( 'Delivery to %1$s costs %2$s and takes %3$s.', 'nura-beauty' ), $city, $d['fee'], strtolower( $d['eta'] ) ) : sprintf( __( 'Delivery to %1$s takes %2$s; we confirm the exact fee on WhatsApp before you pay.', 'nura-beauty' ), $city, strtolower( $d['eta'] ) );
+	$fee = '' !== $d['fee'] ? sprintf( __( 'Delivery to %1$s costs %2$s (%3$s).', 'nura-beauty' ), $city, $d['fee'], strtolower( $d['eta'] ) ) : sprintf( __( 'Delivery to %1$s: %2$s. We confirm the exact fee on WhatsApp before you pay.', 'nura-beauty' ), $city, strtolower( $d['eta'] ) );
 	return array(
 		array( sprintf( __( 'Do you deliver wigs to %s?', 'nura-beauty' ), $city ), __( 'Yes.', 'nura-beauty' ) . ' ' . $fee ),
 		array( sprintf( __( 'How do I pay for a wig delivered to %s?', 'nura-beauty' ), $city ), __( 'Pay by M-Pesa or card (Visa, Mastercard) securely through Paystack, or by bank transfer, or to our M-Pesa Buy Goods Till 1679269 for WhatsApp orders. We do not offer cash on delivery.', 'nura-beauty' ) ),

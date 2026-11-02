@@ -202,6 +202,10 @@ if ( ! function_exists( 'nura_facts' ) ) {
 			'M-Pesa or pay on delivery'                    => 'M-Pesa or card (no cash on delivery)',
 			'or pay on delivery'                           => 'or card (no cash on delivery)',
 			'Imenti picking point'                         => 'Stanbank House studio (2nd Floor, Room 20)',
+			'Pick up from our Imenti point.'               => 'Pick up from our Stanbank House studio (2nd Floor, Room 20).',
+			'Imenti point'                                 => 'Stanbank House studio',
+			'IMENTI House basement floor 2nd entrance from parking gate' => 'Stanbank House, 2nd Floor, Room 20, Moi Avenue, Nairobi CBD',
+			'IMENTI House'                                 => 'Stanbank House, 2nd Floor, Room 20',
 		);
 	}
 

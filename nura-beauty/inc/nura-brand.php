@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 /** Logo files (name => width x height). */
 function nura_brand_files() {
 	return array(
-		'logo'    => array( 'nura-logo.webp', 640, 276 ),
+		'logo'    => array( 'nura-logo.webp', 320, 138 ), // 1.87.0: 320 px (2x the ~150 px display) - was 640 px / 53 KB.
 		'large'   => array( 'nura-logo-large.png', 1200, 518 ),
 		'png'     => array( 'nura-logo.png', 640, 276 ),
 		'svg'     => array( 'nura-logo.svg', 567, 245 ),
@@ -123,3 +123,11 @@ add_action( 'wp_head', function () {
 	echo '<style id="nura-brand-css">html body .nura-logo-wrap .custom-logo-link{display:inline-flex;align-items:center;line-height:0}html body .nura-logo-wrap img,html body .nura-logo-wrap .custom-logo{display:block;height:auto;width:auto;max-height:58px;max-width:min(150px,42vw);object-fit:contain}.nura-drawer__logo img{max-height:54px;width:auto}.login h1 a{background-image:url(' . esc_url( nura_brand_url( 'png' ) ) . ')!important;background-size:contain!important;width:240px!important;height:104px!important}html body .nura-tile.has-img{background-position:center 15%}html body .nura-pillars-section .nura-tile.has-img{min-height:clamp(300px,27vw,400px)}@media(max-width:900px){html body .nura-pillars-section .nura-tile.has-img{min-height:clamp(260px,42vw,340px)}}@media(max-width:560px){html body .nura-pillars-section .nura-tile.has-img{min-height:clamp(220px,62vw,300px)}}html body.admin-bar .site-header{top:32px}@media screen and (max-width:782px){html body.admin-bar .site-header{top:46px}}@media screen and (max-width:600px){html body.admin-bar .site-header{top:0}}@media(max-width:900px){html body .nura-logo-wrap img,html body .nura-logo-wrap .custom-logo{max-height:46px;max-width:min(128px,40vw)}}@media(max-width:520px){html body .nura-logo-wrap img,html body .nura-logo-wrap .custom-logo{max-height:40px;max-width:min(112px,38vw)}}</style>' . "\n";
 	echo '<link rel="preload" as="image" type="image/webp" href="' . esc_url( nura_brand_url( 'logo' ) ) . '" fetchpriority="high">' . "\n";
 }, 3 );
+
+/* 1.87.0 (mobile PageSpeed, 2 Nov 2026): the product gallery's zoom/lightbox loaded
+ * the original uploads (~500 KB each, 7 on the bob page, 4.8 MB total). Use the
+ * 1024 px "large" size for zoom/lightbox instead: still sharp, ~10x lighter.
+ * Main gallery images, thumbnails and checkout are unchanged. */
+add_filter( 'woocommerce_gallery_full_size', function () {
+	return 'large';
+}, 20 );

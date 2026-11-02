@@ -34,3 +34,35 @@ add_action( 'wp_enqueue_scripts', function () {
 		wp_enqueue_style( 'nura-inner', NURA_URI . 'assets/css/nura-inner.css', array( 'nura-main' ), NURA_VERSION );
 	}
 }, 40 );
+
+/**
+ * 1.92.0: WordPress auto-paragraphs (wpautop) were injecting <br /> and <p> tags
+ * inside the generated price list (/wig-prices-kenya/, 361 <br>) and the town
+ * delivery pages' product grid (wigs-*), which broke the grid rows: one-word-per-line
+ * wig names, two cards plus an orphan, misaligned columns. Clean them out of these
+ * components only (never touches Journal prose).
+ */
+function nura_inner_unautop( $html ) {
+	$start = false;
+	foreach ( array( '<div class="npg">', '<div class="ncp">' ) as $m ) {
+		$p = strpos( $html, $m );
+		if ( false !== $p && ( false === $start || $p < $start ) ) {
+			$start = $p;
+		}
+	}
+	if ( false === $start ) {
+		return $html;
+	}
+	$head = substr( $html, 0, $start );
+	$body = substr( $html, $start );
+	$tags = 'a|div|section|span|img|ul|ol|li|article|header|footer|nav|table|thead|tbody|tr|td|th|form|label|input|button|select|option|details|summary|h[1-6]|p|strong|small|svg|path';
+	$body = preg_replace( '#(<(?:' . $tags . ')\b[^>]*>|</(?:' . $tags . ')>)\s*<br\s*/?>#i', '$1', $body );
+	$body = preg_replace( '#<br\s*/?>\s*(</?(?:' . $tags . ')\b)#i', '$1', $body );
+	$body = preg_replace( '#<p>\s*(<(?:a|div|section|span|ul|ol|article|table|nav|form|details|h[1-6])\b)#i', '$1', $body );
+	$body = preg_replace( '#(</(?:a|div|section|span|ul|ol|article|table|nav|form|details|h[1-6])>)\s*</p>#i', '$1', $body );
+	$body = preg_replace( '#<p>\s*</p>#i', '', $body );
+	return $head . $body;
+}
+add_filter( 'the_content', function ( $content ) {
+	return ( is_page() && ( false !== strpos( $content, 'class="npg"' ) || false !== strpos( $content, 'class="ncp"' ) ) ) ? nura_inner_unautop( $content ) : $content;
+}, 999 );

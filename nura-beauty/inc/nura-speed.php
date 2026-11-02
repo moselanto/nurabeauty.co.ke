@@ -241,9 +241,11 @@ add_filter( 'style_loader_tag', function ( $tag, $handle ) {
 	}
 	$async = array( 'nura-fonts', 'nurax-wa-order', 'nurax-sub' );
 	$wc    = function_exists( 'is_woocommerce' ) && ( is_woocommerce() || is_cart() || is_checkout() || is_account_page() );
-	if ( ! $wc ) {
-		// 1.69.2: homepage, guides and pages show products below the first screen only.
-		$async = array_merge( $async, array( 'woocommerce-general', 'nura-woocommerce' ) );
+	// 1.95.0: product-card styles load normally everywhere. Loading them late made the homepage
+	// product grid flash unstyled (huge titles, no layout) on slow connections while reloading.
+	// The homepage also loads the WhatsApp card-button styles normally for the same reason.
+	if ( is_front_page() ) {
+		$async = array_diff( $async, array( 'nurax-wa-order' ) );
 	}
 	$async = (array) apply_filters( 'nura_async_styles', $async );
 	if ( ! in_array( $handle, $async, true ) || false !== strpos( $tag, 'onload=' ) ) {

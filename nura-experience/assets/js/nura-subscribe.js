@@ -1,8 +1,12 @@
-/* NURA "Join The House" - slim slide-in bar, pop-up on request + footer form (NURA Experience 1.79.2: closing it hides everything for 24 hours; 1.82.5: pop-up content in an inert template until tapped). */
+/* NURA "Join The House" - slim slide-in bar, pop-up on request + footer form (NURA Experience 1.79.2: closing it hides everything for 24 hours; 1.82.5: pop-up content in an inert template until tapped; 1.82.6: "0" settings fix). */
 (function () {
 'use strict';
 function nuraHouseInit() {
 	var C = window.NURAX_SUB || {};
+	// 1.82.6: WordPress passes these settings as text, and the text "0" counts as ON in JavaScript.
+	// That made every visitor look like a preview link, so the pop-up opened by itself (and became the
+	// PageSpeed LCP). Only a real 1 / "1" / true now switches a setting on.
+	['popup', 'preview', 'debug'].forEach(function (k) { var v = C[k]; C[k] = v === true || v === 1 || v === '1'; });
 	var d = document, KEY = 'nura_house', email = '';
 
 	function getC(n) { var m = d.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : ''; }

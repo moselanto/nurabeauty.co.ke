@@ -382,6 +382,35 @@ final class NURAX_Knowledge {
 		);
 	}
 
+	/**
+	 * WhatsApp add-on for a reply (1.82.0): up to 3 live picks as text and the
+	 * booking link for installation / service questions. Empty when nothing fits.
+	 */
+	public static function whatsapp_extras( $text ) {
+		$m     = self::match( $text );
+		$hints = array_merge( $m ? $m['h'] : array(), self::hints_from_text( $text ) );
+		$out   = '';
+		$svc   = $m && 'installation' === $m['cat'];
+		if ( ! $svc && ( $hints || ( $m && in_array( $m['cat'], array( 'prices', 'glueless', 'hair-types', 'textures', 'colours', 'occasions', 'lifestyle', 'face' ), true ) ) ) ) {
+			$cards = self::cards( self::pick( $hints, 3 ) );
+			if ( $cards ) {
+				$out .= "\n\n" . __( 'Stylist picks:', 'nura-experience' );
+				foreach ( $cards as $c ) {
+					$out .= "\n- " . $c['name'] . ' (' . $c['price'] . ', ' . $c['hair'] . '): ' . $c['url'];
+				}
+			}
+		}
+		if ( $svc || preg_match( '/\b(install|book|appointment|revamp|relac|colour|color|styling)/', self::normalise( $text ) ) ) {
+			$book = function_exists( 'home_url' ) ? home_url( '/book-appointment/?service=installation' ) : '';
+			$out .= "\n\n" . sprintf( __( 'Book a studio slot (mornings, Stanbank House, 2nd Floor, Room 20): %s', 'nura-experience' ), $book );
+		}
+		$finder = home_url( '/find-your-wig/' );
+		if ( ! $svc && ! $hints && $m && in_array( $m['cat'], array( 'prices', 'face', 'lifestyle' ), true ) ) {
+			$out .= "\n\n" . sprintf( __( 'Or find your wig in 5 quick questions: %s', 'nura-experience' ), $finder );
+		}
+		return $out;
+	}
+
 	/** Flat FAQ list for pages, schema and llms.txt. */
 	public static function faq( $cat = '' ) {
 		$out = array();

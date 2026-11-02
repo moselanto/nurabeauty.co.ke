@@ -268,6 +268,9 @@ final class NURAX_WhatsApp_Bot {
 			$reply = __( 'Thank you for your message. A NURA stylist will follow up with you shortly.', 'nura-experience' );
 		}
 
+		if ( class_exists( 'NURAX_Knowledge' ) && false === strpos( $reply, 'nurabeauty.co.ke/product/' ) ) { // 1.82.0: live picks + booking link.
+			$reply .= NURAX_Knowledge::whatsapp_extras( $text );
+		}
 		NURAX_WhatsApp::send_text( $from, $reply );
 
 		// Persist a short rolling context for continuity (transient, expires).
@@ -311,6 +314,28 @@ final class NURAX_WhatsApp_Bot {
 			'nurax-whatsapp',
 			array( $this, 'render' )
 		);
+		add_submenu_page( 'options-general.php', __( 'NURA WhatsApp quick replies', 'nura-experience' ), __( 'NURA quick replies', 'nura-experience' ), 'manage_options', 'nurax-quick-replies', array( $this, 'quick_replies' ) );
+	}
+
+	/** 1.82.0: every stylist answer as a copy-ready WhatsApp Business quick reply. */
+	public function quick_replies(): void {
+		if ( ! current_user_can( 'manage_options' ) || ! class_exists( 'NURAX_Knowledge' ) ) {
+			return;
+		}
+		echo '<div class="wrap"><h1>' . esc_html__( 'NURA WhatsApp quick replies', 'nura-experience' ) . '</h1><p>' . esc_html__( 'Copy any answer into WhatsApp Business (Settings > Business tools > Quick replies). Prices and policies are filled from your live shop and business facts.', 'nura-experience' ) . '</p>';
+		$book = home_url( '/book-appointment/?service=installation' );
+		foreach ( NURAX_Knowledge::categories() as $c ) {
+			echo '<h2>' . esc_html( $c['title'] ) . '</h2><table class="widefat striped"><tbody>';
+			$n = 0;
+			foreach ( (array) $c['q'] as $q ) {
+				$n++;
+				$short = '/' . substr( preg_replace( '/[^a-z]/', '', $c['id'] ), 0, 6 ) . $n;
+				$ans   = NURAX_Knowledge::fill( $q[1] ) . ( 'installation' === $c['id'] ? ' Book: ' . $book : '' );
+				echo '<tr><td style="width:90px"><code>' . esc_html( $short ) . '</code></td><td style="width:30%"><strong>' . esc_html( $q[0] ) . '</strong></td><td><textarea readonly rows="3" style="width:100%" onclick="this.select()">' . esc_textarea( $ans ) . '</textarea></td></tr>';
+			}
+			echo '</tbody></table>';
+		}
+		echo '</div>';
 	}
 
 	private function status_dot( bool $ok, string $yes, string $no ): string {

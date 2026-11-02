@@ -320,3 +320,108 @@ add_filter( 'nura_llms_extra', function ( $lines, $full ) {
 	}
 	return $lines;
 }, 10, 2 );
+
+/* ------------------------------------------------------------------
+ * 1.80.0: "Questions about this wig" on every product page - answers built
+ * from the product's own hair type, construction, price and the shop facts,
+ * visible text mirrored in a FAQPage node for answer engines.
+ * ------------------------------------------------------------------ */
+function nura_pq_items( $p ) {
+	if ( ! $p || ! nura_wq_ready() ) {
+		return array();
+	}
+	$name  = wp_strip_all_tags( $p->get_name() );
+	$t     = strtolower( $name . ' ' . $p->get_attribute( 'pa_construction' ) . ' ' . $p->get_attribute( 'pa_hair-type' ) );
+	$hair  = false !== strpos( $t, 'blend' ) || false !== strpos( $t, 'semi' ) ? 'blend' : ( false !== strpos( $t, 'human' ) ? 'human' : 'fibre' );
+	$price = $p->is_type( 'variable' ) ? (float) $p->get_variation_price( 'min', true ) : (float) wc_get_price_to_display( $p );
+	$tok   = NURAX_Knowledge::tokens();
+	$q     = array();
+	$hq    = array(
+		'human' => array( sprintf( __( 'Is the %s real human hair?', 'nura-beauty' ), $name ), __( 'Yes. It is 100% human hair, so you can straighten, curl and colour it (use a heat protectant). With regular wear and good care it lasts about a year or more.', 'nura-beauty' ) ),
+		'blend' => array( sprintf( __( 'Is the %s real human hair?', 'nura-beauty' ), $name ), __( 'Partly. It is a human-hair blend (semi-human): human hair mixed with heat-resistant fibre, softer than fibre and less than 100% human hair. Use low to medium heat only. It lasts about 6 to 9 months with good care.', 'nura-beauty' ) ),
+		'fibre' => array( sprintf( __( 'Is the %s human hair?', 'nura-beauty' ), $name ), __( 'No. It is heat-resistant fibre: styled out of the box, easy to care for and affordable. Use low heat only. It lasts about 3 to 6 months of regular wear with good care.', 'nura-beauty' ) ),
+	);
+	$q[] = $hq[ $hair ];
+	if ( false !== strpos( $t, 'headband' ) ) {
+		$q[] = array( __( 'Do I need glue for this wig?', 'nura-beauty' ), __( 'No. It is a headband wig: no lace and no glue. Slip it on, adjust the band and go, in about five minutes.', 'nura-beauty' ) );
+	} elseif ( false !== strpos( $t, 'closure' ) ) {
+		$q[] = array( __( 'Do I need glue for this wig?', 'nura-beauty' ), __( 'Usually not. 4x4 closure wigs are normally worn glueless with the adjustable straps and combs, and give a natural parting.', 'nura-beauty' ) );
+	} else {
+		$q[] = array( __( 'Can you install this lace front for me?', 'nura-beauty' ), sprintf( __( 'Yes. Our stylists fit it, cut the lace and style the hairline at %1$s. Installation is from KSh 1,500; book a morning slot online.', 'nura-beauty' ), $tok['{address}'] ) );
+	}
+	$q[] = array( __( 'How much is delivery and how fast is it?', 'nura-beauty' ), sprintf( __( 'Same day in Nairobi for orders before %1$s (rider from KSh 300, free in Nairobi over KSh 10,000), and 1 to 3 business days countrywide (%2$s). Pay by M-Pesa or card; there is no cash on delivery.', 'nura-beauty' ), $tok['{cutoff}'], $tok['{delivery_ke}'] ) );
+	if ( $price > 0 ) {
+		$q[] = array( __( 'Can I pay for this wig in instalments?', 'nura-beauty' ), sprintf( __( 'Yes, with Lipa Mdogo Mdogo: pay a 50%% deposit (about %s) and the balance within 1 or 2 weeks, then we release your wig.', 'nura-beauty' ), 'KSh ' . number_format( ceil( $price / 2 ) ) ) );
+	}
+	$q[] = array( __( 'Can I return it if it does not suit me?', 'nura-beauty' ), $tok['{returns}'] . ' ' . __( 'Returns are accepted at the studio or by courier.', 'nura-beauty' ) );
+	return $q;
+}
+
+add_action( 'woocommerce_after_single_product_summary', function () {
+	global $product;
+	$items = nura_pq_items( $product );
+	if ( ! $items ) {
+		return;
+	}
+	echo '<section class="nura-pq"><h2>' . esc_html__( 'Questions about this wig', 'nura-beauty' ) . '</h2>';
+	foreach ( $items as $qa ) {
+		echo '<details class="nura-wq-q"><summary><h3>' . esc_html( $qa[0] ) . '</h3></summary><p>' . esc_html( $qa[1] ) . '</p></details>';
+	}
+	echo '</section>';
+}, 12 );
+
+add_action( 'wp_head', function () {
+	if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+		return;
+	}
+	$p     = wc_get_product( get_queried_object_id() );
+	$items = array();
+	foreach ( nura_pq_items( $p ) as $qa ) {
+		$items[] = array( '@type' => 'Question', 'name' => $qa[0], 'acceptedAnswer' => array( '@type' => 'Answer', 'text' => $qa[1] ) );
+	}
+	if ( $items ) {
+		echo '<script type="application/ld+json">' . wp_json_encode( array( '@context' => 'https://schema.org', '@type' => 'FAQPage', '@id' => get_permalink( $p->get_id() ) . '#questions', 'mainEntity' => $items ) ) . '</script>' . "\n";
+	}
+}, 31 );
+
+/* ------------------------------------------------------------------
+ * 1.80.0: older journal guides get live stylist picks + links to the
+ * finder and the questions hub at the end (new guides already embed picks).
+ * ------------------------------------------------------------------ */
+function nura_guide_pick_queries() {
+	return apply_filters( 'nura_guide_pick_queries', array(
+		'human-hair-vs-semi-human-vs-fibre-wigs-kenya' => 'best value wig',
+		'how-long-does-a-wig-last'                     => 'human hair wig',
+		'frontal-vs-closure-wig'                       => '4x4 closure wig',
+		'how-to-care-for-a-fibre-wig'                  => 'fibre wig',
+		'how-to-care-for-a-human-hair-wig'             => 'human hair wig',
+		'headband-wig-vs-lace-front-wig'               => 'headband wig without glue',
+		'glueless-wigs-kenya'                          => 'glueless headband wig',
+		'how-to-choose-a-wig-for-your-face-shape'      => 'bob wig',
+		'how-to-measure-your-head-for-a-wig'           => 'headband wig adjustable',
+		'wig-installation-nairobi-what-to-expect'      => 'lace front human hair wig',
+		'how-to-buy-wigs-online-in-kenya-safely'       => 'best value wig',
+		'bridal-wigs-kenya'                            => 'wedding lace front wig',
+		'best-wigs-for-beginners-kenya'                => 'beginner headband wig',
+		'semi-human-wigs-kenya-guide'                  => 'semi-human blend wig',
+		'wig-revamp-nairobi'                           => 'human hair wig',
+	) );
+}
+add_filter( 'the_content', function ( $content ) {
+	if ( ! nura_wq_ready() || ! is_singular( 'post' ) || ! in_the_loop() || ! is_main_query() || false !== strpos( $content, 'nura-wq-picks' ) ) {
+		return $content;
+	}
+	$map  = nura_guide_pick_queries();
+	$slug = get_post_field( 'post_name', get_the_ID() );
+	if ( ! isset( $map[ $slug ] ) ) {
+		return $content;
+	}
+	$cards = NURAX_Knowledge::cards( NURAX_Knowledge::pick( array_merge( (array) ( NURAX_Knowledge::match( $map[ $slug ] )['h'] ?? array() ), NURAX_Knowledge::hints_from_text( $map[ $slug ] ) ), 3 ) );
+	$fy    = function_exists( 'nura_hub_url' ) ? nura_hub_url( 'find-your-wig', 'page' ) : '';
+	$wq    = function_exists( 'nura_hub_url' ) ? nura_hub_url( 'wig-questions', 'page' ) : '';
+	$more  = '';
+	if ( $fy || $wq ) {
+		$more = '<p class="nura-wq-more">' . ( $fy ? '<a href="' . esc_url( $fy ) . '">' . esc_html__( 'Find your wig in 5 questions', 'nura-beauty' ) . '</a>' : '' ) . ( $fy && $wq ? ' &middot; ' : '' ) . ( $wq ? '<a href="' . esc_url( $wq ) . '">' . esc_html__( '120+ wig questions answered', 'nura-beauty' ) . '</a>' : '' ) . '</p>';
+	}
+	return $content . nura_wq_cards( $cards, __( 'NURA Stylist picks for this guide', 'nura-beauty' ) ) . $more;
+}, 30 );

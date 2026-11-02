@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.95.0' );
+define( 'NURA_VERSION', '1.96.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -63,6 +63,7 @@ nura_require( 'nura-schema-tidy' );
 nura_require( 'nura-brand' );  // 1.82.0: official logo kit applied (header, icons, schema, share image).
 nura_require( 'nura-wig-questions' );
 nura_require( 'nura-services' );
+nura_require( 'nura-r3' );          // 1.96.0: R3 - two Google shipping rates, brand term, IndexNow, verification codes, Service schema.
 nura_require( 'nura-reviews-alt' );
 nura_require( 'nura-perf' );
 nura_require( 'nura-inner' );      // 1.91.0: classic editorial design for inner pages.       // 1.88.0: staged speed plan (stage 1 default; ?nura_perf=N to test). // 1.86.0: product image alt text, /review/ link, review request in completed-order email.  // 1.85.0: service prices, journal authorship, installation + Kiswahili pages, legacy category redirects. // 1.78.0: customer questions hub, stylist picks, Ask-the-stylist chips.  // 1.76.0 R2: one seller entity, NURA Beauty brand spelling, clean product properties.        // 1.75.0 Search Console clean-up: redirects, feed/REST noindex, empty categories.

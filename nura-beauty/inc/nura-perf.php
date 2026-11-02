@@ -153,6 +153,12 @@ add_action( 'wp_head', function () {
 	}
 	$srcset = wp_get_attachment_image_srcset( $id, $size );
 	$sizes  = wp_get_attachment_image_sizes( $id, $size );
+	// 1.101.0: when the WebP copies exist, preload exactly what the <img> uses.
+	if ( function_exists( 'nura_webp_srcset' ) && nura_webp_on() && '' !== nura_webp_srcset( $id ) ) {
+		$src    = array( nura_webp_src( $id ) );
+		$srcset = nura_webp_srcset( $id );
+		$sizes  = nura_webp_sizes();
+	}
 	printf(
 		'<link rel="preload" as="image" href="%1$s"%2$s%3$s fetchpriority="high">' . "\n",
 		esc_url( $src[0] ),

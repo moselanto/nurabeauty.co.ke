@@ -64,7 +64,8 @@ function nuraHouseInit() {
 	function open(force) {
 		// 1.82.3: never open without a real visitor gesture (tap/click/key) - stops it showing by itself
 		// and being measured by PageSpeed as the largest image. Preview links still work.
-		if (!C.preview && !(navigator.userActivation ? navigator.userActivation.hasBeenActive : force)) { return; }
+		// 1.82.4: only a real (trusted) tap on the tab or a [data-nhs-open] button, or a preview link.
+		if (!C.preview && !window.__nhsGo) { return; }
 		if (opened && !force) { return; }
 		if (C.debug && window.console) { console.log('[NURA House] open', { force: !!force, state: state(), busy: busy() }); }
 		if (!force && state()) { return; }
@@ -93,8 +94,13 @@ function nuraHouseInit() {
 			if (e.shiftKey && d.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && d.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
 		}
 	});
+	// 1.82.4: any visible 'Join The House' button with data-nhs-open opens the pop-up on tap.
+	d.addEventListener('click', function (ev) {
+		var o = ev.target && ev.target.closest ? ev.target.closest('[data-nhs-open]') : null;
+		if (o && ev.isTrusted) { ev.preventDefault(); window.__nhsGo = 1; open(true); }
+	});
 	if (tab) {
-		tab.addEventListener('click', function () { open(true); });
+		tab.addEventListener('click', function (ev) { if (ev.isTrusted) { window.__nhsGo = 1; open(true); } });
 		// 1.79.2: the tab no longer slides in by itself; while snoozed nothing appears.
 	}
 
@@ -124,7 +130,7 @@ function nuraHouseInit() {
 	var cp = box.querySelector('[data-nhs-copy]');
 	if (cp) { cp.addEventListener('click', function () { var t = box.querySelector('[data-nhs-codeval]').textContent; if (navigator.clipboard) { navigator.clipboard.writeText(t).then(function () { cp.textContent = 'Copied'; }); } }); }
 
-	if (C.preview) { if (!snoozed()) { setTimeout(function () { open(true); }, 800); } return; }
+	if (C.preview) { setTimeout(function () { open(true); }, 800); return; } // 1.82.4: preview ignores the 24 h snooze.
 
 	/* ---------- Slim slide-in bar (1.78.0) ----------
 	 * The centred pop-up no longer opens by itself (it covered product buttons).

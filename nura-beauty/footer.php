@@ -81,6 +81,7 @@ if ( ! function_exists( 'nura_footer_company_menu' ) ) {
 				<?php endif; ?>
 				<div class="nura-newsletter">
 					<h2 class="nura-foot-title"><?php esc_html_e( 'Join The House', 'nura-beauty' ); ?></h2>
+					<button type="button" class="nura-btn nura-btn--ghost nura-join-house" data-nhs-open><?php esc_html_e( 'Get your welcome offer', 'nura-beauty' ); ?></button>
 					<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" class="nura-subscribe-form">
 						<input type="hidden" name="action" value="nura_subscribe">
 						<?php wp_nonce_field( 'nura_subscribe', 'nura_sub_nonce' ); ?>

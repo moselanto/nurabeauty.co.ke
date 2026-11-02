@@ -100,19 +100,29 @@ add_filter( 'woocommerce_gallery_image_html_attachment_image_params', function (
 	}
 	return $params;
 }, 21, 4 );
-add_filter( 'wp_calculate_image_srcset', function ( $sources ) {
+add_filter( 'wp_calculate_image_srcset', function ( $sources, $size_array = array(), $image_src = '', $image_meta = array() ) {
 	if ( ! is_array( $sources ) || ! function_exists( 'is_product' ) || ! is_product() ) {
 		return $sources;
 	}
+	// 1.90.0: the originals (e.g. 318-02.jpg, 768 or 896 px wide but 470-560 KB, uncompressed)
+	// slipped under the 1024 px cap and phones picked them; never offer the original file.
+	$orig = ! empty( $image_meta['file'] ) ? wp_basename( (string) $image_meta['file'] ) : '';
 	foreach ( $sources as $w => $s ) {
-		if ( (int) $w > 1024 ) {
+		$url = isset( $s['url'] ) ? (string) $s['url'] : '';
+		if ( (int) $w > 1024 || ( '' !== $orig && wp_basename( $url ) === $orig && count( $sources ) > 1 ) ) {
 			unset( $sources[ $w ] );
 		}
 	}
 	return $sources;
-}, 20 );
+}, 20, 4 );
 
 /* 1.89.0: the 'Join The House' pop-up can never paint unless it was opened. */
 add_action( 'wp_head', function () {
 	echo '<style id="nura-nhs-guard">.nhs[hidden],.nhs-bar[hidden],.nhs-tab[hidden]{display:none!important}</style>' . "\n";
 }, 2 );
+
+/* 1.90.0: a visible 'Join The House' tap point in the footer (opens the pop-up on tap only;
+ * hidden automatically when the pop-up is switched off). */
+add_action( 'wp_head', function () {
+	echo '<style id="nura-join-css">.nura-join-house{margin:.2rem 0 .9rem;cursor:pointer}body:not(:has(.nhs)) .nura-join-house{display:none}</style>' . "\n";
+}, 3 );

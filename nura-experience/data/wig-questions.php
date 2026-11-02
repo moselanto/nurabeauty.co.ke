@@ -80,6 +80,7 @@ return array(
 		'beginner' => 'beginner easy',
 		'rahisi' => 'easy beginner',
 		'african hair' => 'natural african look afro kinky',
+		'bei ya installation' => 'how much does wig installation cost',
 	),
 	'cats' => array(
 		array(
@@ -351,7 +352,7 @@ return array(
 				),
 				array(
 					'How much does wig installation cost?',
-					'Installation prices depend on the unit and the look, and are listed on our installation and booking pages. Wig revamps start from KSh 1,500. Video and WhatsApp consultations are free.',
+					'Wig installation is from KSh 1,500, for your NURA unit or your own. Guide prices: styling or restyle KSh 1,000 to 2,500, wash and revamp from KSh 1,500, colouring KSh 2,500 to 5,000 (human hair only), re-lacing or repair from 2,000. Your stylist confirms the final price for your unit.',
 					array(),
 				),
 				array(
@@ -390,17 +391,17 @@ return array(
 				),
 				array(
 					'Do you offer wig revamping?',
-					'Yes. We wash, treat and restyle tired wigs at the studio. Revamps start from KSh 1,500.',
+					'Yes. Wash and revamp is from KSh 1,500, and re-lacing or repair from KSh 2,000.',
 					array(),
 				),
 				array(
 					'Can you style my wig after installation?',
-					'Yes. Styling is part of our installation and styling service.',
+					'Yes. Styling or restyling (a fresh cut, curls or a new parting) costs KSh 1,000 to 2,500.',
 					array(),
 				),
 				array(
 					'Do you wash and prepare wigs before installation?',
-					'Yes, washing and preparing a unit can be added to your service. Tell us when you book.',
+					'Yes. Wash and revamp is from KSh 1,500: a deep wash, condition and restyle. Tell us when you book.',
 					array(),
 				),
 				array(
@@ -418,6 +419,26 @@ return array(
 				array(
 					'Can I come with my own natural hair braided?',
 					'Yes, that is ideal. Flat braids or cornrows give the smoothest fit.',
+					array(),
+				),
+				array(
+					'How much does wig styling cost?',
+					'Styling or restyling a wig (a fresh cut, curls or a new parting) costs KSh 1,000 to 2,500.',
+					array(),
+				),
+				array(
+					'How much does wig colouring cost?',
+					'Custom colouring for human hair wigs costs KSh 2,500 to 5,000.',
+					array(),
+				),
+				array(
+					'How much does re-lacing or wig repair cost?',
+					'Re-lacing or repair is from KSh 2,000: new lace or repairs so your wig fits and lasts.',
+					array(),
+				),
+				array(
+					'How much is a wig revamp or wash?',
+					'Wash and revamp is from KSh 1,500: a deep wash, condition and restyle to bring a tired wig back to life.',
 					array(),
 				),
 			),
@@ -651,7 +672,7 @@ return array(
 				),
 				array(
 					'Can human hair wigs be dyed?',
-					'Yes, 100% human hair wigs can be coloured, best done by a professional at a studio. Blend wigs are not recommended for colouring and fibre wigs cannot be dyed.',
+					'Yes, 100% human hair wigs can be coloured by our stylists, from KSh 2,500 to 5,000. Blend wigs are not recommended for colouring and fibre wigs cannot be dyed.',
 					array(
 						'hair' => 'human',
 					),
@@ -727,7 +748,7 @@ return array(
 				),
 				array(
 					'Can I revive an old wig?',
-					'Often, yes. A wig revamp at our studio washes, treats and restyles it. Revamps start from KSh 1,500.',
+					'Often, yes. A wash and revamp at our studio is from KSh 1,500, and re-lacing or repair is from KSh 2,000.',
 					array(),
 				),
 				array(

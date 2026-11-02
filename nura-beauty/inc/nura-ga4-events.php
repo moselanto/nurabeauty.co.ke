@@ -105,3 +105,32 @@ add_action( 'wp_footer', function () {
 	</script>
 	<?php
 }, 99 );
+
+/* ------------------------------------------------------------------
+ * 1.84.0: lead events for GA4 (mark as key events in GA4 Admin):
+ *   whatsapp_click       - any click to WhatsApp (wa.me, api.whatsapp.com, whatsapp:)
+ *   finder_use           - 5-step AI Stylist finder submitted (results shown)
+ *   installation_booking - studio appointment request accepted by the booking API
+ *   stylist_question     - a question sent to the NURA Stylist chat
+ * Inline, dependency-free; sends through the gtag() already on the page.
+ * No personal data (names, phones) is ever sent.
+ * ------------------------------------------------------------------ */
+add_action( 'wp_footer', function () {
+	if ( is_admin() ) {
+		return;
+	}
+	$finder = array();
+	foreach ( array( 'b' => 'budget', 't' => 'wig_type', 'l' => 'look', 'i' => 'installation', 'n' => 'length' ) as $k => $label ) {
+		if ( isset( $_GET[ 'nsf_' . $k ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only analytics.
+			$finder[ $label ] = sanitize_key( wp_unslash( $_GET[ 'nsf_' . $k ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
+	}
+	?>
+<script id="nura-ga4-leads">(function(w,d){function ev(n,p){p=p||{};p.page_path=location.pathname;if(typeof w.gtag==='function'){w.gtag('event',n,p);}else{(w.dataLayer=w.dataLayer||[]).push(['event',n,p]);}}
+d.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a){return;}var h=a.getAttribute('href')||'';if(/wa\.me|api\.whatsapp\.com|whatsapp:/i.test(h)){ev('whatsapp_click',{link_text:(a.textContent||'').trim().slice(0,60),link_location:a.closest('header')?'header':(a.closest('footer')?'footer':(a.closest('[data-nurax-stylist]')?'stylist_chat':(a.closest('.product,.single-product')?'product':'page')))});}},true);
+d.addEventListener('submit',function(e){var f=e.target;if(f&&f.matches&&f.matches('[data-stylist-form]')){ev('stylist_question',{});}},true);
+var F=<?php echo wp_json_encode( (object) $finder ); ?>;if(F&&F.budget){ev('finder_use',F);}
+if(w.fetch){var of=w.fetch;w.fetch=function(u,o){var p=of.apply(this,arguments);try{var url=typeof u==='string'?u:(u&&u.url)||'';if(/stylist-booking/.test(url)&&o&&String(o.method||'').toUpperCase()==='POST'){var svc='';try{svc=(JSON.parse(o.body||'{}').service)||'';}catch(x){}p.then(function(r){if(r&&r.ok){ev('installation_booking',{service:String(svc).slice(0,40)});}}).catch(function(){});}}catch(x){}return p;};}
+})(window,document);</script>
+	<?php
+}, 98 );

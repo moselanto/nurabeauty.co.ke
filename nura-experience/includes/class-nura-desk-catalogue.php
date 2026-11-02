@@ -27,6 +27,7 @@ class NURAX_Desk_Catalogue {
 	public static function hooks() {
 		add_action( 'admin_post_nurax_cat_apply', array( __CLASS__, 'h_apply' ) );
 		add_action( 'admin_post_nurax_cat_undo', array( __CLASS__, 'h_undo' ) );
+		add_action( 'admin_post_nurax_cat_refresh', array( __CLASS__, 'h_refresh' ) );
 	}
 
 	public static function items() {
@@ -52,15 +53,67 @@ class NURAX_Desk_Catalogue {
 		return (bool) preg_match( $re, strtolower( $text ) );
 	}
 
+	/** Colour names from the product's colour attribute (used when WhatsApp lists none). */
+	public static function product_colours( $product ) {
+		if ( ! $product ) {
+			return array();
+		}
+		foreach ( array( 'pa_colour', 'colour', 'Colour', 'pa_color' ) as $a ) {
+			$v = trim( (string) $product->get_attribute( $a ) );
+			if ( '' !== $v ) {
+				return array_values( array_unique( array_filter( array_map( 'trim', preg_split( '/[,|]/', $v ) ) ) ) );
+			}
+		}
+		return array();
+	}
+
+	/** Current price of a product (lowest variation price for variable products). */
+	public static function product_price( $product ) {
+		if ( ! $product ) {
+			return null;
+		}
+		$v = $product->is_type( 'variable' ) ? (float) $product->get_variation_price( 'min', true ) : (float) $product->get_price();
+		return $v > 0 ? $v : null;
+	}
+
+	/** [ kind, cap ] e.g. [ '100% human hair', 'lace front bob wig' ]. */
+	public static function classify( $it, $title, $product ) {
+		$cats = $product ? wp_strip_all_tags( wc_get_product_category_list( $product->get_id(), ' ' ) ) : '';
+		$attr = $product ? implode( ' ', array( $product->get_attribute( 'pa_hair-type' ), $product->get_attribute( 'pa_lace' ), $product->get_attribute( 'pa_texture' ), $product->get_attribute( 'Construction' ), $product->get_attribute( 'Hair Type' ) ) ) : '';
+		$name  = strtolower( $title . ' ' . $it['text'] . ' ' . $cats . ' ' . $attr );
+		$human = self::has( $name, '/100%\s*human|pure human|human hair wigs|human hair\b/' ) && ! self::has( $name, '/semi|blend|fibre|synthetic|heat-resistant/' );
+		$semi  = self::has( $name, '/semi|blend/' );
+		$kind  = $human ? '100% human hair' : ( $semi ? 'human-hair blend (semi-human)' : 'premium heat-resistant fibre' );
+		if ( self::has( $name, '/headband/' ) ) {
+			$cap = 'headband wig';
+		} elseif ( self::has( $name, '/13\s*[x\*×]\s*4|13 by 4|frontal/' ) ) {
+			$cap = '13x4 lace frontal wig';
+		} elseif ( self::has( $name, '/2\s*[x×]\s*2/' ) ) {
+			$cap = '2x2 lace closure wig';
+		} elseif ( self::has( $name, '/4\s*[x\*×]\s*4|closure/' ) ) {
+			$cap = '4x4 lace closure wig';
+		} elseif ( self::has( $name, '/lace front/' ) ) {
+			$cap = 'lace front wig';
+		} else {
+			$cap = 'wig';
+		}
+		if ( self::has( $title, '/\bbob\b/' ) && false === strpos( $cap, 'bob' ) ) {
+			$cap = str_replace( 'wig', 'bob wig', $cap );
+		}
+		return array( $kind, $cap, $human );
+	}
+
 	public static function describe( $it, $title, $price, $product ) {
 		$text  = trim( (string) $it['text'] );
 		$cols  = array_values( array_filter( (array) $it['colours'] ) );
-		$hair  = $product ? trim( (string) $product->get_attribute( 'pa_hair-type' ) ) : '';
-		$name  = strtolower( $title . ' ' . $text . ' ' . $hair . ' ' . ( $product ? $product->get_name() : '' ) );
-		$human = self::has( $name, '/human hair|100%/' ) && ! self::has( $name, '/semi|blend|fibre|synthetic/' );
-		$semi  = self::has( $name, '/semi|blend/' );
-		$kind  = $human ? '100% human hair' : ( $semi ? 'human-hair blend (semi-human)' : 'premium heat-resistant fibre' );
-		$cap   = self::has( $name, '/headband/' ) ? 'headband wig' : ( self::has( $name, '/13\s*[x\*]\s*4|frontal/' ) ? '13x4 lace frontal wig' : ( self::has( $name, '/2\s*x\s*2/' ) ? '2x2 lace closure wig' : ( self::has( $name, '/4\s*[x\*]\s*4|closure/' ) ? '4x4 lace closure wig' : 'wig' ) ) );
+		if ( ! $cols ) {
+			$cols = self::product_colours( $product );
+		}
+		if ( ! $price ) {
+			$price = self::product_price( $product );
+		}
+		list( $kind, $cap, $human ) = self::classify( $it, $title, $product );
+		$name  = strtolower( $title . ' ' . $text . ' ' . $kind . ' ' . $cap );
 		$why   = array();
 		if ( self::has( $name, '/glueless|headband|wear and go|ready to wear/' ) ) {
 			$why[] = '<strong>Glueless, wear and go</strong> - no glue or salon needed; put it on in minutes and take it off at night.';
@@ -78,7 +131,7 @@ class NURAX_Desk_Catalogue {
 		$why[] = '<strong>Comfortable all day</strong> - adjustable straps and combs for a secure, light fit.';
 
 		$p   = $price ? 'KSh ' . number_format( (float) $price ) : '';
-		$h   = '<p class="nura-answer"><strong>In short:</strong> The ' . esc_html( $title ) . ' is a ' . esc_html( $kind . ' ' . $cap ) . ( $p ? ' at ' . esc_html( $p ) : '' ) . ( $cols ? ', available in ' . esc_html( implode( ', ', $cols ) ) : '' ) . '. Same-day delivery in Nairobi for orders before 5 PM, countrywide delivery in 1-3 days, pay by M-Pesa or card.</p>';
+		$h   = '<p class="nura-answer"><strong>In short:</strong> ' . esc_html( $title ) . ' - a ' . esc_html( $kind . ' ' . $cap ) . ( $p ? ' at ' . esc_html( $p ) : '' ) . ( $cols ? ', available in ' . esc_html( implode( ', ', $cols ) ) : '' ) . '. Same-day delivery in Nairobi for orders before 5 PM, countrywide delivery in 1-3 days, pay by M-Pesa or card.</p>';
 		$h  .= '<h2>About the ' . esc_html( $title ) . '</h2>';
 		$h  .= '<p>' . esc_html( $text ? rtrim( $text, '.' ) . '.' : 'A ' . $kind . ' ' . $cap . ' from NURA Beauty, chosen for a natural look and easy everyday wear.' ) . '</p>';
 		$h  .= '<h2>Why you will love it</h2><ul><li>' . implode( '</li><li>', $why ) . '</li></ul>';
@@ -100,6 +153,47 @@ class NURAX_Desk_Catalogue {
 		$h .= '<h2>Need help choosing?</h2><p>Chat with a NURA stylist on WhatsApp (+254 714 994 898) or try the <a href="/ai-wig-finder/">Wig Finder</a>. We also install, style and revamp wigs at the studio.</p>';
 		$short = esc_html( $text ? rtrim( $text, '.' ) . '.' : ucfirst( $kind . ' ' . $cap ) . '.' ) . ( $cols ? ' <strong>Colours:</strong> ' . esc_html( implode( ', ', $cols ) ) . '.' : '' );
 		return array( $h, '<p>' . $short . '</p>' );
+	}
+
+	/**
+	 * 1.88.0: search-engine title, description and focus keyword. The visible title stays the
+	 * short WhatsApp name; Google gets the full descriptive phrase people search
+	 * ("... Wig Kenya | 100% Human Hair Lace Front Bob | KSh 7,500").
+	 */
+	public static function seo_meta( $product, $it, $title ) {
+		list( $kind, $cap ) = self::classify( $it, $title, $product );
+		$price = self::product_price( $product );
+		$t     = $title . ( self::has( $title, '/wig/' ) ? '' : ( self::has( $cap, '/closure|frontal|headband/' ) ? '' : ' Wig' ) );
+		$seo_t = $t . ' Kenya | ' . ucwords( $kind === 'premium heat-resistant fibre' ? 'Heat-Resistant Fibre' : ( 0 === strpos( $kind, '100%' ) ? '100% Human Hair' : 'Semi-Human' ) ) . ' ' . ucwords( $cap ) . ( $price ? ' | KSh ' . number_format( $price ) : '' ) . ' | NURA Beauty';
+		$cols  = array_values( array_filter( (array) $it['colours'] ) );
+		$cols  = $cols ? $cols : self::product_colours( $product );
+		$desc  = 'Buy the ' . $title . ', a ' . $kind . ' ' . $cap . ( $price ? ', KSh ' . number_format( $price ) : '' ) . ( $cols ? ', in ' . implode( ', ', array_slice( $cols, 0, 4 ) ) : '' ) . '. Same-day Nairobi delivery, countrywide 1-3 days, M-Pesa. NURA Beauty, Nairobi CBD.';
+		$product->update_meta_data( 'rank_math_title', mb_substr( $seo_t, 0, 120 ) );
+		$product->update_meta_data( 'rank_math_description', mb_substr( $desc, 0, 160 ) );
+		$product->update_meta_data( 'rank_math_focus_keyword', strtolower( trim( preg_replace( '/[()]/', '', $title ) ) ) . ( self::has( $title, '/wig/' ) ? '' : ' wig' ) . ' kenya' );
+	}
+
+	/** Guess a shop category for a new product from its style. */
+	private static function cat_ids( $cap, $kind ) {
+		$slugs = array();
+		if ( false !== strpos( $cap, 'closure' ) ) {
+			$slugs[] = 'closure-wigs';
+		} elseif ( false !== strpos( $cap, 'headband' ) ) {
+			$slugs[] = 'headband-wigs';
+		} elseif ( false !== strpos( $cap, 'bob' ) ) {
+			$slugs[] = 'bob-wigs';
+		} else {
+			$slugs[] = 'lace-front-wigs';
+		}
+		$slugs[] = 0 === strpos( $kind, '100%' ) ? 'human-hair-wigs' : 'wigs';
+		$ids = array();
+		foreach ( $slugs as $sl ) {
+			$t = get_term_by( 'slug', $sl, 'product_cat' );
+			if ( $t ) {
+				$ids[] = (int) $t->term_id;
+			}
+		}
+		return $ids;
 	}
 
 	/* ------------------------------------------------------------ backup / prices */
@@ -158,15 +252,39 @@ class NURAX_Desk_Catalogue {
 			if ( empty( $r['on'] ) || empty( $r['pid'] ) || ! isset( $items[ $i ] ) ) {
 				continue;
 			}
-			$pid = absint( $r['pid'] );
-			$p   = wc_get_product( $pid );
-			if ( ! $p || isset( $mapped[ $pid ] ) ) {
-				continue; // never write two WhatsApp items onto one product
-			}
 			$title = sanitize_text_field( isset( $r['title'] ) ? $r['title'] : $items[ $i ]['title'] );
 			$price = isset( $r['price'] ) && '' !== trim( (string) $r['price'] ) ? (float) preg_replace( '/[^0-9.]/', '', (string) $r['price'] ) : null;
 			if ( '' === $title ) {
 				continue;
+			}
+			if ( 'new' === $r['pid'] ) {
+				// 1.88.0: create the WhatsApp item as a new product - Draft until the photo is added.
+				$p = new WC_Product_Simple();
+				$p->set_name( $title );
+				$p->set_status( 'draft' );
+				$p->set_catalog_visibility( 'visible' );
+				list( $kind, $cap ) = self::classify( $items[ $i ], $title, null );
+				$p->set_category_ids( self::cat_ids( $cap, $kind ) );
+				$p->update_meta_data( '_nura_wa_key', $items[ $i ]['key'] );
+				$p->save();
+				$pid     = $p->get_id();
+				$created = isset( $created ) ? $created + 1 : 1;
+				$backup['created'][] = $pid;
+				list( $long, $short ) = self::describe( $items[ $i ], $title, $price, $p );
+				$p->set_description( $long );
+				$p->set_short_description( $short );
+				if ( $price && $price > 0 ) {
+					$p->set_regular_price( (string) $price );
+				}
+				self::seo_meta( $p, $items[ $i ], $title );
+				$p->save();
+				$mapped[ $pid ] = true;
+				continue;
+			}
+			$pid = absint( $r['pid'] );
+			$p   = wc_get_product( $pid );
+			if ( ! $p || isset( $mapped[ $pid ] ) ) {
+				continue; // never write two WhatsApp items onto one product
 			}
 			$backup['products'][ $pid ] = self::snap( $p );
 			list( $long, $short ) = self::describe( $items[ $i ], $title, $price, $p );
@@ -180,6 +298,7 @@ class NURAX_Desk_Catalogue {
 				$p->set_status( 'publish' );
 			}
 			$p->update_meta_data( '_nura_wa_key', $items[ $i ]['key'] );
+			self::seo_meta( $p, $items[ $i ], $title );
 			$p->save();
 			$mapped[ $pid ] = true;
 			$done++;
@@ -197,12 +316,41 @@ class NURAX_Desk_Catalogue {
 				$dr++;
 			}
 		}
+		$created = isset( $created ) ? $created : 0;
 		update_option( self::BACKUP, $backup, false );
 		if ( class_exists( 'NURAX_Staff' ) && method_exists( 'NURAX_Staff', 'log' ) ) {
 			NURAX_Staff::log( 'catalogue', 'Catalogue sync: ' . $done . ' product(s) updated from WhatsApp, ' . $dr . ' moved to draft' );
 		}
 		do_action( 'litespeed_purge_all' );
-		wp_safe_redirect( NURAX_Desk::url( self::PAGE, array( 'done' => $done, 'drafted' => $dr ) ) );
+		wp_safe_redirect( NURAX_Desk::url( self::PAGE, array( 'done' => $done, 'drafted' => $dr, 'created' => $created ) ) );
+		exit;
+	}
+
+	/** 1.88.0: rebuild description, short description and search titles of every synced product (titles/prices unchanged). */
+	public static function h_refresh() {
+		self::guard( 'nurax_cat_refresh' );
+		$by = array();
+		foreach ( self::items() as $it ) {
+			$by[ $it['key'] ] = $it;
+		}
+		$backup = array( 'time' => current_time( 'mysql' ), 'user' => get_current_user_id(), 'products' => array() );
+		$n      = 0;
+		foreach ( wc_get_products( array( 'limit' => -1, 'status' => array( 'publish', 'draft', 'private', 'pending' ), 'meta_key' => '_nura_wa_key' ) ) as $p ) { // phpcs:ignore WordPress.DB.SlowDBQuery
+			$k = (string) $p->get_meta( '_nura_wa_key' );
+			if ( ! isset( $by[ $k ] ) ) {
+				continue;
+			}
+			$backup['products'][ $p->get_id() ] = self::snap( $p );
+			list( $long, $short ) = self::describe( $by[ $k ], $p->get_name(), null, $p );
+			$p->set_description( $long );
+			$p->set_short_description( $short );
+			self::seo_meta( $p, $by[ $k ], $p->get_name() );
+			$p->save();
+			$n++;
+		}
+		update_option( self::BACKUP, $backup, false );
+		do_action( 'litespeed_purge_all' );
+		wp_safe_redirect( NURAX_Desk::url( self::PAGE, array( 'refreshed' => $n ) ) );
 		exit;
 	}
 
@@ -211,7 +359,7 @@ class NURAX_Desk_Catalogue {
 		$b = get_option( self::BACKUP );
 		$n = 0;
 		if ( is_array( $b ) && ! empty( $b['products'] ) ) {
-			foreach ( $b['products'] as $pid => $s ) {
+			foreach ( (array) $b['products'] as $pid => $s ) {
 				$p = wc_get_product( $pid );
 				if ( ! $p ) {
 					continue;
@@ -240,6 +388,13 @@ class NURAX_Desk_Catalogue {
 			delete_option( self::BACKUP );
 			do_action( 'litespeed_purge_all' );
 		}
+		if ( is_array( $b ) && ! empty( $b['created'] ) ) {
+			foreach ( $b['created'] as $cid ) {
+				wp_trash_post( (int) $cid ); // products created by the sync go to Trash (restorable)
+				$n++;
+			}
+			delete_option( self::BACKUP );
+		}
 		wp_safe_redirect( NURAX_Desk::url( self::PAGE, array( 'undone' => $n ) ) );
 		exit;
 	}
@@ -266,10 +421,17 @@ class NURAX_Desk_Catalogue {
 		if ( is_array( $b ) && ! empty( $b['products'] ) ) {
 			$act = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" onsubmit="return confirm(\'Restore every product changed by the last sync (titles, descriptions, prices, status)?\')">' . wp_nonce_field( 'nurax_cat_undo', '_wpnonce', true, false ) . '<input type="hidden" name="action" value="nurax_cat_undo"><button class="nd-btn nd-btn--ghost">Undo last sync (' . esc_html( $b['time'] ) . ')</button></form>';
 		}
+		$act .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" onsubmit="return confirm(\'Rebuild the description and Google title of every synced product? Titles and prices stay as they are.\')">' . wp_nonce_field( 'nurax_cat_refresh', '_wpnonce', true, false ) . '<input type="hidden" name="action" value="nurax_cat_refresh"><button class="nd-btn nd-btn--ghost">Refresh descriptions &amp; Google titles</button></form>';
 		NURAX_Desk::header( self::PAGE, 'Catalogue sync', $act );
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['done'] ) ) {
 			echo '<div class="nd-alert nd-alert--ok nc-msg">Done: ' . (int) $_GET['done'] . ' product(s) updated from WhatsApp and ' . (int) ( $_GET['drafted'] ?? 0 ) . ' moved to draft. The page cache was cleared. Use "Undo last sync" if anything looks wrong.</div>';
+		}
+		if ( isset( $_GET['created'] ) && (int) $_GET['created'] ) {
+			echo '<div class="nd-alert nd-alert--ok nc-msg">' . (int) $_GET['created'] . ' new product(s) created as <strong>Draft</strong>. Open each one under Products, add the photo (and colour options if needed), then Publish.</div>';
+		}
+		if ( isset( $_GET['refreshed'] ) ) {
+			echo '<div class="nd-alert nd-alert--ok nc-msg">Refreshed the descriptions and Google titles of ' . (int) $_GET['refreshed'] . ' synced product(s). Titles and prices were not changed.</div>';
 		}
 		if ( isset( $_GET['undone'] ) ) {
 			echo '<div class="nd-alert nd-alert--ok nc-msg">Restored ' . (int) $_GET['undone'] . ' product(s) to how they were before the sync.</div>';
@@ -290,11 +452,21 @@ class NURAX_Desk_Catalogue {
 		foreach ( $items as $i => $it ) {
 			$pid = (int) $it['pid'];
 			$cur = $pid && isset( $all[ $pid ] ) ? $all[ $pid ] : null;
-			$on  = $cur && 'none' !== $it['conf'];
+			$synced = $cur && (string) $cur->get_meta( '_nura_wa_key' ) === (string) $it['key'];
+			if ( ! $pid ) {
+				foreach ( $all as $aid => $ap ) {
+					if ( (string) $ap->get_meta( '_nura_wa_key' ) === (string) $it['key'] ) {
+						$pid    = (int) $aid;
+						$cur    = $ap;
+						$synced = true;
+					}
+				}
+			}
+			$on  = ! $synced && ( $cur ? 'none' !== $it['conf'] : true );
 			echo '<tr class="nc-r nc-r--' . esc_attr( $it['conf'] ) . '"><td class="nc-on"><input type="checkbox" name="row[' . (int) $i . '][on]" value="1"' . checked( $on, true, false ) . ' aria-label="Apply this row"></td>';
-			echo '<td><input class="nc-in" type="text" name="row[' . (int) $i . '][title]" value="' . esc_attr( $it['title'] ) . '"><small>' . esc_html( $it['colours'] ? 'Colours: ' . implode( ', ', $it['colours'] ) : 'No colours listed on WhatsApp' ) . '</small><span class="nc-b nc-b--' . esc_attr( $it['conf'] ) . '">' . esc_html( 'high' === $it['conf'] ? 'Clear match' : ( 'check' === $it['conf'] ? 'Please confirm' : 'No product found' ) ) . '</span></td>';
+			echo '<td><input class="nc-in" type="text" name="row[' . (int) $i . '][title]" value="' . esc_attr( $it['title'] ) . '"><small>' . esc_html( $it['colours'] ? 'Colours: ' . implode( ', ', $it['colours'] ) : 'No colours listed on WhatsApp' ) . '</small><span class="nc-b nc-b--' . esc_attr( $synced ? 'high' : $it['conf'] ) . '">' . esc_html( $synced ? 'Synced - live' : ( 'high' === $it['conf'] ? 'Clear match' : ( 'check' === $it['conf'] ? 'Please confirm' : 'New product' ) ) ) . '</span></td>';
 			echo '<td><input class="nc-in nc-in--p" type="text" inputmode="numeric" name="row[' . (int) $i . '][price]" value="' . esc_attr( $it['price'] ? (string) $it['price'] : '' ) . '" placeholder="keep current"></td>';
-			echo '<td><select class="nc-sel" name="row[' . (int) $i . '][pid]"><option value="">- choose a product -</option>';
+			echo '<td><select class="nc-sel" name="row[' . (int) $i . '][pid]"><option value="">- choose a product -</option><option value="new"' . selected( ! $cur, true, false ) . '>+ Create as a new product (Draft until you add the photo)</option>';
 			foreach ( $all as $id => $p ) {
 				echo '<option value="' . (int) $id . '"' . selected( $pid, $id, false ) . '>' . esc_html( $p->get_name() . ( 'publish' !== $p->get_status() ? ' (' . $p->get_status() . ')' : '' ) ) . '</option>';
 			}

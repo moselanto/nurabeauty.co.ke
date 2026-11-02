@@ -243,8 +243,9 @@ final class NURAX_Knowledge {
 			return array();
 		}
 		$max  = isset( $hints['max'] ) ? (float) $hints['max'] : 0;
-		$pool = array_filter( $rows, function ( $r ) use ( $max ) {
-			return $r['stock'] && ( ! $max || $r['price'] <= $max * 1.05 );
+		$min  = isset( $hints['min'] ) ? (float) $hints['min'] : 0; // 1.81.2: budget bands from the 5-step finder.
+		$pool = array_filter( $rows, function ( $r ) use ( $max, $min ) {
+			return $r['stock'] && ( ! $max || $r['price'] <= $max * 1.05 ) && ( ! $min || $r['price'] >= $min );
 		} );
 		if ( ! $pool ) {
 			$pool = array_filter( $rows, function ( $r ) {
@@ -267,6 +268,14 @@ final class NURAX_Knowledge {
 			}
 			if ( ! empty( $hints['length'] ) && false !== strpos( $r['text'], $hints['length'] . '"' ) ) {
 				$s += 3;
+			}
+			if ( ! empty( $hints['lenset'] ) ) {
+				foreach ( (array) $hints['lenset'] as $l ) {
+					if ( false !== strpos( $r['text'], (string) $l ) ) {
+						$s += 3;
+						break;
+					}
+				}
 			}
 			$r['score'] = $s;
 		}
@@ -317,6 +326,45 @@ final class NURAX_Knowledge {
 			);
 		}
 		return $out;
+	}
+
+	/**
+	 * Plain-language reasons a product fits the hints (for "why this wig").
+	 *
+	 * @return string[]
+	 */
+	public static function why( $id, $hints ) {
+		$row = null;
+		foreach ( self::catalogue() as $r ) {
+			if ( (int) $r['id'] === (int) $id ) {
+				$row = $r;
+				break;
+			}
+		}
+		if ( ! $row ) {
+			return array();
+		}
+		$t   = $row['text'];
+		$out = array();
+		if ( ! empty( $hints['max'] ) || ! empty( $hints['min'] ) ) {
+			$out[] = sprintf( __( 'In your budget at %s', 'nura-experience' ), self::ksh( $row['price'] ) );
+		}
+		if ( false !== strpos( $t, 'headband' ) ) {
+			$out[] = __( 'No glue or lace: on in five minutes', 'nura-experience' );
+		} elseif ( false !== strpos( $t, 'closure' ) ) {
+			$out[] = __( '4x4 closure: natural parting, usually worn glueless', 'nura-experience' );
+		} elseif ( false !== strpos( $t, 'lace front' ) || false !== strpos( $t, 'frontal' ) ) {
+			$out[] = __( 'Lace front for the most natural hairline (we can install it)', 'nura-experience' );
+		}
+		$hair = array( 'human' => __( '100% human hair: heat-style, colour, lasts about a year or more', 'nura-experience' ), 'blend' => __( 'Human-hair blend: softer than fibre for less than human hair', 'nura-experience' ), 'fibre' => __( 'Heat-resistant fibre: styled out of the box, easy care', 'nura-experience' ) );
+		$out[] = $hair[ $row['hair'] ];
+		if ( ! empty( $hints['texture'] ) && false !== strpos( $t, (string) $hints['texture'] ) ) {
+			$out[] = __( 'Matches the texture you want', 'nura-experience' );
+		}
+		if ( ! empty( $hints['occasion'] ) && false !== strpos( $t, (string) $hints['occasion'] ) ) {
+			$out[] = __( 'Suited to the occasion you chose', 'nura-experience' );
+		}
+		return array_slice( $out, 0, 3 );
 	}
 
 	/** One full stylist turn: answer + follow-up + 3 products. */

@@ -58,6 +58,7 @@ function nura_wq_render() {
 	$h    = '<div class="nura-wq">';
 	$h   .= '<p class="nura-answer"><strong>' . esc_html__( 'Short answer:', 'nura-beauty' ) . '</strong> ' . esc_html( NURAX_Knowledge::fill( 'At NURA Beauty, heat-resistant fibre wigs cost {fibre_min} to {fibre_max}, human-hair blend wigs start at {blend_min} and 100% human hair wigs cost {human_min} to {human_max}. Headband and 4x4 closure wigs need no glue, our studio at {address} installs and revamps wigs, and we deliver countrywide. Every answer below comes from our stylists and our live shop.' ) ) . '</p>';
 	$h   .= '<p class="nura-wq-ask">' . nura_wq_chip( __( 'Help me choose a wig', 'nura-beauty' ), __( 'Ask NURA Stylist', 'nura-beauty' ) ) . ' <span>' . esc_html__( 'English, Kiswahili or Sheng: "Ni wig gani poa ya daily?"', 'nura-beauty' ) . '</span></p>';
+	$h   .= nura_sf_render();
 	$h   .= '<nav class="nura-wq-toc" aria-label="' . esc_attr__( 'Question topics', 'nura-beauty' ) . '"><ol>';
 	foreach ( $cats as $c ) {
 		$h .= '<li><a href="#' . esc_attr( $c['id'] ) . '">' . esc_html( $c['title'] ) . '</a></li>';
@@ -78,12 +79,147 @@ function nura_wq_render() {
 }
 add_shortcode( 'nura_wig_questions', 'nura_wq_render' );
 
+/* ------------------------------------------------------------------
+ * 1.79.0: NURA AI Stylist 5-step finder (owner strategy doc, section 3).
+ * Budget band -> wig type -> look -> installation -> length, then three
+ * in-stock live products with "why it fits" and the right next step.
+ * Plain HTML form (GET), no JS required, works on cached pages.
+ * ------------------------------------------------------------------ */
+function nura_sf_steps() {
+	return array(
+		'b' => array( __( 'What is your budget?', 'nura-beauty' ), array( 'u3' => __( 'Under KES 3,000', 'nura-beauty' ), '35' => __( 'KES 3,000 - 5,000', 'nura-beauty' ), '510' => __( 'KES 5,000 - 10,000', 'nura-beauty' ), '1015' => __( 'KES 10,000 - 15,000', 'nura-beauty' ), '15' => __( 'KES 15,000+', 'nura-beauty' ) ) ),
+		't' => array( __( 'What type of wig do you prefer?', 'nura-beauty' ), array( 'easy' => __( 'Easy to wear / glueless', 'nura-beauty' ), 'lace' => __( 'Lace front', 'nura-beauty' ), 'closure' => __( '4x4 closure', 'nura-beauty' ), 'headband' => __( 'Headband wig', 'nura-beauty' ), 'any' => __( 'No preference - recommend for me', 'nura-beauty' ) ) ),
+		'l' => array( __( 'What look are you going for?', 'nura-beauty' ), array( 'natural' => __( 'Natural everyday look', 'nura-beauty' ), 'glam' => __( 'Elegant and glamorous', 'nura-beauty' ), 'office' => __( 'Professional / office look', 'nura-beauty' ), 'curly' => __( 'Curly and voluminous', 'nura-beauty' ), 'bob' => __( 'Short bob hairstyle', 'nura-beauty' ), 'trendy' => __( 'Something trendy', 'nura-beauty' ) ) ),
+		'i' => array( __( 'Do you need installation?', 'nura-beauty' ), array( 'pro' => __( 'Yes, professional installation', 'nura-beauty' ), 'self' => __( 'No, I will install it myself', 'nura-beauty' ), 'ready' => __( 'I want ready-to-wear', 'nura-beauty' ) ) ),
+		'n' => array( __( 'Preferred length', 'nura-beauty' ), array( 'short' => __( 'Short (8-10 inches)', 'nura-beauty' ), 'medium' => __( 'Medium (12-16 inches)', 'nura-beauty' ), 'long' => __( 'Long (18-22 inches)', 'nura-beauty' ), 'any' => __( 'No preference', 'nura-beauty' ) ) ),
+	);
+}
+
+/** Answers -> product hints. */
+function nura_sf_hints( $a ) {
+	$h     = array();
+	$bands = array( 'u3' => array( 0, 3000 ), '35' => array( 3000, 5000 ), '510' => array( 5000, 10000 ), '1015' => array( 10000, 15000 ), '15' => array( 15000, 0 ) );
+	if ( isset( $bands[ $a['b'] ] ) ) {
+		list( $lo, $hi ) = $bands[ $a['b'] ];
+		if ( $lo ) {
+			$h['min'] = $lo;
+		}
+		if ( $hi ) {
+			$h['max'] = $hi;
+		}
+		$h['sort'] = 'u3' === $a['b'] ? 'cheap' : '';
+	}
+	$type = array( 'easy' => 'headband', 'lace' => 'lace', 'closure' => 'closure', 'headband' => 'headband' );
+	if ( isset( $type[ $a['t'] ] ) ) {
+		$h['construction'] = $type[ $a['t'] ];
+	}
+	switch ( $a['l'] ) {
+		case 'natural':
+			$h['texture'] = 'yaki';
+			break;
+		case 'glam':
+			$h['hair']    = 'human';
+			$h['texture'] = 'curl';
+			break;
+		case 'office':
+			$h['occasion'] = 'work';
+			break;
+		case 'curly':
+			$h['texture'] = 'curl';
+			break;
+		case 'bob':
+			$h['style'] = 'bob';
+			break;
+		case 'trendy':
+			$h['colour'] = 'ombre';
+			break;
+	}
+	if ( 'pro' === $a['i'] && empty( $h['construction'] ) ) {
+		$h['construction'] = 'lace';
+	} elseif ( in_array( $a['i'], array( 'self', 'ready' ), true ) && empty( $h['construction'] ) ) {
+		$h['construction'] = 'headband';
+	}
+	$len = array( 'short' => array( 'bob', '8"', '10"' ), 'medium' => array( '12"', '14"', '16"' ), 'long' => array( '18"', '20"', '22"' ) );
+	if ( isset( $len[ $a['n'] ] ) ) {
+		$h['lenset'] = $len[ $a['n'] ];
+	}
+	return $h;
+}
+
+function nura_sf_render() {
+	if ( ! nura_wq_ready() ) {
+		return '';
+	}
+	$steps = nura_sf_steps();
+	$a     = array();
+	foreach ( $steps as $k => $s ) {
+		$v       = isset( $_GET[ 'nsf_' . $k ] ) ? sanitize_key( wp_unslash( $_GET[ 'nsf_' . $k ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only filter form.
+		$a[ $k ] = isset( $s[1][ $v ] ) ? $v : '';
+	}
+	$done = '' !== $a['b'];
+	$h    = '<div class="nura-sf" id="nura-stylist-finder"><p class="nura-sf__kicker">' . esc_html__( 'NURA AI Stylist', 'nura-beauty' ) . '</p><h2>' . esc_html__( 'Find your perfect wig', 'nura-beauty' ) . '</h2>';
+	$h   .= '<form method="get" action="#nura-stylist-finder" class="nura-sf__form">';
+	$i    = 1;
+	foreach ( $steps as $k => $s ) {
+		$h .= '<fieldset class="nura-sf__step"><legend>' . esc_html( sprintf( __( 'Step %1$d. %2$s', 'nura-beauty' ), $i++, $s[0] ) ) . '</legend>';
+		foreach ( $s[1] as $v => $label ) {
+			$h .= '<label class="nura-sf__opt"><input type="radio" name="nsf_' . esc_attr( $k ) . '" value="' . esc_attr( $v ) . '"' . checked( $a[ $k ], $v, false ) . ( 'b' === $k ? ' required' : '' ) . '><span>' . esc_html( $label ) . '</span></label>';
+		}
+		$h .= '</fieldset>';
+	}
+	$h .= '<button type="submit" class="nura-btn nura-btn--gold">' . esc_html__( 'Find my perfect wig', 'nura-beauty' ) . '</button></form>';
+	if ( $done ) {
+		$hints = nura_sf_hints( $a );
+		$ids   = NURAX_Knowledge::pick( $hints, 3 );
+		$cards = NURAX_Knowledge::cards( $ids );
+		$h    .= '<div class="nura-sf__res" aria-live="polite"><h3>' . esc_html__( 'Your top 3 matches', 'nura-beauty' ) . '</h3>';
+		if ( $cards ) {
+			$h .= '<ul class="nura-sf__cards">';
+			foreach ( $cards as $c ) {
+				$why = NURAX_Knowledge::why( $c['id'], $hints );
+				$h  .= '<li><a href="' . esc_url( $c['url'] ) . '"><img src="' . esc_url( $c['img'] ) . '" alt="' . esc_attr( $c['name'] ) . '" loading="lazy" width="200" height="200"><strong>' . esc_html( $c['name'] ) . '</strong><span>' . esc_html( $c['price'] ) . ' &middot; ' . esc_html( $c['hair'] ) . '</span></a>';
+				if ( $why ) {
+					$h .= '<ul class="nura-sf__why"><li>' . implode( '</li><li>', array_map( 'esc_html', $why ) ) . '</li></ul>';
+				}
+				$h .= '</li>';
+			}
+			$h .= '</ul>';
+		}
+		$book = home_url( '/book-appointment/?service=installation' );
+		$h   .= '<p class="nura-sf__next">' . ( 'pro' === $a['i'] ? '<a class="nura-btn nura-btn--ghost" href="' . esc_url( $book ) . '">' . esc_html__( 'Book installation (from KSh 1,500)', 'nura-beauty' ) . '</a> ' : '' ) . nura_wq_chip( __( 'Help me choose between these wigs', 'nura-beauty' ), __( 'Ask NURA Stylist', 'nura-beauty' ) ) . '</p>';
+		$h   .= '<p class="nura-sf__note">' . esc_html__( 'Live prices and stock from our shop. Prefer a person? Visit our studio or message us on WhatsApp.', 'nura-beauty' ) . '</p></div>';
+	}
+	return $h . '</div>';
+}
+add_shortcode( 'nura_stylist_finder', 'nura_sf_render' );
+
+add_action( 'wp_head', function () {
+	if ( nura_wq_ready() ) {
+		echo '<style>.nura-sf{border:1px solid rgba(0,0,0,.12);border-radius:14px;padding:20px;margin:24px 0}.nura-sf__kicker{font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin:0}.nura-sf__step{border:0;padding:0;margin:14px 0}.nura-sf__step legend{font-weight:600;margin-bottom:8px}.nura-sf__opt{display:inline-block;margin:0 6px 6px 0}.nura-sf__opt input{position:absolute;opacity:0}.nura-sf__opt span{display:inline-block;border:1px solid rgba(0,0,0,.25);border-radius:999px;padding:7px 14px;cursor:pointer;font-size:14px}.nura-sf__opt input:checked+span{background:#111;color:#fff;border-color:#111}.nura-sf__opt input:focus-visible+span{outline:2px solid #b8925a}.nura-sf__cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;list-style:none;padding:0}.nura-sf__cards a{display:flex;flex-direction:column;gap:4px;color:inherit;text-decoration:none}.nura-sf__cards img{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:10px}.nura-sf__why{font-size:13px;margin:6px 0 0;padding-left:18px}.nura-sf__note{font-size:13px;opacity:.7}</style>' . "\n";
+	}
+}, 40 );
+
+
 /** Create the hub page once (and when the theme updates the version). */
 add_action( 'admin_init', function () {
-	if ( ! current_user_can( 'manage_options' ) || '1.78.0' === get_option( 'nura_wq_page' ) ) {
+	if ( ! current_user_can( 'manage_options' ) || '1.79.0' === get_option( 'nura_wq_page' ) ) {
 		return;
 	}
-	update_option( 'nura_wq_page', '1.78.0', false );
+	update_option( 'nura_wq_page', '1.79.0', false );
+	if ( ! get_page_by_path( 'find-your-wig' ) ) { // 1.79.0: 5-step AI Stylist finder page.
+		$sid = wp_insert_post( array(
+			'post_type'    => 'page',
+			'post_name'    => 'find-your-wig',
+			'post_title'   => 'Find Your Perfect Wig: NURA AI Stylist',
+			'post_status'  => 'publish',
+			'post_content' => '<p class="nura-answer"><strong>Short answer:</strong> answer five quick questions (budget, wig type, look, installation and length) and NURA AI Stylist shows three wigs from our live shop that fit, with the reasons why.</p>[nura_stylist_finder]<p>Want to read first? See <a href="/wig-questions/">120+ wig questions answered</a>.</p>',
+		), true );
+		if ( $sid && ! is_wp_error( $sid ) ) {
+			update_post_meta( $sid, 'rank_math_title', 'Find Your Perfect Wig in 5 Questions | NURA AI Stylist Kenya' );
+			update_post_meta( $sid, 'rank_math_description', 'Tell NURA AI Stylist your budget, wig type, look, installation and length, and get three live wig matches from our Nairobi shop, with prices and why each fits.' );
+			update_post_meta( $sid, 'rank_math_focus_keyword', 'find your perfect wig' );
+		}
+	}
 	$p = get_page_by_path( 'wig-questions' );
 	if ( ! $p ) {
 		$id = wp_insert_post( array(
@@ -139,6 +275,10 @@ function nura_wq_chips_html( $qs ) {
 		$h .= nura_wq_chip( $q );
 	}
 	$u = function_exists( 'nura_hub_url' ) ? nura_hub_url( 'wig-questions', 'page' ) : '';
+	$fy = function_exists( 'nura_hub_url' ) ? nura_hub_url( 'find-your-wig', 'page' ) : '';
+	if ( $fy ) {
+		$h .= '<a class="nura-ask-row__more" href="' . esc_url( $fy ) . '">' . esc_html__( 'Find my wig in 5 questions', 'nura-beauty' ) . '</a>';
+	}
 	if ( $u ) {
 		$h .= '<a class="nura-ask-row__more" href="' . esc_url( $u ) . '">' . esc_html__( 'All wig questions', 'nura-beauty' ) . '</a>';
 	}

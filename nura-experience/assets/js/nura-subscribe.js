@@ -62,6 +62,9 @@ function nuraHouseInit() {
 	function step(n) { Array.prototype.forEach.call(box.querySelectorAll('[data-nhs-step]'), function (s) { s.classList.toggle('is-on', s.getAttribute('data-nhs-step') === String(n)); }); }
 	function busy() { return !!d.querySelector('.nwo.is-open, .nura-plan.is-open') || d.documentElement.classList.contains('nwo-lock') || d.documentElement.classList.contains('nura-plan-open'); }
 	function open(force) {
+		// 1.82.3: never open without a real visitor gesture (tap/click/key) - stops it showing by itself
+		// and being measured by PageSpeed as the largest image. Preview links still work.
+		if (!C.preview && !(navigator.userActivation ? navigator.userActivation.hasBeenActive : force)) { return; }
 		if (opened && !force) { return; }
 		if (C.debug && window.console) { console.log('[NURA House] open', { force: !!force, state: state(), busy: busy() }); }
 		if (!force && state()) { return; }

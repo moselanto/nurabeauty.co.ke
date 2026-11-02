@@ -90,3 +90,29 @@ add_filter( 'nura_delay_tags_timeout', function ( $ms ) {
 add_filter( 'nura_delay_tags', function ( $on ) {
 	return nura_perf_protected() ? false : $on;
 }, 99 );
+
+/* 1.89.0: product gallery - only the first photo loads up front; srcset never offers
+ * anything wider than 1024 px (the originals are 470-560 KB each). */
+add_filter( 'woocommerce_gallery_image_html_attachment_image_params', function ( $params, $attachment_id = 0, $image_size = '', $main_image = false ) {
+	if ( ! $main_image ) {
+		$params['loading']       = 'lazy';
+		$params['fetchpriority'] = 'low';
+	}
+	return $params;
+}, 21, 4 );
+add_filter( 'wp_calculate_image_srcset', function ( $sources ) {
+	if ( ! is_array( $sources ) || ! function_exists( 'is_product' ) || ! is_product() ) {
+		return $sources;
+	}
+	foreach ( $sources as $w => $s ) {
+		if ( (int) $w > 1024 ) {
+			unset( $sources[ $w ] );
+		}
+	}
+	return $sources;
+}, 20 );
+
+/* 1.89.0: the 'Join The House' pop-up can never paint unless it was opened. */
+add_action( 'wp_head', function () {
+	echo '<style id="nura-nhs-guard">.nhs[hidden],.nhs-bar[hidden],.nhs-tab[hidden]{display:none!important}</style>' . "\n";
+}, 2 );

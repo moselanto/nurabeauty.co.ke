@@ -31,7 +31,9 @@ add_filter( 'woocommerce_related_products_args', function ( $args ) {
  * related and homepage grids stay crisp at 3- and 4-up.
  */
 add_filter( 'woocommerce_gallery_image_size', function ( $size ) {
-	return 'woocommerce_single' === $size ? 'full' : $size;
+	// 1.89.0: 'large' (1024 px) instead of the original upload (~500 KB each; 4.8 MB on the bob page).
+	// Sharp on every phone and laptop; zoom and lightbox use the same size (1.87.0).
+	return 'woocommerce_single' === $size ? 'large' : $size;
 } );
 add_filter( 'single_product_archive_thumbnail_size', function () {
 	// 1.69.0: 440px-wide card size (no crop) - sharp on phones, about 60% lighter than 600px.
@@ -42,14 +44,14 @@ add_filter( 'single_product_archive_thumbnail_size', function () {
 add_filter( 'woocommerce_available_variation', function ( $data, $product, $variation ) {
 	$image_id = $variation->get_image_id();
 	if ( $image_id ) {
-		$full = wp_get_attachment_image_src( $image_id, 'full' );
+		$full = wp_get_attachment_image_src( $image_id, 'large' ); // 1.89.0: was 'full' (original upload).
 		if ( $full ) {
 			$data['image']['src']      = $full[0];
 			$data['image']['src_w']    = $full[1];
 			$data['image']['src_h']    = $full[2];
 			$data['image']['full_src'] = $full[0];
-			$srcset = wp_get_attachment_image_srcset( $image_id, 'full' );
-			$sizes  = wp_get_attachment_image_sizes( $image_id, 'full' );
+			$srcset = wp_get_attachment_image_srcset( $image_id, 'large' );
+			$sizes  = wp_get_attachment_image_sizes( $image_id, 'large' );
 			if ( $srcset ) {
 				$data['image']['srcset'] = $srcset;
 			}

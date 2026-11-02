@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.81.0' );
+define( 'NURA_VERSION', '1.82.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -60,6 +60,7 @@ nura_require( 'nura-seo' );
 nura_require( 'nura-seo-fixes' );
 nura_require( 'nura-crawl' );
 nura_require( 'nura-schema-tidy' );
+nura_require( 'nura-brand' );  // 1.82.0: official logo kit applied (header, icons, schema, share image).
 nura_require( 'nura-wig-questions' ); // 1.78.0: customer questions hub, stylist picks, Ask-the-stylist chips.  // 1.76.0 R2: one seller entity, NURA Beauty brand spelling, clean product properties.        // 1.75.0 Search Console clean-up: redirects, feed/REST noindex, empty categories.
 nura_require( 'nura-seo-plus' );
 nura_require( 'nura-schema-variants' ); // 1.65.0 ProductGroup + variants.

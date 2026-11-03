@@ -84,7 +84,7 @@ Last updated: 1 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing 
 
 | Package | Version | Constant |
 | --- | --- | --- |
-| `nura-beauty/` (parent theme) | **1.108.3** | `Version:` in `style.css`, `NURA_VERSION` in `functions.php` |
+| `nura-beauty/` (parent theme) | **1.109.0** | `Version:` in `style.css`, `NURA_VERSION` in `functions.php` |
 | `nura-experience/` (plugin) | **1.92.0** | header `Version:` and `NURAX_VERSION` in `nura-experience.php` |
 | `nura-beauty-child/` | unchanged | - |
 
@@ -94,6 +94,7 @@ Scope: this repo is NURA Beauty only. The sister site MK Auto Spares (`moselanto
 
 | Theme | Plugin | Commit | What changed |
 | --- | --- | --- | --- |
+| 1.109.0 | - | (this commit) | Mobile polish from owner's phone screenshots (3 Nov 16:05): (1) header search: the black square button is hidden on phones (Enter/search key submits; `enterkeyhint=search`), clean pill with gold magnifier on the left. (2) Phone drawer: Shop/About (`<details>` groups) were flush left with the +/- circle cut at the right edge - all rows now share one padded flex layout with strong selectors; plain links show a gold chevron. (3) Homepage Wig Care rail: exactly two equal cards per view on phones, square contained images, 3-line titles with fixed height, buttons aligned at the bottom; hair-type badge never shows on wig-care products (`nura_loop_hair_type()` skips them - the repair serum showed '100% Human Hair'). (4) Logo: header now uses srcset (320 px + 1200 px PNG) so it is sharp on high-density phones, and shows up to 40 px tall. (5) Wig Care product photos re-exported at 1200x1200 on white with sharpening and re-uploaded. |
 | 1.108.3 | - | (this commit) | Homepage (owner, 3 Nov): wigs and wig care separated. The 'Shop wigs & beauty' tabs (New In / Best Sellers / Under KSh 5,000) exclude the wig-care category again (`nura_home_product_ids()` tax_query; filter `nura_home_tabs_exclude_cats`), so the wig grid is as before. The Wig Care section moved directly under it: one shuffled row, rest scrolls, 'View all' links to the Wig Care category. Mousse and lace tint main photos replaced with the owner's chosen images. |
 | 1.108.2 | - | (this commit) | Fixes found in the live check of 1.108.1: homepage Wig Care rail now really is one scrolling row (stronger selectors than the shop grid; arrows re-check after load); 'Pairs well with' matches products by SKU (CSV import gave name-based slugs); footer Privacy Policy + Terms & Conditions added to the assigned `footer_help` menu via `wp_nav_menu_items` (fallback list was not used because real menus are assigned); finder step 3 no longer mentions virtual try-on. Live (3 Nov): 12 Wig Care products imported (12 parents + 10 variations), Virtual Try-On removed from 8 footer menu entries, both human hair care guides say every 2-3 weeks. |
 | 1.108.1 | - | (this commit) | `nura_care_product()` also finds a care product by SKU (the 12 care products use their slug as SKU, so links work even if WordPress changes a slug). Product data for import: `docs/wig-care-products.csv` (WooCommerce > Products > Import; 3 variable products: lace melting spray Type x4, brush Colour x4, mousse Type x2). |

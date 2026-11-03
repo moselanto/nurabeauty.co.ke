@@ -96,6 +96,9 @@ if ( ! function_exists( 'nura_hair_type_label_text' ) ) {
 add_action( 'woocommerce_after_shop_loop_item_title', 'nura_loop_hair_type', 8 );
 function nura_loop_hair_type() {
 	global $product;
+	if ( $product && has_term( 'wig-care', 'product_cat', $product->get_id() ) ) { // 1.109.0: care products are not wigs.
+		return;
+	}
 	$types = nura_hair_types( $product );
 	if ( empty( $types ) ) {
 		echo '<div class="nura-hairtype nura-hairtype--empty" aria-hidden="true"></div>';

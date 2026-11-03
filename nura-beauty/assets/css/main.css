@@ -1917,3 +1917,26 @@ body.page-template-page-book-appointment .nura-wa,body.page-template-page-book-a
 
 /* 1.106.1 Floating buttons never sit on top of form pages (booking, contact, bulk, tracking, checkout). */
 body.nura-form-page .nurax-stylist:not(.is-open),body.nura-form-page .nura-wa,body.nura-form-page .nd-bubble{display:none !important}
+
+/* 1.108.0 Wig Care: one-row homepage rail, pairings, service and guide links. */
+.nura-care-rail{position:relative}
+.nura-care-rail ul.products{display:flex !important;flex-wrap:nowrap !important;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 !important;padding:2px 2px 8px !important;grid-template-columns:none !important}
+.nura-care-rail ul.products::-webkit-scrollbar{display:none}
+.nura-care-rail ul.products::before,.nura-care-rail ul.products::after{display:none !important}
+.nura-care-rail ul.products li.product{flex:0 0 calc((100% - 48px)/4) !important;width:auto !important;max-width:none !important;margin:0 !important;float:none !important;scroll-snap-align:start}
+.nura-care-rail__btn{position:absolute;top:35%;z-index:3;width:42px;height:42px;border-radius:50%;border:1px solid var(--nura-line,#e5ddd2);background:#fff;color:var(--nura-ink,#0e0e0e);font-size:1.6rem;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center}
+.nura-care-rail__btn--prev{left:-14px}.nura-care-rail__btn--next{right:-14px}
+.nura-care-rail__btn:disabled{opacity:0;pointer-events:none}
+@media(max-width:860px){.nura-care-rail ul.products li.product{flex-basis:calc((100% - 16px)/2.2) !important}.nura-care-rail__btn{display:none}}
+.nura-care-pair{margin:2rem 0;padding:1.2rem 1.4rem;border:1px solid var(--nura-line,#e5ddd2);border-radius:12px;background:#fbf8f3}
+.nura-care-pair h2{font-size:1.25rem;margin:0 0 .6rem}
+.nura-care-set+.nura-care-set{margin-top:.8rem}
+.nura-care-set__h,.nura-care-svc__h{margin:0 0 .25rem;font-family:var(--font-ui);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#8a6a1f}
+.nura-care-links{list-style:none;margin:0;padding:0}
+.nura-care-links li{padding:.25rem 0;font-size:.95rem}
+.nura-care-links li span{color:#6b625a;font-size:.88rem}
+.nura-care-links--grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.2rem 1.2rem}
+.nura-care-svc{margin-top:1.6rem;padding:1.2rem 1.4rem;border-radius:12px;background:#fbf8f3}
+.nura-care-svc__row+.nura-care-svc__row{margin-top:.8rem}
+.nura-care-guide{margin:2.4rem 0 1rem;padding:1.4rem;border-radius:12px;background:#fbf8f3;border-left:3px solid var(--nura-gold,#c9a24b)}
+.nura-care-guide h2{margin-top:0;font-size:1.3rem}

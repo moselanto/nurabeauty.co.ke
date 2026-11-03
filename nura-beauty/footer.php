@@ -50,6 +50,8 @@ if ( ! function_exists( 'nura_footer_help_menu' ) ) {
 			array( __( 'Where to buy human hair wigs', 'nura-beauty' ), home_url( '/where-to-buy-human-hair-wigs-nairobi/' ) ),
 			array( __( 'Find our Nairobi CBD shop', 'nura-beauty' ), home_url( '/wig-shop-nairobi-cbd/' ) ),
 			array( __( 'Chat on WhatsApp', 'nura-beauty' ),  nura_opt( 'nura_whatsapp' ) ),
+			array( __( 'Privacy Policy', 'nura-beauty' ),    function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ? get_privacy_policy_url() : home_url( '/privacy-policy/' ) ),
+			array( __( 'Terms & Conditions', 'nura-beauty' ), function_exists( 'wc_terms_and_conditions_page_id' ) && wc_terms_and_conditions_page_id() ? get_permalink( wc_terms_and_conditions_page_id() ) : home_url( '/terms-conditions/' ) ),
 		) );
 	}
 }

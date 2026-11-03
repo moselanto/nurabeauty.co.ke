@@ -179,7 +179,7 @@ add_action( 'woocommerce_single_product_summary', function () {
 		'fibre' => __( 'About 3 to 6 months of regular wear with good care.', 'nura-beauty' ),
 	);
 	$care = array(
-		'human' => __( 'Sulphate-free shampoo every 6-8 weeks, condition, heat protectant before styling.', 'nura-beauty' ),
+		'human' => __( 'Sulphate-free shampoo every 2-3 weeks, condition, heat protectant before styling.', 'nura-beauty' ),
 		'blend' => __( 'Cool wash, gentle detangling from the ends, low to medium heat only.', 'nura-beauty' ),
 		'fibre' => __( 'Cool wash when needed, air dry on a stand, low heat only.', 'nura-beauty' ),
 	);

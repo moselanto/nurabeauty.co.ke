@@ -41,7 +41,7 @@ function nura_service_price_text( $s ) {
 		return 'KSh ' . number_format( (float) $n );
 	};
 	if ( empty( $s[1] ) ) {
-		return __( 'Price on consultation', 'nura-beauty' );
+		return __( 'Price agreed after consultation', 'nura-beauty' );
 	}
 	return $s[2] ? $f( $s[1] ) . ' - ' . number_format( (float) $s[2] ) : sprintf( __( 'From %s', 'nura-beauty' ), $f( $s[1] ) );
 }

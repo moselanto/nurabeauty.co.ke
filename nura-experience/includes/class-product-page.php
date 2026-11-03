@@ -194,7 +194,7 @@ class NURAX_Product_Page {
 	public function tab_care() {
 		echo '<h4>' . esc_html__( 'How to care for your NURA wig', 'nura-experience' ) . '</h4>';
 		echo '<ul class="nura-inc">';
-		echo '<li>' . esc_html__( 'Wash and revamp every 6-8 weeks with a sulfate-free shampoo and a moisturising conditioner.', 'nura-experience' ) . '</li>';
+		echo '<li>' . esc_html__( 'Wash and revamp every 2-3 weeks with a sulfate-free shampoo and a moisturising conditioner.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'Air-dry on a wig stand; avoid excessive heat and always use a heat protectant.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'Store in the satin bag provided to keep the hair and lace fresh.', 'nura-experience' ) . '</li>';
 		echo '</ul>';

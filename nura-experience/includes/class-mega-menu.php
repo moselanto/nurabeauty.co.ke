@@ -171,6 +171,9 @@ class NURAX_Mega_Menu {
 					'KSh 15,000+'          => add_query_arg( array( 'min_price' => 15000 ), $shop ),
 				),
 			),
+			'Wig Care' => array( // 1.92.0: own top-level item (desktop bar + phone drawer).
+				'url' => self::cat_url( 'wig-care' ),
+			),
 			'Installation' => array(
 				'url' => self::page_url( 'installation' ),
 			),

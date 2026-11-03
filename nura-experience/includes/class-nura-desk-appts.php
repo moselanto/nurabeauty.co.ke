@@ -189,7 +189,7 @@ class NURAX_Desk_Appts {
 		return array(
 			'Studio appointments are available in the morning only, with the last booking before ' . $cut . '. Afternoons are for walk-in clients.',
 			'A deposit of ' . $pct . '% of the service price' . ( $min > 0 ? ' (minimum KSh ' . number_format( $min ) . ')' : '' ) . ' secures a studio slot. Video and WhatsApp consultations need no deposit. Your booking is confirmed only once we have verified your M-Pesa payment. An unverified booking is released after ' . self::hold_hours() . ' hours.',
-			'Your deposit is deducted from your final bill. For a free consultation, it is credited to any purchase or service you take on the day.',
+			'Your deposit is deducted from your final bill. For a free consultation, it is credited to the service you take when you attend. The deposit is non-refundable if you do not attend your booked appointment.',
 			'Please arrive on time. If you arrive early, we will attend to you at your booked time. A client already being served will not be interrupted.',
 			'We hold your slot for ' . $g . ' minutes after your booked time. After that the slot is released and you will be served as a walk-in when the next stylist is free. This may not be on the same day.',
 			'Walk-in clients are served only in free time between booked appointments. A booked client who arrives on time is always served first.',

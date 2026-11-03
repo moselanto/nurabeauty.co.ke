@@ -268,7 +268,7 @@ class NURAX_Circle {
 			echo '<p>' . esc_html__( 'Once you receive your first unit, your wash & revamp milestones will appear here, and we will email you a reminder at each one.', 'nura-experience' ) . '</p></div>';
 			return;
 		}
-		echo '<p>' . esc_html__( 'We recommend a wash & revamp every 6-8 weeks of regular wear. We email you a reminder at each milestone below.', 'nura-experience' ) . '</p>';
+		echo '<p>' . esc_html__( 'We recommend a wash & revamp every 2-3 weeks of regular wear. We email you a reminder at each milestone below.', 'nura-experience' ) . '</p>';
 
 		$milestones = array(
 			array( __( 'Fit & first-week care', 'nura-experience' ), 2 ),

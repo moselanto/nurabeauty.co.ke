@@ -67,7 +67,7 @@ $nf_privacy = function_exists( 'get_privacy_policy_url' ) ? get_privacy_policy_u
 
 $nf_steps = array(
 	array( 'camera', __( 'Share your look', 'nura-beauty' ), __( 'Answer a few quick questions about texture, length, colour and budget.', 'nura-beauty' ) ),
-	array( 'spark', __( 'We match you', 'nura-beauty' ), __( 'NURA matches your face shape, skin tone and style to our collection.', 'nura-beauty' ) ),
+	array( 'spark', __( 'We match you', 'nura-beauty' ), __( 'NURA matches your answers on texture, length, hair type, colour and lace to our collection.', 'nura-beauty' ) ),
 	array( 'list', __( 'Get your shortlist', 'nura-beauty' ), __( 'See curated units with lengths, textures and prices.', 'nura-beauty' ) ),
 	array( 'cal', __( 'Try or confirm', 'nura-beauty' ), __( 'Save your matches, try them on virtually or book a free consultation.', 'nura-beauty' ) ),
 );
@@ -79,7 +79,7 @@ $nf_steps = array(
 			<?php nura_breadcrumbs(); ?>
 			<p class="nura-eyebrow"><?php esc_html_e( 'Find your perfect wig', 'nura-beauty' ); ?></p>
 			<h1><?php the_title(); ?></h1>
-			<p class="nura-bk-hero__lede"><?php esc_html_e( 'Meet your perfect wig in seconds. NURA\'s AI Wig Finder recommends the best units for your face shape, skin tone, lifestyle and budget.', 'nura-beauty' ); ?></p>
+			<p class="nura-bk-hero__lede"><?php esc_html_e( 'Meet your perfect wig in seconds. Answer five quick questions on texture, length, hair type, colour and lace, and NURA\'s Wig Finder shows the units in stock that match.', 'nura-beauty' ); ?></p>
 			<ul class="nura-bk-hero__facts">
 				<li><?php esc_html_e( 'Free to use', 'nura-beauty' ); ?></li>
 				<li><?php esc_html_e( 'Takes about a minute', 'nura-beauty' ); ?></li>
@@ -142,15 +142,6 @@ $nf_steps = array(
 					<span class="nura-ct-card__n"><?php esc_html_e( 'A real stylist replies with picks for you', 'nura-beauty' ); ?></span>
 					<span class="nura-ct-card__go"><?php esc_html_e( 'Start chat', 'nura-beauty' ); ?> <?php echo $nf_icon( 'arrow' ); // phpcs:ignore ?></span>
 				</a>
-				<?php if ( $nf_tryon ) : ?>
-				<a class="nura-ct-card" href="<?php echo esc_url( $nf_tryon ); ?>">
-					<span class="nura-ct-card__ic"><?php echo $nf_icon( 'mirror' ); // phpcs:ignore ?></span>
-					<span class="nura-ct-card__k"><?php esc_html_e( 'Virtual try-on', 'nura-beauty' ); ?></span>
-					<span class="nura-ct-card__v"><?php esc_html_e( 'See it on you', 'nura-beauty' ); ?></span>
-					<span class="nura-ct-card__n"><?php esc_html_e( 'Preview your matches before you buy', 'nura-beauty' ); ?></span>
-					<span class="nura-ct-card__go"><?php esc_html_e( 'Try on', 'nura-beauty' ); ?> <?php echo $nf_icon( 'arrow' ); // phpcs:ignore ?></span>
-				</a>
-				<?php endif; ?>
 				<a class="nura-ct-card" href="<?php echo esc_url( $nf_shop ); ?>">
 					<span class="nura-ct-card__ic"><?php echo $nf_icon( 'star' ); // phpcs:ignore ?></span>
 					<span class="nura-ct-card__k"><?php esc_html_e( 'Browse', 'nura-beauty' ); ?></span>

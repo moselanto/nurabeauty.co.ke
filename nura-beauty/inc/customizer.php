@@ -94,10 +94,10 @@ function nura_settings_map() {
 			'control' => 'textarea',
 		),
 		'nura_inst_care_title' => array( 'default' => 'Aftercare & revamps', 'label' => __( 'Aftercare heading', 'nura-beauty' ), 'section' => 'nura_install' ),
-		'nura_inst_care_text'  => array( 'default' => 'A well-maintained unit lasts far longer. We recommend a wash & revamp every 6-8 weeks of regular wear. Join The NURA Circle for automatic care reminders and priority booking.', 'label' => __( 'Aftercare text', 'nura-beauty' ), 'section' => 'nura_install', 'control' => 'textarea' ),
+		'nura_inst_care_text'  => array( 'default' => 'A well-maintained unit lasts far longer. We recommend a wash & revamp every 2-3 weeks of regular wear. Join The NURA Circle for automatic care reminders and priority booking.', 'label' => __( 'Aftercare text', 'nura-beauty' ), 'section' => 'nura_install', 'control' => 'textarea' ),
 		'nura_inst_circle_url' => array( 'default' => '', 'label' => __( 'The NURA Circle link (leave empty to hide the button)', 'nura-beauty' ), 'section' => 'nura_install', 'sanitize' => 'esc_url_raw' ),
 		'nura_inst_faq' => array(
-			'default' => "Can you install a wig I bought elsewhere? | Yes. Tell us about the unit when you book and we will advise what it needs.\nDo you offer at-home service? | Yes, for VIP clients. Message us on WhatsApp to arrange it.\nHow often should I revamp my wig? | We recommend a wash and revamp every 6-8 weeks of regular wear.\nAre the prices fixed? | They are a guide. We confirm the price at consultation based on length, density and the work required.",
+			'default' => "Can you install a wig I bought elsewhere? | Yes. Tell us about the unit when you book and we will advise what it needs.\nDo you offer at-home service? | Yes, for VIP clients. Message us on WhatsApp to arrange it.\nHow often should I revamp my wig? | We recommend a wash and revamp every 2-3 weeks of regular wear.\nAre the prices fixed? | They are a guide. We confirm the price at consultation based on length, density and the work required.",
 			'label'   => __( 'Questions - one per line: Question | Answer (leave empty to hide)', 'nura-beauty' ),
 			'section' => 'nura_install',
 			'control' => 'textarea',

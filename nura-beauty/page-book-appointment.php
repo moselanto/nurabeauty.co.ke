@@ -92,7 +92,7 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 
 				<div class="nura-bk__faq">
 					<h2 class="nura-bk__h nura-bk__h--plain"><?php esc_html_e( 'Good to know', 'nura-beauty' ); ?></h2>
-					<details><summary><?php esc_html_e( 'Is the consultation really free?', 'nura-beauty' ); ?></summary><p><?php esc_html_e( 'Yes. The 15-minute consultation is free, in the studio, on a video call or on WhatsApp, and there is no obligation to buy.', 'nura-beauty' ); ?></p></details>
+					<details><summary><?php esc_html_e( 'Is the consultation really free?', 'nura-beauty' ); ?></summary><p><?php esc_html_e( 'Yes. The 15-minute consultation itself is free, in the studio, on a video call or on WhatsApp. A studio booking is held with a KSh 500 deposit, which is credited to your service when you attend and is non-refundable if you do not show up. Video and WhatsApp consultations need no deposit.', 'nura-beauty' ); ?></p></details>
 					<details><summary><?php esc_html_e( 'Can you install a wig I bought elsewhere?', 'nura-beauty' ); ?></summary><p><?php esc_html_e( 'Yes. Tell us about the unit in the notes and we will advise what it needs before your appointment.', 'nura-beauty' ); ?></p></details>
 					<details><summary><?php esc_html_e( 'How do I change or cancel?', 'nura-beauty' ); ?></summary><p><?php esc_html_e( 'Message us on WhatsApp as early as you can and we will move your slot.', 'nura-beauty' ); ?></p></details>
 					<details><summary><?php esc_html_e( 'What should I bring?', 'nura-beauty' ); ?></summary><p><?php esc_html_e( 'A photo of the look you want, and your own unit if you are booking an installation or revamp.', 'nura-beauty' ); ?></p></details>

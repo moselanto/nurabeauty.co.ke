@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.107.1' );
+define( 'NURA_VERSION', '1.108.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -67,6 +67,7 @@ nura_require( 'nura-r3' );          // 1.96.0: R3 - two Google shipping rates, b
 nura_require( 'nura-r4' );          // 1.98.0: R4 - where-to-buy questions, conversational table, 8 live answer pages (3 in Kiswahili).
 nura_require( 'nura-reviews-alt' );
 nura_require( 'nura-pdp-convert' ); // 1.103.0: delivery countdown, pay row, why-buy box.
+nura_require( 'nura-wig-care' );   // 1.108.0: wig care map, pairings, cross-links, homepage rail.
 nura_require( 'nura-shop-mobile' ); // 1.106.0: shop on phones, shuffled order on reload, 48 per page.
 nura_require( 'nura-webp' );        // 1.101.0: WebP product photos at the displayed size.
 nura_require( 'nura-perf' );

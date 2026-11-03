@@ -697,7 +697,7 @@ return array(
 				),
 				array(
 					'How often should I wash my wig?',
-					'For a human hair wig worn regularly, about every 6 to 8 weeks, or sooner if styling products build up. Wash fibre wigs when they look dull or heavy with product.',
+					'For a human hair wig worn regularly, about every 2 to 3 weeks, or sooner if styling products build up. Wash fibre wigs when they look dull or heavy with product.',
 					array(),
 				),
 				array(

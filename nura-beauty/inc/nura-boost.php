@@ -119,7 +119,7 @@ function nura_boost_cat_guides() {
 			'intro'   => __( '100% human hair wigs look and move the most naturally. They can be straightened, curled and coloured, and with good care they last far longer than fibre units. Shop human hair wigs online or at our Nairobi CBD studio, with same-day Nairobi delivery.', 'nura-beauty' ),
 			'tips'    => array(
 				__( 'Longer lengths cost more because they use more hair - a 14-16 inch unit is a great everyday length.', 'nura-beauty' ),
-				__( 'Wash every 6-8 weeks with sulfate-free shampoo and always use a heat protectant.', 'nura-beauty' ),
+				__( 'Wash every 2-3 weeks with sulfate-free shampoo and always use a heat protectant.', 'nura-beauty' ),
 				__( 'Spread the cost with Lipa Mdogo Mdogo on wigs from KSh 7,000.', 'nura-beauty' ),
 			),
 			'faqs'    => array(

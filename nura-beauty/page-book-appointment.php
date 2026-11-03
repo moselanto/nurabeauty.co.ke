@@ -24,8 +24,12 @@ if ( ! $nb_wa ) {
 $nb_services = array(
 	'consultation' => array( __( 'Free consultation', 'nura-beauty' ), __( '15 minutes. Talk through your style, face shape and budget and get honest advice on the right unit.', 'nura-beauty' ), __( 'Free', 'nura-beauty' ) ),
 	'fitting'      => array( __( 'Wig fitting', 'nura-beauty' ), __( 'Try units on in our Nairobi studio and find the cap size, length and density that suit you.', 'nura-beauty' ), __( 'Studio', 'nura-beauty' ) ),
-	'installation' => array( __( 'Installation & styling', 'nura-beauty' ), __( 'Professional install, restyle, colour or revamp of your NURA or own unit.', 'nura-beauty' ), __( 'Studio', 'nura-beauty' ) ),
-	'bridal'       => array( __( 'Bridal & occasion', 'nura-beauty' ), __( 'Unit, trial, install and touch-up planned as one experience for your big day.', 'nura-beauty' ), __( 'By arrangement', 'nura-beauty' ) ),
+	'installation'  => array( __( 'Wig installation', 'nura-beauty' ), __( 'A secure, natural-looking install of your NURA unit or your own.', 'nura-beauty' ), __( 'Studio', 'nura-beauty' ) ),
+	'styling'       => array( __( 'Wig styling', 'nura-beauty' ), __( 'A fresh cut, curls, a new parting or a sleek finish.', 'nura-beauty' ), __( 'Studio', 'nura-beauty' ) ),
+	'revamp'        => array( __( 'Wig laundry', 'nura-beauty' ), __( 'Deep wash, condition and restyle to bring a tired unit back to life.', 'nura-beauty' ), __( 'Studio', 'nura-beauty' ) ),
+	'customization' => array( __( 'Wig customization', 'nura-beauty' ), __( 'Plucked hairline, bleached knots, cut-to-shape or colour on human hair units.', 'nura-beauty' ), __( 'Studio', 'nura-beauty' ) ),
+	'repair'        => array( __( 'Wig repair', 'nura-beauty' ), __( 'New lace, re-sewn wefts, combs or straps so your unit fits and lasts.', 'nura-beauty' ), __( 'Studio', 'nura-beauty' ) ),
+	'bridal'        => array( __( 'Bridal styling', 'nura-beauty' ), __( 'Wig installation and styling for your wedding day, planned with you in advance.', 'nura-beauty' ), __( 'By arrangement', 'nura-beauty' ) ),
 );
 $nb_pre = isset( $_GET['service'] ) ? sanitize_key( wp_unslash( $_GET['service'] ) ) : 'consultation'; // phpcs:ignore WordPress.Security.NonceVerification
 if ( ! isset( $nb_services[ $nb_pre ] ) ) {

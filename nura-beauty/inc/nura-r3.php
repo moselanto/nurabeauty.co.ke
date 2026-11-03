@@ -278,6 +278,9 @@ function nura_r3_service_node( $key, $page_url ) {
 		return null;
 	}
 	$s    = $all[ $key ];
+	if ( empty( $s[1] ) ) {
+		return null; // 1.107.0: no guide price yet - no priced Service node.
+	}
 	$spec = array( '@type' => 'PriceSpecification', 'price' => (string) $s[1], 'minPrice' => (string) $s[1], 'priceCurrency' => 'KES' );
 	if ( $s[2] ) {
 		$spec['maxPrice'] = (string) $s[2];

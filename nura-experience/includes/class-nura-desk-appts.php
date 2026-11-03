@@ -25,9 +25,12 @@ class NURAX_Desk_Appts {
 		return (array) apply_filters( 'nurax_desk_services', array(
 			'consultation' => 'Free consultation',
 			'fitting'      => 'Wig fitting',
-			'installation' => 'Installation & styling',
-			'revamp'       => 'Wig revamp / wash',
-			'bridal'       => 'Bridal & occasion',
+			'installation'  => 'Wig installation',
+			'styling'       => 'Wig styling',
+			'revamp'        => 'Wig laundry (wash & revamp)',
+			'customization' => 'Wig customization',
+			'repair'        => 'Wig repair',
+			'bridal'        => 'Bridal styling',
 			'collection'   => 'Wig collection',
 			'other'        => 'Other',
 		) );

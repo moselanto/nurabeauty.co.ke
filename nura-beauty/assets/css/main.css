@@ -1715,7 +1715,7 @@ body .wp-block-woocommerce-checkout .wc-block-components-checkout-place-order-bu
 body .wp-block-woocommerce-checkout .wc-block-checkout__actions_row{align-items:center;gap:14px}
 body .wp-block-woocommerce-checkout .wc-block-components-checkout-return-to-cart-button{font-weight:600;color:#555!important;text-decoration:none}
 body .wp-block-woocommerce-checkout .wc-block-checkout__terms{font-size:.8rem;color:var(--nf-mut);text-align:center}
-body .wp-block-woocommerce-checkout .wc-block-checkout__actions::after{content:"Secure checkout \00b7  M-Pesa, Visa, Mastercard, bank transfer \00b7  7-day returns";display:block;margin-top:12px;font-size:.76rem;color:var(--nf-mut);text-align:center;letter-spacing:.02em}
+body .wp-block-woocommerce-checkout .wc-block-checkout__actions::after{content:"Secure checkout \00b7  M-Pesa, Visa, Mastercard, bank transfer \00b7  48-hour returns";display:block;margin-top:12px;font-size:.76rem;color:var(--nf-mut);text-align:center;letter-spacing:.02em}
 
 /* Address card + notices */
 body .wp-block-woocommerce-checkout .wc-block-components-address-card{border:1px solid var(--nf-bd)!important;border-radius:12px!important;background:var(--nf-soft)!important}

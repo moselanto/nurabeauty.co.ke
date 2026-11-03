@@ -23,12 +23,16 @@ defined( 'ABSPATH' ) || exit;
 
 /** key => [ name, from, to (0 = "from" price), description ]. Guide prices from the owner. */
 function nura_services() {
+	// 1.107.0: owner's service list (3 Nov 2026): installation, styling, laundry, customization, repair, bridal styling.
+	// A price of 0 means "quoted after consultation" (owner has not set a guide price yet).
 	return apply_filters( 'nura_services', array(
-		'installation' => array( 'Wig installation', 1500, 0, 'A secure, natural-looking install of your NURA unit or your own.' ),
-		'styling'      => array( 'Styling / restyle', 1000, 2500, 'A fresh cut, curls or a new parting to change your look.' ),
-		'revamp'       => array( 'Wash & revamp', 1500, 0, 'Deep wash, condition and restyle to bring a tired unit back to life.' ),
-		'colouring'    => array( 'Colouring (human hair units)', 2500, 5000, 'Custom colour for 100% human hair units.' ),
-		'relacing'     => array( 'Re-lacing / repair', 2000, 0, 'New lace or repairs so your unit fits and lasts.' ),
+		'installation'  => array( 'Wig installation', 1500, 0, 'A secure, natural-looking install of your NURA unit or your own.' ),
+		'styling'       => array( 'Wig styling', 1000, 2500, 'A fresh cut, curls, a new parting or a sleek finish to change your look.' ),
+		'revamp'        => array( 'Wig laundry (wash & revamp)', 1500, 0, 'Deep wash, condition and restyle to bring a tired unit back to life.' ),
+		'customization' => array( 'Wig customization', 0, 0, 'Plucked hairline, bleached knots, cut-to-shape and other changes so a unit looks made for you.' ),
+		'colouring'     => array( 'Colouring (human hair units)', 2500, 5000, 'Custom colour for 100% human hair units.' ),
+		'relacing'      => array( 'Wig repair & re-lacing', 2000, 0, 'New lace or repairs so your unit fits and lasts.' ),
+		'bridal'        => array( 'Bridal styling', 0, 0, 'Wig installation and styling for your wedding day, planned with you in advance.' ),
 	) );
 }
 
@@ -36,6 +40,9 @@ function nura_service_price_text( $s ) {
 	$f = function ( $n ) {
 		return 'KSh ' . number_format( (float) $n );
 	};
+	if ( empty( $s[1] ) ) {
+		return __( 'Price on consultation', 'nura-beauty' );
+	}
 	return $s[2] ? $f( $s[1] ) . ' - ' . number_format( (float) $s[2] ) : sprintf( __( 'From %s', 'nura-beauty' ), $f( $s[1] ) );
 }
 
@@ -55,6 +62,10 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 	}
 	$items = array();
 	foreach ( nura_services() as $s ) {
+		if ( empty( $s[1] ) ) {
+			$items[] = array( '@type' => 'Offer', 'itemOffered' => array( '@type' => 'Service', 'name' => $s[0], 'description' => $s[3], 'provider' => array( '@id' => home_url( '/' ) . '#studio' ) ) );
+			continue;
+		}
 		$spec = array( '@type' => 'PriceSpecification', 'minPrice' => (string) $s[1], 'priceCurrency' => 'KES' );
 		if ( $s[2] ) {
 			$spec['maxPrice'] = (string) $s[2];

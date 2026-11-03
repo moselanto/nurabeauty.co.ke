@@ -50,8 +50,13 @@ function nura_care_product( $slug ) {
 		$cache[ $slug ] = null;
 		if ( function_exists( 'wc_get_product' ) ) {
 			$post = get_page_by_path( $slug, OBJECT, 'product' );
-			if ( $post && 'publish' === $post->post_status ) {
-				$cache[ $slug ] = wc_get_product( $post->ID );
+			$id   = ( $post && 'publish' === $post->post_status ) ? $post->ID : 0;
+			if ( ! $id && function_exists( 'wc_get_product_id_by_sku' ) ) {
+				$id = (int) wc_get_product_id_by_sku( $slug ); // 1.108.1: products carry the slug as their SKU.
+				$id = ( $id && 'publish' === get_post_status( $id ) ) ? $id : 0;
+			}
+			if ( $id ) {
+				$cache[ $slug ] = wc_get_product( $id );
 			}
 		}
 	}

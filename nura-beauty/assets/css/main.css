@@ -1972,3 +1972,12 @@ html body .nura-care-rail .woocommerce ul.products li.product,html body .nura-ca
   html body .nura-care-rail ul.products li.product [class*="wa-order"],html body .nura-care-rail ul.products li.product .nura-wa-order{font-size:.75rem !important;padding:0 .7rem;margin-top:.5rem !important}
   html body .nura-care-rail .nura-hairtype{display:none !important}
 }
+
+/* 1.110.0 Chat button on phones: 44px circle above the bottom bar, hidden while scrolling. */
+@media(max-width:860px){
+  html body .nurax-stylist{right:10px !important;bottom:calc(76px + env(safe-area-inset-bottom,0px)) !important}
+  html body .nurax-stylist__fab{width:44px !important;height:44px !important;min-width:0 !important;padding:0 !important;border-radius:50% !important;display:inline-flex !important;align-items:center;justify-content:center;bottom:auto !important;position:relative;box-shadow:0 4px 14px rgba(0,0,0,.22);transition:transform .25s ease,opacity .25s ease}
+  html body .nurax-stylist__fab svg{width:18px;height:18px}
+  html body .nurax-stylist__fab-label{display:none !important}
+  html body.nura-scrolling .nurax-stylist:not(.is-open) .nurax-stylist__fab{transform:translateX(64px);opacity:0;pointer-events:none}
+}

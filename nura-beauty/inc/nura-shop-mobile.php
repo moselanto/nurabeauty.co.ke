@@ -40,3 +40,13 @@ add_filter( 'body_class', function ( $classes ) {
 	}
 	return $classes;
 } );
+
+/**
+ * 1.110.0 Floating chat button on phones: smaller, sits above the bottom bar, and
+ * slides out of the way while the visitor scrolls so it never covers product cards.
+ */
+add_action( 'wp_footer', function () {
+	?>
+<script>(function(){var t,b=document.body;if(!b){return;}window.addEventListener('scroll',function(){b.classList.add('nura-scrolling');clearTimeout(t);t=setTimeout(function(){b.classList.remove('nura-scrolling');},900);},{passive:true});})();</script>
+	<?php
+}, 7 );

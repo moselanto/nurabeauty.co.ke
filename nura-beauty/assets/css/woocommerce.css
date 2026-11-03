@@ -397,3 +397,6 @@ html body ul.products li.product .woocommerce-LoopProduct-link .nura-hairtype{or
 html body ul.products li.product .woocommerce-LoopProduct-link .nura-swatch-dots{order:5 !important}
 html body ul.products li.product .woocommerce-LoopProduct-link .star-rating{order:6 !important}
 html body ul.products li.product .woocommerce-LoopProduct-link img{flex-shrink:0}
+
+/* 1.110.5 Homepage "Shop wigs & beauty": cards the shuffle hides (beyond 2 rows) must stay hidden; the 1.110.1 display:flex !important card rule had un-hidden them. */
+html body ul.products li.product[hidden],html body .woocommerce ul.products li.product[hidden],html body [data-nura-shuffle] ul.products li.product[hidden]{display:none !important}

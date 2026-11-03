@@ -47,6 +47,9 @@ add_filter( 'body_class', function ( $classes ) {
  */
 add_action( 'wp_footer', function () {
 	?>
-<script>(function(){var t,b=document.body;if(!b){return;}window.addEventListener('scroll',function(){b.classList.add('nura-scrolling');clearTimeout(t);t=setTimeout(function(){b.classList.remove('nura-scrolling');},900);},{passive:true});})();</script>
+<script>(function(){var t,b=document.body;if(!b){return;}
+function over(){var f=document.querySelector('.nurax-stylist__fab');if(!f||window.innerWidth>860||!document.elementsFromPoint){b.classList.remove('nura-fab-over');return;}var st=f.closest('.nurax-stylist');if(st&&st.classList.contains('is-open')){b.classList.remove('nura-fab-over');return;}var r=f.getBoundingClientRect();if(!r.width){return;}var hit=false,pts=[[r.left+4,r.top+4],[r.right-4,r.top+4],[r.left+4,r.bottom-4],[r.right-4,r.bottom-4],[r.left+r.width/2,r.top+r.height/2]];for(var i=0;i<pts.length&&!hit;i++){var els=document.elementsFromPoint(pts[i][0],pts[i][1]);for(var j=0;j<els.length;j++){if(els[j].closest&&els[j].closest('li.product, .nura-care-rail, .single_add_to_cart_button, form.cart, .nura-sticky-buy, button, .button')&&!els[j].closest('.nurax-stylist')){hit=true;break;}}}b.classList.toggle('nura-fab-over',hit);}
+window.addEventListener('scroll',function(){b.classList.add('nura-scrolling');clearTimeout(t);t=setTimeout(function(){b.classList.remove('nura-scrolling');over();},700);},{passive:true});
+window.addEventListener('resize',over);window.addEventListener('load',over);setTimeout(over,800);})();</script>
 	<?php
 }, 7 );

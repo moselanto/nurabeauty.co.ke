@@ -1981,3 +1981,15 @@ html body .nura-care-rail .woocommerce ul.products li.product,html body .nura-ca
   html body .nurax-stylist__fab-label{display:none !important}
   html body.nura-scrolling .nurax-stylist:not(.is-open) .nurax-stylist__fab{transform:translateX(64px);opacity:0;pointer-events:none}
 }
+
+/* 1.110.1 Phone chat button never rests on product cards or buttons (JS adds nura-fab-over). */
+@media(max-width:860px){html body.nura-fab-over .nurax-stylist:not(.is-open) .nurax-stylist__fab{transform:translateX(64px);opacity:0;pointer-events:none}}
+/* 1.110.1 Equal product cards: titles take the same space (2 lines), buttons line up at the bottom. */
+html body .woocommerce ul.products li.product,html body ul.products li.product{display:flex !important;flex-direction:column}
+html body ul.products li.product .woocommerce-LoopProduct-link{display:flex;flex-direction:column;flex:1 1 auto}
+html body ul.products li.product .woocommerce-loop-product__title{display:-webkit-box !important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3 !important;min-height:2.6em;max-height:2.6em}
+html body ul.products li.product .nura-hairtype{min-height:1.9em}
+html body ul.products li.product .price{margin-top:auto}
+html body ul.products li.product>.button,html body ul.products li.product>.added_to_cart{margin-top:.6rem !important;align-self:center}
+@media(max-width:860px){html body ul.products li.product .woocommerce-loop-product__title{font-size:.95rem !important}}
+html body .nura-care-rail ul.products li.product .woocommerce-loop-product__title{-webkit-line-clamp:2;min-height:2.6em;max-height:2.6em}

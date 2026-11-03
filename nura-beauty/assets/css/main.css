@@ -2001,3 +2001,12 @@ html body ul.products li.product .woocommerce-loop-product__title.woocommerce-lo
 
 /* 1.110.3 Phones: on pages full of product cards the floating chat button is hidden (the "Ask NURA Stylist" questions on these pages open the same chat). */
 @media(max-width:860px){html body.home .nurax-stylist:not(.is-open),html body.woocommerce-shop .nurax-stylist:not(.is-open),html body.tax-product_cat .nurax-stylist:not(.is-open),html body.tax-product_tag .nurax-stylist:not(.is-open),html body.post-type-archive-product .nurax-stylist:not(.is-open){display:none !important}}
+
+/* 1.110.4 Prices line up in every row: inside each card the price sits directly under the 2-line title (fixed height), then the optional instalment line, hair-type tags and colour dots. Optional lines can no longer push the price up or down. */
+html body ul.products li.product .woocommerce-LoopProduct-link .woocommerce-loop-product__title{order:1 !important}
+html body ul.products li.product .woocommerce-LoopProduct-link .price{order:2 !important;margin-top:0 !important}
+html body ul.products li.product .woocommerce-LoopProduct-link .nura-lmm-chip{order:3 !important;margin:-.35rem 0 .5rem !important}
+html body ul.products li.product .woocommerce-LoopProduct-link .nura-hairtype{order:4 !important}
+html body ul.products li.product .woocommerce-LoopProduct-link .nura-swatch-dots{order:5 !important}
+html body ul.products li.product .woocommerce-LoopProduct-link .star-rating{order:6 !important}
+html body ul.products li.product .woocommerce-LoopProduct-link img{flex-shrink:0}

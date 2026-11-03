@@ -287,6 +287,37 @@ class NURAX_Desk_Catalogue {
 		return array_values( array_unique( $out ) );
 	}
 
+	/** 1.90.0: number of live variations whose colour is "Any Colour" (empty value). */
+	public static function wildcards( $p ) {
+		if ( ! $p->is_type( 'variable' ) ) {
+			return 0;
+		}
+		list( $k ) = self::colour_attr( $p );
+		if ( ! $k ) {
+			return 0;
+		}
+		$n = 0;
+		foreach ( $p->get_children() as $cid ) {
+			$v = wc_get_product( $cid );
+			if ( $v && 'publish' === $v->get_status() ) {
+				$va = $v->get_attributes();
+				if ( ! isset( $va[ $k ] ) || '' === (string) $va[ $k ] ) {
+					$n++;
+				}
+			}
+		}
+		return $n;
+	}
+
+	/** 1.90.0: copy of a product's attributes with fresh objects, so WooCommerce sees a change and saves it. */
+	private static function attrs_copy( $p ) {
+		$out = array();
+		foreach ( $p->get_attributes() as $k => $a ) {
+			$out[ $k ] = is_object( $a ) ? clone $a : $a;
+		}
+		return $out;
+	}
+
 	/** Products linked to a WhatsApp item (by sync key), with the item. */
 	private static function linked() {
 		$by = array();
@@ -309,9 +340,16 @@ class NURAX_Desk_Catalogue {
 		$cur  = self::current_colours( $p );
 		$lcur = array_map( 'strtolower', $cur );
 		$lwa  = array_map( 'strtolower', $wa );
+		list( , $ca ) = self::colour_attr( $p );
+		$opts = $ca ? array_map( 'strtolower', array_map( 'strval', $ca->get_options() ) ) : array();
+		sort( $opts );
+		$lwas = $lwa;
+		sort( $lwas );
 		return array(
 			'wa'   => $wa,
 			'cur'  => $cur,
+			'any'  => self::wildcards( $p ),
+			'opts' => ! $p->is_type( 'variable' ) || $opts === $lwas,
 			'keep' => array_values( array_filter( $wa, function ( $c ) use ( $lcur ) { return in_array( strtolower( $c ), $lcur, true ); } ) ),
 			'add'  => array_values( array_filter( $wa, function ( $c ) use ( $lcur ) { return ! in_array( strtolower( $c ), $lcur, true ); } ) ),
 			'hide' => array_values( array_filter( $cur, function ( $c ) use ( $lwa ) { return ! in_array( strtolower( $c ), $lwa, true ); } ) ),
@@ -324,6 +362,7 @@ class NURAX_Desk_Catalogue {
 		$links  = self::linked();
 		$backup = array( 'time' => current_time( 'mysql' ), 'products' => array() );
 		$done   = 0;
+		$failed = array();
 		foreach ( $pick as $pid ) {
 			if ( ! isset( $links[ $pid ] ) ) {
 				continue;
@@ -333,7 +372,7 @@ class NURAX_Desk_Catalogue {
 			if ( ! $wa ) {
 				continue;
 			}
-			$b = array( 'type' => $p->get_type(), 'attrs' => $p->get_attributes(), 'defaults' => $p->is_type( 'variable' ) ? $p->get_default_attributes() : array(), 'status' => array(), 'created' => array(), 'reg' => $p->get_regular_price( 'edit' ) );
+			$b = array( 'type' => $p->get_type(), 'attrs' => self::attrs_copy( $p ), 'defaults' => $p->is_type( 'variable' ) ? $p->get_default_attributes() : array(), 'status' => array(), 'created' => array(), 'reg' => $p->get_regular_price( 'edit' ) );
 			$price = self::product_price( $p );
 			if ( ! $p->is_type( 'variable' ) ) {
 				if ( count( $wa ) < 2 ) {
@@ -343,7 +382,7 @@ class NURAX_Desk_Catalogue {
 					$a->set_options( $wa );
 					$a->set_visible( true );
 					$a->set_variation( false );
-					$attrs = $p->get_attributes();
+					$attrs = self::attrs_copy( $p );
 					list( $ck ) = self::colour_attr( $p );
 					$attrs[ $ck ? $ck : 'colour' ] = $a;
 					$p->set_attributes( $attrs );
@@ -357,8 +396,11 @@ class NURAX_Desk_Catalogue {
 				$p = new WC_Product_Variable( $pid );
 			}
 			list( $ck, $ca ) = self::colour_attr( $p );
-			$attrs = $p->get_attributes();
-			if ( ! $ca || $ca->is_taxonomy() ) {
+			$attrs = self::attrs_copy( $p );
+			// 1.90.0: never edit the attribute object in place - WooCommerce then sees "no change" and
+			// silently keeps the old colour list, which made every new colour show as "Any Colour".
+			$ca = ( $ca && ! $ca->is_taxonomy() ) ? clone $ca : null;
+			if ( ! $ca ) {
 				$ca = new WC_Product_Attribute();
 				$ca->set_name( 'Colour' );
 				$ck = 'colour';
@@ -369,6 +411,21 @@ class NURAX_Desk_Catalogue {
 			$attrs[ $ck ] = $ca;
 			$p->set_attributes( $attrs );
 			$p->save();
+			// 1.90.0: read it back; stop on this product if the colour list did not save.
+			wc_delete_product_transients( $pid );
+			$chk = wc_get_product( $pid );
+			$got = array();
+			if ( $chk ) {
+				$ga = $chk->get_attributes();
+				if ( isset( $ga[ $ck ] ) && is_object( $ga[ $ck ] ) ) {
+					$got = array_map( 'strtolower', array_map( 'strval', $ga[ $ck ]->get_options() ) );
+				}
+			}
+			if ( array_diff( array_map( 'strtolower', $wa ), $got ) ) {
+				$failed[] = $p->get_name();
+				continue;
+			}
+			$p = $chk;
 			// Existing variations: keep matching colours (renamed to the WhatsApp spelling), hide the rest.
 			$have = array();
 			foreach ( $p->get_children() as $cid ) {
@@ -422,7 +479,10 @@ class NURAX_Desk_Catalogue {
 			NURAX_Staff::log( 'catalogue', 'Colour sync: ' . $done . ' product(s) now offer the WhatsApp colours' );
 		}
 		do_action( 'litespeed_purge_all' );
-		wp_safe_redirect( NURAX_Desk::url( self::PAGE, array( 'colours' => $done ) ) . '#colours' );
+		if ( $failed ) {
+			set_transient( 'nurax_cat_colour_fail', $failed, HOUR_IN_SECONDS );
+		}
+		wp_safe_redirect( NURAX_Desk::url( self::PAGE, array( 'colours' => $done, 'colour_fail' => count( $failed ) ) ) . '#colours' );
 		exit;
 	}
 
@@ -473,6 +533,11 @@ class NURAX_Desk_Catalogue {
 		$links = self::linked();
 		$b     = get_option( self::CBACKUP );
 		echo '<section class="nd-card" id="colours"><div class="nc-colh"><h3>3. Colours - offer exactly the WhatsApp colours</h3>';
+		$fail = get_transient( 'nurax_cat_colour_fail' );
+		if ( $fail ) {
+			delete_transient( 'nurax_cat_colour_fail' );
+			echo '<div class="notice notice-error inline"><p>' . esc_html( 'These products were NOT changed because the colour list did not save: ' . implode( ', ', (array) $fail ) . '. Nothing else on them was touched.' ) . '</p></div>';
+		}
 		if ( is_array( $b ) && ! empty( $b['products'] ) ) {
 			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" onsubmit="return confirm(\'Put the colour options back as they were before ' . esc_attr( $b['time'] ) . '?\')">' . wp_nonce_field( 'nurax_cat_colours_undo', '_wpnonce', true, false ) . '<input type="hidden" name="action" value="nurax_cat_colours_undo"><button class="nd-btn nd-btn--ghost nd-btn--sm">Undo colour sync</button></form>';
 		}
@@ -488,8 +553,15 @@ class NURAX_Desk_Catalogue {
 				echo '<tr class="nc-r--muted"><td class="nc-on">-</td><td>' . esc_html( $p->get_name() ) . '</td><td><span class="na-muted">None listed on WhatsApp</span></td><td>' . esc_html( $pl['cur'] ? implode( ', ', $pl['cur'] ) : '-' ) . '</td><td><span class="na-muted">Left as it is</span></td></tr>';
 				continue;
 			}
-			$same = ! $pl['add'] && ! $pl['hide'] && ( $p->is_type( 'variable' ) || count( $pl['wa'] ) < 2 );
+			$same = ! $pl['add'] && ! $pl['hide'] && ! $pl['any'] && $pl['opts'] && ( $p->is_type( 'variable' ) || count( $pl['wa'] ) < 2 );
 			$chg  = array();
+			if ( $pl['any'] ) {
+				/* translators: %d: number of variations. */
+				$chg[] = '<b class="nc-warn">' . esc_html( sprintf( _n( '%d "Any Colour" option on sale', '%d "Any Colour" options on sale', $pl['any'], 'nura-experience' ), $pl['any'] ) ) . '</b> - customers cannot pick a real colour; Apply hides it';
+			}
+			if ( ! $pl['opts'] ) {
+				$chg[] = '<b>Fix colour list</b> on the product (it does not match WhatsApp)';
+			}
 			if ( ! $p->is_type( 'variable' ) && count( $pl['wa'] ) > 1 ) {
 				$chg[] = 'becomes a colour-choice product';
 			}

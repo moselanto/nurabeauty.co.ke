@@ -155,12 +155,21 @@ if ( ! function_exists( 'nura_facts' ) ) {
 		return false !== strpos( $v, 'imenti' ) || false !== strpos( $v, '8:00–20:00' ) || false !== strpos( $v, '8:00-20:00' ) || false !== strpos( $v, '8:00am to 8:00pm' );
 	}
 	add_filter( 'theme_mod_nura_address', function ( $v ) {
+		if ( ! is_string( $v ) ) { // Customizer passes a stdClass sentinel; casting it is fatal.
+			return $v;
+		}
 		return ( '' === trim( (string) $v ) || nura_facts_is_stale( $v ) ) ? nura_fact( 'address_short' ) : $v;
 	} );
 	add_filter( 'theme_mod_nura_hours', function ( $v ) {
+		if ( ! is_string( $v ) ) { // Customizer passes a stdClass sentinel; casting it is fatal.
+			return $v;
+		}
 		return ( '' === trim( (string) $v ) || nura_facts_is_stale( $v ) ) ? nura_fact( 'hours_text' ) : $v;
 	} );
 	add_filter( 'theme_mod_nura_inst_facts', function ( $v ) {
+		if ( ! is_string( $v ) ) { // Customizer passes a stdClass sentinel; casting it is fatal.
+			return $v;
+		}
 		return str_replace( array( 'Mon–Sat 8:00–20:00', 'Mon-Sat 8:00-20:00' ), nura_fact( 'hours_text' ), (string) $v );
 	} );
 

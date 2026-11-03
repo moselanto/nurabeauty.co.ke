@@ -236,6 +236,26 @@ $slides = array(
 	</section>
 	<?php endif; ?>
 
+	<!-- WIG CARE (shown only once wig care is stocked) -->
+	<?php if ( ! function_exists( 'nura_cat_has_products' ) || nura_cat_has_products( 'wig-care' ) ) : ?>
+	<section class="section" id="wig-care">
+		<div class="nura-container">
+			<div class="nura-shead nura-shead--row nura-reveal">
+				<div>
+					<p class="nura-eyebrow"><?php esc_html_e( 'Keep your crown radiant', 'nura-beauty' ); ?></p>
+					<h2><?php esc_html_e( 'NURA Wig Care', 'nura-beauty' ); ?></h2>
+					<p style="margin:.4rem 0 0"><?php esc_html_e( 'Everything your wig needs to stay beautiful.', 'nura-beauty' ); ?></p>
+				</div>
+				<a class="nura-rail__viewall" href="<?php echo esc_url( nura_home_cat_url( 'wig-care' ) ); ?>"><?php esc_html_e( 'View all', 'nura-beauty' ); ?> &#8594;</a>
+			</div>
+			<?php if ( class_exists( 'WooCommerce' ) ) : ?>
+			<div class="nura-care-rail" data-nura-care-rail>
+				<button type="button" class="nura-care-rail__btn nura-care-rail__btn--prev" data-dir="-1" aria-label="<?php esc_attr_e( 'Previous wig care products', 'nura-beauty' ); ?>">&#8249;</button>
+				<?php echo do_shortcode( '[products limit="24" columns="4" category="wig-care" visibility="visible"]' ); // 1.108.0: one swipeable row, shuffled per load (see inc/nura-wig-care.php). ?>
+				<button type="button" class="nura-care-rail__btn nura-care-rail__btn--next" data-dir="1" aria-label="<?php esc_attr_e( 'More wig care products', 'nura-beauty' ); ?>">&#8250;</button>
+			</div>
+			<?php endif; ?>
+
 	<!-- SHOP BY CATEGORY - four pillars -->
 	<section class="section nura-pillars-section" id="shop-nura">
 		<div class="nura-container">
@@ -423,25 +443,6 @@ $slides = array(
 		</div>
 	</section>
 
-	<!-- WIG CARE (shown only once wig care is stocked) -->
-	<?php if ( ! function_exists( 'nura_cat_has_products' ) || nura_cat_has_products( 'wig-care' ) ) : ?>
-	<section class="section" id="wig-care">
-		<div class="nura-container">
-			<div class="nura-shead nura-shead--row nura-reveal">
-				<div>
-					<p class="nura-eyebrow"><?php esc_html_e( 'Keep your crown radiant', 'nura-beauty' ); ?></p>
-					<h2><?php esc_html_e( 'NURA Wig Care', 'nura-beauty' ); ?></h2>
-					<p style="margin:.4rem 0 0"><?php esc_html_e( 'Everything your wig needs to stay beautiful.', 'nura-beauty' ); ?></p>
-				</div>
-				<a class="nura-rail__viewall" href="<?php echo esc_url( nura_home_cat_url( 'wig-care' ) ); ?>"><?php esc_html_e( 'Shop wig care', 'nura-beauty' ); ?> &#8594;</a>
-			</div>
-			<?php if ( class_exists( 'WooCommerce' ) ) : ?>
-			<div class="nura-care-rail" data-nura-care-rail>
-				<button type="button" class="nura-care-rail__btn nura-care-rail__btn--prev" data-dir="-1" aria-label="<?php esc_attr_e( 'Previous wig care products', 'nura-beauty' ); ?>">&#8249;</button>
-				<?php echo do_shortcode( '[products limit="24" columns="4" category="wig-care" visibility="visible"]' ); // 1.108.0: one swipeable row, shuffled per load (see inc/nura-wig-care.php). ?>
-				<button type="button" class="nura-care-rail__btn nura-care-rail__btn--next" data-dir="1" aria-label="<?php esc_attr_e( 'More wig care products', 'nura-beauty' ); ?>">&#8250;</button>
-			</div>
-			<?php endif; ?>
 		</div>
 	</section>
 	<?php endif; ?>

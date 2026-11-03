@@ -308,6 +308,12 @@ if ( function_exists( 'nura_home_product_ids' ) === false ) {
 					'terms'    => array( 'exclude-from-catalog', 'outofstock' ),
 					'operator' => 'NOT IN',
 				),
+				array( // 1.108.3: wig care has its own row under the wigs (owner, 3 Nov).
+					'taxonomy' => 'product_cat',
+					'field'    => 'slug',
+					'terms'    => (array) apply_filters( 'nura_home_tabs_exclude_cats', array( 'wig-care' ) ),
+					'operator' => 'NOT IN',
+				),
 			),
 		);
 		$q   = new WP_Query( array_merge( $base, (array) $args ) );

@@ -92,7 +92,9 @@ add_action( 'woocommerce_after_single_product_summary', function () {
 	if ( ! $product ) {
 		return;
 	}
-	$slug = $product->get_slug();
+	// 1.108.2: imported products keep a name-based slug; the map key is their SKU.
+	$keys = array_keys( nura_care_products() );
+	$slug = in_array( $product->get_sku(), $keys, true ) ? $product->get_sku() : $product->get_slug();
 	$html = '';
 	foreach ( nura_care_sets() as $set ) {
 		if ( ! in_array( $slug, $set[1], true ) ) {
@@ -148,7 +150,7 @@ add_action( 'wp_footer', function () {
 		return;
 	}
 	?>
-<script>(function(){var r=document.querySelector('[data-nura-care-rail]');if(!r){return;}var ul=r.querySelector('ul.products');if(!ul){return;}var it=[].slice.call(ul.children);for(var i=it.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=it[i];it[i]=it[j];it[j]=t;}it.forEach(function(li){li.classList.remove('first','last');ul.appendChild(li);});[].forEach.call(r.querySelectorAll('.nura-care-rail__btn'),function(b){b.addEventListener('click',function(){var w=ul.clientWidth*0.85;ul.scrollBy({left:w*parseInt(b.getAttribute('data-dir'),10),behavior:'smooth'});});});function u(){var p=r.querySelector('.nura-care-rail__btn--prev'),n=r.querySelector('.nura-care-rail__btn--next');if(p){p.disabled=ul.scrollLeft<4;}if(n){n.disabled=ul.scrollLeft+ul.clientWidth>=ul.scrollWidth-4;}}ul.addEventListener('scroll',u,{passive:true});window.addEventListener('resize',u);u();})();</script>
+<script>(function(){var r=document.querySelector('[data-nura-care-rail]');if(!r){return;}var ul=r.querySelector('ul.products');if(!ul){return;}var it=[].slice.call(ul.children);for(var i=it.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=it[i];it[i]=it[j];it[j]=t;}it.forEach(function(li){li.classList.remove('first','last');ul.appendChild(li);});[].forEach.call(r.querySelectorAll('.nura-care-rail__btn'),function(b){b.addEventListener('click',function(){var w=ul.clientWidth*0.85;ul.scrollBy({left:w*parseInt(b.getAttribute('data-dir'),10),behavior:'smooth'});});});function u(){var p=r.querySelector('.nura-care-rail__btn--prev'),n=r.querySelector('.nura-care-rail__btn--next');if(p){p.disabled=ul.scrollLeft<4;}if(n){n.disabled=ul.scrollLeft+ul.clientWidth>=ul.scrollWidth-4;}}ul.addEventListener('scroll',u,{passive:true});window.addEventListener('resize',u);window.addEventListener('load',u);setTimeout(u,600);u();})();</script>
 	<?php
 }, 6 );
 
@@ -174,3 +176,21 @@ add_filter( 'nurax_knowledge_base', function ( $kb ) {
 	);
 	return $kb;
 } );
+
+/* 1.108.2 Footer legal links: real footer menus are assigned, so add Privacy + Terms to the Help column menu. */
+add_filter( 'wp_nav_menu_items', function ( $items, $args ) {
+	if ( empty( $args->theme_location ) || 'footer_help' !== $args->theme_location ) {
+		return $items;
+	}
+	$priv  = function_exists( 'get_privacy_policy_url' ) ? get_privacy_policy_url() : '';
+	$priv  = $priv ? $priv : home_url( '/privacy-policy/' );
+	$tid   = function_exists( 'wc_terms_and_conditions_page_id' ) ? (int) wc_terms_and_conditions_page_id() : 0;
+	$terms = $tid ? get_permalink( $tid ) : home_url( '/terms-conditions/' );
+	if ( false === strpos( $items, $priv ) ) {
+		$items .= '<li class="menu-item"><a href="' . esc_url( $priv ) . '">' . esc_html__( 'Privacy Policy', 'nura-beauty' ) . '</a></li>';
+	}
+	if ( false === strpos( $items, (string) $terms ) ) {
+		$items .= '<li class="menu-item"><a href="' . esc_url( $terms ) . '">' . esc_html__( 'Terms & Conditions', 'nura-beauty' ) . '</a></li>';
+	}
+	return $items;
+}, 20, 2 );

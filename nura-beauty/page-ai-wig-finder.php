@@ -69,7 +69,7 @@ $nf_steps = array(
 	array( 'camera', __( 'Share your look', 'nura-beauty' ), __( 'Answer a few quick questions about texture, length, colour and budget.', 'nura-beauty' ) ),
 	array( 'spark', __( 'We match you', 'nura-beauty' ), __( 'NURA matches your answers on texture, length, hair type, colour and lace to our collection.', 'nura-beauty' ) ),
 	array( 'list', __( 'Get your shortlist', 'nura-beauty' ), __( 'See curated units with lengths, textures and prices.', 'nura-beauty' ) ),
-	array( 'cal', __( 'Try or confirm', 'nura-beauty' ), __( 'Save your matches, try them on virtually or book a free consultation.', 'nura-beauty' ) ),
+	array( 'cal', __( 'Try or confirm', 'nura-beauty' ), __( 'Save your matches, ask a stylist on WhatsApp or book a free consultation.', 'nura-beauty' ) ),
 );
 ?>
 <main id="primary" class="site-main nura-wf-page">

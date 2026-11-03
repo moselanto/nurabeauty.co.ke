@@ -1940,3 +1940,8 @@ body.nura-form-page .nurax-stylist:not(.is-open),body.nura-form-page .nura-wa,bo
 .nura-care-svc__row+.nura-care-svc__row{margin-top:.8rem}
 .nura-care-guide{margin:2.4rem 0 1rem;padding:1.4rem;border-radius:12px;background:#fbf8f3;border-left:3px solid var(--nura-gold,#c9a24b)}
 .nura-care-guide h2{margin-top:0;font-size:1.3rem}
+
+/* 1.108.2 Wig Care rail: beat the shop grid rules (they use html body .woocommerce ul.products). */
+html body .nura-care-rail .woocommerce ul.products,html body .nura-care-rail ul.products{display:flex !important;flex-wrap:nowrap !important;grid-template-columns:none !important;overflow-x:auto !important;overflow-y:hidden;scroll-snap-type:x mandatory;gap:16px !important;width:100% !important}
+html body .nura-care-rail .woocommerce ul.products li.product,html body .nura-care-rail ul.products li.product{flex:0 0 calc((100% - 48px)/4) !important;width:auto !important;max-width:none !important;margin:0 !important;float:none !important;grid-column:auto !important}
+@media(max-width:860px){html body .nura-care-rail .woocommerce ul.products li.product,html body .nura-care-rail ul.products li.product{flex-basis:calc((100% - 16px)/2.2) !important}}

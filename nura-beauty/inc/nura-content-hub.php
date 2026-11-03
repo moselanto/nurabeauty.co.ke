@@ -39,7 +39,7 @@ function nura_hub_labels() {
 
 /** Cached rows: id, name, url, hair, lo, hi, stock, cats. */
 function nura_hub_rows() {
-	$rows = get_transient( 'nura_hub_rows2' );
+	$rows = get_transient( 'nura_hub_rows3' );
 	if ( false !== $rows ) {
 		return $rows;
 	}
@@ -66,12 +66,12 @@ function nura_hub_rows() {
 			);
 		}
 	}
-	set_transient( 'nura_hub_rows2', $rows, 6 * HOUR_IN_SECONDS );
+	set_transient( 'nura_hub_rows3', $rows, 6 * HOUR_IN_SECONDS );
 	return $rows;
 }
 add_action( 'save_post_product', function () {
 	delete_transient( 'nura_hub_rows' );
-	delete_transient( 'nura_hub_rows2' );
+	delete_transient( 'nura_hub_rows3' );
 } );
 
 /** Construction from the product name: Headband, Closure, Lace front, Frontal or Wig. */
@@ -84,7 +84,11 @@ function nura_hub_style( $name ) {
 		return __( '13x4 frontal', 'nura-beauty' );
 	}
 	if ( false !== strpos( $n, 'closure' ) ) {
-		return __( '4x4 closure', 'nura-beauty' );
+		// 1.107.1: use the size in the name (2x2, 4x4, 5x5...) instead of always saying 4x4.
+		if ( preg_match( '/(\d)\s*[x\x{00d7}]\s*(\d)/u', $n, $m ) ) {
+			return $m[1] . 'x' . $m[2] . ' ' . __( 'closure', 'nura-beauty' );
+		}
+		return __( 'Closure', 'nura-beauty' );
 	}
 	if ( false !== strpos( $n, 'lace front' ) ) {
 		return __( 'Lace front', 'nura-beauty' );

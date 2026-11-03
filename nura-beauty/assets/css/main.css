@@ -1855,3 +1855,40 @@ html body .nura-bottom-nav .nbn-t{color:#333}
 html body .nura-bottom-nav .is-active .nbn-t{color:#7a5d1c}
 
 .nura-follow{list-style:none;padding:0}.nura-follow>li{margin:0;padding:0}
+
+/* 1.104.0 Mobile header + drawer redesign (Step 3). */
+@media(max-width:860px){
+  html body .nura-announce{padding:.5rem 0 !important;white-space:normal !important;overflow:visible !important;text-overflow:clip !important}
+  html body .nura-announce p{margin:0;padding:0 14px;font-size:.62rem;line-height:1.45;letter-spacing:.1em;white-space:normal;text-align:center;overflow-wrap:anywhere}
+  html body .nura-header-inner{grid-template-columns:44px 1fr auto;column-gap:.4rem;row-gap:.5rem;padding-block:.5rem .6rem}
+  html body .nura-burger{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;margin-left:-6px}
+  html body .nura-logo-wrap{justify-self:center;align-self:center;line-height:1}
+  html body .nura-logo-wrap img,html body .nura-logo-wrap .custom-logo{max-height:30px;width:auto}
+  html body .nura-header-actions{gap:0;margin-right:-6px}
+  html body .nura-header-actions .nura-icon-btn,html body .nura-header-actions .nura-cart-btn{min-width:42px;min-height:44px}
+  html body .nura-header-actions svg{width:21px;height:21px}
+  html body .nura-hsearch{max-width:none;border:1px solid #d9d1c6;border-radius:999px;background:#faf7f2;min-height:44px}
+  html body .nura-hsearch:focus-within{background:#fff;border-color:var(--nura-gold);box-shadow:0 0 0 3px rgba(201,162,75,.18)}
+  html body .nura-hsearch__ic{padding-left:.95rem}
+  html body .nura-hsearch__input{padding:.6rem .5rem;font-size:16px}
+  html body .nura-hsearch__btn{width:36px;min-height:36px;height:36px;padding:0;margin:4px;align-self:center;border-radius:50%;font-size:0;letter-spacing:0;background:var(--nura-ink);color:#fff;position:relative}
+  html body .nura-hsearch__btn::before{content:"\2192";font-size:1.05rem;line-height:1;position:absolute;left:50%;top:50%;transform:translate(-50%,-52%)}
+  /* Drawer: one consistent row style for links and expandable groups. */
+  html body .nura-drawer-menu>li{border-bottom:1px solid rgba(243,233,220,.1);padding:0}
+  html body .nura-drawer-menu>li>a{font-weight:400}
+  html body .nura-drawer-menu__group details{border:0;margin:0}
+  html body .nura-drawer-menu__group summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:.92rem 1.4rem;font-family:var(--font-display);font-size:1.16rem;font-weight:400;letter-spacing:.012em;line-height:1.3;color:var(--nura-ivory);cursor:pointer;border:0;outline-offset:-2px}
+  html body .nura-drawer-menu__group summary::marker{content:""}
+  html body .nura-drawer-menu__group summary::after{content:"+";flex:none;width:26px;height:26px;margin:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(201,162,75,.55);border-radius:50%;font-size:1rem;line-height:1;color:var(--nura-gold)}
+  html body .nura-drawer-menu__group details[open]>summary{color:var(--nura-gold)}
+  html body .nura-drawer-menu__group details[open]>summary::after{content:"\2212";background:var(--nura-gold);color:var(--nura-ink);border-color:var(--nura-gold)}
+  html body .nura-drawer-menu__sub{padding:0 1.4rem .9rem 1.6rem}
+  html body .nura-drawer-menu__sub a{display:block;padding:.5rem 0}
+  /* Bottom bar: equal icon boxes so every label sits on one line. */
+  html body .nura-bottom-nav>a,html body .nura-bottom-nav>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 0 calc(6px + env(safe-area-inset-bottom,0px))}
+  html body .nura-bottom-nav .nbn-i{display:flex;align-items:center;justify-content:center;width:24px;height:24px;line-height:0}
+  html body .nura-bottom-nav .nbn-i svg,html body .nura-bottom-nav .nbn-wa .nbn-i svg{width:22px;height:22px}
+  html body .nura-bottom-nav .nbn-t{font-size:.62rem;line-height:1;letter-spacing:.06em;white-space:nowrap}
+  /* Floating buttons sit above the bottom bar instead of on top of content. */
+  html body .nurax-stylist__fab,html body .nd-bubble{bottom:calc(74px + env(safe-area-inset-bottom,0px)) !important}
+}

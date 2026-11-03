@@ -95,7 +95,7 @@
 			<span class="nura-hsearch__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></span>
 			<input id="nura-hsearch-q" class="nura-hsearch__input" type="search" name="s" value="<?php echo esc_attr( get_search_query() ); ?>" placeholder="<?php esc_attr_e( 'Search wigs, hair & beauty...', 'nura-beauty' ); ?>" enterkeyhint="search" aria-autocomplete="list" aria-controls="nura-hsearch-drop">
 			<input type="hidden" name="post_type" value="product">
-			<button type="submit" class="nura-hsearch__btn"><?php esc_html_e( 'Search', 'nura-beauty' ); ?></button>
+			<button type="submit" class="nura-hsearch__btn"><svg class="nura-hsearch__btn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg><span class="nura-hsearch__btn-t"><?php esc_html_e( 'Search', 'nura-beauty' ); ?></span></button>
 			<div class="nura-hsearch__drop" id="nura-hsearch-drop" role="listbox" hidden></div>
 		</form>
 

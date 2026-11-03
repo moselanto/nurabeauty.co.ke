@@ -168,7 +168,8 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 					<?php endif; ?>
 					<p class="nura-bk__err" role="alert" hidden></p>
 					<button type="submit" class="nura-bk__submit"><?php esc_html_e( 'Request appointment', 'nura-beauty' ); ?></button>
-					<p class="nura-bk__small"><?php echo esc_html( ! empty( $nb_has_dep ) ? __( 'Your slot is confirmed once we verify your deposit.', 'nura-beauty' ) : __( 'We confirm your slot on WhatsApp.', 'nura-beauty' ) ); ?></p>
+					<p class="nura-bk__small" data-nura-bk-note data-dep="<?php echo esc_attr( ! empty( $nb_has_dep ) ? __( 'Your slot is confirmed once we verify your deposit.', 'nura-beauty' ) : __( 'We confirm your slot on WhatsApp.', 'nura-beauty' ) ); ?>" data-nodep="<?php esc_attr_e( 'No deposit needed for video or WhatsApp consultations. We confirm your slot on WhatsApp.', 'nura-beauty' ); ?>"><?php echo esc_html( ! empty( $nb_has_dep ) ? __( 'Your slot is confirmed once we verify your deposit.', 'nura-beauty' ) : __( 'We confirm your slot on WhatsApp.', 'nura-beauty' ) ); ?></p>
+					<script>(function(){var n=document.querySelector('[data-nura-bk-note]');if(!n){return;}var f=n.closest('form')||document;function u(){var r=f.querySelector('input[name="type"]:checked');n.textContent=(r&&r.value!=='studio')?n.getAttribute('data-nodep'):n.getAttribute('data-dep');}f.addEventListener('change',function(e){if(e.target&&e.target.name==='type'){u();}});u();})();</script>
 
 					<div class="nura-bk__done" hidden>
 						<p class="nura-bk__done-h"><?php esc_html_e( 'Almost done', 'nura-beauty' ); ?></p>

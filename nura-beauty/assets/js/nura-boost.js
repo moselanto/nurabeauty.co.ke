@@ -39,7 +39,28 @@
 		each(box.querySelectorAll('.nura-lmm__wk'), function (b) { weekOpts.push(parseInt(b.getAttribute('data-weeks'), 10) || 4); });
 		if (!weekOpts.length) { weekOpts = [2, 3, 4]; }
 
+		var vprice = 0;
+		// 1.106.0: price of the chosen variation, read from WooCommerce's own variation data so the
+		// plan follows the selected length/colour even when the variation price block is hidden or late.
+		function chosen() {
+			if (!form) { return 0; }
+			var data;
+			try { data = JSON.parse(form.getAttribute('data-product_variations') || '[]'); } catch (x) { return 0; }
+			if (!data || !data.length) { return 0; }
+			var sel = {}, full = true;
+			each(form.querySelectorAll('select[name^="attribute_"]'), function (s) { sel[s.name] = s.value; if (!s.value) { full = false; } });
+			if (!full) { return 0; }
+			for (var i = 0; i < data.length; i++) {
+				var a = data[i].attributes || {}, ok = true;
+				for (var k in a) { if (Object.prototype.hasOwnProperty.call(a, k) && a[k] !== '' && a[k] !== sel[k]) { ok = false; break; } }
+				if (ok && data[i].display_price > 0) { return parseFloat(data[i].display_price); }
+			}
+			return 0;
+		}
 		function current() {
+			if (vprice > 0) { return vprice; }
+			var c = chosen();
+			if (c > 0) { return c; }
 			var v = form && form.querySelector('.woocommerce-variation-price ins .amount, .woocommerce-variation-price .amount');
 			if (v) { var n = parseFloat(v.textContent.replace(/[^0-9.]/g, '')); if (n > 0) { return n; } }
 			return price;
@@ -98,14 +119,15 @@
 			b.addEventListener('click', function () { setWeeks(parseInt(b.getAttribute('data-weeks'), 10)); update(); });
 		});
 		if (form) {
-			form.addEventListener('change', function () { setTimeout(update, 80); });
+			form.addEventListener('change', function () { vprice = 0; setTimeout(update, 120); });
 			if (window.jQuery) {
 				window.jQuery(form).on('found_variation', function (e, v) {
+					vprice = (v && v.display_price > 0) ? parseFloat(v.display_price) : 0;
 					if (v && v.sku) { sku = v.sku; }
 					if (v && v.variation_id) { vid = String(v.variation_id); }
 					if (v && v.image && (v.image.thumb_src || v.image.src)) { img = v.image.thumb_src || v.image.src; }
 					setTimeout(update, 80);
-				}).on('reset_data', function () { vid = ''; sku = box.getAttribute('data-sku') || ''; img = box.getAttribute('data-img') || ''; setTimeout(update, 80); });
+				}).on('reset_data', function () { vprice = 0; vid = ''; sku = box.getAttribute('data-sku') || ''; img = box.getAttribute('data-img') || ''; setTimeout(update, 80); });
 			}
 		}
 		update();

@@ -1892,3 +1892,25 @@ html body .nura-bottom-nav .is-active .nbn-t{color:#7a5d1c}
   /* Floating buttons sit above the bottom bar instead of on top of content. */
   html body .nurax-stylist__fab,html body .nd-bubble{bottom:calc(74px + env(safe-area-inset-bottom,0px)) !important}
 }
+
+/* 1.106.0 Shop page on phones, search icon button, tables, floating buttons on forms. */
+.nura-hsearch__btn-ic{display:none;width:17px;height:17px}
+body.page-template-page-book-appointment .nura-wa,body.page-template-page-book-appointment .nurax-stylist__fab,body.page-template-page-book-appointment .nd-bubble,body.woocommerce-checkout .nura-wa,body.woocommerce-checkout .nurax-stylist__fab,body.woocommerce-checkout .nd-bubble{display:none !important}
+@media(max-width:860px){
+  html body .nura-hsearch__btn::before{content:none !important}
+  html body .nura-hsearch__btn{font-size:.8rem !important;width:38px;height:38px;min-height:38px;display:inline-flex;align-items:center;justify-content:center}
+  html body .nura-hsearch__btn-ic{display:block;color:#fff}
+  html body .nura-hsearch__btn-t{position:absolute !important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  html body.woocommerce-shop .page-title,html body.tax-product_cat .page-title,html body.tax-product_tag .page-title,html body .woocommerce-products-header__title{font-size:clamp(1.65rem,7.2vw,2.1rem) !important;line-height:1.15;margin:.2rem 0 .7rem !important}
+  html body .woocommerce-result-count,html body .woocommerce .woocommerce-result-count{float:none !important;display:block;width:100%;margin:0 0 .6rem !important;line-height:1.4;font-size:.8rem}
+  html body .woocommerce .woocommerce-ordering,html body .woocommerce-ordering{float:none !important;display:block;width:100%;margin:0 0 1rem !important}
+  html body .woocommerce-ordering select{width:100%}
+  html body .nura-shop-results .nura-ask-row,html body .woocommerce .nura-ask-row{display:flex !important;flex-wrap:nowrap;align-items:center;gap:8px;width:100% !important;max-width:100%;float:none !important;clear:both;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 0 .9rem;padding:2px 0 6px}
+  html body .nura-ask-row::-webkit-scrollbar{display:none}
+  html body .nura-ask-row>*{flex:0 0 auto;white-space:nowrap;width:auto !important;margin:0 !important}
+  html body .nura-ask-row .nura-ask-row__t{font-size:.66rem;letter-spacing:.12em}
+  html body .nura-ask-row button,html body .nura-ask-row a:not(.nura-ask-row__more){padding:.45rem .85rem !important;font-size:.8rem !important;line-height:1.2 !important;border-radius:999px}
+  html body .nura-ask-row .nura-ask-row__more{font-size:.8rem}
+  html body ul.products{clear:both}
+  html body main table:not(.shop_table):not(.variations):not(.woocommerce-table):not(.woocommerce-product-attributes){display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+}

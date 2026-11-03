@@ -1914,3 +1914,6 @@ body.page-template-page-book-appointment .nura-wa,body.page-template-page-book-a
   html body ul.products{clear:both}
   html body main table:not(.shop_table):not(.variations):not(.woocommerce-table):not(.woocommerce-product-attributes){display:block;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 }
+
+/* 1.106.1 Floating buttons never sit on top of form pages (booking, contact, bulk, tracking, checkout). */
+body.nura-form-page .nurax-stylist:not(.is-open),body.nura-form-page .nura-wa,body.nura-form-page .nd-bubble{display:none !important}

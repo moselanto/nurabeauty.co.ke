@@ -32,3 +32,11 @@ add_action( 'wp_footer', function () {
 <script>(function(){try{var q=location.search;if(/[?&](orderby|filter_[a-z_]+|min_price|max_price|rating_filter|stock|s)=/.test(q)){return;}var lists=document.querySelectorAll('ul.products');for(var n=0;n<lists.length;n++){var ul=lists[n];if(ul.closest('.related,.upsells,.cross-sells')){continue;}var items=[].slice.call(ul.children).filter(function(li){return li.tagName==='LI';});for(var i=items.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=items[i];items[i]=items[j];items[j]=t;}items.forEach(function(li){li.classList.remove('first','last');ul.appendChild(li);});}}catch(e){}})();</script>
 	<?php
 }, 5 );
+
+/** 1.106.1: mark form pages so floating chat/WhatsApp buttons can step aside (body classes differ per template). */
+add_filter( 'body_class', function ( $classes ) {
+	if ( is_page( array( 'book-appointment', 'contact', 'contact-us', 'bulk-orders', 'track-order' ) ) || ( function_exists( 'is_checkout' ) && is_checkout() ) ) {
+		$classes[] = 'nura-form-page';
+	}
+	return $classes;
+} );

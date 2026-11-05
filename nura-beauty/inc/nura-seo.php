@@ -39,7 +39,7 @@ function nura_home_faqs() {
 	return apply_filters( 'nura_home_faqs', array(
 		array(
 			__( 'How much is a wig in Kenya?', 'nura-beauty' ),
-			__( 'At NURA, heat-resistant fibre wigs start from about KSh 1,800, human-hair blend (semi-human) wigs from about KSh 1,800, and 100% human hair lace front wigs from about KSh 7,500 up to around KSh 17,000 for longer lengths. Every price is shown in Kenya Shillings on the product page.', 'nura-beauty' ),
+			sprintf( /* translators: %s: cheapest wig price */ __( 'At NURA, wigs start from %s. Heat-resistant fibre wigs are the most affordable, human-hair blend (semi-human) wigs sit in the middle, and 100%% human hair lace front wigs cost the most, rising with length. Every price is shown in Kenya Shillings on the product page.', 'nura-beauty' ), function_exists( 'nura_wigs_from_text' ) ? nura_wigs_from_text() : 'KSh 1,800' ),
 		),
 		array(
 			__( 'Where can I buy wigs in Nairobi?', 'nura-beauty' ),
@@ -91,7 +91,7 @@ function nura_home_seo_section() {
 					);
 				?></p>
 				<p><?php esc_html_e( 'Every wig is quality-checked and clearly labelled as human hair, human-hair blend (semi-human) or heat-resistant fibre, so you know exactly what you are paying for. Prices are in Kenya Shillings, with same-day delivery in Nairobi before 5pm, countrywide delivery in 1-3 days, and secure payment by M-Pesa or card.', 'nura-beauty' ); ?></p>
-				<ul class="nura-seo-home__facts"><li><strong><?php echo esc_html( 'KSh ' . number_format( (float) ( function_exists( 'nura_fact' ) ? nura_fact( 'wigs_from', 1800 ) : 1800 ) ) . '+' ); ?></strong><span><?php esc_html_e( 'Wigs from', 'nura-beauty' ); ?></span></li><li><strong><?php esc_html_e( 'Same day', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Nairobi delivery', 'nura-beauty' ); ?></span></li><li><strong>48 <?php esc_html_e( 'hours', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Easy returns', 'nura-beauty' ); ?></span></li></ul>
+				<ul class="nura-seo-home__facts"><li><strong><?php echo esc_html( ( function_exists( 'nura_wigs_from_text' ) ? nura_wigs_from_text() : 'KSh ' . number_format( (float) ( function_exists( 'nura_fact' ) ? nura_fact( 'wigs_from', 1800 ) : 1800 ) ) ) . '+' ); ?></strong><span><?php esc_html_e( 'Wigs from', 'nura-beauty' ); ?></span></li><li><strong><?php esc_html_e( 'Same day', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Nairobi delivery', 'nura-beauty' ); ?></span></li><li><strong>48 <?php esc_html_e( 'hours', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Easy returns', 'nura-beauty' ); ?></span></li></ul>
 			</div>
 			<div class="nura-faq nura-seo-home__faq">
 				<p class="nura-eyebrow"><?php esc_html_e( 'FAQ', 'nura-beauty' ); ?></p>

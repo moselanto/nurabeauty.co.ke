@@ -65,7 +65,7 @@ if ( ! function_exists( 'nura_facts' ) ) {
 			'international'  => 'International shipping is available on request. Message us on WhatsApp for a quote.',
 			'cod'            => false,
 			'till'           => '1679269',
-			'wigs_from'      => 1800, // 1.111.0: owner - our wigs start from KSh 1,800 (not 1,500).
+			'wigs_from'      => 1800, // Fallback only; 1.114.0 uses the live cheapest wig (nura_wigs_from()).
 			'default_brand'  => 'NURA Beauty',
 		);
 		$saved = get_option( 'nura_business_facts', array() );
@@ -188,6 +188,7 @@ if ( ! function_exists( 'nura_facts' ) ) {
 	/** Exact replacements for stored content: old address, hours, returns window, cut-off, COD wording. */
 	function nura_facts_replacements() {
 		$addr = (string) nura_fact( 'address_short' );
+		$wf   = function_exists( 'nura_wigs_from_text' ) ? nura_wigs_from_text() : 'KSh ' . number_format( (float) nura_fact( 'wigs_from', 1800 ) ); // 1.114.0: live cheapest wig.
 		return array(
 			'Imenti House, Moi Avenue, Nairobi CBD, Kenya' => $addr . ', Kenya',
 			'Imenti House, Moi Avenue, Nairobi CBD'        => $addr,
@@ -209,15 +210,15 @@ if ( ! function_exists( 'nura_facts' ) ) {
 			'(M-Pesa, card or cash on delivery)'           => '(M-Pesa or card; pay on delivery within Nairobi CBD only)',
 			'bank transfer, or cash on delivery in Nairobi' => 'bank transfer, or M-Pesa Till 1679269 for WhatsApp orders. Pay on delivery within Nairobi CBD only',
 			'by appointment)'                              => 'walk-ins welcome)',
-			// 1.111.0: wigs start from KSh 1,800 (owner). Wig-price phrases only; service prices (installation, revamp from KSh 1,500) are untouched.
-			'KSh 1,500 - 4,900'                            => 'KSh 1,800 - 4,900',
-			'start from about KSh 1,500'                   => 'start from about KSh 1,800',
-			'Wigs from KSh 1,500'                          => 'Wigs from KSh 1,800',
-			'wigs from KSh 1,500'                          => 'wigs from KSh 1,800',
-			'wigs from 1,500'                              => 'wigs from 1,800',
-			'KSh 1,500 to KSh 17,300'                      => 'KSh 1,800 to KSh 17,300',
-			'KSh 1,500 - KSh 17,300'                       => 'KSh 1,800 - KSh 17,300',
-			'KSh 1,500+'                                   => 'KSh 1,800+',
+			// 1.111.0 / 1.114.0: wig 'from' phrases point to the live cheapest wig (owner). Wig-price phrases only; service prices (installation, revamp from KSh 1,500) are untouched.
+			'KSh 1,500 - 4,900'                            => $wf . ' - 4,900',
+			'start from about KSh 1,500'                   => 'start from about ' . $wf,
+			'Wigs from KSh 1,500'                          => 'Wigs from ' . $wf,
+			'wigs from KSh 1,500'                          => 'wigs from ' . $wf,
+			'wigs from 1,500'                              => 'wigs from ' . str_replace( 'KSh ', '', $wf ),
+			'KSh 1,500 to KSh 17,300'                      => $wf . ' to KSh 17,300',
+			'KSh 1,500 - KSh 17,300'                       => $wf . ' - KSh 17,300',
+			'KSh 1,500+'                                   => $wf . '+',
 		);
 	}
 

@@ -55,6 +55,36 @@ function nura_hub_is_wig( $p ) {
 	return (bool) apply_filters( 'nura_hub_is_wig', $is_wig, $p );
 }
 
+/**
+ * 1.114.0 (owner): the "wigs from" price is always the cheapest wig in the
+ * live catalogue - in-stock wigs first, else any published wig, else the
+ * wigs_from business fact. Wig care / beauty products are never counted.
+ * Filter: nura_wigs_from.
+ */
+function nura_wigs_from() {
+	static $cache = null;
+	if ( null !== $cache ) {
+		return $cache;
+	}
+	$rows = function_exists( 'wc_get_products' ) ? nura_hub_rows() : array();
+	$in   = array_filter( $rows, function ( $r ) {
+		return ! empty( $r['stock'] );
+	} );
+	$use  = $in ? $in : $rows;
+	$min  = $use ? (float) min( wp_list_pluck( $use, 'lo' ) ) : 0;
+	if ( $min <= 0 ) {
+		$min = (float) ( function_exists( 'nura_fact' ) ? nura_fact( 'wigs_from', 1800 ) : 1800 );
+	}
+	$cache = (float) apply_filters( 'nura_wigs_from', $min );
+	return $cache;
+}
+
+/** "KSh 1,800" - the live cheapest wig price. */
+function nura_wigs_from_text() {
+	return 'KSh ' . number_format( nura_wigs_from() );
+}
+add_shortcode( 'nura_wigs_from', 'nura_wigs_from_text' );
+
 /** Cached rows: id, name, url, hair, lo, hi, stock, cats. */
 function nura_hub_rows() {
 	$rows = get_transient( 'nura_hub_rows4' );
@@ -91,6 +121,7 @@ add_action( 'save_post_product', function () {
 	delete_transient( 'nura_hub_rows' );
 	delete_transient( 'nura_hub_rows3' );
 	delete_transient( 'nura_hub_rows4' );
+	delete_transient( 'nura_price_range3' );
 } );
 
 /** Construction from the product name: Headband, Closure, Lace front, Frontal or Wig. */
@@ -310,7 +341,7 @@ add_action( 'admin_init', function () {
  * rewritten and bump the version.
  */
 add_action( 'admin_init', function () {
-	$ver = '1.111.0';
+	$ver = '1.114.0'; // 1.114.0: guide 'wigs start from' is now the live [nura_wigs_from] shortcode.
 	if ( ! current_user_can( 'manage_options' ) || get_option( 'nura_guide_refresh' ) === $ver || ! defined( 'NURA_DIR' ) ) {
 		return;
 	}

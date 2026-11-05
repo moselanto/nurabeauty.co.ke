@@ -638,7 +638,7 @@ if ( ! function_exists( 'nura_discount_percent' ) ) {
 }
 
 /* -----------------------------------------------------------------------------
- * v1.73.0 - No cash on delivery. The WooCommerce "Cash on delivery" gateway is
+ * v1.73.0 (superseded in part by 1.112.0, see below) - The WooCommerce "Cash on delivery" gateway is
  * offered only as "Pay at the shop on collection" when the shopper chooses
  * studio pick-up (local_pickup / pickup_location). Every delivered order is
  * paid online (M-Pesa / card via Paystack, or bank transfer) before dispatch.
@@ -689,27 +689,103 @@ if ( ! function_exists( 'nura_chosen_is_pickup' ) ) {
 		return true;
 	}
 }
+/* -----------------------------------------------------------------------------
+ * 1.112.0 - Owner decision (5 Nov 2026): pay on delivery (cash or M-Pesa to the
+ * rider) is allowed ONLY for deliveries within Nairobi CBD, plus studio pick-up.
+ * Every other delivery is paid in full, delivery fee included, before dispatch.
+ * A CBD delivery is a shipping rate whose label contains "CBD" (set up a
+ * "Nairobi CBD delivery" method in the Nairobi zone) or whose method id is in
+ * the nura_cbd_method_ids filter.
+ * -------------------------------------------------------------------------- */
+if ( ! function_exists( 'nura_is_cbd_rate' ) ) {
+	/** True when a shipping rate (id + label) is a Nairobi CBD delivery. */
+	function nura_is_cbd_rate( $id, $label = '' ) {
+		$id = strtolower( (string) $id );
+		foreach ( (array) apply_filters( 'nura_cbd_method_ids', array() ) as $cbd ) {
+			if ( '' !== (string) $cbd && 0 === strpos( $id, strtolower( (string) $cbd ) ) ) {
+				return true;
+			}
+		}
+		return (bool) preg_match( '/\bcbd\b/i', (string) $label );
+	}
+}
+if ( ! function_exists( 'nura_rate_label' ) ) {
+	/** Label of a chosen rate id from the current shipping packages, or ''. */
+	function nura_rate_label( $rate_id ) {
+		if ( ! function_exists( 'WC' ) || ! WC()->shipping() ) {
+			return '';
+		}
+		foreach ( (array) WC()->shipping()->get_packages() as $pkg ) {
+			if ( isset( $pkg['rates'][ $rate_id ] ) && is_object( $pkg['rates'][ $rate_id ] ) ) {
+				return (string) $pkg['rates'][ $rate_id ]->get_label();
+			}
+		}
+		return '';
+	}
+}
+if ( ! function_exists( 'nura_chosen_is_cbd' ) ) {
+	/** True only when every chosen shipping method is a Nairobi CBD delivery. */
+	function nura_chosen_is_cbd( $chosen = null ) {
+		if ( null === $chosen ) {
+			$chosen = ( function_exists( 'WC' ) && WC()->session ) ? WC()->session->get( 'chosen_shipping_methods' ) : array();
+		}
+		$chosen = array_filter( (array) $chosen );
+		if ( empty( $chosen ) ) {
+			return false;
+		}
+		foreach ( $chosen as $m ) {
+			if ( ! nura_is_cbd_rate( $m, nura_rate_label( $m ) ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+}
+if ( ! function_exists( 'nura_cod_allowed' ) ) {
+	/** Pay on delivery / at the shop is allowed for studio pick-up and Nairobi CBD delivery only. */
+	function nura_cod_allowed( $chosen = null ) {
+		if ( apply_filters( 'nura_allow_cod_delivery', false ) ) {
+			return true;
+		}
+		$chosen = null === $chosen ? null : array_filter( (array) $chosen );
+		if ( is_array( $chosen ) && $chosen ) {
+			foreach ( $chosen as $m ) {
+				if ( ! nura_is_pickup_method( $m ) && ! nura_is_cbd_rate( $m, nura_rate_label( $m ) ) ) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return nura_chosen_is_pickup() || nura_chosen_is_cbd();
+	}
+}
 add_filter( 'woocommerce_available_payment_gateways', function ( $gateways ) {
 	if ( is_admin() && ! wp_doing_ajax() ) {
 		return $gateways;
 	}
-	if ( isset( $gateways['cod'] ) && ! nura_chosen_is_pickup() && ! apply_filters( 'nura_allow_cod_delivery', false ) ) {
+	if ( isset( $gateways['cod'] ) && ! nura_cod_allowed() ) {
 		unset( $gateways['cod'] );
 	}
 	return $gateways;
 } );
 // Shopper-facing name and instructions for the gateway that remains (pick-up only).
 add_filter( 'woocommerce_gateway_title', function ( $title, $id = '' ) {
-	return 'cod' === $id ? __( 'Pay at the shop on collection (cash or M-Pesa)', 'nura-beauty' ) : $title;
+	if ( 'cod' !== $id ) {
+		return $title;
+	}
+	return ( function_exists( 'nura_chosen_is_cbd' ) && nura_chosen_is_cbd() ) ? __( 'Pay on delivery - Nairobi CBD (cash or M-Pesa)', 'nura-beauty' ) : __( 'Pay at the shop on collection (cash or M-Pesa)', 'nura-beauty' );
 }, 10, 2 );
 add_filter( 'woocommerce_gateway_description', function ( $desc, $id = '' ) {
-	return 'cod' === $id ? __( 'Pay in person when you collect your order from our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD. Available for studio pick-up only; we do not offer cash on delivery.', 'nura-beauty' ) : $desc;
+	if ( 'cod' !== $id ) {
+		return $desc;
+	}
+	return ( function_exists( 'nura_chosen_is_cbd' ) && nura_chosen_is_cbd() ) ? __( 'Pay the rider in cash or by M-Pesa when your order arrives. Pay on delivery is available within Nairobi CBD only; all other deliveries are paid before dispatch.', 'nura-beauty' ) : __( 'Pay in person (cash or M-Pesa) when you collect your order from our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD.', 'nura-beauty' );
 }, 10, 2 );
 add_action( 'woocommerce_after_checkout_validation', function ( $data, $errors ) {
-	if ( isset( $data['payment_method'] ) && 'cod' === $data['payment_method'] && ! apply_filters( 'nura_allow_cod_delivery', false ) ) {
+	if ( isset( $data['payment_method'] ) && 'cod' === $data['payment_method'] ) {
 		$chosen = isset( $data['shipping_method'] ) ? (array) $data['shipping_method'] : null;
-		if ( ! nura_chosen_is_pickup( $chosen ) ) {
-			$errors->add( 'nura_cod', __( 'We do not offer cash on delivery. Please pay with M-Pesa or card, or choose studio pick-up to pay at the shop.', 'nura-beauty' ) );
+		if ( ! nura_cod_allowed( $chosen ) ) {
+			$errors->add( 'nura_cod', __( 'Pay on delivery is available within Nairobi CBD only. Please pay with M-Pesa or card before dispatch, choose Nairobi CBD delivery, or choose studio pick-up to pay at the shop.', 'nura-beauty' ) );
 		}
 	}
 }, 10, 2 );
@@ -718,18 +794,22 @@ add_action( 'woocommerce_store_api_checkout_order_processed', function ( $order 
 	if ( ! $order instanceof WC_Order || 'cod' !== $order->get_payment_method() || apply_filters( 'nura_allow_cod_delivery', false ) ) {
 		return;
 	}
-	$ids = array();
+	$ok = (bool) $order->get_shipping_methods();
 	foreach ( $order->get_shipping_methods() as $item ) {
-		$ids[] = $item->get_method_id();
+		$mid = $item->get_method_id() . ':' . $item->get_instance_id();
+		if ( ! nura_is_pickup_method( $item->get_method_id() ) && ! nura_is_cbd_rate( $mid, $item->get_name() ) ) {
+			$ok = false;
+		}
 	}
-	if ( ! nura_chosen_is_pickup( $ids ) ) {
-		throw new \Exception( esc_html__( 'We do not offer cash on delivery. Please pay with M-Pesa or card, or choose studio pick-up to pay at the shop.', 'nura-beauty' ) );
+	if ( ! $ok ) {
+		throw new \Exception( esc_html__( 'Pay on delivery is available within Nairobi CBD only. Please pay with M-Pesa or card before dispatch, choose Nairobi CBD delivery, or choose studio pick-up to pay at the shop.', 'nura-beauty' ) );
 	}
 } );
 
 
 /**
  * Instant toggle at checkout (UX only; the server-side rules above decide).
+ * 1.112.0: also shown while a Nairobi CBD delivery rate is selected.
  * Shows "Pay at the shop" only while studio pick-up is selected and switches
  * away from it as soon as a delivery method is chosen.
  */
@@ -751,12 +831,17 @@ add_action( 'wp_footer', function () {
 			if (classic.length) {
 				var all = true, any = false;
 				classic.forEach(function (i) {
-					if (i.type === 'hidden' || i.checked) { any = true; if (!/^(local_pickup|pickup_location)/.test(i.value)) { all = false; } }
+					if (i.type === 'hidden' || i.checked) {
+						any = true;
+						var lab = i.id ? document.querySelector('label[for="' + i.id + '"]') : null;
+						var cbd = /\bcbd\b/i.test(lab ? lab.textContent : '');
+						if (!/^(local_pickup|pickup_location)/.test(i.value) && !cbd) { all = false; }
+					}
 				});
 				return any && all;
 			}
 			var blk = document.querySelector('.wc-block-checkout__shipping-method-option--selected');
-			if (blk) { return /pick/i.test(blk.textContent || '') || /pickup/i.test(blk.id || ''); }
+			if (blk) { return /pick|\bcbd\b/i.test(blk.textContent || '') || /pickup/i.test(blk.id || ''); }
 			return !!document.querySelector('.wc-block-checkout__pickup-options');
 		}
 		function apply() {

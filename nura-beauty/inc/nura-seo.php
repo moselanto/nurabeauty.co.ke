@@ -56,7 +56,7 @@ function nura_home_faqs() {
 		),
 		array(
 			__( 'How do I pay for my wig?', 'nura-beauty' ),
-			__( 'Pay with M-Pesa or card (Visa, Mastercard) securely through Paystack, by bank transfer, or to our M-Pesa Buy Goods Till 1679269 when you order on WhatsApp. We do not offer cash on delivery; you can pay in person when you collect from our studio.', 'nura-beauty' ),
+			__( 'Pay with M-Pesa or card (Visa, Mastercard) securely through Paystack, by bank transfer, or to our M-Pesa Buy Goods Till 1679269 when you order on WhatsApp. Pay on delivery (cash or M-Pesa) is available within Nairobi CBD only; all other deliveries are paid before dispatch, and you can pay in person when you collect from our studio.', 'nura-beauty' ),
 		),
 		array(
 			__( 'Which wig is best for beginners?', 'nura-beauty' ),

@@ -249,3 +249,23 @@ html.nwo-lock,html.nwo-lock body{overflow:hidden!important}
 .nwo-done__pay p{margin:0 0 4px}
 .nwo-done__paytitle{font-weight:700;color:#1d5c35}
 @media (max-width:480px){.nwo-paybox{padding:14px}.nwo-paybox__num{font-size:1.45rem}}
+
+/* 1.94.0: Nairobi CBD pay on delivery tick + M-Pesa prompt (Paystack) */
+.nwo-check{display:flex;gap:10px;align-items:flex-start;margin:8px 0 4px;padding:10px 12px;border:1px solid #eadfc6;border-radius:10px;background:#fffdf8;cursor:pointer}
+.nwo-check[hidden]{display:none}
+.nwo-check input{margin-top:3px;width:18px;height:18px;flex:0 0 auto;accent-color:#c9a24b}
+.nwo-check span{display:flex;flex-direction:column;gap:2px;font-size:.88rem}
+.nwo-check small{color:var(--nwo-mut);font-size:.78rem}
+.nwo-stk{border:1px solid #cfe9d6;background:#f4fbf6;border-radius:12px;padding:12px;margin:0 0 10px}
+.nwo-stk__title{margin:0 0 4px;font-weight:700;font-size:.95rem}
+.nwo-stk__row{display:flex;gap:8px;margin-top:8px}
+.nwo-stk__row input{flex:1 1 auto;min-width:0;padding:10px 12px;border:1px solid #d6d6d6;border-radius:10px;font-size:16px}
+.nwo-stk__btn{flex:0 0 auto;padding:10px 14px;border:0;border-radius:10px;background:#1e8e3e;color:#fff;font-weight:700;cursor:pointer}
+.nwo-stk__btn[disabled]{opacity:.6;cursor:default}
+.nwo-stk__status{margin:8px 0 0;font-size:.85rem;line-height:1.45}
+.nwo-stk__status.is-ok{color:#1e7a36;font-weight:600}
+.nwo-stk__status.is-err{color:#b3261e}
+.nwo-stk__status.is-warn,.nwo-stk__status.is-wait{color:#7a5a00}
+.nwo-stk__or{margin:4px 0 8px;font-size:.8rem;color:var(--nwo-mut)}
+.screen-reader-text{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+@media (max-width:380px){.nwo-stk__row{flex-direction:column}.nwo-stk__btn{width:100%}}

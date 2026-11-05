@@ -10,7 +10,8 @@
  *     WhatsApp" on the cart page. Every trigger is a real wa.me link, so it still
  *     works without JavaScript.
  *   - Kenyan phone validation, delivery area / pick-up, payment by M-Pesa
- *     Buy Goods Till (v1.79.0: no cash on delivery; paying at the shop is only
+ *     Buy Goods Till or an M-Pesa prompt via Paystack (1.94.0; pay on delivery
+ *     within Nairobi CBD only; paying at the shop is only
  *     offered for studio pick-up), optional M-Pesa code capture,
  *     order reference NURA-YYMMDD-XXXX and a cleanly formatted WhatsApp message.
  *   - Every order is saved as a lead (admin-ajax, no nonce so cached pages keep
@@ -58,6 +59,11 @@ class NURAX_WA_Order {
 		add_action( 'wp_ajax_nopriv_nurax_wa_product', array( $this, 'ajax_product' ) );
 		add_action( 'wp_ajax_nurax_wa_ship', array( $this, 'ajax_ship' ) );
 		add_action( 'wp_ajax_nopriv_nurax_wa_ship', array( $this, 'ajax_ship' ) );
+		// 1.94.0: M-Pesa PIN prompt through Paystack (customer enters phone, approves on the handset).
+		add_action( 'wp_ajax_nurax_wa_stk', array( $this, 'ajax_stk' ) );
+		add_action( 'wp_ajax_nopriv_nurax_wa_stk', array( $this, 'ajax_stk' ) );
+		add_action( 'wp_ajax_nurax_wa_stk_status', array( $this, 'ajax_stk_status' ) );
+		add_action( 'wp_ajax_nopriv_nurax_wa_stk_status', array( $this, 'ajax_stk_status' ) );
 		add_action( 'admin_post_nurax_wa_fees', array( $this, 'save_fees' ) );
 
 		// Admin list.
@@ -115,6 +121,7 @@ class NURAX_WA_Order {
 
 	const PAY_TILL = 'M-Pesa Till (pay now)';
 	const PAY_SHOP = 'Pay at the shop on collection';
+	const PAY_COD  = 'Pay on delivery (Nairobi CBD)'; // 1.94.0: owner - pay on delivery only within Nairobi CBD (cash or M-Pesa).
 
 	/** M-Pesa Buy Goods till number. Constant NURAX_MPESA_TILL or filter nurax_mpesa_till. */
 	public static function till() {
@@ -160,10 +167,12 @@ class NURAX_WA_Order {
 	}
 
 	private static function payments() {
-		// v1.79.0: cash / M-Pesa on delivery retired. Every delivered order is paid
-		// to the M-Pesa Till before dispatch; paying at the shop is pick-up only.
+		// 1.94.0: delivered orders are paid by M-Pesa before dispatch, except
+		// Nairobi CBD deliveries (pay on delivery, cash or M-Pesa); paying at the
+		// shop is for studio pick-up.
 		return apply_filters( 'nurax_wa_order_payments', array(
 			self::PAY_TILL,
+			self::PAY_COD,
 			self::PAY_SHOP,
 		) );
 	}
@@ -472,6 +481,8 @@ class NURAX_WA_Order {
 			'tillName' => self::till_name(),
 			'payTill'  => self::PAY_TILL,
 			'payShop'  => self::PAY_SHOP,
+			'payCod'   => self::PAY_COD,
+			'stk'      => '' !== self::paystack_secret() ? 1 : 0,
 		) );
 	}
 
@@ -581,7 +592,9 @@ class NURAX_WA_Order {
 		$pay_notes = array(
 			self::PAY_TILL => sprintf( /* translators: %s: till number */ __( 'Buy Goods Till %s - we dispatch once payment is confirmed', 'nura-experience' ), $till ),
 			self::PAY_SHOP => __( 'Cash or M-Pesa at our Stanbank House studio (2nd Floor, Room 20) when you collect', 'nura-experience' ),
+			self::PAY_COD  => __( 'Cash or M-Pesa to our rider when your order arrives - Nairobi CBD only', 'nura-experience' ),
 		);
+		$stk_on = self::paystack_secret() !== '';
 		?>
 		<div class="nwo" id="nwo-modal" data-nwo-modal hidden>
 			<div class="nwo__overlay" data-nwo-close></div>
@@ -666,6 +679,7 @@ class NURAX_WA_Order {
 								<label for="nwo-area"><?php esc_html_e( 'Estate, street or landmark (optional)', 'nura-experience' ); ?></label>
 								<input id="nwo-area" name="area" type="text" autocomplete="street-address" maxlength="120" placeholder="<?php esc_attr_e( 'e.g. Kilimani, Argwings Kodhek Rd, near Yaya Centre', 'nura-experience' ); ?>">
 							</div>
+							<label class="nwo-check" data-nwo-cbdwrap hidden><input type="checkbox" name="cbd" value="1"><span><strong><?php esc_html_e( 'Deliver within Nairobi CBD', 'nura-experience' ); ?></strong><small><?php esc_html_e( 'Pay on delivery (cash or M-Pesa) is available in the CBD only.', 'nura-experience' ); ?></small></span></label>
 						</div>
 						<p class="nwo-pickup" data-nwo-pickup hidden><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span><?php echo esc_html( self::pickup_text() ); ?></span></p>
 						<div class="nwo-ship" data-nwo-ship aria-live="polite" hidden></div>
@@ -675,13 +689,26 @@ class NURAX_WA_Order {
 							<legend><?php esc_html_e( 'How will you pay?', 'nura-experience' ); ?></legend>
 							<div class="nwo-cards">
 								<?php foreach ( self::payments() as $i => $pay ) : ?>
-									<label class="nwo-opt nwo-opt--row"<?php echo self::PAY_SHOP === $pay ? ' data-nwo-shoponly hidden' : ''; ?>><input type="radio" name="payment" value="<?php echo esc_attr( $pay ); ?>"<?php checked( 0, $i ); ?>><span class="nwo-opt__box"><span class="nwo-opt__txt"><strong><?php echo esc_html( $pay ); ?></strong><?php if ( isset( $pay_notes[ $pay ] ) ) : ?><small><?php echo esc_html( $pay_notes[ $pay ] ); ?></small><?php endif; ?></span><span class="nwo-opt__tick" aria-hidden="true"></span></span></label>
+									<label class="nwo-opt nwo-opt--row"<?php echo self::PAY_SHOP === $pay ? ' data-nwo-shoponly hidden' : ( self::PAY_COD === $pay ? ' data-nwo-cbdonly hidden' : '' ); ?>><input type="radio" name="payment" value="<?php echo esc_attr( $pay ); ?>"<?php checked( 0, $i ); ?>><span class="nwo-opt__box"><span class="nwo-opt__txt"><strong><?php echo esc_html( $pay ); ?></strong><?php if ( isset( $pay_notes[ $pay ] ) ) : ?><small><?php echo esc_html( $pay_notes[ $pay ] ); ?></small><?php endif; ?></span><span class="nwo-opt__tick" aria-hidden="true"></span></span></label>
 								<?php endforeach; ?>
 							</div>
-							<p class="nwo-paynote" data-nwo-paynote><?php esc_html_e( 'We do not offer cash on delivery. Delivered orders are paid by M-Pesa before dispatch; paying in person is available when you collect from our studio.', 'nura-experience' ); ?></p>
+							<p class="nwo-paynote" data-nwo-paynote><?php esc_html_e( 'Pay on delivery (cash or M-Pesa) is available within Nairobi CBD only. All other deliveries are paid in full, delivery fee included, before dispatch. Paying in person is also available when you collect from our studio.', 'nura-experience' ); ?></p>
 						</fieldset>
 
 						<div class="nwo-paybox" data-nwo-paybox>
+							<?php if ( $stk_on ) : ?>
+							<div class="nwo-stk" data-nwo-stk>
+								<p class="nwo-stk__title"><?php esc_html_e( 'Pay with an M-Pesa prompt', 'nura-experience' ); ?></p>
+								<p class="nwo-help"><?php esc_html_e( 'Enter your M-Pesa number. You will get a prompt on your phone: enter your PIN to pay. No till number or code to copy.', 'nura-experience' ); ?></p>
+								<div class="nwo-stk__row">
+									<label class="screen-reader-text" for="nwo-stk_phone"><?php esc_html_e( 'M-Pesa phone number', 'nura-experience' ); ?></label>
+									<input id="nwo-stk_phone" name="stk_phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="<?php esc_attr_e( 'e.g. 0712 345 678', 'nura-experience' ); ?>">
+									<button type="button" class="nwo-stk__btn" data-nwo-stkgo><?php esc_html_e( 'Send M-Pesa prompt', 'nura-experience' ); ?></button>
+								</div>
+								<p class="nwo-stk__status" data-nwo-stkstatus aria-live="polite" hidden></p>
+							</div>
+							<p class="nwo-stk__or" data-nwo-stkor><?php esc_html_e( 'Or pay manually with the till:', 'nura-experience' ); ?></p>
+							<?php endif; ?>
 							<div class="nwo-paybox__head">
 								<span class="nwo-paybox__badge"><?php esc_html_e( 'Lipa na M-Pesa', 'nura-experience' ); ?></span>
 								<span class="nwo-paybox__kind"><?php esc_html_e( 'Buy Goods and Services', 'nura-experience' ); ?></span>
@@ -913,9 +940,21 @@ class NURAX_WA_Order {
 		if ( ! in_array( $payment, self::payments(), true ) ) {
 			$payment = self::PAY_TILL;
 		}
-		// No cash on delivery: paying at the shop is only allowed for studio pick-up.
+		// Paying at the shop is only for studio pick-up; pay on delivery only within Nairobi CBD (1.94.0).
+		$cbd = 'delivery' === $fulfil && 'Nairobi' === $location && ! empty( $in['cbd'] );
 		if ( self::PAY_SHOP === $payment && 'pickup' !== $fulfil ) {
 			$payment = self::PAY_TILL;
+		}
+		if ( self::PAY_COD === $payment && ! $cbd ) {
+			$payment = self::PAY_TILL;
+		}
+		// Paid through the M-Pesa prompt (Paystack): trust only a reference this server started and verified.
+		$stk = isset( $in['stk_ref'] ) ? self::stk_record( (string) $in['stk_ref'] ) : null;
+		if ( $stk && ( empty( $stk['nura_ref'] ) || $stk['nura_ref'] !== $ref ) ) {
+			$stk = null;
+		}
+		if ( $stk && 'success' !== ( isset( $stk['status'] ) ? $stk['status'] : '' ) ) {
+			$stk = self::stk_verify( (string) $in['stk_ref'] );
 		}
 		$code      = self::PAY_TILL === $payment ? self::normalise_code( isset( $in['mpesa_code'] ) ? $in['mpesa_code'] : '' ) : '';
 		$code_flag = '';
@@ -939,7 +978,7 @@ class NURAX_WA_Order {
 				$code_flag = sprintf( 'Code already used on WhatsApp order %s', get_the_title( (int) $seen[0] ) );
 			}
 		}
-		$delivery = 'pickup' === $fulfil ? self::pickup_text() : trim( ( '' !== $area ? $area . ', ' : '' ) . $place, ', ' );
+		$delivery = 'pickup' === $fulfil ? self::pickup_text() : trim( ( '' !== $area ? $area . ', ' : '' ) . $place, ', ' ) . ( $cbd ? ' (Nairobi CBD)' : '' );
 		$source   = isset( $in['source'] ) && in_array( $in['source'], array( 'product', 'card', 'cart' ), true ) ? (string) $in['source'] : 'product';
 		$page     = isset( $in['page'] ) ? esc_url_raw( (string) $in['page'] ) : '';
 		if ( '' !== $page && wp_parse_url( $page, PHP_URL_HOST ) !== wp_parse_url( home_url(), PHP_URL_HOST ) ) {
@@ -960,6 +999,8 @@ class NURAX_WA_Order {
 			'till'     => self::PAY_TILL === $payment ? self::till() : '',
 			'mpesa_code' => $code,
 			'code_flag'  => $code_flag,
+			'cbd'        => $cbd ? 1 : 0,
+			'paid_stk'   => ( $stk && 'success' === $stk['status'] ) ? array( 'reference' => $stk['reference'], 'amount' => $stk['amount'], 'receipt' => isset( $stk['receipt'] ) ? $stk['receipt'] : '' ) : '',
 			'ship'     => isset( $in['ship'] ) && '' !== (string) $in['ship'] ? (int) $in['ship'] : '',
 			'note'     => self::cut( sanitize_textarea_field( $note ), 300 ),
 			'source'   => $source,
@@ -979,11 +1020,226 @@ class NURAX_WA_Order {
 		if ( '' !== $code ) {
 			update_post_meta( $post_id, '_nwo_pay_ref', $code ); // Staff verify against the till statement before dispatch.
 		}
+		if ( $stk && 'success' === $stk['status'] ) {
+			update_post_meta( $post_id, '_nwo_pay_ref', 'PAYSTACK-' . $stk['reference'] ); // Verified with Paystack; one reference, one order.
+			update_post_meta( $post_id, '_nwo_paid', 'paystack' );
+		}
 
 		/** Fires after a WhatsApp order lead is saved. */
 		do_action( 'nurax_wa_order_saved', $post_id, $data );
 
 		wp_send_json_success( array( 'ok' => 1 ) );
+	}
+
+	/* ------------------------------------------------------------------ */
+	/* 1.94.0: M-Pesa PIN prompt (STK push) through Paystack                */
+	/* ------------------------------------------------------------------ */
+
+	/**
+	 * Paystack secret key: constant NURAX_PAYSTACK_SECRET, then the Paystack
+	 * WooCommerce gateway settings (live or test key per its test mode).
+	 * Filter nurax_paystack_secret. Never printed or sent to the browser.
+	 */
+	private static function paystack_secret() {
+		$key = defined( 'NURAX_PAYSTACK_SECRET' ) ? (string) NURAX_PAYSTACK_SECRET : '';
+		if ( '' === $key ) {
+			$o = get_option( 'woocommerce_paystack_settings', array() );
+			if ( is_array( $o ) && ( ! isset( $o['enabled'] ) || 'yes' === $o['enabled'] ) ) {
+				$test = isset( $o['testmode'] ) && 'yes' === $o['testmode'];
+				$key  = (string) ( $test ? ( isset( $o['test_secret_key'] ) ? $o['test_secret_key'] : '' ) : ( isset( $o['live_secret_key'] ) ? $o['live_secret_key'] : '' ) );
+			}
+		}
+		$key = trim( (string) apply_filters( 'nurax_paystack_secret', $key ) );
+		return preg_match( '/^sk_(live|test)_[A-Za-z0-9]+$/', $key ) ? $key : '';
+	}
+
+	/** Paystack API call. Returns decoded body or null. */
+	private static function paystack( $method, $path, $body = null ) {
+		$key = self::paystack_secret();
+		if ( '' === $key ) {
+			return null;
+		}
+		$args = array(
+			'method'  => $method,
+			'timeout' => 25,
+			'headers' => array(
+				'Authorization' => 'Bearer ' . $key,
+				'Content-Type'  => 'application/json',
+			),
+		);
+		if ( null !== $body ) {
+			$args['body'] = wp_json_encode( $body );
+		}
+		$res = wp_remote_request( 'https://api.paystack.co' . $path, $args );
+		if ( is_wp_error( $res ) ) {
+			return null;
+		}
+		$data = json_decode( (string) wp_remote_retrieve_body( $res ), true );
+		return is_array( $data ) ? $data : null;
+	}
+
+	/** Stored prompt record for a Paystack reference, or null. */
+	private static function stk_record( $reference ) {
+		$reference = (string) preg_replace( '/[^A-Za-z0-9\-]/', '', (string) $reference );
+		if ( '' === $reference ) {
+			return null;
+		}
+		$r = get_transient( 'nurax_stk_' . md5( $reference ) );
+		return is_array( $r ) ? $r : null;
+	}
+
+	/** Verify a prompt with Paystack and update its record. Returns the record or null. */
+	private static function stk_verify( $reference ) {
+		$rec = self::stk_record( $reference );
+		if ( ! $rec ) {
+			return null;
+		}
+		if ( in_array( $rec['status'], array( 'success', 'failed' ), true ) ) {
+			return $rec;
+		}
+		$res = self::paystack( 'GET', '/transaction/verify/' . rawurlencode( $rec['reference'] ) );
+		$st  = ( $res && ! empty( $res['data']['status'] ) ) ? (string) $res['data']['status'] : '';
+		if ( 'success' === $st ) {
+			$paid = isset( $res['data']['amount'] ) ? (int) $res['data']['amount'] : 0;
+			$cur  = isset( $res['data']['currency'] ) ? (string) $res['data']['currency'] : '';
+			if ( $paid >= (int) $rec['amount'] * 100 && 'KES' === strtoupper( $cur ) ) {
+				$rec['status']  = 'success';
+				$rec['receipt'] = isset( $res['data']['receipt_number'] ) ? sanitize_text_field( (string) $res['data']['receipt_number'] ) : '';
+			} else {
+				$rec['status'] = 'failed';
+				$rec['why']    = 'amount';
+			}
+		} elseif ( in_array( $st, array( 'failed', 'abandoned', 'reversed' ), true ) ) {
+			$rec['status'] = 'failed';
+			$rec['why']    = $st;
+		} elseif ( time() - (int) $rec['ts'] > 5 * MINUTE_IN_SECONDS ) {
+			$rec['status'] = 'failed';
+			$rec['why']    = 'timeout';
+		}
+		set_transient( 'nurax_stk_' . md5( $rec['reference'] ), $rec, 6 * HOUR_IN_SECONDS );
+		return $rec;
+	}
+
+	/** Per-IP counter; true when the limit is reached. */
+	private static function limited( $key, $max, $ttl ) {
+		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$rk  = 'nurax_' . $key . '_' . md5( $ip );
+		$cnt = (int) get_transient( $rk );
+		if ( $cnt >= $max ) {
+			return true;
+		}
+		set_transient( $rk, $cnt + 1, $ttl );
+		return false;
+	}
+
+	/**
+	 * AJAX: send the M-Pesa prompt. The amount is worked out here from store
+	 * prices and the delivery quote, never taken from the browser.
+	 */
+	public function ajax_stk() {
+		$in = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- public form on cached pages; sanitised per field, rate limited.
+		if ( ! empty( $in['website'] ) ) {
+			wp_send_json_error( array( 'message' => 'bot' ), 400 );
+		}
+		if ( '' === self::paystack_secret() ) {
+			wp_send_json_error( array( 'message' => __( 'The M-Pesa prompt is not available right now. Please pay with the till below.', 'nura-experience' ) ), 503 );
+		}
+		if ( self::limited( 'stk_rl', 6, 15 * MINUTE_IN_SECONDS ) ) {
+			wp_send_json_error( array( 'message' => __( 'Too many payment prompts. Please wait a few minutes or pay with the till below.', 'nura-experience' ) ), 429 );
+		}
+		$phone = self::normalise_phone( isset( $in['stk_phone'] ) ? $in['stk_phone'] : '' );
+		$ref   = isset( $in['ref'] ) ? strtoupper( sanitize_text_field( (string) $in['ref'] ) ) : '';
+		if ( '' === $phone ) {
+			wp_send_json_error( array( 'message' => __( 'Enter a valid M-Pesa number, e.g. 0712 345 678.', 'nura-experience' ) ), 400 );
+		}
+		if ( ! preg_match( '/^NURA-\d{6}-[A-Z0-9]{4}$/', $ref ) ) {
+			wp_send_json_error( array( 'message' => 'ref' ), 400 );
+		}
+		$total = 0.0;
+		$raw   = isset( $in['items'] ) ? json_decode( (string) $in['items'], true ) : array();
+		foreach ( array_slice( is_array( $raw ) ? $raw : array(), 0, 30 ) as $it ) {
+			$pid  = is_array( $it ) && isset( $it['id'] ) ? absint( $it['id'] ) : 0;
+			$prod = ( $pid && function_exists( 'wc_get_product' ) ) ? wc_get_product( $pid ) : null;
+			if ( ! $prod || $prod->is_type( 'variable' ) || ! $prod->is_purchasable() ) {
+				wp_send_json_error( array( 'message' => __( 'Please choose the colour or length first, or pay after we confirm your order on WhatsApp.', 'nura-experience' ) ), 400 );
+			}
+			$qty    = isset( $it['qty'] ) ? min( 99, max( 1, (int) $it['qty'] ) ) : 1;
+			$total += (float) wc_get_price_to_display( $prod ) * $qty;
+		}
+		if ( $total <= 0 ) {
+			wp_send_json_error( array( 'message' => __( 'Please choose a product first.', 'nura-experience' ) ), 400 );
+		}
+		$fulfil = ( isset( $in['fulfil'] ) && 'pickup' === $in['fulfil'] ) ? 'pickup' : 'delivery';
+		$county = isset( $in['location'] ) ? sanitize_text_field( (string) $in['location'] ) : '';
+		$fee    = 0.0;
+		if ( 'delivery' === $fulfil ) {
+			if ( ! in_array( $county, self::counties(), true ) ) {
+				wp_send_json_error( array( 'message' => __( 'Please choose your county first.', 'nura-experience' ) ), 400 );
+			}
+			$q = self::ship_quote( $county, $total );
+			if ( empty( $q['known'] ) ) {
+				wp_send_json_error( array( 'message' => __( 'We will confirm the delivery fee for your area on WhatsApp first. Send the order, then pay when we confirm the total.', 'nura-experience' ) ), 400 );
+			}
+			$fee = max( 0, (float) $q['fee'] );
+		}
+		$amount = (int) round( $total + $fee );
+		if ( $amount < 10 || $amount > 300000 ) {
+			wp_send_json_error( array( 'message' => __( 'This total cannot be paid with an M-Pesa prompt. Please pay with the till below.', 'nura-experience' ) ), 400 );
+		}
+		$reference = $ref . '-' . strtoupper( wp_generate_password( 4, false, false ) );
+		$domain    = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+		$res       = self::paystack( 'POST', '/charge', array(
+			'email'        => 'wa' . $phone . '@' . ( '' !== $domain ? $domain : 'nurabeauty.co.ke' ),
+			'amount'       => $amount * 100,
+			'currency'     => 'KES',
+			'reference'    => $reference,
+			'mobile_money' => array( 'phone' => '+' . $phone, 'provider' => 'mpesa' ),
+			'metadata'     => array(
+				'nura_ref'      => $ref,
+				'source'        => 'whatsapp_popup',
+				'custom_fields' => array( array( 'display_name' => 'Order ref', 'variable_name' => 'nura_ref', 'value' => $ref ) ),
+			),
+		) );
+		$st = ( $res && ! empty( $res['status'] ) && isset( $res['data']['status'] ) ) ? (string) $res['data']['status'] : '';
+		if ( ! in_array( $st, array( 'pay_offline', 'pending', 'send_otp', 'success', 'ongoing' ), true ) ) {
+			$msg = ( $res && ! empty( $res['data']['message'] ) ) ? (string) $res['data']['message'] : ( ( $res && ! empty( $res['message'] ) ) ? (string) $res['message'] : '' );
+			wp_send_json_error( array( 'message' => __( 'We could not send the M-Pesa prompt. Check the number or pay with the till below.', 'nura-experience' ), 'detail' => self::cut( sanitize_text_field( $msg ), 140 ) ), 502 );
+		}
+		set_transient( 'nurax_stk_' . md5( $reference ), array(
+			'reference' => $reference,
+			'nura_ref'  => $ref,
+			'amount'    => $amount,
+			'phone'     => $phone,
+			'status'    => 'success' === $st ? 'pending' : 'pending',
+			'polls'     => 0,
+			'ts'        => time(),
+		), 6 * HOUR_IN_SECONDS );
+		wp_send_json_success( array(
+			'reference' => $reference,
+			'amount'    => $amount,
+			'text'      => __( 'Check your phone and enter your M-Pesa PIN to pay.', 'nura-experience' ),
+		) );
+	}
+
+	/** AJAX: poll a prompt. Read-only, rate limited per reference. */
+	public function ajax_stk_status() {
+		$ref = isset( $_GET['reference'] ) ? sanitize_text_field( wp_unslash( $_GET['reference'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$rec = self::stk_record( $ref );
+		if ( ! $rec ) {
+			wp_send_json_error( array( 'status' => 'unknown' ), 404 );
+		}
+		$rec['polls'] = (int) $rec['polls'] + 1;
+		if ( $rec['polls'] > 80 ) {
+			wp_send_json_success( array( 'status' => $rec['status'] ) );
+		}
+		set_transient( 'nurax_stk_' . md5( $rec['reference'] ), $rec, 6 * HOUR_IN_SECONDS );
+		$rec = self::stk_verify( $rec['reference'] );
+		wp_send_json_success( array(
+			'status'  => $rec['status'],
+			'amount'  => (int) $rec['amount'],
+			'receipt' => isset( $rec['receipt'] ) ? $rec['receipt'] : '',
+			'why'     => isset( $rec['why'] ) ? $rec['why'] : '',
+		) );
 	}
 
 	private static function cut( $s, $len ) {

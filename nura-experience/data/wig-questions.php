@@ -861,7 +861,7 @@ return array(
 				),
 				array(
 					'Do you accept M-Pesa?',
-					'Yes: M-Pesa and card at checkout, M-Pesa Buy Goods Till {till} for WhatsApp orders, or bank transfer. We do not offer cash on delivery; if you collect from the studio you can pay in person.',
+					'Yes: M-Pesa and card at checkout, M-Pesa Buy Goods Till {till} for WhatsApp orders, or bank transfer. Pay on delivery (cash or M-Pesa) is available within Nairobi CBD only; if you collect from the studio you can pay in person.',
 					array(),
 				),
 				array(

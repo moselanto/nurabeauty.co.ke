@@ -210,8 +210,8 @@ add_filter( 'the_content', function ( $content ) {
 	}
 	$slug    = get_post_field( 'post_name', get_queried_object_id() );
 	$content = nura_fmt_drop_title( $content );
-	// Stale wording kept in old page text (no cash on delivery since 1.73.0).
-	$content = preg_replace( '/,?\s*and cash on delivery within Nairobi/i', ', and the M-Pesa Buy Goods Till 1679269 for WhatsApp orders (no cash on delivery)', $content );
+	// Stale wording kept in old page text (1.112.0: pay on delivery within Nairobi CBD only).
+	$content = preg_replace( '/,?\s*and cash on delivery within Nairobi(?! CBD)/i', ', and the M-Pesa Buy Goods Till 1679269 for WhatsApp orders (pay on delivery within Nairobi CBD only)', $content );
 	$content = nura_fmt_linklists( $content );
 	if ( in_array( $slug, array( 'faq', 'help-support', 'warranty', 'warranty-provenance' ), true ) ) {
 		$content = nura_fmt_faq( $content );

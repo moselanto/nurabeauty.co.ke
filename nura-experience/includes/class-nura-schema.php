@@ -161,7 +161,7 @@ class NURAX_Schema {
 			),
 			array(
 				'How do I pay?',
-				'M-Pesa and Visa/Mastercard (both via Paystack), M-Pesa Buy Goods Till 1679269, and bank transfer. No cash on delivery; pay in person when collecting from the studio.',
+				'M-Pesa and Visa/Mastercard (both via Paystack), M-Pesa Buy Goods Till 1679269, and bank transfer. Pay on delivery (cash or M-Pesa) within Nairobi CBD only; pay in person when collecting from the studio.',
 			),
 			array(
 				'How fast is delivery?',

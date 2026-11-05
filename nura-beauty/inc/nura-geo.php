@@ -52,7 +52,7 @@ function nura_geo_llms( $full = false ) {
 		$o[] = '- Price range: ' . $range . ' (Kenya Shillings).';
 	}
 	$o[] = '- Delivery: same day in Nairobi for orders before 5:00 PM; 1 to 3 days to the rest of Kenya (Mombasa, Kisumu, Nakuru, Eldoret and more); rider from KSh 300; free Nairobi delivery over KSh 10,000; international shipping on request.';
-	$o[] = '- Payment: M-Pesa, Visa and Mastercard (via Paystack), M-Pesa Buy Goods Till 1679269 for WhatsApp orders, bank transfer. No cash on delivery; customers collecting from the studio may pay in person.';
+	$o[] = '- Payment: M-Pesa, Visa and Mastercard (via Paystack), M-Pesa Buy Goods Till 1679269 for WhatsApp orders, bank transfer. Pay on delivery (cash or M-Pesa) within Nairobi CBD only; all other deliveries are paid in full, delivery fee included, before dispatch; customers collecting from the studio may pay in person. Countrywide delivery by shuttle/bus parcel, G4S, Wells Fargo or another courier; fee depends on location and the courier chosen.';
 	$o[] = '- Lipa Mdogo Mdogo (pay in instalments): 50% deposit, balance within 1 or 2 weeks, wig released when fully paid.';
 	$o[] = '- Returns: ' . nura_fact( 'returns_text' ) . ' Returns are accepted at the shop or by courier.';
 	$o[] = '- Services: wig consultation, fitting, installation, revamp, styling and bridal units at the studio (morning appointments, deposit secures a slot); free video and WhatsApp consultations.';

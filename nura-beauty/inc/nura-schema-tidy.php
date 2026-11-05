@@ -89,7 +89,7 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
  * - OnlineStore does not accept priceRange, currenciesAccepted or paymentAccepted
  *   (33 validator warnings); they are removed from the online-store entity and kept
  *   on the physical studio (LocalBusiness), where "Cash" is labelled as pay-in-person
- *   at studio pick-up only (no cash on delivery).
+ *   at studio pick-up or on delivery within Nairobi CBD only (1.112.0).
  * - Each colour variant gets the brand and a short description (Merchant listings
  *   warning), and the ProductGroup gets productGroupID matching the variants'
  *   inProductGroupWithID.
@@ -103,7 +103,7 @@ function nura_schema_tidy_r3( &$node ) {
 		unset( $node['priceRange'], $node['currenciesAccepted'], $node['paymentAccepted'] );
 	}
 	if ( array_intersect( $types, array( 'HealthAndBeautyBusiness', 'LocalBusiness', 'BeautySalon', 'Store' ) ) && isset( $node['paymentAccepted'] ) ) {
-		$node['paymentAccepted'] = 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash (in person at studio pick-up only; no cash on delivery)';
+		$node['paymentAccepted'] = 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash (at studio pick-up, or on delivery within Nairobi CBD only)';
 	}
 	if ( in_array( 'ProductGroup', $types, true ) && ! empty( $node['hasVariant'] ) && is_array( $node['hasVariant'] ) ) {
 		$brand = isset( $node['brand'] ) ? $node['brand'] : array( '@type' => 'Brand', 'name' => 'NURA Beauty' );

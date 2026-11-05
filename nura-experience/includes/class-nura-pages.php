@@ -79,8 +79,8 @@ HTML;
 <h3>Delivery options and times</h3>
 <ul>
 <li><strong>Nairobi - rider delivery:</strong> same day for orders confirmed before 5:00pm (Monday to Saturday), otherwise the next working day. Fees start from KSh 300 depending on your area.</li>
-<li><strong>Outside Nairobi - bus &amp; shuttle parcel:</strong> usually 1 to 2 working days to your town's stage or office (for example Mombasa, Kisumu, Nakuru, Eldoret, Nyeri, Embu). You collect with your ID and the parcel code we send you.</li>
-<li><strong>Outside Nairobi - courier (Fargo / G4S):</strong> 1 to 3 working days to the courier branch nearest you, or to your door where the courier offers it.</li>
+<li><strong>Outside Nairobi - bus &amp; shuttle parcel:</strong> usually 1 to 2 working days to your town's stage or office (for example Mombasa, Kisumu, Nakuru, Eldoret, Nyeri, Embu). You collect with your ID and the parcel code we send you. The fee is the shuttle or bus company's sending charge from its Nairobi CBD office; if your shuttle or bus leaves from outside the CBD (for example Eastleigh), a rider fee to take the parcel there is added to the sending cost.</li>
+<li><strong>Outside Nairobi - courier (Fargo / G4S):</strong> 1 to 3 working days to the courier branch nearest you, or to your door where the courier offers it. The fee depends on your location and the courier you choose (G4S, Wells Fargo or another available courier); we confirm it before you pay.</li>
 <li><strong>Free pick-up:</strong> collect from our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD, Monday to Saturday.</li>
 </ul>
 <p>The exact fee for your location is shown at checkout (and in our WhatsApp order form) before you pay. Free delivery applies to qualifying orders where shown at checkout.</p>
@@ -88,7 +88,7 @@ HTML;
 <p>Orders are packed within 1 working day of payment confirmation. We send your rider details, parcel code or courier tracking number by WhatsApp or SMS as soon as your order is dispatched. Orders placed on Sundays and public holidays are dispatched the next working day.</p>
 <h3>Paying for delivery orders</h3>
 <ul>
-<li><strong>Nairobi:</strong> pay online (M-Pesa or card), by bank transfer, or to our M-Pesa Buy Goods Till 1679269 before dispatch. We do not offer cash on delivery.</li>
+<li><strong>Nairobi:</strong> pay online (M-Pesa or card), by bank transfer, or to our M-Pesa Buy Goods Till 1679269 before dispatch. Within Nairobi CBD you can pay on delivery (cash or M-Pesa).</li>
 <li><strong>Outside Nairobi:</strong> full payment is needed before dispatch, because parcels travel by bus or courier.</li>
 </ul>
 <h3>Receiving your order</h3>
@@ -189,7 +189,7 @@ HTML;
 <h3>Orders &amp; payment</h3>
 <ul>
 <li>All prices are in Kenyan Shillings (KES) and include any applicable taxes. Delivery fees are shown separately at checkout.</li>
-<li>We accept M-Pesa and card (via Paystack), M-Pesa Buy Goods Till 1679269 for WhatsApp orders, and bank transfer. There is no cash on delivery; you can pay in person when you collect from our studio.</li>
+<li>We accept M-Pesa and card (via Paystack), M-Pesa Buy Goods Till 1679269 for WhatsApp orders, and bank transfer. Pay on delivery (cash or M-Pesa) is available within Nairobi CBD only; all other deliveries are paid in full before dispatch. You can also pay in person when you collect from our studio.</li>
 <li>Orders are confirmed once payment is received, or for studio pick-up orders paid in person, once we have confirmed the order details with you.</li>
 <li>We may cancel or refuse an order - for example in cases of suspected fraud, pricing errors or stock unavailability - and will notify you promptly.</li>
 </ul>
@@ -244,7 +244,7 @@ HTML;
 <li><strong>M-Pesa:</strong> choose M-Pesa at checkout, enter your Safaricom number and approve the prompt on your phone with your M-Pesa PIN. Processed securely by Paystack.</li>
 <li><strong>Card:</strong> Visa and Mastercard, processed securely by Paystack.</li>
 <li><strong>Bank transfer:</strong> our bank details are shown at checkout and in your order email. Your order ships once the transfer reflects.</li>
-<li><strong>M-Pesa Till:</strong> Lipa na M-Pesa, Buy Goods and Services, Till 1679269. Orders are dispatched once payment is confirmed.</li><li><strong>Pay at the shop:</strong> cash or M-Pesa when you collect from our shop at Stanbank House, 2nd Floor, Room 20, Nairobi CBD. We do not offer cash on delivery.</li>
+<li><strong>M-Pesa Till:</strong> Lipa na M-Pesa, Buy Goods and Services, Till 1679269. Orders are dispatched once payment is confirmed.</li><li><strong>Pay at the shop:</strong> cash or M-Pesa when you collect from our shop at Stanbank House, 2nd Floor, Room 20, Nairobi CBD.</li><li><strong>Pay on delivery:</strong> cash or M-Pesa to our rider, for deliveries within Nairobi CBD only.</li>
 </ul>
 <h3>Security</h3>
 <p>Payments are handled by trusted, encrypted providers. We never see or store your full card details. If a payment fails or you need help, message us on WhatsApp at <strong>$phone</strong>.</p>
@@ -277,7 +277,7 @@ HTML;
 <h3>What lengths, textures and colours are available?</h3>
 <p>Most units come in 10&Prime; to 30&Prime; lengths, densities of 130% to 200%, textures from straight to afro curly, and colours from natural black to blonde, ombr&eacute;, burgundy and 613. Each variation shows its own price and availability on the product page.</p>
 <h3>How do I pay?</h3>
-<p>M-Pesa and Visa/Mastercard (both via Paystack), M-Pesa Buy Goods Till 1679269, and bank transfer. Delivered orders are paid before dispatch (no cash on delivery); pay at the shop when you collect. See <a href="/payment-information/">Payment Information</a>.</p>
+<p>M-Pesa and Visa/Mastercard (both via Paystack), M-Pesa Buy Goods Till 1679269, and bank transfer. Delivered orders are paid before dispatch, except Nairobi CBD deliveries (pay on delivery, cash or M-Pesa); pay at the shop when you collect. See <a href="/payment-information/">Payment Information</a>.</p>
 <h3>How fast is delivery?</h3>
 <p>Same-day within Nairobi (order before 5:00pm), 1 to 3 business days countrywide, and and shipping abroad on request. See <a href="/shipping-delivery/">Shipping &amp; Delivery</a>.</p>
 <h3>Can I return or exchange a wig?</h3>

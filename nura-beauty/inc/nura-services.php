@@ -229,7 +229,7 @@ function nura_sw_items() {
 		array( 'Mko CBD? Duka lenu liko wapi?', 'Ndiyo. Tuko {address}. Tunafungua ' . $hours . '. Unakaribishwa bila miadi ukitaka kuangalia wigi.' ),
 		array( 'Mnafanya delivery?', 'Ndiyo. Nairobi tunaleta siku hiyo hiyo ukiagiza kabla ya {cutoff}. Nchi nzima ni siku 1 hadi 3 kwa courier, ada ni {delivery_ke}, na ada kamili inaonekana unapolipa.' ),
 		array( 'Naweza kulipa pole pole?', 'Ndiyo, kupitia Lipa Mdogo Mdogo: lipa amana ya 50% kisha salio ndani ya wiki 1 au 2, na tunakutumia wigi yako.' ),
-		array( 'Mnapokea M-Pesa?', 'Ndiyo. M-Pesa na kadi wakati wa kulipa mtandaoni, M-Pesa Buy Goods Till {till} kwa oda za WhatsApp, au bank transfer. Hatuna malipo wakati wa kupokea (cash on delivery); ukichukua wigi studio unaweza kulipa hapo.' ),
+		array( 'Mnapokea M-Pesa?', 'Ndiyo. M-Pesa na kadi wakati wa kulipa mtandaoni, M-Pesa Buy Goods Till {till} kwa oda za WhatsApp, au bank transfer. Kulipa unapopokea (cash au M-Pesa) ni kwa usafirishaji ndani ya Nairobi CBD tu; oda nyingine zote hulipwa kabla ya kutumwa. Ukichukua wigi studio unaweza kulipa hapo.' ),
 		array( 'Hii wig inaweza kudumu?', 'Ukiitunza vizuri: human hair hudumu mwaka mmoja au zaidi, semi-human miezi 6 hadi 9, na fibre miezi 3 hadi 6. Usilale na wigi, na ifunue kutoka chini kwa kitana chenye meno mapana.' ),
 		array( 'Nataka bob fupi. Mko na?', 'Ndiyo. Tuna Human Hair Bob Lace Front na 8 Inch Water Curl 4x4 Closure Bob. Angalia bei na upatikanaji kwenye duka letu.' ),
 		array( 'Mko na curls?', 'Ndiyo: jerry curl, deep curl, water curl na bubble curl, kwa human hair na fibre.' ),

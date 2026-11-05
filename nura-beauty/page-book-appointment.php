@@ -153,8 +153,21 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 					?>
 					<p class="nura-bk__morning"><?php esc_html_e( 'Studio bookings are mornings only. Afternoons are for walk-ins.', 'nura-beauty' ); ?></p>
 					<?php if ( $nb_has_dep ) : ?>
-					<div class="nura-bk__dep" data-deps="<?php echo esc_attr( wp_json_encode( $nb_deps ) ); ?>">
+					<?php $nb_stk = class_exists( 'NURAX_WA_Order' ) && method_exists( 'NURAX_WA_Order', 'stk_enabled' ) && NURAX_WA_Order::stk_enabled(); ?>
+					<div class="nura-bk__dep" data-deps="<?php echo esc_attr( wp_json_encode( $nb_deps ) ); ?>"<?php echo $nb_stk ? ' data-stk="' . esc_url( admin_url( 'admin-ajax.php' ) ) . '"' : ''; ?>>
 						<p class="nura-bk__dep-h"><?php esc_html_e( 'Secure your slot with a deposit of', 'nura-beauty' ); ?> <strong data-dep-amt></strong></p>
+						<?php if ( $nb_stk ) : ?>
+						<div class="nura-bk__stk">
+							<p class="nura-bk__stk-h"><?php esc_html_e( 'Pay with an M-Pesa prompt', 'nura-beauty' ); ?></p>
+							<p class="nura-bk__stk-t"><?php esc_html_e( 'Enter your M-Pesa number and tap the button. You will get a prompt on your phone: enter your PIN to pay. No code to copy.', 'nura-beauty' ); ?></p>
+							<div class="nura-bk__stk-row">
+								<input name="stk_phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" aria-label="<?php esc_attr_e( 'M-Pesa phone number', 'nura-beauty' ); ?>" placeholder="<?php esc_attr_e( 'e.g. 0712 345 678', 'nura-beauty' ); ?>">
+								<button type="button" class="nura-bk__stk-btn" data-bk-stk><?php esc_html_e( 'Send M-Pesa prompt', 'nura-beauty' ); ?></button>
+							</div>
+							<p class="nura-bk__stk-s" data-bk-stk-s aria-live="polite" hidden></p>
+						</div>
+						<p class="nura-bk__stk-or" data-bk-stk-or><?php esc_html_e( 'Or pay manually:', 'nura-beauty' ); ?></p>
+						<?php endif; ?>
 						<ol class="nura-bk__dep-steps">
 							<li><?php echo esc_html( sprintf( __( 'Pay by M-Pesa: %s', 'nura-beauty' ), $nb_mp ) ); ?></li>
 							<li><?php esc_html_e( 'Enter the M-Pesa confirmation code below.', 'nura-beauty' ); ?></li>

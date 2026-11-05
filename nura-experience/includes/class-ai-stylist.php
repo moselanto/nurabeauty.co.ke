@@ -332,8 +332,9 @@ class NURAX_AI_Stylist {
 		if ( !preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $time ) ) {
 			$errors[] = __( 'a preferred time', 'nura-experience' );
 		}
-		$deposit = 0;
-		$mpesa   = strtoupper( preg_replace( '/[^A-Za-z0-9]/', '', (string) $req->get_param( 'mpesa' ) ) );
+		$deposit  = 0;
+		$paid_stk = null;
+		$mpesa    = strtoupper( preg_replace( '/[^A-Za-z0-9]/', '', (string) $req->get_param( 'mpesa' ) ) );
 		if ( ! $errors && class_exists( 'NURAX_Desk_Appts' ) ) {
 			$now_hm = current_time( 'H:i' );
 			if ( $date === current_time( 'Y-m-d' ) && $time <= $now_hm ) {
@@ -349,7 +350,20 @@ class NURAX_AI_Stylist {
 				return new WP_Error( 'nurax_morning', sprintf( __( 'Studio bookings are mornings only, before %s. Please choose an earlier time, or walk in during the afternoon.', 'nura-experience' ), NURAX_Desk::time_label( NURAX_Desk_Appts::cutoff() ) ), array( 'status' => 409 ) );
 			}
 			$deposit = NURAX_Desk_Appts::deposit_for( $service, $type );
-			if ( $deposit > 0 && ! preg_match( '/^[A-Z0-9]{8,12}$/', $mpesa ) ) {
+			// 1.95.0: deposit paid through the M-Pesa prompt (Paystack), verified on the server.
+			$stk_ref = sanitize_text_field( (string) $req->get_param( 'stk_ref' ) );
+			$bk_ref  = strtoupper( sanitize_text_field( (string) $req->get_param( 'bk_ref' ) ) );
+			if ( $deposit > 0 && '' !== $stk_ref && class_exists( 'NURAX_WA_Order' ) && method_exists( 'NURAX_WA_Order', 'stk_paid' ) ) {
+				$paid_stk = NURAX_WA_Order::stk_paid( $stk_ref, $bk_ref, $deposit );
+				if ( $paid_stk ) {
+					$mpesa = 'PAYSTACK-' . $paid_stk['reference'];
+				}
+			}
+			if ( $deposit > 0 && ! empty( $paid_stk ) ) {
+				if ( NURAX_Desk_Appts::code_used( $mpesa ) ) {
+					return new WP_Error( 'nurax_code_used', __( 'This deposit payment has already been used for another booking.', 'nura-experience' ), array( 'status' => 409 ) );
+				}
+			} elseif ( $deposit > 0 && ! preg_match( '/^[A-Z0-9]{8,12}$/', $mpesa ) ) {
 				$errors[] = sprintf( __( 'the M-Pesa code for your KSh %s deposit', 'nura-experience' ), number_format( $deposit ) );
 			} elseif ( $deposit > 0 && NURAX_Desk_Appts::code_used( $mpesa ) ) {
 				return new WP_Error( 'nurax_code_used', __( 'That M-Pesa code has already been used for another booking. Please check the code from your M-Pesa message.', 'nura-experience' ), array( 'status' => 409 ) );
@@ -400,7 +414,9 @@ class NURAX_AI_Stylist {
 			$lines[] = sprintf( __( 'Notes: %s', 'nura-experience' ), $notes );
 		}
 		if ( $deposit > 0 ) {
-			$lines[] = sprintf( __( 'Deposit: KSh %1$s paid, M-Pesa code %2$s', 'nura-experience' ), number_format( $deposit ), $mpesa );
+			$lines[] = ! empty( $paid_stk )
+				? sprintf( __( 'Deposit: KSh %1$s PAID by M-Pesa prompt (Paystack ref %2$s, verified)', 'nura-experience' ), number_format( $deposit ), $paid_stk['reference'] )
+				: sprintf( __( 'Deposit: KSh %1$s paid, M-Pesa code %2$s', 'nura-experience' ), number_format( $deposit ), $mpesa );
 			$lines[] = __( 'I agree to the booking terms.', 'nura-experience' );
 		}
 		if ( '' !== $desk_ref ) {

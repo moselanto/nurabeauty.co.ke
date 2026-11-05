@@ -64,6 +64,9 @@ class NURAX_WA_Order {
 		add_action( 'wp_ajax_nopriv_nurax_wa_stk', array( $this, 'ajax_stk' ) );
 		add_action( 'wp_ajax_nurax_wa_stk_status', array( $this, 'ajax_stk_status' ) );
 		add_action( 'wp_ajax_nopriv_nurax_wa_stk_status', array( $this, 'ajax_stk_status' ) );
+		// 1.95.0: same M-Pesa prompt for the studio booking deposit (/book-appointment/).
+		add_action( 'wp_ajax_nurax_bk_stk', array( $this, 'ajax_bk_stk' ) );
+		add_action( 'wp_ajax_nopriv_nurax_bk_stk', array( $this, 'ajax_bk_stk' ) );
 		add_action( 'admin_post_nurax_wa_fees', array( $this, 'save_fees' ) );
 
 		// Admin list.
@@ -1218,6 +1221,98 @@ class NURAX_WA_Order {
 			'reference' => $reference,
 			'amount'    => $amount,
 			'text'      => __( 'Check your phone and enter your M-Pesa PIN to pay.', 'nura-experience' ),
+		) );
+	}
+
+	/** True when the M-Pesa prompt can be offered (a Paystack secret key is configured). */
+	public static function stk_enabled() {
+		return '' !== self::paystack_secret();
+	}
+
+	/**
+	 * Send an M-Pesa prompt for an amount worked out by the caller on the server.
+	 * Returns array( reference, amount ) or WP_Error.
+	 */
+	public static function stk_charge( $phone, $amount, $nura_ref, $source ) {
+		$amount = (int) round( (float) $amount );
+		if ( '' === self::paystack_secret() || $amount < 10 ) {
+			return new WP_Error( 'nurax_stk_off', __( 'The M-Pesa prompt is not available right now. Please pay manually.', 'nura-experience' ) );
+		}
+		$reference = $nura_ref . '-' . strtoupper( wp_generate_password( 4, false, false ) );
+		$domain    = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+		$res       = self::paystack( 'POST', '/charge', array(
+			'email'        => 'wa' . $phone . '@' . ( '' !== $domain ? $domain : 'nurabeauty.co.ke' ),
+			'amount'       => $amount * 100,
+			'currency'     => 'KES',
+			'reference'    => $reference,
+			'mobile_money' => array( 'phone' => '+' . $phone, 'provider' => 'mpesa' ),
+			'metadata'     => array(
+				'nura_ref'      => $nura_ref,
+				'source'        => $source,
+				'custom_fields' => array( array( 'display_name' => 'Ref', 'variable_name' => 'nura_ref', 'value' => $nura_ref ) ),
+			),
+		) );
+		$st = ( $res && ! empty( $res['status'] ) && isset( $res['data']['status'] ) ) ? (string) $res['data']['status'] : '';
+		if ( ! in_array( $st, array( 'pay_offline', 'pending', 'send_otp', 'success', 'ongoing' ), true ) ) {
+			return new WP_Error( 'nurax_stk_fail', __( 'We could not send the M-Pesa prompt. Check the number or pay manually.', 'nura-experience' ) );
+		}
+		set_transient( 'nurax_stk_' . md5( $reference ), array(
+			'reference' => $reference,
+			'nura_ref'  => $nura_ref,
+			'amount'    => $amount,
+			'phone'     => $phone,
+			'source'    => $source,
+			'status'    => 'pending',
+			'polls'     => 0,
+			'ts'        => time(),
+		), 6 * HOUR_IN_SECONDS );
+		return array( 'reference' => $reference, 'amount' => $amount );
+	}
+
+	/**
+	 * A verified, paid prompt for this reference + our ref, for at least $min KSh.
+	 * Returns the record or null.
+	 */
+	public static function stk_paid( $reference, $nura_ref, $min ) {
+		$rec = self::stk_record( $reference );
+		if ( ! $rec || (string) $rec['nura_ref'] !== (string) $nura_ref ) {
+			return null;
+		}
+		$rec = self::stk_verify( $rec['reference'] );
+		return ( $rec && 'success' === $rec['status'] && (int) $rec['amount'] >= (int) $min ) ? $rec : null;
+	}
+
+	/** AJAX: M-Pesa prompt for a studio booking deposit. Amount = the deposit rule for the service. */
+	public function ajax_bk_stk() {
+		$in = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- public form on cached pages; sanitised per field, rate limited.
+		if ( ! empty( $in['website'] ) || ! class_exists( 'NURAX_Desk_Appts' ) ) {
+			wp_send_json_error( array( 'message' => 'bad' ), 400 );
+		}
+		if ( self::limited( 'bkstk_rl', 6, 15 * MINUTE_IN_SECONDS ) ) {
+			wp_send_json_error( array( 'message' => __( 'Too many payment prompts. Please wait a few minutes or pay manually.', 'nura-experience' ) ), 429 );
+		}
+		$phone   = self::normalise_phone( isset( $in['stk_phone'] ) ? $in['stk_phone'] : '' );
+		$ref     = isset( $in['ref'] ) ? strtoupper( sanitize_text_field( (string) $in['ref'] ) ) : '';
+		$service = isset( $in['service'] ) ? sanitize_key( (string) $in['service'] ) : '';
+		$type    = isset( $in['type'] ) ? sanitize_key( (string) $in['type'] ) : 'studio';
+		if ( '' === $phone ) {
+			wp_send_json_error( array( 'message' => __( 'Enter a valid M-Pesa number, e.g. 0712 345 678.', 'nura-experience' ) ), 400 );
+		}
+		if ( ! preg_match( '/^BK-\d{6}-[A-Z0-9]{4}$/', $ref ) ) {
+			wp_send_json_error( array( 'message' => 'ref' ), 400 );
+		}
+		$deposit = (int) NURAX_Desk_Appts::deposit_for( $service, $type );
+		if ( $deposit <= 0 ) {
+			wp_send_json_error( array( 'message' => __( 'No deposit is needed for this booking.', 'nura-experience' ) ), 400 );
+		}
+		$r = self::stk_charge( $phone, $deposit, $ref, 'booking_deposit' );
+		if ( is_wp_error( $r ) ) {
+			wp_send_json_error( array( 'message' => $r->get_error_message() ), 502 );
+		}
+		wp_send_json_success( array(
+			'reference' => $r['reference'],
+			'amount'    => $r['amount'],
+			'text'      => __( 'Check your phone and enter your M-Pesa PIN to pay the deposit.', 'nura-experience' ),
 		) );
 	}
 

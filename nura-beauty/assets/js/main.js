@@ -778,6 +778,26 @@ function depAmt(){var b=f.querySelector(".nura-bk__dep");if(!b){return 0;}if(val
 function depShow(){var b=f.querySelector(".nura-bk__dep");if(!b){return;}var a=depAmt();b.hidden=!(a>0);var s=b.querySelector("[data-dep-amt]");if(s){s.textContent="KSh "+a.toLocaleString("en-KE");}}
 depShow();[].forEach.call(d.querySelectorAll("input[name=nb_service_pick],input[name=type]"),function(r){r.addEventListener("change",depShow);});
 function finish(text,url){done.querySelector(".nura-bk__done-t").textContent=text;done.querySelector(".nura-bk__wa").href=url;done.hidden=false;}
+/* 1.113.0: deposit by M-Pesa prompt (Paystack via NURA Experience). */
+var bkStk=null,bkRef="",bkTimer=null,stkBtn=f.querySelector("[data-bk-stk]"),stkS=f.querySelector("[data-bk-stk-s]");
+function stkPaid(){return !!(bkStk&&bkStk.status==="success");}
+function stkSay(m,k){if(!stkS){return;}stkS.hidden=!m;stkS.textContent=m||"";stkS.className="nura-bk__stk-s"+(k?" is-"+k:"");}
+function mkRef(){var t=new Date(),c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789",r="";for(var i=0;i<4;i++){r+=c.charAt(Math.floor(Math.random()*c.length));}return "BK-"+String(t.getFullYear()).slice(2)+("0"+(t.getMonth()+1)).slice(-2)+("0"+t.getDate()).slice(-2)+"-"+r;}
+function stkPoll(n){clearTimeout(bkTimer);if(!bkStk||stkPaid()){return;}var box=f.querySelector(".nura-bk__dep"),ajax=box?box.getAttribute("data-stk"):"";
+if(n>40){stkSay("No confirmation yet. If you approved it, wait a moment and try Request appointment; otherwise send the prompt again or pay manually.","warn");stkBtn.disabled=false;return;}
+bkTimer=setTimeout(function(){fetch(ajax+"?action=nurax_wa_stk_status&reference="+encodeURIComponent(bkStk.reference),{credentials:"same-origin"}).then(function(r){return r.json();}).then(function(res){var x=res&&res.data?res.data:{};
+if(x.status==="success"){bkStk.status="success";stkSay("Deposit received: KSh "+Number(bkStk.amount).toLocaleString("en-KE")+". Now tap Request appointment.","ok");stkBtn.disabled=true;stkBtn.textContent="Paid";var mpI=f.querySelector("[name=mpesa]");if(mpI){mpI.hidden=true;mpI.classList.remove("is-invalid");}var orP=f.querySelector("[data-bk-stk-or]");if(orP){orP.hidden=true;}var st=f.querySelector(".nura-bk__dep-steps");if(st){st.hidden=true;}}
+else if(x.status==="failed"){bkStk=null;stkSay(x.why==="timeout"?"The prompt expired. Send it again or pay manually.":"The payment was not completed. Try again or pay manually.","err");stkBtn.disabled=false;}
+else{stkPoll(n+1);}}).catch(function(){stkPoll(n+1);});},n?4000:6000);}
+if(stkBtn){var spi=f.querySelector("[name=stk_phone]"),pin=f.querySelector("#nb-phone");if(spi&&pin){pin.addEventListener("change",function(){if(!spi.value){spi.value=pin.value;}});}
+stkBtn.addEventListener("click",function(){var box=f.querySelector(".nura-bk__dep"),ajax=box?box.getAttribute("data-stk"):"";if(!ajax||stkBtn.disabled){return;}
+var p=(spi&&spi.value?spi.value:val("phone")).replace(/\D/g,"");if(p.length===10&&p.charAt(0)==="0"){p="254"+p.slice(1);}else if(p.length===9){p="254"+p;}
+if(!/^254[17]\d{8}$/.test(p)){stkSay("Enter a valid M-Pesa number, e.g. 0712 345 678.","err");return;}
+if(!(depAmt()>0)){stkSay("No deposit is needed for this booking.","err");return;}
+bkRef=bkRef||mkRef();var fd=new FormData();fd.append("action","nurax_bk_stk");fd.append("ref",bkRef);fd.append("stk_phone",p);fd.append("service",svc.value);fd.append("type",val("type")||"studio");fd.append("website",val("website"));
+stkBtn.disabled=true;stkSay("Sending the prompt to your phone...","");
+fetch(ajax,{method:"POST",body:fd,credentials:"same-origin"}).then(function(r){return r.json();}).then(function(res){if(res&&res.success&&res.data&&res.data.reference){bkStk={reference:res.data.reference,amount:Number(res.data.amount)||0,status:"pending"};stkSay((res.data.text||"Check your phone and enter your M-Pesa PIN.")+" Amount: KSh "+bkStk.amount.toLocaleString("en-KE")+".","wait");stkPoll(0);}
+else{stkSay((res&&res.data&&res.data.message)||"We could not send the prompt. Please pay manually.","err");stkBtn.disabled=false;}}).catch(function(){stkSay("Connection problem. Try again or pay manually.","err");stkBtn.disabled=false;});});}
 f.addEventListener("submit",function(e){e.preventDefault();err.hidden=true;
 	[].forEach.call(f.querySelectorAll(".is-invalid"),function(x){x.classList.remove("is-invalid");});
 	var miss=[];
@@ -786,10 +806,10 @@ f.addEventListener("submit",function(e){e.preventDefault();err.hidden=true;
 	if(!val("date")||(date&&date.min&&val("date")<date.min)){miss.push("a date from today");date.classList.add("is-invalid");}
 	if(!val("time")){miss.push("a time");f.querySelector("#nb-time").classList.add("is-invalid");}
 	var depBox=f.querySelector(".nura-bk__dep"),mp=f.querySelector("[name=mpesa]"),tc=f.querySelector("[name=terms]");
-	if(depBox&&depAmt()>0&&mp&&!/^[A-Z0-9]{8,12}$/.test((mp.value||"").replace(/[^A-Za-z0-9]/g,"").toUpperCase())){miss.push("the M-Pesa code for your deposit");mp.classList.add("is-invalid");}
+	if(depBox&&depAmt()>0&&mp&&!stkPaid()&&!/^[A-Z0-9]{8,12}$/.test((mp.value||"").replace(/[^A-Za-z0-9]/g,"").toUpperCase())){miss.push(stkBtn?"your deposit (tap Send M-Pesa prompt, or enter the M-Pesa code)":"the M-Pesa code for your deposit");mp.classList.add("is-invalid");}
 	if(tc&&!tc.checked){miss.push("your agreement to the booking terms");}
 	if(miss.length){show("Please add "+miss.join(", ")+".");return;}
-	var ep=f.getAttribute("data-endpoint"),body={name:val("name"),phone:phone(),service:svc.value,type:val("type"),date:val("date"),time:val("time"),notes:val("notes"),website:val("website"),mpesa:mp?(mp.value||"").replace(/[^A-Za-z0-9]/g,"").toUpperCase():"",terms:tc&&tc.checked?1:0};
+	var ep=f.getAttribute("data-endpoint"),body={name:val("name"),phone:phone(),service:svc.value,type:val("type"),date:val("date"),time:val("time"),notes:val("notes"),website:val("website"),mpesa:mp&&!stkPaid()?(mp.value||"").replace(/[^A-Za-z0-9]/g,"").toUpperCase():"",stk_ref:stkPaid()?bkStk.reference:"",bk_ref:stkPaid()?bkRef:"",terms:tc&&tc.checked?1:0};
 	btn.disabled=true;
 	var fallback=function(){btn.disabled=false;finish("Your request is ready. Tap below to send it on WhatsApp and we will confirm your slot.",waLink());};
 	if(!ep||!window.fetch){fallback();return;}

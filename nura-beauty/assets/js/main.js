@@ -814,7 +814,7 @@ f.addEventListener("submit",function(e){e.preventDefault();err.hidden=true;
 	var fallback=function(){btn.disabled=false;finish("Your request is ready. Tap below to send it on WhatsApp and we will confirm your slot.",waLink());};
 	if(!ep||!window.fetch){fallback();return;}
 	fetch(ep,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});}).then(function(res){btn.disabled=false;
-		if(res.ok&&res.j&&res.j.whatsapp_url){finish(res.j.reply||"Your request is ready.",res.j.whatsapp_url);}
+		if(res.ok&&res.j&&res.j.whatsapp_url){if(!(window.__nuraBkEv&&Date.now()-window.__nuraBkEv<10000)&&typeof window.gtag==="function"){try{window.gtag("event","installation_booking",{service:String(svc.value).slice(0,40),type:val("type"),page_path:location.pathname});}catch(x){}}finish(res.j.reply||"Your request is ready.",res.j.whatsapp_url);}
 		else if(res.j&&res.j.message&&res.j.code&&res.j.code!=="rest_no_route"){show(res.j.message);}
 		else{fallback();}
 	}).catch(fallback);

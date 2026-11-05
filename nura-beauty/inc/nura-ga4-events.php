@@ -112,6 +112,7 @@ add_action( 'wp_footer', function () {
  *   finder_use           - 5-step AI Stylist finder submitted (results shown)
  *   installation_booking - studio appointment request accepted by the booking API
  *   stylist_question     - a question sent to the NURA Stylist chat
+ *   phone_call_click     - 1.116.0: any tap on a tel: link (call us)
  * Inline, dependency-free; sends through the gtag() already on the page.
  * No personal data (names, phones) is ever sent.
  * ------------------------------------------------------------------ */
@@ -127,10 +128,10 @@ add_action( 'wp_footer', function () {
 	}
 	?>
 <script id="nura-ga4-leads">(function(w,d){function ev(n,p){p=p||{};p.page_path=location.pathname;if(typeof w.gtag==='function'){w.gtag('event',n,p);}else{(w.dataLayer=w.dataLayer||[]).push(['event',n,p]);}}
-d.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a){return;}var h=a.getAttribute('href')||'';if(/wa\.me|api\.whatsapp\.com|whatsapp:/i.test(h)){ev('whatsapp_click',{link_text:(a.textContent||'').trim().slice(0,60),link_location:a.closest('header')?'header':(a.closest('footer')?'footer':(a.closest('[data-nurax-stylist]')?'stylist_chat':(a.closest('.product,.single-product')?'product':'page')))});}},true);
+d.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(!a){return;}var h=a.getAttribute('href')||'';if(/^tel:/i.test(h)){ev('phone_call_click',{link_location:a.closest('header')?'header':(a.closest('footer')?'footer':'page')});return;}if(/wa\.me|api\.whatsapp\.com|whatsapp:/i.test(h)){ev('whatsapp_click',{link_text:(a.textContent||'').trim().slice(0,60),link_location:a.closest('header')?'header':(a.closest('footer')?'footer':(a.closest('[data-nurax-stylist]')?'stylist_chat':(a.closest('.product,.single-product')?'product':'page')))});}},true);
 d.addEventListener('submit',function(e){var f=e.target;if(f&&f.matches&&f.matches('[data-stylist-form]')){ev('stylist_question',{});}},true);
 var F=<?php echo wp_json_encode( (object) $finder ); ?>;if(F&&F.budget){ev('finder_use',F);}
-if(w.fetch){var of=w.fetch;w.fetch=function(u,o){var p=of.apply(this,arguments);try{var url=typeof u==='string'?u:(u&&u.url)||'';if(/stylist-booking/.test(url)&&o&&String(o.method||'').toUpperCase()==='POST'){var svc='';try{svc=(JSON.parse(o.body||'{}').service)||'';}catch(x){}p.then(function(r){if(r&&r.ok){ev('installation_booking',{service:String(svc).slice(0,40)});}}).catch(function(){});}}catch(x){}return p;};}
+if(w.fetch){var of=w.fetch;w.fetch=function(u,o){var p=of.apply(this,arguments);try{var url=typeof u==='string'?u:(u&&u.url)||'';if(/stylist-booking/.test(url)&&o&&String(o.method||'').toUpperCase()==='POST'){var svc='';try{svc=(JSON.parse(o.body||'{}').service)||'';}catch(x){}p.then(function(r){if(r&&r.ok){w.__nuraBkEv=Date.now();ev('installation_booking',{service:String(svc).slice(0,40)});}}).catch(function(){});}}catch(x){}return p;};}
 })(window,document);</script>
 	<?php
 }, 98 );

@@ -80,7 +80,7 @@ class NURAX_Schema {
 			'description' => get_bloginfo( 'description' ),
 			'email'       => apply_filters( 'nurax_schema_email', $this->brand_email() ),
 			'telephone'   => apply_filters( 'nurax_schema_phone', $this->brand_phone() ),
-			'priceRange'  => apply_filters( 'nurax_schema_pricerange', 'KSh 1,500 - KSh 20,000' ),
+			'priceRange'  => apply_filters( 'nurax_schema_pricerange', 'KSh 1,800 - KSh 17,300' ),
 			'currenciesAccepted' => 'KES',
 			'paymentAccepted'    => 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash (in store)',
 			'areaServed'  => array(

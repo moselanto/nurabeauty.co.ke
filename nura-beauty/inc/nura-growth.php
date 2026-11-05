@@ -30,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return array e.g. array( 'fibre' => array( 1500, 4900 ), ... )
  */
 function nura_growth_price_bands() {
-	$cached = get_transient( 'nura_growth_bands_v1' );
+	$cached = get_transient( 'nura_growth_bands_v2' );
 	if ( false !== $cached ) {
 		return $cached;
 	}
@@ -39,8 +39,8 @@ function nura_growth_price_bands() {
 		$ids = wc_get_products( array( 'limit' => 500, 'status' => 'publish', 'return' => 'ids', 'stock_status' => 'instock' ) );
 		foreach ( $ids as $id ) {
 			$p = wc_get_product( $id );
-			if ( ! $p ) {
-				continue;
+			if ( ! $p || ( function_exists( 'nura_hub_is_wig' ) && ! nura_hub_is_wig( $p ) ) ) {
+				continue; // 1.111.0: wig care / beauty products are not wigs.
 			}
 			$lo = $p->is_type( 'variable' ) ? (float) $p->get_variation_price( 'min', true ) : (float) $p->get_price();
 			$hi = $p->is_type( 'variable' ) ? (float) $p->get_variation_price( 'max', true ) : $lo;
@@ -60,14 +60,14 @@ function nura_growth_price_bands() {
 			}
 		}
 	}
-	set_transient( 'nura_growth_bands_v1', $bands, 6 * HOUR_IN_SECONDS );
+	set_transient( 'nura_growth_bands_v2', $bands, 6 * HOUR_IN_SECONDS );
 	return $bands;
 }
 add_action( 'save_post_product', function () {
-	delete_transient( 'nura_growth_bands_v1' );
+	delete_transient( 'nura_growth_bands_v2' );
 } );
 add_action( 'woocommerce_product_set_stock_status', function () {
-	delete_transient( 'nura_growth_bands_v1' );
+	delete_transient( 'nura_growth_bands_v2' );
 } );
 
 /** "KSh 1,500" */

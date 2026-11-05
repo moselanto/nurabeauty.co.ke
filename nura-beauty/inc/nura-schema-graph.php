@@ -43,20 +43,21 @@ function nura_schema_parse_price( $text ) {
 
 /** Live price range from the catalogue (cached 12 h); fallback to the last known range. */
 function nura_schema_price_range() {
-	$r = get_transient( 'nura_price_range' );
+	$r = get_transient( 'nura_price_range2' );
 	if ( false !== $r ) {
 		return $r;
 	}
 	global $wpdb;
-	$r     = 'KSh 1,500 - KSh 17,300';
+	$r     = 'KSh 1,800 - KSh 17,300';
+	$from  = function_exists( 'nura_fact' ) ? (float) nura_fact( 'wigs_from', 1800 ) : 1800; // 1.111.0: wig floor; care products (from KSh 300) are not wigs.
 	$table = $wpdb->prefix . 'wc_product_meta_lookup';
 	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$row = $wpdb->get_row( "SELECT MIN(l.min_price) AS lo, MAX(l.max_price) AS hi FROM {$table} l INNER JOIN {$wpdb->posts} p ON p.ID = l.product_id WHERE p.post_type = 'product' AND p.post_status = 'publish' AND l.min_price > 0" ); // phpcs:ignore WordPress.DB
 		if ( $row && (float) $row->lo > 0 && (float) $row->hi >= (float) $row->lo ) {
-			$r = 'KSh ' . number_format( (float) $row->lo ) . ' - KSh ' . number_format( (float) $row->hi );
+			$r = 'KSh ' . number_format( max( $from, (float) $row->lo ) ) . ' - KSh ' . number_format( (float) $row->hi );
 		}
 	}
-	set_transient( 'nura_price_range', $r, 12 * HOUR_IN_SECONDS );
+	set_transient( 'nura_price_range2', $r, 12 * HOUR_IN_SECONDS );
 	return $r;
 }
 add_action( 'save_post_product', function () {

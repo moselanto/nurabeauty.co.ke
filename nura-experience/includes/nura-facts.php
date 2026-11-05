@@ -65,6 +65,7 @@ if ( ! function_exists( 'nura_facts' ) ) {
 			'international'  => 'International shipping is available on request. Message us on WhatsApp for a quote.',
 			'cod'            => false,
 			'till'           => '1679269',
+			'wigs_from'      => 1800, // 1.111.0: owner - our wigs start from KSh 1,800 (not 1,500).
 			'default_brand'  => 'NURA Beauty',
 		);
 		$saved = get_option( 'nura_business_facts', array() );
@@ -208,6 +209,15 @@ if ( ! function_exists( 'nura_facts' ) ) {
 			'(M-Pesa, card or cash on delivery)'           => '(M-Pesa or card; no cash on delivery)',
 			'bank transfer, or cash on delivery in Nairobi' => 'bank transfer, or M-Pesa Till 1679269 for WhatsApp orders. No cash on delivery',
 			'by appointment)'                              => 'walk-ins welcome)',
+			// 1.111.0: wigs start from KSh 1,800 (owner). Wig-price phrases only; service prices (installation, revamp from KSh 1,500) are untouched.
+			'KSh 1,500 - 4,900'                            => 'KSh 1,800 - 4,900',
+			'start from about KSh 1,500'                   => 'start from about KSh 1,800',
+			'Wigs from KSh 1,500'                          => 'Wigs from KSh 1,800',
+			'wigs from KSh 1,500'                          => 'wigs from KSh 1,800',
+			'wigs from 1,500'                              => 'wigs from 1,800',
+			'KSh 1,500 to KSh 17,300'                      => 'KSh 1,800 to KSh 17,300',
+			'KSh 1,500 - KSh 17,300'                       => 'KSh 1,800 - KSh 17,300',
+			'KSh 1,500+'                                   => 'KSh 1,800+',
 		);
 	}
 

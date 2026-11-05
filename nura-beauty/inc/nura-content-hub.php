@@ -37,9 +37,27 @@ function nura_hub_labels() {
 	);
 }
 
+/**
+ * 1.111.0: true when a product is a wig (or wig unit). Wig care, beauty and
+ * extension products are not wigs, so they never set a "100% human hair from
+ * KSh 300" price. Filter: nura_hub_is_wig.
+ */
+function nura_hub_is_wig( $p ) {
+	if ( ! $p instanceof WC_Product ) {
+		return false;
+	}
+	$skip_cats = (array) apply_filters( 'nura_hub_non_wig_cats', array( 'wig-care', 'beauty', 'hair-extensions', 'extensions', 'accessories', 'uncategorized' ) );
+	$cats      = wp_get_post_terms( $p->get_id(), 'product_cat', array( 'fields' => 'slugs' ) );
+	$is_wig    = ! ( is_array( $cats ) && array_intersect( $cats, $skip_cats ) );
+	if ( $is_wig && function_exists( 'nura_care_products' ) && isset( nura_care_products()[ $p->get_slug() ] ) ) {
+		$is_wig = false;
+	}
+	return (bool) apply_filters( 'nura_hub_is_wig', $is_wig, $p );
+}
+
 /** Cached rows: id, name, url, hair, lo, hi, stock, cats. */
 function nura_hub_rows() {
-	$rows = get_transient( 'nura_hub_rows3' );
+	$rows = get_transient( 'nura_hub_rows4' );
 	if ( false !== $rows ) {
 		return $rows;
 	}
@@ -48,7 +66,7 @@ function nura_hub_rows() {
 		foreach ( wc_get_products( array( 'status' => 'publish', 'limit' => 400, 'visibility' => 'catalog' ) ) as $p ) {
 			$lo = $p->is_type( 'variable' ) ? (float) $p->get_variation_price( 'min', true ) : (float) $p->get_price();
 			$hi = $p->is_type( 'variable' ) ? (float) $p->get_variation_price( 'max', true ) : $lo;
-			if ( $lo <= 0 ) {
+			if ( $lo <= 0 || ! nura_hub_is_wig( $p ) ) {
 				continue;
 			}
 			$rows[] = array(
@@ -66,12 +84,13 @@ function nura_hub_rows() {
 			);
 		}
 	}
-	set_transient( 'nura_hub_rows3', $rows, 6 * HOUR_IN_SECONDS );
+	set_transient( 'nura_hub_rows4', $rows, 6 * HOUR_IN_SECONDS );
 	return $rows;
 }
 add_action( 'save_post_product', function () {
 	delete_transient( 'nura_hub_rows' );
 	delete_transient( 'nura_hub_rows3' );
+	delete_transient( 'nura_hub_rows4' );
 } );
 
 /** Construction from the product name: Headband, Closure, Lace front, Frontal or Wig. */
@@ -283,6 +302,47 @@ add_action( 'admin_init', function () {
 	delete_transient( 'nura_llms' );
 	delete_transient( 'nura_llms_full' );
 } );
+
+/**
+ * 1.111.0: one-time refresh of guides rewritten in the theme (existing posts
+ * are otherwise never overwritten). Owner asked for the buying guide to be
+ * rebuilt with checked market prices; add slugs here when another guide is
+ * rewritten and bump the version.
+ */
+add_action( 'admin_init', function () {
+	$ver = '1.111.0';
+	if ( ! current_user_can( 'manage_options' ) || get_option( 'nura_guide_refresh' ) === $ver || ! defined( 'NURA_DIR' ) ) {
+		return;
+	}
+	update_option( 'nura_guide_refresh', $ver, false );
+	$dir   = NURA_DIR . 'content/guides/';
+	$index = file_exists( $dir . 'index.json' ) ? json_decode( (string) file_get_contents( $dir . 'index.json' ), true ) : array();
+	foreach ( (array) apply_filters( 'nura_guide_refresh_slugs', array( 'best-wigs-in-kenya-buying-guide' ) ) as $slug ) {
+		$post = get_page_by_path( $slug, OBJECT, 'post' );
+		if ( ! $post || ! file_exists( $dir . $slug . '.html' ) ) {
+			continue;
+		}
+		$args = array(
+			'ID'           => $post->ID,
+			'post_content' => nura_hub_links( (string) file_get_contents( $dir . $slug . '.html' ) ),
+		);
+		if ( isset( $index[ $slug ][0] ) ) {
+			$args['post_title'] = $index[ $slug ][0];
+		}
+		wp_update_post( $args );
+		if ( isset( $index[ $slug ][1], $index[ $slug ][2] ) ) {
+			update_post_meta( $post->ID, 'rank_math_title', $index[ $slug ][1] );
+			update_post_meta( $post->ID, 'rank_math_description', $index[ $slug ][2] );
+		}
+		if ( function_exists( 'litespeed_purge_url' ) ) {
+			litespeed_purge_url( get_permalink( $post ) );
+		}
+		do_action( 'litespeed_purge_post', $post->ID );
+	}
+	delete_transient( 'nura_hub_rows4' );
+	delete_transient( 'nura_llms' );
+	delete_transient( 'nura_llms_full' );
+}, 20 );
 
 /* ------------------------------------------------ Wig Prices in Kenya page */
 

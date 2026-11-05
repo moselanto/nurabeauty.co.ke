@@ -1,0 +1,90 @@
+/* NURA checkout design - theme 1.115.0. Visual only. */
+body.nura-co{--co-ink:#0e0e0e;--co-gold:#c9a24b;--co-gold-soft:#f6efe0;--co-line:#e9e4da;--co-muted:#6f6a62;--co-bg:#faf8f4;background:var(--co-bg)}
+/* slim title band */
+body.nura-co .nura-page-hero{padding-block:22px!important;background:var(--co-ink)}
+body.nura-co .nura-page-hero .nura-eyebrow{display:none}
+body.nura-co .nura-page-hero h1{font-size:clamp(1.5rem,2.6vw,2rem)!important;letter-spacing:.02em;margin:0}
+/* wide container so the block checkout goes two-column */
+body.nura-co .nura-container.nura-page{max-width:1220px!important;padding-top:18px!important}
+body.nura-co .nura-page .entry-content{max-width:none!important;margin-top:0!important}
+body.nura-co .nura-breadcrumbs{margin-bottom:8px}
+/* progress */
+.nura-co-steps{list-style:none!important;display:flex;justify-content:center;gap:0;margin:6px auto 26px!important;padding:0!important;max-width:620px;counter-reset:none}
+.nura-co-steps li{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--co-muted);position:relative;margin:0!important}
+.nura-co-steps li+li:before{content:"";position:absolute;left:-30%;width:60%;top:50%;height:1px;background:var(--co-line)}
+.nura-co-steps a{color:inherit;text-decoration:none;display:flex;align-items:center;gap:8px}
+.nura-co-steps span{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;border:1px solid var(--co-line);background:#fff;font-weight:700;font-size:.75rem;color:var(--co-muted)}
+.nura-co-steps .is-done span{background:var(--co-gold);border-color:var(--co-gold);color:#fff}
+.nura-co-steps .is-current{color:var(--co-ink);font-weight:700}
+.nura-co-steps .is-current span{background:var(--co-ink);border-color:var(--co-ink);color:#fff}
+/* layout */
+body.nura-co .wc-block-checkout{margin:0!important}
+body.nura-co .wc-block-components-sidebar-layout{gap:28px;align-items:flex-start}
+body.nura-co .wc-block-components-sidebar-layout .wc-block-components-main{padding-right:0!important}
+body.nura-co .wc-block-components-sidebar-layout.is-large .wc-block-components-main{width:60%!important}
+body.nura-co .wc-block-components-sidebar-layout.is-large .wc-block-components-sidebar{width:38%!important;padding-left:0!important;position:sticky;top:96px}
+/* step cards */
+body.nura-co .wc-block-components-checkout-step{background:#fff;border:1px solid var(--co-line);border-radius:16px;padding:22px 24px 20px!important;margin:0 0 16px!important;box-shadow:0 1px 2px rgba(14,14,14,.03)}
+body.nura-co .wc-block-components-checkout-step:after{display:none!important}
+body.nura-co .wc-block-components-checkout-step__heading{margin:0 0 14px!important}
+body.nura-co .wc-block-components-checkout-step__title{font-family:inherit!important;font-size:.82rem!important;font-weight:700!important;letter-spacing:.12em;text-transform:uppercase;color:var(--co-ink)}
+body.nura-co .wc-block-components-checkout-step__title:before{background:var(--co-gold)!important;color:#fff!important;border:0!important}
+body.nura-co .wc-block-components-checkout-step__description{color:var(--co-muted);font-size:.86rem}
+body.nura-co .wc-block-components-checkout-step__container{padding-left:0!important}
+body.nura-co .wc-block-components-checkout-step__content{margin-left:0!important;padding-left:0!important}
+/* inputs */
+body.nura-co .wc-block-components-text-input input,body.nura-co .wc-block-components-combobox .components-combobox-control input,body.nura-co .wc-blocks-components-select__select,body.nura-co .wc-block-components-textarea{border:1px solid #dcd6cb!important;border-radius:10px!important;background:#fff!important;min-height:52px}
+body.nura-co .wc-block-components-text-input.is-active input,body.nura-co .wc-block-components-text-input input:focus{border-color:var(--co-gold)!important;box-shadow:0 0 0 3px rgba(201,162,75,.18)!important;outline:0}
+body.nura-co .wc-block-components-address-card{border-radius:12px!important;border-color:var(--co-line)!important;background:#fffdf8}
+/* delivery method toggle (ship / pick up) */
+body.nura-co .wc-block-checkout__shipping-method-option{border-radius:12px!important;border:1px solid var(--co-line)!important;background:#fff!important;min-height:64px}
+body.nura-co .wc-block-checkout__shipping-method-option--selected{border-color:var(--co-ink)!important;box-shadow:inset 0 0 0 1px var(--co-ink);background:var(--co-gold-soft)!important}
+/* shipping + payment options */
+body.nura-co .wc-block-components-radio-control__option,body.nura-co .wc-block-components-radio-control-accordion-option{border:1px solid var(--co-line)!important;border-radius:12px!important;margin:0 0 10px!important;background:#fff;box-shadow:none!important;transition:border-color .15s,background .15s}
+body.nura-co .wc-block-components-radio-control__option{padding:16px 16px 16px 52px!important}
+body.nura-co .wc-block-components-radio-control__option-checked,body.nura-co .wc-block-components-radio-control-accordion-option--checked-option-highlighted,body.nura-co .wc-block-components-radio-control__option--checked-option-highlighted{border-color:var(--co-gold)!important;background:#fffaf0!important;box-shadow:inset 0 0 0 1px var(--co-gold)!important}
+body.nura-co .wc-block-components-radio-control--highlight-checked:after,body.nura-co .wc-block-components-radio-control--highlight-checked:before{display:none!important}
+body.nura-co .wc-block-components-radio-control__input:checked{border-color:var(--co-gold)!important}
+body.nura-co .wc-block-components-radio-control__input:checked:before{background:var(--co-gold)!important}
+body.nura-co .wc-block-components-radio-control__label{font-weight:600;color:var(--co-ink)}
+body.nura-co .wc-block-components-radio-control__secondary-label{font-weight:700;color:var(--co-ink)}
+body.nura-co .wc-block-components-radio-control__description{color:var(--co-muted)}
+body.nura-co .wc-block-components-radio-control-accordion-content{padding:0 16px 14px 52px!important;color:var(--co-muted)}
+/* order summary card */
+body.nura-co .wc-block-checkout__sidebar .wp-block-woocommerce-checkout-order-summary-block,body.nura-co .wc-block-components-sidebar .wc-block-components-panel,body.nura-co .wp-block-woocommerce-checkout-order-summary-block{background:#fff;border:1px solid var(--co-line)!important;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(14,14,14,.05)}
+body.nura-co .wc-block-components-checkout-order-summary__title,body.nura-co .wp-block-woocommerce-checkout-order-summary-block .wc-block-components-title{padding:18px 20px!important;margin:0!important;background:var(--co-ink);color:#fff!important;font-size:.8rem!important;letter-spacing:.14em;text-transform:uppercase}
+body.nura-co .wc-block-components-checkout-order-summary__title-text,body.nura-co .wc-block-components-checkout-order-summary__title-price{color:#fff!important}
+body.nura-co .wc-block-components-order-summary{padding:16px 20px 4px!important}
+body.nura-co .wc-block-components-order-summary-item__image img{border-radius:10px;border:1px solid var(--co-line)}
+body.nura-co .wc-block-components-order-summary-item__quantity{background:var(--co-ink)!important;color:#fff!important;border:0!important}
+body.nura-co .wc-block-components-product-name{font-weight:600}
+body.nura-co .wc-block-components-totals-wrapper{padding-left:20px!important;padding-right:20px!important;border-color:var(--co-line)!important}
+body.nura-co .wc-block-components-totals-footer-item{padding-top:6px}
+body.nura-co .wc-block-components-totals-footer-item .wc-block-components-totals-item__label,body.nura-co .wc-block-components-totals-footer-item .wc-block-components-totals-item__value{font-size:1.25rem!important;font-weight:800!important;color:var(--co-ink)}
+body.nura-co .wc-block-components-totals-coupon-link,body.nura-co .wc-block-components-panel__button{color:var(--co-gold)!important;font-weight:600}
+/* actions */
+body.nura-co .wc-block-checkout__actions{background:#fff;border:1px solid var(--co-line);border-radius:16px;padding:20px 24px!important}
+body.nura-co .wc-block-checkout__terms{font-size:.82rem;color:var(--co-muted);margin-bottom:12px!important}
+body.nura-co .wc-block-components-checkout-place-order-button{width:100%!important;min-height:58px!important;border-radius:12px!important;background:var(--co-ink)!important;color:#fff!important;font-weight:700!important;letter-spacing:.14em;text-transform:uppercase;font-size:.9rem!important;box-shadow:0 10px 24px rgba(14,14,14,.18)!important;transition:transform .12s,background .15s}
+body.nura-co .wc-block-components-checkout-place-order-button:hover{background:#222!important;transform:translateY(-1px)}
+body.nura-co .wc-block-components-checkout-place-order-button:after{content:" \2192";color:var(--co-gold)}
+body.nura-co .wc-block-components-checkout-return-to-cart-button{color:var(--co-muted)!important;font-size:.85rem}
+body.nura-co .wc-block-components-checkbox__input{border-radius:4px!important}
+body.nura-co .wc-block-components-checkbox__input:checked{background:var(--co-gold)!important;border-color:var(--co-gold)!important}
+body.nura-co .wc-block-components-notice-banner{border-radius:12px!important}
+/* trust strip */
+.nura-co-trust{list-style:none!important;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:28px 0 8px!important;padding:0!important}
+.nura-co-trust li{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--co-line);border-radius:14px;padding:14px 16px;margin:0!important;color:var(--co-gold)}
+.nura-co-trust span{display:flex;flex-direction:column;gap:2px;color:var(--co-ink)}
+.nura-co-trust strong{font-size:.86rem}
+.nura-co-trust small{font-size:.78rem;color:var(--co-muted);line-height:1.4}
+.nura-co-trust a{color:var(--co-ink);text-decoration:underline}
+@media (max-width:900px){.nura-co-trust{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){
+ body.nura-co .wc-block-components-checkout-step{padding:18px 16px!important;border-radius:14px}
+ body.nura-co .wc-block-components-radio-control__option{padding-left:46px!important}
+ .nura-co-steps{font-size:.7rem}
+ .nura-co-steps li{font-size:.66rem;gap:6px;letter-spacing:.04em}
+ .nura-co-trust{grid-template-columns:1fr;gap:10px}
+ body.nura-co .wc-block-checkout__actions{padding:16px!important}
+}

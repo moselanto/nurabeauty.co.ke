@@ -116,7 +116,7 @@ add_action( 'wp_head', function () {
 
 /** One-time: create /wig-encyclopedia/ and import new guides from index.json (existing slugs are skipped). */
 add_action( 'admin_init', function () {
-	$ver = '1.119.0';
+	$ver = '1.121.0'; // 1.121.0: imports the 3 new comparison guides (existing posts skipped).
 	if ( ! current_user_can( 'manage_options' ) || get_option( 'nura_s2_import' ) === $ver || ! defined( 'NURA_DIR' ) ) {
 		return;
 	}

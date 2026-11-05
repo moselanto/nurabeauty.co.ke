@@ -748,7 +748,7 @@ class NURAX_Desk_Accounts {
 	}
 
 	private static function pct( $a, $b ) {
-		return $b > 0 ? round( $a / $b * 100, 1 ) . '%' : 'n/a';
+		return $b > 0 ? self::pctv( $a / $b * 100 ) : 'n/a';
 	}
 
 	public static function page() {
@@ -853,6 +853,12 @@ class NURAX_Desk_Accounts {
 		return $n;
 	}
 
+	/** 1.102.0: percentage with one decimal; values that round to zero show as 0% (never -0%). */
+	private static function pctv( $v ) {
+		$v = round( (float) $v, 1 );
+		return ( abs( $v ) < 0.05 ? '0' : rtrim( rtrim( number_format( $v, 1, '.', '' ), '0' ), '.' ) ) . '%';
+	}
+
 	/** "+12.5%" / "-3.0%" / "new" / "-" change label. */
 	private static function delta( $a, $b ) {
 		$a = (float) $a;
@@ -860,8 +866,11 @@ class NURAX_Desk_Accounts {
 		if ( 0.0 === round( $b, 2 ) ) {
 			return 0.0 === round( $a, 2 ) ? '-' : 'new';
 		}
-		$d = ( $a - $b ) / abs( $b ) * 100;
-		return ( $d >= 0 ? '+' : '' ) . number_format( $d, 1 ) . '%';
+		$d = round( ( $a - $b ) / abs( $b ) * 100, 1 );
+		if ( abs( $d ) < 0.05 ) {
+			return '0.0%'; // 1.102.0: never show '-0%'.
+		}
+		return ( $d > 0 ? '+' : '' ) . number_format( $d, 1 ) . '%';
 	}
 
 	/** One comparative statement row: label | note | this | prior | change KES | change % | % of revenue. */
@@ -874,7 +883,7 @@ class NURAX_Desk_Accounts {
 			. '<td class="na-cs__p">' . esc_html( self::m( $p ) ) . '</td>'
 			. '<td class="na-cs__d ' . esc_attr( $up ) . '">' . esc_html( self::m( $chg ) ) . '</td>'
 			. '<td class="na-cs__d ' . esc_attr( $up ) . '">' . esc_html( self::delta( $c, $p ) ) . '</td>'
-			. '<td class="na-cs__r">' . esc_html( $rev > 0 ? round( $c / $rev * 100, 1 ) . '%' : '-' ) . '</td></tr>';
+			. '<td class="na-cs__r">' . esc_html( $rev > 0 ? self::pctv( $c / $rev * 100 ) : '-' ) . '</td></tr>';
 	}
 
 	private static function csec( $label ) {
@@ -954,7 +963,7 @@ class NURAX_Desk_Accounts {
 
 		/* Side: ratios, cash movements, memorandum. */
 		$m = function ( $a, $b ) {
-			return $b > 0 ? round( $a / $b * 100, 1 ) . '%' : '-';
+			return $b > 0 ? self::pctv( $a / $b * 100 ) : '-';
 		};
 		echo '<aside class="na-side">';
 		echo '<section class="nd-card na-ratios"><h3>Key ratios</h3><table class="na-kv"><thead><tr><th></th><th>' . esc_html( $label ) . '</th><th>' . esc_html( $plabel ) . '</th></tr></thead><tbody>';

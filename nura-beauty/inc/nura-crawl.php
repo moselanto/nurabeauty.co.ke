@@ -44,9 +44,15 @@ add_action( 'template_redirect', function () {
 /* ---- 2. Removed products ---- */
 function nura_removed_product_redirects() {
 	return (array) apply_filters( 'nura_removed_product_redirects', array(
-		'human-blend-bodywave-wig'           => '/product/latisha-sensational-wig/',
+		// 1.117.0: latisha-sensational-wig, water-curl-8-wig and headbands-wig were removed (404 in Search Console
+		// Merchant listings); old chains that pointed at latisha-sensational-wig now go straight to live pages.
+		'human-blend-bodywave-wig'           => '/product-category/wigs/human-hair-blend-wigs/',
 		'human-blend-bob-wig'                => '/product/bob-wavy-wig/',
-		'lakisha-wig'                        => '/product/latisha-sensational-wig/',
+		'lakisha-wig'                        => '/product/latisha-sensational-headband-wig/',
+		'latisha-sensational-wig'            => '/product/latisha-sensational-headband-wig/',
+		'water-curl-8-wig'                   => '/product-category/wigs/bob-wigs/',
+		'headbands-wig'                      => '/product-category/wigs/headband-wigs/',
+		'20-inches-water-curl-wig'           => '/product-category/wigs/human-hair-wigs/', // 1.118.0: removed product, Search Console 404.
 		'pixie-wig'                          => '/product/pixie-water-curl-wig/',
 		'jerry-curl-wig'                     => '/product-category/wigs/human-hair-wigs/jerry-curl-wigs/',
 		'chioma-curls-wig'                   => '/product-category/wigs/human-hair-wigs/curly-wigs/',

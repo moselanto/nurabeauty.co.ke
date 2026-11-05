@@ -15,6 +15,7 @@ class NURAX_Desk_Appts {
 		add_action( 'admin_post_nurax_appt_save', array( __CLASS__, 'h_save' ) );
 		add_action( 'admin_post_nurax_appt_status', array( __CLASS__, 'h_status' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'routes' ) );
+		add_action( 'admin_init', array( __CLASS__, 'fix_consult_durations' ) ); // 1.98.0
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -34,6 +35,32 @@ class NURAX_Desk_Appts {
 			'collection'   => 'Wig collection',
 			'other'        => 'Other',
 		) );
+	}
+
+	/**
+	 * 1.98.0: default length in minutes for a service. Free consultations are
+	 * 15 minutes (matches the public booking page); everything else uses the
+	 * Desk setting "appt_duration". Filter: nurax_appt_duration.
+	 */
+	public static function duration_for( $service ) {
+		$s   = NURAX_Desk::settings();
+		$min = 'consultation' === (string) $service ? 15 : (int) $s['appt_duration'];
+		return max( 10, (int) apply_filters( 'nurax_appt_duration', $min, $service ) );
+	}
+
+	/** 1.98.0: one-time fix - open free consultations saved with the old 60-minute default become 15. */
+	public static function fix_consult_durations() {
+		if ( '1.98.0' === get_option( 'nurax_consult_dur_fix' ) ) {
+			return;
+		}
+		update_option( 'nurax_consult_dur_fix', '1.98.0', false );
+		global $wpdb;
+		$t = NURAX_Desk::t_appts();
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $t ) ) !== $t ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			return;
+		}
+		$wpdb->query( $wpdb->prepare( "UPDATE {$t} SET duration = %d WHERE service = %s AND duration = %d AND status IN ('request','confirmed')", 15, 'consultation', 60 ) ); // phpcs:ignore WordPress.DB
+		NURAX_Desk::bust();
 	}
 
 	public static function service_label( $k ) {
@@ -366,7 +393,7 @@ class NURAX_Desk_Appts {
 			'type'          => array_key_exists( $a['type'], self::types() ) ? $a['type'] : 'studio',
 			'appt_date'     => $a['date'],
 			'appt_time'     => $a['time'],
-			'duration'      => (int) $s['appt_duration'],
+			'duration'      => self::duration_for( $a['service'] ),
 			'customer_name' => mb_substr( (string) $a['name'], 0, 120 ),
 			'phone'         => NURAX_Desk::phone( $a['phone'] ),
 			'email'         => ( $u && $u->ID ) ? $u->user_email : '',

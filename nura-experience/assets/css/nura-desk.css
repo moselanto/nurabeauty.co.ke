@@ -884,3 +884,35 @@ a.nt-who:hover{color:#a07a24}
 .nc-colh h3{margin:0}
 .nc-ct td b{color:var(--ink)}
 .nc-r--muted td{color:var(--mut)}
+
+/* 1.101.0: comparative Statement of Profit or Loss (matches the Excel workbook) */
+.na-grid--stmt{grid-template-columns:minmax(0,1fr) 360px;align-items:start}
+@media (max-width:1280px){.na-grid--stmt{grid-template-columns:1fr}}
+.na-cs-scroll{overflow-x:auto}
+.na-cs{width:100%;border-collapse:collapse;font-size:13px;min-width:760px}
+.na-cs thead th{background:#0e0e0e;color:#fff;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:10px 12px;text-align:right;white-space:nowrap}
+.na-cs thead th:first-child{text-align:left}
+.na-cs td,.na-cs tbody th{padding:8px 12px;border-bottom:1px solid #efe9dd;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.na-cs tbody th{text-align:left;font-weight:500;color:#1f1f1f;white-space:normal;padding-left:26px}
+.na-cs tbody th small{display:block;color:#8a857c;font-weight:400;font-size:11px}
+.na-cs__n{text-align:center!important;color:#8a857c;width:44px}
+.na-cs__p{color:#6f6a62}
+.na-cs__r{color:#6f6a62}
+.na-cs__d.is-up{color:#1e7a36}
+.na-cs__d.is-down{color:#b3261e}
+.na-cs__sec th{background:#f6efe0;color:#8a6d1f;font-weight:700;text-align:left!important;padding:9px 12px!important;font-size:12px;letter-spacing:.04em}
+.na-cs__sub th,.na-cs__sub td{font-weight:600;border-top:1px solid #0e0e0e}
+.na-cs__tot th,.na-cs__tot td{font-weight:700;background:#faf8f4;border-top:1px solid #0e0e0e;padding-left:12px!important}
+.na-cs__net th,.na-cs__net td{font-weight:800;font-size:14px;background:#f6efe0;border-top:1px solid #0e0e0e;border-bottom:3px double #0e0e0e;padding-left:12px!important}
+.na-cs__net.is-neg td:nth-child(3){color:#b3261e}
+.na-cs__net.is-pos td:nth-child(3){color:#1e7a36}
+.na-kv{width:100%;border-collapse:collapse;font-size:12.5px}
+.na-kv th,.na-kv td{padding:7px 6px;border-bottom:1px solid #efe9dd;text-align:right;font-variant-numeric:tabular-nums}
+.na-kv thead th{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#6f6a62;font-weight:600}
+.na-kv tbody th{text-align:left;font-weight:500}
+.na-kv tbody th small{display:block;color:#8a857c;font-size:11px}
+.na-kv tr.is-sub th,.na-kv tr.is-sub td{font-weight:600;border-top:1px solid #0e0e0e}
+.na-kv tr.is-tot th,.na-kv tr.is-tot td{font-weight:800;border-top:1px solid #0e0e0e;border-bottom:3px double #0e0e0e}
+.na-notes{margin-top:18px}
+.na-notes ol{margin:8px 0 8px 18px;line-height:1.6;font-size:13px}
+.na-notes li{margin:0 0 6px}

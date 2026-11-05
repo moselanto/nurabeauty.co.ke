@@ -768,6 +768,8 @@ class NURAX_Desk_Accounts {
 		list( $from, $to, $label ) = self::period( $p, $fr, $tt );
 		$keep = array( 'p' => $p, 'from' => $fr, 'to' => $tt );
 		$r    = self::pnl( $from, $to );
+		list( $pf, $pt, $plabel ) = self::prior_period( $from, $to ); // 1.101.0: comparative period on screen.
+		$rp   = self::pnl( $pf, $pt );
 		$dl   = function ( $sheet, $fmt ) use ( $keep ) {
 			return wp_nonce_url( add_query_arg( array_merge( $keep, array( 'action' => 'nurax_acc_csv', 'sheet' => $sheet, 'fmt' => $fmt ) ), admin_url( 'admin-post.php' ) ), 'nurax_acc_csv' );
 		};
@@ -790,10 +792,10 @@ class NURAX_Desk_Accounts {
 		// KPIs.
 		$costs = $r['cogs'] + $r['opex'] + $r['setup'];
 		echo '<div class="nd-kpis na-kpis">';
-		NURAX_Desk::kpi( 'Revenue', self::m( $r['revenue'] ), $r['sales']['orders'] ? $r['sales']['orders'] . ' paid order(s), ' . $r['sales']['units'] . ' item(s)' : 'No paid orders yet', 'ink' );
+		NURAX_Desk::kpi( 'Revenue', self::m( $r['revenue'] ), ( $r['sales']['orders'] ? $r['sales']['orders'] . ' paid order(s), ' . $r['sales']['units'] . ' item(s)' : 'No paid orders yet' ) . ' | ' . self::delta( $r['revenue'], $rp['revenue'] ) . ' vs ' . $plabel, 'ink' );
 		NURAX_Desk::kpi( 'Gross profit', self::m( $r['gross'] ), $r['revenue'] > 0 ? 'Margin ' . self::pct( $r['gross'], $r['revenue'] ) : 'Starts with your first sale', $r['gross'] >= 0 ? 'gold' : 'red' );
 		NURAX_Desk::kpi( 'Costs', self::m( $costs ), 'Cost of sales ' . self::m( $r['cogs'] ) . ' | Running ' . self::m( $r['opex'] ) . ' | Setup ' . self::m( $r['setup'] ), '' );
-		NURAX_Desk::kpi( $r['net'] >= 0 ? 'Net profit' : 'Net loss', self::m( $r['net'] ), $r['revenue'] > 0 ? 'Net margin ' . self::pct( $r['net'], $r['revenue'] ) : 'Setup period - no sales yet', $r['net'] >= 0 ? 'green' : 'red' );
+		NURAX_Desk::kpi( $r['net'] >= 0 ? 'Net profit' : 'Net loss', self::m( $r['net'] ), ( $r['revenue'] > 0 ? 'Net margin ' . self::pct( $r['net'], $r['revenue'] ) : 'Setup period - no sales yet' ) . ' | ' . $plabel . ' ' . self::m( $rp['net'] ), $r['net'] >= 0 ? 'green' : 'red' );
 		NURAX_Desk::kpi( 'Paid ahead, stock & equipment', self::m( $r['stock'] + $r['asset'] + $r['advance']['balance'] ), 'Rent paid in advance not yet used ' . self::m( $r['advance']['balance'] ) . ' | not a cost yet', '' );
 		echo '</div>';
 
@@ -827,7 +829,7 @@ class NURAX_Desk_Accounts {
 		} elseif ( 'breakdown' === $tab ) {
 			self::render_breakdown( $r );
 		} else {
-			self::render_pnl( $r, $label );
+			self::render_pnl( $r, $label, $rp, $plabel, $from, $to, $pf, $pt );
 		}
 		echo '</div></div>';
 	}
@@ -851,62 +853,164 @@ class NURAX_Desk_Accounts {
 		return $n;
 	}
 
-	private static function render_pnl( $r, $label ) {
-		$s = $r['sales'];
-		echo '<div class="na-grid"><section class="nd-card na-pnl"><header class="na-pnl__h"><span>NURA Beauty</span><h2>Profit &amp; Loss statement</h2><p>' . esc_html( $label ) . ' &middot; Kenyan Shillings &middot; losses shown in brackets</p></header><table class="na-st"><tbody>';
+	/** "+12.5%" / "-3.0%" / "new" / "-" change label. */
+	private static function delta( $a, $b ) {
+		$a = (float) $a;
+		$b = (float) $b;
+		if ( 0.0 === round( $b, 2 ) ) {
+			return 0.0 === round( $a, 2 ) ? '-' : 'new';
+		}
+		$d = ( $a - $b ) / abs( $b ) * 100;
+		return ( $d >= 0 ? '+' : '' ) . number_format( $d, 1 ) . '%';
+	}
 
-		self::sec( 'Revenue' );
-		self::line( 'Website sales', $s['online'], '', 'Paid website orders, after discounts' );
-		self::line( 'In-shop sales', $s['pos'], '', 'Point of sale' );
-		self::line( 'Delivery charged to customers', $s['shipping'] );
-		if ( $r['other_income'] > 0 ) {
-			self::line( 'Other income', $r['other_income'] );
-		}
-		if ( $s['refunds'] > 0 ) {
-			self::line( 'Less: refunds', -$s['refunds'] );
-		}
-		self::line( 'Total revenue', $r['revenue'], 'na-st__tot' );
+	/** One comparative statement row: label | note | this | prior | change KES | change % | % of revenue. */
+	private static function crow( $label, $note, $c, $p, $rev, $cls = '', $sub = '' ) {
+		$chg = $c - $p;
+		$up  = $chg > 0.5 ? 'is-up' : ( $chg < -0.5 ? 'is-down' : '' );
+		echo '<tr class="' . esc_attr( $cls ) . '"><th scope="row">' . esc_html( $label ) . ( $sub ? '<small>' . esc_html( $sub ) . '</small>' : '' ) . '</th>'
+			. '<td class="na-cs__n">' . esc_html( $note ) . '</td>'
+			. '<td>' . esc_html( self::m( $c ) ) . '</td>'
+			. '<td class="na-cs__p">' . esc_html( self::m( $p ) ) . '</td>'
+			. '<td class="na-cs__d ' . esc_attr( $up ) . '">' . esc_html( self::m( $chg ) ) . '</td>'
+			. '<td class="na-cs__d ' . esc_attr( $up ) . '">' . esc_html( self::delta( $c, $p ) ) . '</td>'
+			. '<td class="na-cs__r">' . esc_html( $rev > 0 ? round( $c / $rev * 100, 1 ) . '%' : '-' ) . '</td></tr>';
+	}
 
-		self::sec( 'Cost of sales' );
-		self::line( 'Cost of wigs & products sold', $r['cogs_items'], '', $s['units'] ? $s['units'] . ' item(s) at their buying price' . ( $s['missing'] ? ' - ' . $s['missing'] . ' without a buying price' : '' ) : 'No items sold' );
-		self::lines_for( $r, 'cogs' );
-		self::line( 'Total cost of sales', $r['cogs'], 'na-st__sub' );
-		self::line( 'Gross profit', $r['gross'], 'na-st__tot', $r['revenue'] > 0 ? 'Gross margin ' . self::pct( $r['gross'], $r['revenue'] ) : '' );
+	private static function csec( $label ) {
+		echo '<tr class="na-cs__sec"><th colspan="7">' . esc_html( $label ) . '</th></tr>';
+	}
 
-		self::sec( 'Operating expenses' );
-		$adv_line = ! empty( $r['by']['rent_advance'] );
-		if ( $adv_line ) {
-			self::line( 'Rent (from rent paid in advance)', $r['by']['rent_advance'], '', 'Share of the advance for the months in this period' );
+	/** Comparative lines for one category group (shown when either period has an amount). Costs are negative. */
+	private static function clines( $r, $rp, $group, $note, $rev ) {
+		$n = 0;
+		foreach ( self::categories() as $k => $c ) {
+			if ( $group !== $c[1] ) {
+				continue;
+			}
+			$a = isset( $r['by'][ $k ] ) ? (float) $r['by'][ $k ] : 0;
+			$b = isset( $rp['by'][ $k ] ) ? (float) $rp['by'][ $k ] : 0;
+			if ( 0.0 === $a && 0.0 === $b ) {
+				continue;
+			}
+			self::crow( $c[0], $note, -$a, -$b, $rev );
+			$n++;
 		}
-		if ( ! self::lines_for( $r, 'opex' ) && ! $adv_line ) {
-			echo '<tr class="na-st__empty"><td colspan="2">None recorded in this period.</td></tr>';
-		}
-		self::line( 'Total operating expenses', $r['opex'], 'na-st__sub' );
-		self::line( 'Operating profit', $r['operating'], 'na-st__tot' );
+		return $n;
+	}
 
-		if ( $r['setup'] > 0 ) {
-			self::sec( 'One-off setup costs' );
-			self::lines_for( $r, 'setup' );
-			self::line( 'Total setup costs', $r['setup'], 'na-st__sub' );
+	/**
+	 * 1.101.0: Statement of Profit or Loss on screen, matching the Excel workbook
+	 * (IAS 1, expenses by nature): this period beside the comparative period,
+	 * change in KES and %, % of revenue, key ratios, notes and a cash movements
+	 * summary.
+	 */
+	private static function render_pnl( $r, $label, $rp = null, $plabel = '', $from = '', $to = '', $pf = '', $pt = '' ) {
+		$rp  = is_array( $rp ) ? $rp : self::pnl( '1999-01-01', '1999-01-01' );
+		$s   = $r['sales'];
+		$sp  = $rp['sales'];
+		$rev = (float) $r['revenue'];
+		$d   = function ( $x ) {
+			return $x ? date_i18n( 'j M Y', strtotime( $x ) ) : '';
+		};
+		echo '<div class="na-grid na-grid--stmt"><section class="nd-card na-pnl na-cs-wrap"><header class="na-pnl__h"><span>NURA Beauty</span><h2>Statement of Profit or Loss</h2><p>' . esc_html( $label . ( $from ? ' (' . $d( $from ) . ' - ' . $d( $to ) . ')' : '' ) . ' compared with ' . $plabel . ( $pf ? ' (' . $d( $pf ) . ' - ' . $d( $pt ) . ')' : '' ) ) . '</p><p>Kenya Shillings (KES) &middot; expenses by nature (IAS 1) &middot; costs and losses in brackets &middot; unaudited management accounts</p></header>';
+		echo '<div class="na-cs-scroll"><table class="na-cs"><thead><tr><th scope="col">Line item</th><th scope="col" class="na-cs__n">Note</th><th scope="col">' . esc_html( $label ) . '</th><th scope="col" class="na-cs__p">' . esc_html( $plabel ) . '</th><th scope="col">Change KES</th><th scope="col">Change %</th><th scope="col">% of revenue</th></tr></thead><tbody>';
+
+		self::csec( 'Revenue' );
+		self::crow( 'Website sales', '2', $s['online'], $sp['online'], $rev, '', 'Paid website orders, after discounts' );
+		self::crow( 'In-shop sales (point of sale)', '2', $s['pos'], $sp['pos'], $rev );
+		self::crow( 'Delivery charged to customers', '2', $s['shipping'], $sp['shipping'], $rev );
+		self::crow( 'Other operating income', '2', $r['other_income'], $rp['other_income'], $rev );
+		self::crow( 'Less: refunds and returns', '2', -$s['refunds'], -$sp['refunds'], $rev );
+		self::crow( 'Total revenue', '', $r['revenue'], $rp['revenue'], $rev, 'na-cs__tot' );
+
+		self::csec( 'Cost of sales' );
+		self::crow( 'Cost of goods sold', '3', -$r['cogs_items'], -$rp['cogs_items'], $rev, '', $s['units'] ? $s['units'] . ' item(s) at their buying price' . ( $s['missing'] ? ' - ' . $s['missing'] . ' without a buying price' : '' ) : '' );
+		self::clines( $r, $rp, 'cogs', '3', $rev );
+		self::crow( 'Total cost of sales', '', -$r['cogs'], -$rp['cogs'], $rev, 'na-cs__sub' );
+		self::crow( 'Gross profit', '', $r['gross'], $rp['gross'], $rev, 'na-cs__tot' );
+
+		self::csec( 'Operating expenses' );
+		$ra = isset( $r['by']['rent_advance'] ) ? (float) $r['by']['rent_advance'] : 0;
+		$pa = isset( $rp['by']['rent_advance'] ) ? (float) $rp['by']['rent_advance'] : 0;
+		if ( $ra || $pa ) {
+			self::crow( 'Rent (released from rent paid in advance)', '6', -$ra, -$pa, $rev );
 		}
-		self::line( $r['net'] >= 0 ? 'Net profit' : 'Net loss', $r['net'], 'na-st__net ' . ( $r['net'] >= 0 ? 'is-pos' : 'is-neg' ), $r['revenue'] > 0 ? 'Net margin ' . self::pct( $r['net'], $r['revenue'] ) : 'No sales in this period yet' );
+		if ( ! self::clines( $r, $rp, 'opex', '4', $rev ) && ! $ra && ! $pa ) {
+			echo '<tr class="na-st__empty"><td colspan="7">None recorded in either period.</td></tr>';
+		}
+		self::crow( 'Total operating expenses', '', -$r['opex'], -$rp['opex'], $rev, 'na-cs__sub' );
+		self::crow( 'Operating profit / (loss)', '', $r['operating'], $rp['operating'], $rev, 'na-cs__tot' );
+
+		if ( $r['setup'] > 0 || $rp['setup'] > 0 ) {
+			self::csec( 'Non-recurring items (set-up costs)' );
+			self::clines( $r, $rp, 'setup', '5', $rev );
+			self::crow( 'Total non-recurring items', '', -$r['setup'], -$rp['setup'], $rev, 'na-cs__sub' );
+		}
+		self::crow( 'Profit / (loss) before tax', '', $r['net'], $rp['net'], $rev, 'na-cs__tot' );
+		self::crow( 'Income tax expense', '7', 0, 0, $rev );
+		self::crow( 'Profit / (loss) for the period', '', $r['net'], $rp['net'], $rev, 'na-cs__net ' . ( $r['net'] >= 0 ? 'is-pos' : 'is-neg' ) );
+		echo '</tbody></table></div></section>';
+
+		/* Side: ratios, cash movements, memorandum. */
+		$m = function ( $a, $b ) {
+			return $b > 0 ? round( $a / $b * 100, 1 ) . '%' : '-';
+		};
+		echo '<aside class="na-side">';
+		echo '<section class="nd-card na-ratios"><h3>Key ratios</h3><table class="na-kv"><thead><tr><th></th><th>' . esc_html( $label ) . '</th><th>' . esc_html( $plabel ) . '</th></tr></thead><tbody>';
+		$rows = array(
+			array( 'Gross margin', $m( $r['gross'], $r['revenue'] ), $m( $rp['gross'], $rp['revenue'] ) ),
+			array( 'Operating margin', $m( $r['operating'], $r['revenue'] ), $m( $rp['operating'], $rp['revenue'] ) ),
+			array( 'Net margin', $m( $r['net'], $r['revenue'] ), $m( $rp['net'], $rp['revenue'] ) ),
+			array( 'Cost of sales ratio', $m( $r['cogs'], $r['revenue'] ), $m( $rp['cogs'], $rp['revenue'] ) ),
+			array( 'Operating expense ratio', $m( $r['opex'], $r['revenue'] ), $m( $rp['opex'], $rp['revenue'] ) ),
+			array( 'Revenue growth', self::delta( $r['revenue'], $rp['revenue'] ), '' ),
+			array( 'Break-even revenue', ( $r['revenue'] > 0 && $r['gross'] > 0 ) ? self::m( $r['opex'] / ( $r['gross'] / $r['revenue'] ) ) : '-', ( $rp['revenue'] > 0 && $rp['gross'] > 0 ) ? self::m( $rp['opex'] / ( $rp['gross'] / $rp['revenue'] ) ) : '-' ),
+			array( 'Items sold', (string) (int) $s['units'], (string) (int) $sp['units'] ),
+		);
+		foreach ( $rows as $x ) {
+			echo '<tr><th scope="row">' . esc_html( $x[0] ) . '</th><td>' . esc_html( $x[1] ) . '</td><td>' . esc_html( $x[2] ) . '</td></tr>';
+		}
 		echo '</tbody></table></section>';
 
-		echo '<aside class="na-side"><section class="nd-card na-bs"><h3>Not part of profit</h3><p class="na-muted">Money paid out that is still yours, and money the owner put in or took out.</p><dl>';
-		echo '<div class="na-bs__adv"><dt>Rent paid in advance - not yet used<small>Balance at the end of this period' . ( $r['advance']['unset'] ? '; months not set yet' : '' ) . '</small></dt><dd>' . esc_html( self::m( $r['advance']['balance'] ) ) . '</dd></div>';
+		$cash = function ( $x ) {
+			$in  = (float) $x['revenue'] + (float) $x['capital'];
+			$out = (float) $x['spent'] + (float) $x['drawings'];
+			return array( (float) $x['revenue'], (float) $x['capital'], $in, $out, $in - $out );
+		};
+		$cc = $cash( $r );
+		$cp = $cash( $rp );
+		echo '<section class="nd-card na-cashmv"><h3>Cash movements summary</h3><table class="na-kv"><thead><tr><th></th><th>' . esc_html( $label ) . '</th><th>' . esc_html( $plabel ) . '</th></tr></thead><tbody>';
+		$lines = array(
+			array( 'Received from customers (revenue)', $cc[0], $cp[0], '' ),
+			array( 'Owner capital introduced', $cc[1], $cp[1], '' ),
+			array( 'Total cash in', $cc[2], $cp[2], 'is-sub' ),
+			array( 'Paid out: stock, costs, set-up, deposits, equipment, prepaid rent, drawings', -$cc[3], -$cp[3], '' ),
+			array( 'Net cash movement', $cc[4], $cp[4], 'is-tot' ),
+		);
+		foreach ( $lines as $x ) {
+			echo '<tr class="' . esc_attr( $x[3] ) . '"><th scope="row">' . esc_html( $x[0] ) . '</th><td>' . esc_html( self::m( $x[1] ) ) . '</td><td>' . esc_html( self::m( $x[2] ) ) . '</td></tr>';
+		}
+		echo '</tbody></table><p class="na-muted">Cash basis estimate from NURA Desk records: paid sales count as received; every expense, stock, deposit, equipment, rent advance and drawing counts as paid when recorded.</p></section>';
+
+		echo '<section class="nd-card na-bs"><h3>Not part of profit (memorandum)</h3><table class="na-kv"><thead><tr><th></th><th>' . esc_html( $label ) . '</th><th>' . esc_html( $plabel ) . '</th></tr></thead><tbody>';
+		echo '<tr><th scope="row">Prepaid rent - unused balance at period end' . ( $r['advance']['unset'] ? '<small>months not set yet</small>' : '' ) . '</th><td>' . esc_html( self::m( $r['advance']['balance'] ) ) . '</td><td>' . esc_html( self::m( $rp['advance']['balance'] ) ) . '</td></tr>';
 		foreach ( self::categories() as $k => $c ) {
 			if ( in_array( $c[1], array( 'prepaid', 'stock', 'asset', 'owner' ), true ) ) {
-				echo '<div><dt>' . esc_html( ( 'prepaid' === $c[1] ? 'Paid in advance this period' : $c[0] ) ) . '</dt><dd>' . esc_html( self::m( isset( $r['by'][ $k ] ) ? $r['by'][ $k ] : 0 ) ) . '</dd></div>';
+				echo '<tr><th scope="row">' . esc_html( 'prepaid' === $c[1] ? 'Rent paid in advance this period' : $c[0] ) . '</th><td>' . esc_html( self::m( isset( $r['by'][ $k ] ) ? $r['by'][ $k ] : 0 ) ) . '</td><td>' . esc_html( self::m( isset( $rp['by'][ $k ] ) ? $rp['by'][ $k ] : 0 ) ) . '</td></tr>';
 			}
 		}
-		echo '</dl></section>';
-		echo '<section class="nd-card na-cash"><h3>Cash paid out this period</h3><strong>' . esc_html( self::m( $r['spent'] + $r['drawings'] ) ) . '</strong><p class="na-muted">Everything you paid: stock, running and setup costs, deposits, equipment and drawings.</p></section>';
-		echo '<section class="nd-card na-help"><h3>How profit is worked out</h3><ol>'
-			. '<li><b>Revenue</b> comes in automatically from paid website and shop orders.</li>'
-			. '<li><b>Cost of sales</b> is the buying price of each wig you actually sold. Stock you buy is not a cost until it sells, so it is never counted twice.</li>'
-			. '<li><b>Operating expenses</b> are the running costs: rent, staff, ads, delivery, charges.</li>'
-			. '<li><b>Setup costs</b> (renovation, lease fees, permits) have their own line so your monthly running profit stays clear.</li>'
-			. '<li><b>Rent paid in advance</b> (e.g. a 2-month non-refundable advance) is not a cost when you pay it - it becomes rent in the months it covers.</li><li>Stock, refundable deposits and equipment are <b>not costs</b> - you still own them.</li></ol></section></aside></div>';
+		echo '</tbody></table></section></aside></div>';
+
+		echo '<section class="nd-card na-notes"><h3>Notes to the statement</h3><ol>'
+			. '<li><b>Basis of preparation.</b> Unaudited management accounts from NURA Desk records. Sales are recognised when the order is paid or completed; expenses on the date entered. Presentation follows IAS 1 with expenses by nature, in Kenya Shillings.</li>'
+			. '<li><b>Revenue.</b> Website and shop sales after discounts, delivery charged to customers and other operating income. Refunds and returns are deducted when made.</li>'
+			. '<li><b>Cost of sales.</b> The buying price of each item sold, captured at the time of sale, plus freight, duty and packaging not already in the buying price. Stock bought is inventory and becomes a cost only when sold (IAS 2).</li>'
+			. '<li><b>Operating expenses.</b> Running costs by nature: rent, staff, utilities, marketing, delivery, payment charges, software, repairs, supplies, insurance, taxes and levies.</li>'
+			. '<li><b>Non-recurring items.</b> One-off set-up costs (renovation, lease and registration fees, permits) shown separately so running performance compares fairly.</li>'
+			. '<li><b>Prepaid rent.</b> Rent paid in advance is an asset and is released to rent evenly over the months it covers.</li>'
+			. '<li><b>Income tax.</b> Not computed here; turnover or income tax is determined in the KRA return. Levies paid are in operating expenses.</li>'
+			. '</ol><p class="na-muted">Comparative period: ' . esc_html( $plabel ) . '. Download the Excel report for the same statement with live formulas, ratios, notes and profit by product.</p></section>';
 	}
 
 	private static function render_products( $r ) {

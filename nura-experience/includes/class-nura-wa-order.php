@@ -68,6 +68,7 @@ class NURAX_WA_Order {
 		add_action( 'wp_ajax_nurax_bk_stk', array( $this, 'ajax_bk_stk' ) );
 		add_action( 'wp_ajax_nopriv_nurax_bk_stk', array( $this, 'ajax_bk_stk' ) );
 		add_action( 'admin_post_nurax_wa_fees', array( $this, 'save_fees' ) );
+		add_action( 'admin_post_nurax_stk_log_clear', array( $this, 'log_clear' ) );
 
 		// Admin list.
 		add_action( 'admin_menu', array( $this, 'menu' ), 55 );
@@ -1074,11 +1075,115 @@ class NURAX_WA_Order {
 			$args['body'] = wp_json_encode( $body );
 		}
 		$res = wp_remote_request( 'https://api.paystack.co' . $path, $args );
+		self::$last_http = array( 'code' => 0, 'error' => '', 'body' => '' );
 		if ( is_wp_error( $res ) ) {
+			self::$last_http['error'] = $res->get_error_message();
 			return null;
 		}
+		self::$last_http['code'] = (int) wp_remote_retrieve_response_code( $res );
+		self::$last_http['body'] = substr( (string) wp_remote_retrieve_body( $res ), 0, 1500 );
 		$data = json_decode( (string) wp_remote_retrieve_body( $res ), true );
 		return is_array( $data ) ? $data : null;
+	}
+
+	/* ---- 1.97.0: M-Pesa prompt log (Paystack replies), WooCommerce > M-Pesa prompt log ---- */
+
+	/** Last raw HTTP result from paystack(): code, transport error, body (trimmed). */
+	private static $last_http = array( 'code' => 0, 'error' => '', 'body' => '' );
+
+	const LOG_OPT = 'nurax_stk_log';
+
+	/** 2547****5678 */
+	private static function mask_phone( $p ) {
+		$p = (string) $p;
+		return strlen( $p ) > 7 ? substr( $p, 0, 4 ) . str_repeat( '*', max( 0, strlen( $p ) - 7 ) ) . substr( $p, -3 ) : $p;
+	}
+
+	/**
+	 * Record one Paystack interaction. Never stores the secret key or full phone.
+	 * Keeps the latest 200 entries (option, not autoloaded). Filter nurax_stk_log_enabled.
+	 */
+	private static function log_stk( $kind, $source, $nura_ref, $reference, $amount, $phone, $res, $note = '' ) {
+		if ( ! apply_filters( 'nurax_stk_log_enabled', true ) ) {
+			return;
+		}
+		$d   = ( is_array( $res ) && isset( $res['data'] ) && is_array( $res['data'] ) ) ? $res['data'] : array();
+		$row = array(
+			't'         => current_time( 'mysql' ),
+			'kind'      => $kind,
+			'source'    => (string) $source,
+			'nura_ref'  => (string) $nura_ref,
+			'reference' => (string) $reference,
+			'amount'    => (int) $amount,
+			'phone'     => self::mask_phone( $phone ),
+			'mode'      => 0 === strpos( self::paystack_secret(), 'sk_test_' ) ? 'test' : ( '' === self::paystack_secret() ? 'no key' : 'live' ),
+			'http'      => (int) self::$last_http['code'],
+			'wp_error'  => (string) self::$last_http['error'],
+			'ok'        => is_array( $res ) && ! empty( $res['status'] ) ? 1 : 0,
+			'message'   => is_array( $res ) && isset( $res['message'] ) ? (string) $res['message'] : '',
+			'pstatus'   => isset( $d['status'] ) ? (string) $d['status'] : '',
+			'detail'    => trim( implode( ' | ', array_filter( array(
+				isset( $d['message'] ) ? (string) $d['message'] : '',
+				isset( $d['display_text'] ) ? (string) $d['display_text'] : '',
+				isset( $d['gateway_response'] ) ? (string) $d['gateway_response'] : '',
+				isset( $d['channel'] ) ? 'channel ' . $d['channel'] : '',
+				$note,
+			) ) ) ),
+			'raw'       => is_array( $res ) ? '' : (string) self::$last_http['body'],
+		);
+		foreach ( $row as $k => $v ) {
+			if ( is_string( $v ) ) {
+				$row[ $k ] = self::cut( sanitize_text_field( $v ), 'raw' === $k ? 600 : 300 );
+			}
+		}
+		$log = get_option( self::LOG_OPT, array() );
+		$log = is_array( $log ) ? $log : array();
+		array_unshift( $log, $row );
+		update_option( self::LOG_OPT, array_slice( $log, 0, 200 ), false );
+	}
+
+	/** Admin: the log screen. */
+	public function log_page() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			return;
+		}
+		$log = get_option( self::LOG_OPT, array() );
+		$log = is_array( $log ) ? $log : array();
+		echo '<div class="wrap"><h1>' . esc_html__( 'M-Pesa prompt log (Paystack)', 'nura-experience' ) . '</h1>';
+		echo '<p>' . esc_html__( 'Every "Send M-Pesa prompt" from the WhatsApp pop-up and the booking page, and every payment check, with Paystack\'s reply. Newest first, last 200. Phone numbers are masked; no keys are stored.', 'nura-experience' ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Paystack key in use:', 'nura-experience' ) . '</strong> ' . esc_html( '' === self::paystack_secret() ? __( 'none found', 'nura-experience' ) : ( 0 === strpos( self::paystack_secret(), 'sk_test_' ) ? __( 'TEST key', 'nura-experience' ) : __( 'LIVE key', 'nura-experience' ) ) ) . '</p>';
+		if ( ! $log ) {
+			echo '<p><em>' . esc_html__( 'No prompts logged yet.', 'nura-experience' ) . '</em></p></div>';
+			return;
+		}
+		echo '<table class="widefat striped"><thead><tr>';
+		foreach ( array( 'Time', 'Step', 'Source', 'Our ref', 'Paystack ref', 'KSh', 'Phone', 'Key', 'HTTP', 'OK', 'Paystack message', 'Status', 'Details', 'Raw / error' ) as $h ) {
+			echo '<th>' . esc_html( $h ) . '</th>';
+		}
+		echo '</tr></thead><tbody>';
+		foreach ( $log as $r ) {
+			$raw = trim( ( isset( $r['wp_error'] ) ? $r['wp_error'] : '' ) . ' ' . ( isset( $r['raw'] ) ? $r['raw'] : '' ) );
+			echo '<tr>';
+			foreach ( array( 't', 'kind', 'source', 'nura_ref', 'reference', 'amount', 'phone', 'mode', 'http', 'ok', 'message', 'pstatus', 'detail' ) as $k ) {
+				echo '<td>' . esc_html( isset( $r[ $k ] ) ? (string) $r[ $k ] : '' ) . '</td>';
+			}
+			echo '<td>' . esc_html( $raw ) . '</td></tr>';
+		}
+		echo '</tbody></table>';
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="margin-top:12px">';
+		wp_nonce_field( 'nurax_stk_log_clear' );
+		echo '<input type="hidden" name="action" value="nurax_stk_log_clear"><button class="button" onclick="return confirm(\'Clear the log?\')">' . esc_html__( 'Clear log', 'nura-experience' ) . '</button></form></div>';
+	}
+
+	/** Admin: clear the log. */
+	public function log_clear() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( esc_html__( 'Not allowed.', 'nura-experience' ) );
+		}
+		check_admin_referer( 'nurax_stk_log_clear' );
+		update_option( self::LOG_OPT, array(), false );
+		wp_safe_redirect( admin_url( 'admin.php?page=nurax-stk-log' ) );
+		exit;
 	}
 
 	/** Stored prompt record for a Paystack reference, or null. */
@@ -1120,6 +1225,9 @@ class NURAX_WA_Order {
 			$rec['why']    = 'timeout';
 		}
 		set_transient( 'nurax_stk_' . md5( $rec['reference'] ), $rec, 6 * HOUR_IN_SECONDS );
+		if ( in_array( $rec['status'], array( 'success', 'failed' ), true ) ) {
+			self::log_stk( 'verify', isset( $rec['source'] ) ? $rec['source'] : '', $rec['nura_ref'], $rec['reference'], $rec['amount'], $rec['phone'], $res, isset( $rec['why'] ) ? 'result: ' . $rec['status'] . ' (' . $rec['why'] . ')' : 'result: ' . $rec['status'] );
+		}
 		return $rec;
 	}
 
@@ -1189,37 +1297,13 @@ class NURAX_WA_Order {
 		if ( $amount < 10 || $amount > 300000 ) {
 			wp_send_json_error( array( 'message' => __( 'This total cannot be paid with an M-Pesa prompt. Please pay with the till below.', 'nura-experience' ) ), 400 );
 		}
-		$reference = $ref . '-' . strtoupper( wp_generate_password( 4, false, false ) );
-		$domain    = (string) wp_parse_url( home_url(), PHP_URL_HOST );
-		$res       = self::paystack( 'POST', '/charge', array(
-			'email'        => 'wa' . $phone . '@' . ( '' !== $domain ? $domain : 'nurabeauty.co.ke' ),
-			'amount'       => $amount * 100,
-			'currency'     => 'KES',
-			'reference'    => $reference,
-			'mobile_money' => array( 'phone' => '+' . $phone, 'provider' => 'mpesa' ),
-			'metadata'     => array(
-				'nura_ref'      => $ref,
-				'source'        => 'whatsapp_popup',
-				'custom_fields' => array( array( 'display_name' => 'Order ref', 'variable_name' => 'nura_ref', 'value' => $ref ) ),
-			),
-		) );
-		$st = ( $res && ! empty( $res['status'] ) && isset( $res['data']['status'] ) ) ? (string) $res['data']['status'] : '';
-		if ( ! in_array( $st, array( 'pay_offline', 'pending', 'send_otp', 'success', 'ongoing' ), true ) ) {
-			$msg = ( $res && ! empty( $res['data']['message'] ) ) ? (string) $res['data']['message'] : ( ( $res && ! empty( $res['message'] ) ) ? (string) $res['message'] : '' );
-			wp_send_json_error( array( 'message' => __( 'We could not send the M-Pesa prompt. Check the number or pay with the till below.', 'nura-experience' ), 'detail' => self::cut( sanitize_text_field( $msg ), 140 ) ), 502 );
+		$r = self::stk_charge( $phone, $amount, $ref, 'whatsapp_popup' );
+		if ( is_wp_error( $r ) ) {
+			wp_send_json_error( array( 'message' => __( 'We could not send the M-Pesa prompt. Check the number or pay with the till below.', 'nura-experience' ), 'detail' => (string) $r->get_error_data() ), 502 );
 		}
-		set_transient( 'nurax_stk_' . md5( $reference ), array(
-			'reference' => $reference,
-			'nura_ref'  => $ref,
-			'amount'    => $amount,
-			'phone'     => $phone,
-			'status'    => 'success' === $st ? 'pending' : 'pending',
-			'polls'     => 0,
-			'ts'        => time(),
-		), 6 * HOUR_IN_SECONDS );
 		wp_send_json_success( array(
-			'reference' => $reference,
-			'amount'    => $amount,
+			'reference' => $r['reference'],
+			'amount'    => $r['amount'],
 			'text'      => __( 'Check your phone and enter your M-Pesa PIN to pay.', 'nura-experience' ),
 		) );
 	}
@@ -1236,6 +1320,8 @@ class NURAX_WA_Order {
 	public static function stk_charge( $phone, $amount, $nura_ref, $source ) {
 		$amount = (int) round( (float) $amount );
 		if ( '' === self::paystack_secret() || $amount < 10 ) {
+			self::$last_http = array( 'code' => 0, 'error' => '', 'body' => '' );
+			self::log_stk( 'charge', $source, $nura_ref, '', $amount, $phone, null, '' === self::paystack_secret() ? 'not sent: no Paystack secret key found' : 'not sent: amount below KSh 10' );
 			return new WP_Error( 'nurax_stk_off', __( 'The M-Pesa prompt is not available right now. Please pay manually.', 'nura-experience' ) );
 		}
 		$reference = $nura_ref . '-' . strtoupper( wp_generate_password( 4, false, false ) );
@@ -1253,8 +1339,10 @@ class NURAX_WA_Order {
 			),
 		) );
 		$st = ( $res && ! empty( $res['status'] ) && isset( $res['data']['status'] ) ) ? (string) $res['data']['status'] : '';
+		self::log_stk( 'charge', $source, $nura_ref, $reference, $amount, $phone, $res );
 		if ( ! in_array( $st, array( 'pay_offline', 'pending', 'send_otp', 'success', 'ongoing' ), true ) ) {
-			return new WP_Error( 'nurax_stk_fail', __( 'We could not send the M-Pesa prompt. Check the number or pay manually.', 'nura-experience' ) );
+			$why = ( $res && ! empty( $res['data']['message'] ) ) ? (string) $res['data']['message'] : ( ( $res && ! empty( $res['message'] ) ) ? (string) $res['message'] : (string) self::$last_http['error'] );
+			return new WP_Error( 'nurax_stk_fail', __( 'We could not send the M-Pesa prompt. Check the number or pay manually.', 'nura-experience' ), self::cut( sanitize_text_field( $why ), 140 ) );
 		}
 		set_transient( 'nurax_stk_' . md5( $reference ), array(
 			'reference' => $reference,
@@ -1353,6 +1441,7 @@ class NURAX_WA_Order {
 			$title .= ' <span class="awaiting-mod"><span class="pending-count">' . (int) $new . '</span></span>';
 		}
 		add_submenu_page( 'woocommerce', __( 'WhatsApp Orders', 'nura-experience' ), $title, 'manage_woocommerce', self::PAGE, array( $this, 'page' ) );
+		add_submenu_page( 'woocommerce', __( 'M-Pesa prompt log', 'nura-experience' ), __( 'M-Pesa prompt log', 'nura-experience' ), 'manage_woocommerce', 'nurax-stk-log', array( $this, 'log_page' ) );
 	}
 
 	private static function count_new() {

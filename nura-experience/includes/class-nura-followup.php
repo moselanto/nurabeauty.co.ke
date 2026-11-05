@@ -97,7 +97,7 @@ final class NURAX_Followup {
 			'fu2_days'    => 3,
 			'fu3_days'    => 75,
 			'fu1_msg'     => __( 'Hello %1$s, thank you for your NURA order (%2$s). To keep your wig looking flawless: store it on a stand, detangle gently from the ends, wash with cool water and a sulphate-free shampoo, and air dry. Any questions? Just reply and our stylists will help.', 'nura-experience' ),
-			'fu2_msg'     => __( 'Hello %1$s, we hope you are loving your NURA pieces from order %2$s. Would you share a quick review? It helps other women choose with confidence: %3$s If you are happy to, send us a photo wearing it - with your OK we would love to feature you on our website.', 'nura-experience' ),
+			'fu2_msg'     => __( 'Hello %1$s, we hope you are loving your NURA pieces from order %2$s. Would you rate your wig on our website? Tap here, choose the stars and add a line (a photo is welcome): %3$s It helps other women choose with confidence. If you are happy to, send us a photo wearing it - with your OK we would love to feature you on our website.', 'nura-experience' ),
 			'fu3_msg'     => __( 'Hello %1$s, it has been a little while since your last NURA order (%2$s). If you are ready to refresh your look or restock your care essentials, we are here to help: %3$s', 'nura-experience' ),
 		);
 	}
@@ -249,9 +249,7 @@ final class NURAX_Followup {
 	}
 
 	private function review_url( $order ): string {
-		if ( class_exists( 'NURAX_Community' ) && '' !== NURAX_Community::google_review_url() ) {
-			return NURAX_Community::google_review_url();
-		}
+		// 1.100.0: the on-site product review form comes first (stars show on the product and in Google); Google review is the fallback.
 		foreach ( $order->get_items() as $item ) {
 			if ( is_object( $item ) && method_exists( $item, 'get_product_id' ) ) {
 				$pid = (int) $item->get_product_id();
@@ -259,6 +257,9 @@ final class NURAX_Followup {
 					return get_permalink( $pid ) . '#reviews';
 				}
 			}
+		}
+		if ( class_exists( 'NURAX_Community' ) && '' !== NURAX_Community::google_review_url() ) {
+			return NURAX_Community::google_review_url();
 		}
 		return $this->shop_url();
 	}

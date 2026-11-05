@@ -74,16 +74,39 @@ add_action( 'template_redirect', function () {
 	exit;
 }, 1 );
 
-/** Completed-order email: short, polite review request. */
+/**
+ * Completed-order email: review request (1.120.0: on-site product review first,
+ * one "Review this wig" button per product linking to its #reviews form, then
+ * the Google review as a second option).
+ */
 add_action( 'woocommerce_email_after_order_table', function ( $order, $sent_to_admin, $plain_text, $email = null ) {
-	if ( $sent_to_admin || ! $email || 'customer_completed_order' !== $email->id ) {
+	if ( $sent_to_admin || ! $email || 'customer_completed_order' !== $email->id || ! $order instanceof WC_Order ) {
 		return;
 	}
-	$url = home_url( '/review/' );
-	$msg = __( 'Loving your NURA wig? A quick Google review helps other women choose with confidence and means a lot to our small team.', 'nura-beauty' );
+	$items = array();
+	foreach ( $order->get_items() as $item ) {
+		$pid = is_object( $item ) && method_exists( $item, 'get_product_id' ) ? (int) $item->get_product_id() : 0;
+		if ( $pid && ! isset( $items[ $pid ] ) && 'publish' === get_post_status( $pid ) ) {
+			$items[ $pid ] = array( wp_strip_all_tags( get_the_title( $pid ) ), get_permalink( $pid ) . '#reviews' );
+		}
+		if ( count( $items ) >= 4 ) {
+			break;
+		}
+	}
+	$google = home_url( '/review/' );
+	$msg    = __( 'Loving your NURA wig? Please rate it on our website - your honest review (and a photo if you like) helps other women choose with confidence and means a lot to our small team.', 'nura-beauty' );
+	$gmsg   = __( 'You can also leave us a Google review:', 'nura-beauty' );
 	if ( $plain_text ) {
-		echo "\n" . esc_html( $msg ) . "\n" . esc_url_raw( $url ) . "\n";
+		echo "\n" . esc_html( $msg ) . "\n";
+		foreach ( $items as $it ) {
+			echo esc_html( $it[0] ) . ': ' . esc_url_raw( $it[1] ) . "\n";
+		}
+		echo esc_html( $gmsg ) . ' ' . esc_url_raw( $google ) . "\n";
 		return;
 	}
-	echo '<div style="margin:24px 0;padding:16px 18px;border:1px solid #ECE4D3;border-radius:10px;background:#FAF7F0"><p style="margin:0 0 10px">' . esc_html( $msg ) . '</p><p style="margin:0"><a href="' . esc_url( $url ) . '" style="display:inline-block;background:#0E0E0E;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none">' . esc_html__( 'Leave a Google review', 'nura-beauty' ) . '</a></p></div>';
+	echo '<div style="margin:24px 0;padding:18px 20px;border:1px solid #ECE4D3;border-radius:10px;background:#FAF7F0"><p style="margin:0 0 4px;font-weight:700">' . esc_html__( 'How is your new wig?', 'nura-beauty' ) . '</p><p style="margin:0 0 12px">' . esc_html( $msg ) . '</p>';
+	foreach ( $items as $it ) {
+		echo '<p style="margin:0 0 8px"><a href="' . esc_url( $it[1] ) . '" style="display:inline-block;background:#0E0E0E;color:#fff;padding:10px 18px;border-radius:999px;text-decoration:none">' . esc_html( sprintf( __( 'Review %s', 'nura-beauty' ), $it[0] ) ) . ' &#9733;</a></p>';
+	}
+	echo '<p style="margin:12px 0 0;font-size:13px;color:#555">' . esc_html( $gmsg ) . ' <a href="' . esc_url( $google ) . '" style="color:#8a6d1f">' . esc_html__( 'Review NURA on Google', 'nura-beauty' ) . '</a></p></div>';
 }, 20, 4 );

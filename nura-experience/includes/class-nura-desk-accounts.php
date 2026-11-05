@@ -193,6 +193,31 @@ class NURAX_Desk_Accounts {
 
 	/* ------------------------------------------------------------ periods */
 
+	/**
+	 * 1.100.0: comparative period. A whole calendar month compares with the previous
+	 * month, a quarter with the previous quarter, a year with the previous year;
+	 * any other range with the same number of days immediately before it.
+	 */
+	public static function prior_period( $from, $to ) {
+		$f = strtotime( $from );
+		$t = strtotime( $to );
+		if ( '2000-01-01' === $from ) {
+			return array( '1999-01-01', '1999-12-31', 'Prior period' );
+		}
+		$whole_months = ( '01' === gmdate( 'd', $f ) && gmdate( 'Y-m-t', $t ) === $to );
+		if ( $whole_months ) {
+			$months = ( (int) gmdate( 'Y', $t ) - (int) gmdate( 'Y', $f ) ) * 12 + (int) gmdate( 'n', $t ) - (int) gmdate( 'n', $f ) + 1;
+			$pf     = gmdate( 'Y-m-01', gmmktime( 0, 0, 0, (int) gmdate( 'n', $f ) - $months, 1, (int) gmdate( 'Y', $f ) ) );
+			$pt     = gmdate( 'Y-m-t', gmmktime( 0, 0, 0, (int) gmdate( 'n', $f ) - 1, 1, (int) gmdate( 'Y', $f ) ) );
+			$label  = 1 === $months ? gmdate( 'F Y', strtotime( $pf ) ) : ( 12 === $months ? 'Year ' . gmdate( 'Y', strtotime( $pf ) ) : gmdate( 'M Y', strtotime( $pf ) ) . ' - ' . gmdate( 'M Y', strtotime( $pt ) ) );
+			return array( $pf, $pt, $label );
+		}
+		$days = (int) round( ( $t - $f ) / DAY_IN_SECONDS ) + 1;
+		$pt   = gmdate( 'Y-m-d', $f - DAY_IN_SECONDS );
+		$pf   = gmdate( 'Y-m-d', $f - $days * DAY_IN_SECONDS );
+		return array( $pf, $pt, gmdate( 'j M', strtotime( $pf ) ) . ' - ' . gmdate( 'j M Y', strtotime( $pt ) ) );
+	}
+
 	/** [ from, to, label ] for a preset or custom range (Y-m-d, inclusive). */
 	public static function period( $p, $from = '', $to = '' ) {
 		$ts = current_time( 'timestamp' );
@@ -674,6 +699,21 @@ class NURAX_Desk_Accounts {
 		$rows  = self::export_rows( $sheet, $from, $to );
 		if ( class_exists( 'NURAX_Vault' ) && method_exists( 'NURAX_Vault', 'log' ) ) {
 			NURAX_Vault::log( 'Report downloaded', 'Accounts - ' . $sheet . ' (' . strtoupper( $fmt ) . ', ' . $label . ')' );
+		}
+		// 1.100.0: professional Statement of Profit or Loss workbook (IAS 1 layout, comparative period, live formulas, ratios, notes, by product).
+		if ( 'pnl' === $sheet && 'csv' !== $fmt && class_exists( 'NURAX_Xlsx_Statement' ) && class_exists( 'ZipArchive' ) ) {
+			list( $pf, $pt, $plabel ) = self::prior_period( $from, $to );
+			if ( NURAX_Xlsx_Statement::send_pnl( self::pnl( $from, $to ), self::pnl( $pf, $pt ), array(
+				'from'   => $from,
+				'to'     => $to,
+				'label'  => $label,
+				'pfrom'  => $pf,
+				'pto'    => $pt,
+				'plabel' => $plabel,
+				'cats'   => self::categories(),
+			) ) ) {
+				exit;
+			}
 		}
 		if ( 'csv' !== $fmt && class_exists( 'NURAX_Xlsx' ) && NURAX_Xlsx::available() ) {
 			$meta = array( 'period' => 'Period: ' . $label . ' (' . date_i18n( 'j M Y', strtotime( $from ) ) . ' - ' . date_i18n( 'j M Y', strtotime( $to ) ) . ')' );

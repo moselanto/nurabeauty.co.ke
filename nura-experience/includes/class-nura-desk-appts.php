@@ -817,6 +817,8 @@ class NURAX_Desk_Appts {
 		}
 		echo '</datalist><small>Opening slots: ' . esc_html( $s['appt_open'] . ' - ' . $s['appt_close'] ) . '</small></label>';
 		echo '<label class="nd-field"><span class="nd-label">Length (minutes)</span><input type="number" name="duration" min="10" step="5" value="' . esc_attr( $v['duration'] ) . '"></label>';
+		// 1.99.0: picking Free consultation sets Length to 15 min; switching to another service restores the default length.
+		echo '<script>(function(){var f=document.currentScript&&document.currentScript.closest("form");if(!f){return;}var sv=f.querySelector("select[name=service]"),du=f.querySelector("input[name=duration]");if(!sv||!du){return;}var C=' . (int) self::duration_for( 'consultation' ) . ',D=' . (int) self::duration_for( 'other' ) . ';sv.addEventListener("change",function(){if(sv.value==="consultation"){du.value=C;}else if(Number(du.value)===C){du.value=D;}});if(sv.value==="consultation"&&!' . ( isset( $a ) && $a ? 'true' : 'false' ) . '){du.value=C;}})();</script>';
 		echo '<label class="nd-field"><span class="nd-label">Price (KSh, optional)</span><input type="number" name="price" min="0" step="1" value="' . esc_attr( $v['price'] ) . '"></label>';
 		echo '<label class="nd-field"><span class="nd-label">Status</span><select name="status">';
 		foreach ( self::statuses() as $k => $l ) {

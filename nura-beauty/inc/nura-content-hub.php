@@ -647,6 +647,14 @@ function nura_hub_guides() {
 		'how-to-choose-a-wig-for-your-face-shape'      => __( 'Wig for your face shape', 'nura-beauty' ),
 		'how-to-measure-your-head-for-a-wig'           => __( 'Measure your head for a wig', 'nura-beauty' ),
 		'wig-installation-nairobi-what-to-expect'      => __( 'Wig installation in Nairobi', 'nura-beauty' ),
+		// 1.123.0: Sprint 2 comparison guides (needed for footer and collection link lists).
+		'hd-lace-vs-transparent-lace'                  => __( 'HD lace vs transparent lace', 'nura-beauty' ),
+		'closure-sizes-2x2-4x4-5x5-vs-13x4-frontal'    => __( '2x2 vs 4x4 vs 5x5 closure vs 13x4 frontal', 'nura-beauty' ),
+		'body-wave-vs-water-wave-vs-deep-wave'         => __( 'Body wave vs water wave vs deep wave', 'nura-beauty' ),
+		'remy-vs-virgin-vs-non-remy-hair'              => __( 'Remy vs virgin vs non-remy hair', 'nura-beauty' ),
+		'glueless-vs-glued-wig-install'                => __( 'Glueless vs glued wig install', 'nura-beauty' ),
+		'human-hair-vs-fibre-wig-cost-per-wear'        => __( 'Human hair vs fibre: cost per wear', 'nura-beauty' ),
+		'wig-density-130-150-180-explained'            => __( 'Wig density 130% vs 150% vs 180%', 'nura-beauty' ),
 		'how-to-buy-wigs-online-in-kenya-safely'       => __( 'Buying wigs online safely', 'nura-beauty' ),
 		'bridal-wigs-kenya'                            => __( 'Bridal wigs in Kenya', 'nura-beauty' ),
 		'best-wigs-for-beginners-kenya'                => __( 'Best wigs for beginners', 'nura-beauty' ),
@@ -685,9 +693,9 @@ function nura_hub_link_list( $slugs, $title, $class = 'nura-hub-links' ) {
 
 /** Footer: guides + delivery cities + price list, on every page (crawlable links). */
 function nura_hub_footer_links() {
-	$guides = nura_hub_link_list( array( 'best-wigs-in-kenya-buying-guide', 'human-hair-vs-semi-human-vs-fibre-wigs-kenya', 'frontal-vs-closure-wig', 'how-long-does-a-wig-last', 'best-wigs-for-beginners-kenya', 'wig-installation-nairobi-what-to-expect', 'how-to-buy-wigs-online-in-kenya-safely' ), __( 'Wig guides', 'nura-beauty' ), 'nura-foot-links' );
+	$guides = nura_hub_link_list( array( 'best-wigs-in-kenya-buying-guide', 'human-hair-vs-semi-human-vs-fibre-wigs-kenya', 'frontal-vs-closure-wig', 'closure-sizes-2x2-4x4-5x5-vs-13x4-frontal', 'hd-lace-vs-transparent-lace', 'body-wave-vs-water-wave-vs-deep-wave', 'remy-vs-virgin-vs-non-remy-hair', 'glueless-vs-glued-wig-install', 'human-hair-vs-fibre-wig-cost-per-wear', 'wig-density-130-150-180-explained', 'how-long-does-a-wig-last', 'wig-installation-nairobi-what-to-expect', 'how-to-buy-wigs-online-in-kenya-safely' ), __( 'Wig guides', 'nura-beauty' ), 'nura-foot-links' ); // 1.122.0: comparison guides added.
 	$cities = '';
-	foreach ( array( 'wig-installation-nairobi' => __( 'Wig installation Nairobi', 'nura-beauty' ), 'maswali-ya-wigi' => __( 'Maswali ya wigi (Kiswahili)', 'nura-beauty' ), 'find-your-wig' => __( 'Find your wig (AI Stylist)', 'nura-beauty' ), 'wig-questions' => __( 'Wig questions answered', 'nura-beauty' ), 'wig-prices-kenya' => __( 'Wig prices in Kenya', 'nura-beauty' ), 'wigs-mombasa' => __( 'Wigs in Mombasa', 'nura-beauty' ), 'wigs-kisumu' => __( 'Wigs in Kisumu', 'nura-beauty' ), 'wigs-nakuru' => __( 'Wigs in Nakuru', 'nura-beauty' ), 'wigs-eldoret' => __( 'Wigs in Eldoret', 'nura-beauty' ), 'wigs-thika' => __( 'Wigs in Thika', 'nura-beauty' ), 'wigs-kiambu' => __( 'Wigs in Kiambu', 'nura-beauty' ), 'wigs-machakos' => __( 'Wigs in Machakos', 'nura-beauty' ), 'wigs-nyeri' => __( 'Wigs in Nyeri', 'nura-beauty' ), 'wigs-kakamega' => __( 'Wigs in Kakamega', 'nura-beauty' ) ) as $slug => $label ) {
+	foreach ( array( 'wig-encyclopedia' => __( 'Wig encyclopedia (A-Z)', 'nura-beauty' ), 'wig-installation-nairobi' => __( 'Wig installation Nairobi', 'nura-beauty' ), 'maswali-ya-wigi' => __( 'Maswali ya wigi (Kiswahili)', 'nura-beauty' ), 'find-your-wig' => __( 'Find your wig (AI Stylist)', 'nura-beauty' ), 'wig-questions' => __( 'Wig questions answered', 'nura-beauty' ), 'wig-prices-kenya' => __( 'Wig prices in Kenya', 'nura-beauty' ), 'wigs-mombasa' => __( 'Wigs in Mombasa', 'nura-beauty' ), 'wigs-kisumu' => __( 'Wigs in Kisumu', 'nura-beauty' ), 'wigs-nakuru' => __( 'Wigs in Nakuru', 'nura-beauty' ), 'wigs-eldoret' => __( 'Wigs in Eldoret', 'nura-beauty' ), 'wigs-thika' => __( 'Wigs in Thika', 'nura-beauty' ), 'wigs-kiambu' => __( 'Wigs in Kiambu', 'nura-beauty' ), 'wigs-machakos' => __( 'Wigs in Machakos', 'nura-beauty' ), 'wigs-nyeri' => __( 'Wigs in Nyeri', 'nura-beauty' ), 'wigs-kakamega' => __( 'Wigs in Kakamega', 'nura-beauty' ) ) as $slug => $label ) {
 		$u = nura_hub_url( $slug, 'page' );
 		if ( $u ) {
 			$cities .= '<li><a href="' . esc_url( $u ) . '">' . esc_html( $label ) . '</a></li>';

@@ -73,6 +73,7 @@ function nura_geo_llms( $full = false ) {
 		'Warranty'      => nura_geo_page( 'warranty' ),
 		'Track an order' => nura_geo_page( 'track-order' ),
 		'Wig prices in Kenya (live)' => nura_geo_page( 'wig-prices-kenya' ),
+		'Wig encyclopedia (every wig term explained)' => nura_geo_page( 'wig-encyclopedia' ),
 		'Wigs in Mombasa' => nura_geo_page( 'wigs-mombasa' ),
 		'Wigs in Kisumu'  => nura_geo_page( 'wigs-kisumu' ),
 		'Wigs in Nakuru'  => nura_geo_page( 'wigs-nakuru' ),
@@ -99,7 +100,7 @@ function nura_geo_llms( $full = false ) {
 		$o[] = '';
 	}
 
-	$guides = get_posts( array( 'post_type' => 'post', 'post_status' => 'publish', 'numberposts' => 15 ) );
+	$guides = get_posts( array( 'post_type' => 'post', 'post_status' => 'publish', 'numberposts' => 60 ) ); // 1.122.0: every guide, incl. comparison guides.
 	if ( $guides ) {
 		$o[] = '## Guides';
 		foreach ( $guides as $g ) {

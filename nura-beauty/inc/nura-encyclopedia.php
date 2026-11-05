@@ -175,3 +175,92 @@ add_action( 'admin_init', function () {
 	delete_transient( 'nura_llms_full' );
 	do_action( 'litespeed_purge_all' );
 }, 25 );
+
+/**
+ * 1.122.0: "Wig terms explained" box on product pages - links the product's
+ * hair type, lace/construction, texture and colour to the matching
+ * encyclopedia definitions (internal links that help search engines and AI
+ * assistants connect products to plain-language answers).
+ */
+function nura_encyclopedia_product_terms( $p ) {
+	$t = strtolower( $p->get_name() . ' ' . $p->get_attribute( 'pa_hair-type' ) . ' ' . $p->get_attribute( 'pa_texture' ) . ' ' . $p->get_attribute( 'pa_lace' ) . ' ' . $p->get_attribute( 'pa_colour' ) . ' ' . $p->get_attribute( 'pa_color' ) );
+	$map = array(
+		'semi'         => 'semi-human',
+		'blend'        => 'semi-human',
+		'human'        => 'human-hair',
+		'fibre'        => 'fibre',
+		'fiber'        => 'fibre',
+		'synthetic'    => 'fibre',
+		'headband'     => 'headband',
+		'glueless'     => 'glueless',
+		'13x4'         => 'frontal-size',
+		'13×4'         => 'frontal-size',
+		'frontal'      => 'lace-front',
+		'lace front'   => 'lace-front',
+		'closure'      => 'closure',
+		'hd'           => 'hd-lace',
+		'bone straight' => 'straight',
+		'straight'     => 'straight',
+		'yaki'         => 'yaki',
+		'kinky straight' => 'yaki',
+		'body wave'    => 'body-wave',
+		'water'        => 'water-wave',
+		'deep'         => 'deep-wave',
+		'jerry'        => 'jerry-curl',
+		'kinky curl'   => 'kinky-curly',
+		'afro'         => 'kinky-curly',
+		'pixie'        => 'pixie-bob',
+		'bob'          => 'pixie-bob',
+		'1b'           => '1b',
+		'99j'          => '99j',
+		'613'          => '613',
+		'ombre'        => 'ombre',
+	);
+	$names = array();
+	foreach ( nura_encyclopedia_terms() as $x ) {
+		$names[ $x[2] ] = $x[1];
+	}
+	$found = array();
+	foreach ( $map as $needle => $slug ) {
+		if ( false !== strpos( $t, $needle ) && isset( $names[ $slug ] ) && ! isset( $found[ $slug ] ) ) {
+			if ( 'human-hair' === $slug && isset( $found['semi-human'] ) ) {
+				continue;
+			}
+			$found[ $slug ] = $names[ $slug ];
+		}
+		if ( count( $found ) >= 6 ) {
+			break;
+		}
+	}
+	$found['density'] = $names['density'];
+	$found['cap-size'] = $names['cap-size'];
+	return array_slice( $found, 0, 7, true );
+}
+
+add_action( 'woocommerce_after_single_product_summary', function () {
+	global $product;
+	if ( ! $product instanceof WC_Product || ! apply_filters( 'nura_encyclopedia_product_box', true, $product ) ) {
+		return;
+	}
+	if ( function_exists( 'nura_hub_is_wig' ) && ! nura_hub_is_wig( $product ) ) {
+		return;
+	}
+	$page = get_page_by_path( 'wig-encyclopedia' );
+	if ( ! $page || 'publish' !== $page->post_status ) {
+		return;
+	}
+	$base  = get_permalink( $page );
+	$terms = nura_encyclopedia_product_terms( $product );
+	echo '<section class="nura-enc-box" aria-label="' . esc_attr__( 'Wig terms explained', 'nura-beauty' ) . '"><p class="nura-enc-box__t">' . esc_html__( 'Wig terms explained', 'nura-beauty' ) . '</p><ul>';
+	foreach ( $terms as $slug => $name ) {
+		echo '<li><a href="' . esc_url( $base . '#term-' . $slug ) . '">' . esc_html( $name ) . '</a></li>';
+	}
+	echo '</ul><p class="nura-enc-box__m"><a href="' . esc_url( $base ) . '">' . esc_html__( 'Open the full wig encyclopedia', 'nura-beauty' ) . ' &#8594;</a></p></section>';
+}, 12 );
+
+add_action( 'wp_head', function () {
+	if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+		return;
+	}
+	echo '<style id="nura-enc-box-css">.nura-enc-box{clear:both;margin:24px 0;padding:16px 18px;border:1px solid #eadfc6;border-radius:12px;background:#fffdf8}.nura-enc-box__t{margin:0 0 10px;font-weight:700;font-size:.95rem}.nura-enc-box ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0}.nura-enc-box li{margin:0}.nura-enc-box ul a{display:inline-block;padding:6px 12px;border:1px solid #eadfc6;border-radius:999px;font-size:.84rem;text-decoration:none;color:#0e0e0e;background:#fff}.nura-enc-box__m{margin:10px 0 0;font-size:.85rem}.nura-enc-box__m a{color:#8a6d1f}</style>' . "\n";
+}, 30 );

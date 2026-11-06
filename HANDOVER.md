@@ -11,6 +11,7 @@ Last updated: 5 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing 
 
 | Date | Agent | What happened | Pending after this session |
 | --- | --- | --- | --- |
+| 6 Nov 2026 (09:55) | Town assistant (Ray) | Owner asked for a full repo update. HANDOVER section 1 versions set to theme 1.124.1 / plugin 1.102.0; section 2 release rows added for 1.119.0-1.124.1 and plugin 1.100.0-1.102.0; section 6 now opens with 'PENDING FOR THE NEXT AI AGENT'; stale GBP/Imenti lines marked resolved. README versions, release history and docs list updated. | See section 6 pending list. |
 | 6 Nov 2026 (09:45) | Town assistant (Ray) | Owner reports Apple TXT record added. Re-ran Apple Business domain Verify (org 817771916651): still no confirmation; 'Verify your organization' banner and Verify button remain; Send for Review disabled. Location draft intact (Mon-Sat 9:00-19:30, Sun closed). Business License upload ready. Retry scheduled for ~13:00 EAT today to allow DNS propagation. | Owner: upload business registration certificate (NURA CROWN & BEAUTY, BN-MJS7ALRV) in Apple Business > Verify organization > Business License. Ray: retry Verify, then Send for Review. |
 | 6 Nov 2026 (09:40) | Town assistant (Ray) | **Kenyan directories (nothing submitted, nothing paid):** Apex Business Pages - Add Listing goes to paid plans only (KSh 12,000/30 days, 66,000/183 days, 120,000/365 days, excl. VAT). BusinessList.co.ke - new listings need paid membership (KES 1,500 one-time Basic, 6,500/yr Premium, 15,500 Lifetime; charged by Global Business Directory LLC, USA, card/Flutterwave/PayPal); signup needs contact first+last name, username/password, reCAPTCHA. Cylex Kenya - cylex.co.ke, cylex-kenya.com and cylex.africa do not resolve (site appears offline). **Apple Business (org 817771916651):** Verify run for nurabeauty.co.ke - Apple gave no success. Public DNS (dns.google) shows only the SPF TXT record; `apple-domain-verification=27BU8E1oB7xQ2c4c` is NOT live yet (not added, wrong host/zone, or still propagating). Business License method selected, upload ready; location still at Step 5, Send for Review disabled. **Facebook:** owner renamed page; public title now 'NURA Beauty / Nairobi' (verified). | Owner: check the TXT record at the DNS host (host '@' / nurabeauty.co.ke, value exactly as above) and upload the business registration certificate in Apple Business; decide whether to pay for Apex or BusinessList. Ray: re-run Apple Verify once the TXT shows publicly, then Send for Review. Free alternatives to consider: Bing Places, Yelp, Foursquare, Hotfrog Kenya. |
 | 6 Nov 2026 (09:30) | Town assistant (Ray) | **Owner decisions:** (1) opening hours = Mon-Sat 9:00am-7:30pm, Sunday closed (website is correct). Google Business Profile checked in the editor: already Mon-Sat 9:00-19:30, Sun closed, address 'Stanbank House, 2nd Floor, Room 20, between Moi Avenue and Tom Mboya Street, Nairobi CBD' - no edit needed (the 8-20 seen earlier came from a stale Places API copy). (2) AI-visibility check runs on the 1st of each month at 9:00 EAT: recurring Google Calendar event 'NURA AI-visibility check (Ray runs this)' (event id qtb1te32an1afs4l0f3sv5uqa0, RRULE monthly BYMONTHDAY=1) wakes the Ray thread via scheduled action 87cb079a-306a-5563-acb9-785e37b1805b; first run 1 Dec 2026. It asks the 20 questions in docs/AI-VISIBILITY.md on ChatGPT, Gemini, Perplexity and Copilot, logs results there and here, commits. **Apple Business (org 817771916651):** location filled in with confirmed hours, at Step 5 of 5 (organization verification); not yet submitted. Verification options started: DNS TXT `apple-domain-verification=27BU8E1oB7xQ2c4c` on nurabeauty.co.ke (not added yet), or an official document showing NURA CROWN & BEAUTY's name and address (business registration certificate, lease or utility bill). | Owner: add the Apple DNS TXT record at the domain host (or ask the host) and send a photo/PDF of the business registration certificate (or lease/utility bill with the Stanbank address); then Ray verifies and sends the Apple location for review. Still open: Bing Places date of birth; rent-advance first month; Facebook page name/About tidy (needs Facebook login); Kenyan directory listings. |
@@ -111,8 +112,8 @@ Last updated: 5 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing 
 
 | Package | Version | Constant |
 | --- | --- | --- |
-| `nura-beauty/` (parent theme) | **1.110.5** | `Version:` in `style.css`, `NURA_VERSION` in `functions.php` |
-| `nura-experience/` (plugin) | **1.92.0** | header `Version:` and `NURAX_VERSION` in `nura-experience.php` |
+| `nura-beauty/` (parent theme) | **1.124.1** (live 6 Nov 2026) | `Version:` in `style.css`, `NURA_VERSION` in `functions.php` |
+| `nura-experience/` (plugin) | **1.102.0** (live 6 Nov 2026) | header `Version:` and `NURAX_VERSION` in `nura-experience.php` |
 | `nura-beauty-child/` | unchanged | - |
 
 Scope: this repo is NURA Beauty only. The sister site MK Auto Spares (`moselanto/https-mkautospares.co.ke-`, plugin `mk-desk`) was used only as a reference to copy features from. Do not change the MK repo from NURA work.
@@ -121,6 +122,15 @@ Scope: this repo is NURA Beauty only. The sister site MK Auto Spares (`moselanto
 
 | Theme | Plugin | Commit | What changed |
 | --- | --- | --- | --- |
+| 1.124.1 | - | 75694f02 | Schema: guide author (`nura-services.php`) and encyclopedia publisher reference /#organization by @id only - one business entity/name on every page. |
+| 1.124.0 | - | 75694f02 | New `inc/nura-schema-v2.php` (rank_math/json_ld p99): BreadcrumbList on every singular page (product: Home > Shop > category chain > product), linked from WebPage; nested #organization refs reduced to bare @id. Found by structured-data validation of 6 key templates (all other types valid; only warning: products have no ratings yet). |
+| 1.123.0 | - | 20e46755 | Footer 'Wig guides' lists the 7 comparison guides (titles added to `nura_hub_guides()`; `nura_hub_link_list()` only renders slugs in that map). |
+| 1.122.0 | - | 20e46755 | 'Wig terms explained' box on wig product pages linking to /wig-encyclopedia/#term-...; /llms.txt lists encyclopedia + up to 60 guides; footer 'Wig encyclopedia (A-Z)' link. |
+| 1.121.0 | 1.102.0 | 3f92d4bf | Guides: glueless vs glued install, human hair vs fibre cost per wear, density 130/150/180. Plugin: Accounts '-0%' fix (`pctv()`). |
+| - | 1.101.0 | 5e89d44c | NURA Desk Accounts redesigned as a comparative statement (change KES/%, % of revenue, key ratios, cash movements, memorandum, 7 notes). |
+| 1.120.0 | 1.100.0 | 9bc05768 | Completed-order email asks for on-site product reviews first (Google second); follow-up likewise; new IAS 1 Profit or Loss Excel export (`class-nura-xlsx-statement.php`). |
+| 1.119.0 | - | 6a9d2b07 | Wig encyclopedia /wig-encyclopedia/ (44 terms, DefinedTermSet) + 4 comparison guides. |
+| 1.111.0 - 1.118.x | 1.93.0 - 1.99.x | see session log | Price/buying-guide rewrite, Nairobi CBD pay-on-delivery, and later releases - details in the session log rows of 5-6 Nov. |
 | 1.110.5 | - | (this commit) | Homepage 'Shop wigs & beauty' tabs back to 2 rows (8 cards) with 'View all products' for the rest. Cause: the 1.110.1 equal-card rule `li.product{display:flex !important}` overrode the shuffle script's inline display:none on the extra cards. Fix: `li.product[hidden]{display:none !important}`. Lesson: never give li.product a display !important without a [hidden] exception. |
 | 1.110.4 | - | (this commit) | Product cards: prices line up across every row (phone and desktop). Inside the card link the order is now image, 2-line title, price, then the optional 'or KSh x/week' Lipa Mdogo Mdogo line, hair-type tags and colour dots (CSS `order`, in main.css, main.min.css and woocommerce.css). Before, the price used margin-top:auto, so cards with or without the instalment line (e.g. ASTYLSST mousse next to a wig) had prices at different heights. |
 | 1.110.3 | - | (this commit) | Phone chat button: the scroll-stop overlap check (1.110.1/1.110.2) still left it over cards in the live 320px check, so on phones it is now simply hidden on the homepage, shop, product category/tag pages (pages made of product cards); it stays on product, info and other pages. The 'Ask NURA Stylist' question chips on the shop open the same chat. Titles: 2-line clamp confirmed live in 1.110.2. **Open:** prices can sit at slightly different heights in rows that mix cards with and without the instalment/colour-dot lines. |
@@ -247,16 +257,36 @@ All MK Desk features worth porting are now in NURA. Not ported on purpose: MK ve
 
 ## 6. Open items / to verify on the live site
 
+### PENDING FOR THE NEXT AI AGENT (updated 6 Nov 2026, 09:55 EAT) - start here
+
+**Waiting on the owner (do not invent values):**
+1. **Apple Business** (business.apple.com, org NURA CROWN & BEAUTY, ID 817771916651): location drafted (NURA Beauty, Stanbank House 2nd Floor Room 20, +254 714 994 898, Mon-Sat 9:00-19:30, Sun closed, Hair Salon). Owner says DNS TXT `apple-domain-verification=27BU8E1oB7xQ2c4c` was added; Apple Verify has not confirmed yet (retry scheduled ~13:00 EAT 6 Nov). Owner must upload the business registration certificate (Business License method). Then Send for Review.
+2. **Bing Places:** Microsoft account sign-up for lightsofthefeauture@gmail.com started (Kenya); needs owner's real date of birth, then import from Google Business Profile and verify.
+3. **Rent advance** (ledger entry ID 2, KSh 44,000, 1 Nov, M-Pesa, cover_months=2): owner must give the first month covered; then set cover_from and check KSh 22,000 rent per month.
+4. **Buying prices:** 9 items sold in October have no buying price (KSh 15,060 of sales) - October profit overstated until added.
+5. **Paid directories:** Apex Business Pages (from KSh 12,000/30 days) and BusinessList.co.ke (KES 1,500 one-time Basic) need owner's go-ahead and payment; Cylex Kenya is offline. Free options to do next: Yelp, Foursquare, Hotfrog.
+6. **Reviews:** products have no aggregateRating - only real customer reviews fix the one remaining schema warning.
+
+**Scheduled / automatic:**
+- Google Search Console indexing for 7 pending guides (hd-lace-vs-transparent-lace, closure-sizes-2x2-4x4-5x5-vs-13x4-frontal, body-wave-vs-water-wave-vs-deep-wave, remy-vs-virgin-vs-non-remy-hair, glueless-vs-glued-wig-install, human-hair-vs-fibre-wig-cost-per-wear, wig-density-130-150-180-explained) - Ray scheduled action fires ~01:00 EAT Sat 7 Nov (daily quota). Bing URL Submission already done.
+- **Monthly AI-visibility check:** 1st of each month 09:00 EAT, first run 1 Dec 2026 (Google Calendar event id qtb1te32an1afs4l0f3sv5uqa0 + scheduled action 87cb079a-306a-5563-acb9-785e37b1805b). Method, 20 questions and results table: `docs/AI-VISIBILITY.md`.
+
+**Done and verified this round (6 Nov):** theme 1.119.0-1.124.1, plugin 1.100.0-1.102.0 (see section 2); Google Business Profile hours Mon-Sat 9:00-19:30 + full address confirmed; Facebook page renamed 'NURA Beauty'; schema validated on 6 templates.
+
+**Next code/SEO work when owner has no new request:** SEO roadmap R5 (GA4 events, AI-referral tracking); Bing Webmaster Site Scan issues (short meta descriptions/titles, meta-robots check); more comparison guides; short product/guide videos.
+
+### Older open items (kept for history; some are now resolved)
+
 - **Popup self-open / bob LCP: FIXED (3 Nov, plugin 1.82.6 + theme 1.100.0 verified live; bob PageSpeed 92, LCP 3.0 s main photo).**
 - **SEO/AEO/GEO roadmap (2 Nov):** see `docs/SEO-AEO-GEO-ROADMAP.md`. Next code release is R3 (schema decisions, IndexNow, Bing verification field, Service schema with prices, guide freshness/author). Still open from 1.95.0 check: bob page served stale 1.94.0/1.82.5 cache - owner to purge by URL.
 
 - **1.75.0 / 1.80.1 checklist (verified live 1 Nov 21:50 - all pass):** Realtime in GA4 shows a visit within seconds of opening the site without scrolling; `/robots.txt` lists the new filter/feed Disallow lines; `/product/pixie-wig/` and `/index.php/product-category/extensions/` 301; shop filters still work for shoppers; checkout, WhatsApp order and booking unchanged.
-- **Business Profile** still shows old hours, no floor/room and an Imenti House + cash-on-delivery description (checked 1 Nov 21:40).
+- ~~Business Profile old hours/address~~ RESOLVED 6 Nov: GBP shows Mon-Sat 9:00-19:30 and Stanbank House, 2nd Floor, Room 20.
 
 - **Relocation (critical):** shop moved from Imenti House to Stanbank House, 2nd Floor, Room 20, Nairobi CBD. Old address still live across site, schema, `/llms.txt`, checkout and WhatsApp text. Plan and blocking owner decisions: PR #1 docs (release R1).
 
 - 1.79.0 / 1.73.0 checklist: WhatsApp order with delivery shows Till panel and no shop option; pick-up shows "Pay at the shop"; message format; code saved and shown in Desk; checkout hides Cash on delivery for delivery methods and shows "Pay at the shop" only for pick-up (enable WooCommerce Local pickup if wanted). Set NURA Desk > Settings > M-Pesa payment details to `Buy Goods Till 1679269 (NURA Beauty)` so reminders and receipts match. Re-save Customizer announcement if it still mentions cash on delivery.
 
 - Nothing in 1.73.8 to 1.77.1 / 1.71.0 to 1.72.0 was tested on the live site by the agent; owner test checklists: part pay to zero, single receipt e-mail, reused code refused, void restocks + VOID, Bill booking with deposit, WhatsApp receipt on website order (API only).
-- Address (Imenti House, Moi Avenue, Nairobi CBD, 00100) and hours must match the Google Business Profile.
+- Address (Stanbank House, 2nd Floor, Room 20, Moi Avenue, Nairobi CBD, 00100) and hours (Mon-Sat 9:00am-7:30pm, Sun closed) must match the Google Business Profile, Apple Business, Bing Places and directories.
 - Watch error log for "cron event list could not be saved" (DB connection limit); should stop after real cron + Redis.

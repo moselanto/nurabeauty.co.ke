@@ -10,7 +10,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.112.0-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.124.1-0E0E0E?style=for-the-badge)](nura-beauty)
 [![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.94.0-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
@@ -52,15 +52,16 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 | [ARCHITECTURE-ESSENTIALS.md](ARCHITECTURE-ESSENTIALS.md) | One-page summary |
 | [SECURITY-AUDIT.md](SECURITY-AUDIT.md) | Security controls, findings and maintenance checklist |
 | [AGENTS.md](AGENTS.md) | Rules for developers and AI agents |
+| [docs/AI-VISIBILITY.md](docs/AI-VISIBILITY.md) | Monthly AI-assistant visibility check: method, 20 questions, results |
 | [HANDOVER.md](HANDOVER.md) | Current state, recent releases, server settings and open items - read first |
 
 ## Packages
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.112.0 | Parent theme |
+| `nura-beauty/` | 1.124.1 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
-| `nura-experience/` | 1.94.0 | Plugin |
+| `nura-experience/` | 1.102.0 | Plugin |
 
 ## Features
 
@@ -166,6 +167,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.124.1 | 1.102.0 | Schema: breadcrumbs on all pages, one business entity; wig encyclopedia (44 terms) + 7 comparison guides linked from products, footer and llms.txt; on-site review requests; Accounts comparative statement + IAS 1 Excel export |
 | 1.112.0 | 1.94.0 | Pay on delivery within Nairobi CBD only (checkout + WhatsApp pop-up); M-Pesa PIN prompt via Paystack in the WhatsApp pop-up; site-wide payment/delivery wording |
 | 1.111.0 | 1.93.0 | Wigs from KSh 1,800; price tables exclude wig care; buying guide rewritten with checked market prices |
 | 1.73.0 | 1.79.0 | No cash on delivery; WhatsApp orders paid to M-Pesa Till 1679269; professional order message; pay-at-shop for pick-up only |

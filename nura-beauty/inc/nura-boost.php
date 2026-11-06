@@ -110,7 +110,7 @@ function nura_boost_cat_guides() {
 			),
 			'faqs'    => array(
 				array( __( 'Where can I buy wigs in Nairobi?', 'nura-beauty' ), __( 'Order online at nurabeauty.co.ke or on WhatsApp, or visit our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD (walk-ins welcome, appointments available).', 'nura-beauty' ) ),
-				array( __( 'How fast is delivery?', 'nura-beauty' ), __( 'Same day in Nairobi on orders placed before 5pm, and 1 to 3 days to the rest of Kenya.', 'nura-beauty' ) ),
+				array( __( 'How fast is delivery?', 'nura-beauty' ), __( 'Same day in Nairobi on orders placed before 5pm, and same-day dispatch to the rest of Kenya by shuttle or courier.', 'nura-beauty' ) ),
 			),
 			'related' => array( 'human-hair-wigs', 'headband-wigs', 'closure-wigs', 'lace-front-wigs', 'bob-wigs' ),
 		),

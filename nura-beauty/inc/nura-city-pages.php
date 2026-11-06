@@ -30,7 +30,7 @@ function nura_city_list() {
 
 /** Live delivery facts for a county. */
 function nura_city_delivery( $county ) {
-	$out = array( 'fee' => '', 'eta' => __( 'Delivered in 1-3 business days', 'nura-beauty' ), 'free_over' => 0 );
+	$out = array( 'fee' => '', 'eta' => __( 'Dispatched the same day you pay; arrival set by the shuttle or courier', 'nura-beauty' ), 'free_over' => 0 );
 	if ( class_exists( 'NURAX_WA_Order' ) && method_exists( 'NURAX_WA_Order', 'ship_quote' ) ) {
 		$q = NURAX_WA_Order::ship_quote( $county, 0 );
 		if ( ! empty( $q['eta'] ) ) {

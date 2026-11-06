@@ -430,7 +430,7 @@ function nura_hub_price_page() {
 		</section>
 
 		<ul class="npg-facts">
-			<li><strong><?php esc_html_e( 'Same-day Nairobi', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Order before 5pm. 1-3 days countrywide.', 'nura-beauty' ); ?></span></li>
+			<li><strong><?php esc_html_e( 'Same-day Nairobi', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Order before 5pm. Same-day dispatch countrywide.', 'nura-beauty' ); ?></span></li>
 			<li><strong><?php esc_html_e( 'M-Pesa or card', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Paid securely before dispatch.', 'nura-beauty' ); ?></span></li>
 			<li><strong><?php esc_html_e( 'Lipa Mdogo Mdogo', 'nura-beauty' ); ?></strong><span><?php esc_html_e( '50% deposit, balance within 1-2 weeks.', 'nura-beauty' ); ?></span></li>
 			<li><strong><?php esc_html_e( '48-hour returns', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Unworn wigs, at the studio or by courier.', 'nura-beauty' ); ?></span></li>
@@ -519,7 +519,7 @@ function nura_hub_price_faqs( $lo, $hi ) {
 		array( __( 'How much is a wig in Kenya?', 'nura-beauty' ), sprintf( __( 'At NURA, wigs cost from %1$s to %2$s. Fibre wigs are the most affordable, semi-human blends are mid-priced, and 100%% human hair wigs cost the most.', 'nura-beauty' ), nura_hub_ksh( $lo ), nura_hub_ksh( $hi ) ) ),
 		array( __( 'What is the cheapest wig at NURA?', 'nura-beauty' ), __( 'Heat-resistant fibre wigs, especially headband and 4x4 closure styles, are our most affordable options. The list above is sorted from lowest price.', 'nura-beauty' ) ),
 		array( __( 'Can I pay for a wig in instalments?', 'nura-beauty' ), __( 'Yes. With Lipa Mdogo Mdogo you pay a 50% deposit today and the balance within 1 or 2 weeks; the wig is released once fully paid.', 'nura-beauty' ) ),
-		array( __( 'Does the price include delivery?', 'nura-beauty' ), __( 'Delivery is added at checkout: same day in Nairobi before 5pm (rider from KSh 300, free in Nairobi over KSh 10,000) and 1 to 3 days countrywide.', 'nura-beauty' ) ),
+		array( __( 'Does the price include delivery?', 'nura-beauty' ), __( 'Delivery is added at checkout: same day in Nairobi before 5pm (rider from KSh 300, free in Nairobi over KSh 10,000) and same-day dispatch countrywide by shuttle or courier.', 'nura-beauty' ) ),
 	);
 }
 

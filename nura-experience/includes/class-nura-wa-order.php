@@ -289,7 +289,7 @@ class NURAX_WA_Order {
 		if ( in_array( $county, self::nearby_counties(), true ) ) {
 			return __( 'Next-day delivery', 'nura-experience' );
 		}
-		return __( 'Delivered in 1-3 business days', 'nura-experience' );
+		return __( 'Dispatched the same day you pay; arrival set by the shuttle or courier', 'nura-experience' );
 	}
 
 	/** WooCommerce state code for a county name (KE01...KE47). */
@@ -673,7 +673,7 @@ class NURAX_WA_Order {
 						<fieldset class="nwo-f nwo-choice">
 							<legend><?php esc_html_e( 'How do you want to receive it?', 'nura-experience' ); ?></legend>
 							<div class="nwo-cards nwo-cards--2">
-								<label class="nwo-opt"><input type="radio" name="fulfil" value="delivery" checked><span class="nwo-opt__box"><span class="nwo-opt__ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" fill="#fff" stroke="currentColor" stroke-width="1.6"/><circle cx="17" cy="17.5" r="1.7" fill="#fff" stroke="currentColor" stroke-width="1.6"/></svg></span><span class="nwo-opt__txt"><strong><?php esc_html_e( 'Delivery', 'nura-experience' ); ?></strong><small><?php esc_html_e( 'Same day in Nairobi, countrywide 1-3 days', 'nura-experience' ); ?></small></span><span class="nwo-opt__tick" aria-hidden="true"></span></span></label>
+								<label class="nwo-opt"><input type="radio" name="fulfil" value="delivery" checked><span class="nwo-opt__box"><span class="nwo-opt__ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7" cy="17.5" r="1.7" fill="#fff" stroke="currentColor" stroke-width="1.6"/><circle cx="17" cy="17.5" r="1.7" fill="#fff" stroke="currentColor" stroke-width="1.6"/></svg></span><span class="nwo-opt__txt"><strong><?php esc_html_e( 'Delivery', 'nura-experience' ); ?></strong><small><?php esc_html_e( 'Same day in Nairobi, same-day dispatch countrywide', 'nura-experience' ); ?></small></span><span class="nwo-opt__tick" aria-hidden="true"></span></span></label>
 								<label class="nwo-opt"><input type="radio" name="fulfil" value="pickup"><span class="nwo-opt__box"><span class="nwo-opt__ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 10l1.5-5h13L20 10M4 10v10h16V10M4 10h16M10 20v-5h4v5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span><span class="nwo-opt__txt"><strong><?php esc_html_e( 'Pick up', 'nura-experience' ); ?></strong><small><?php esc_html_e( 'Collect at our Nairobi CBD studio', 'nura-experience' ); ?></small></span><span class="nwo-opt__tick" aria-hidden="true"></span></span></label>
 							</div>
 						</fieldset>

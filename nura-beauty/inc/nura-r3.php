@@ -35,7 +35,7 @@ function nura_r3_ship_detail( $rate, $region, $tmin, $tmax, $label ) {
 		'shippingDestination' => $dest,
 		'deliveryTime'        => array(
 			'@type'        => 'ShippingDeliveryTime',
-			'handlingTime' => array( '@type' => 'QuantitativeValue', 'minValue' => 0, 'maxValue' => 1, 'unitCode' => 'DAY' ),
+			'handlingTime' => array( '@type' => 'QuantitativeValue', 'minValue' => 0, 'maxValue' => 0, 'unitCode' => 'DAY' ), // 1.125.0: same-day dispatch once paid.
 			'transitTime'  => array( '@type' => 'QuantitativeValue', 'minValue' => $tmin, 'maxValue' => $tmax, 'unitCode' => 'DAY' ),
 		),
 	);

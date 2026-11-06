@@ -133,7 +133,7 @@ class NURAX_Desk_Catalogue {
 		$why[] = '<strong>Comfortable all day</strong> - adjustable straps and combs for a secure, light fit.';
 
 		$p   = $price ? 'KSh ' . number_format( (float) $price ) : '';
-		$h   = '<p class="nura-answer"><strong>In short:</strong> ' . esc_html( $title ) . ' - a ' . esc_html( $kind . ' ' . $cap ) . ( $p ? ' at ' . esc_html( $p ) : '' ) . ( $cols ? ', available in ' . esc_html( implode( ', ', $cols ) ) : '' ) . '. Same-day delivery in Nairobi for orders before 5 PM, countrywide delivery in 1-3 days, pay by M-Pesa or card.</p>';
+		$h   = '<p class="nura-answer"><strong>In short:</strong> ' . esc_html( $title ) . ' - a ' . esc_html( $kind . ' ' . $cap ) . ( $p ? ' at ' . esc_html( $p ) : '' ) . ( $cols ? ', available in ' . esc_html( implode( ', ', $cols ) ) : '' ) . '. Same-day delivery in Nairobi for orders before 5 PM, same-day dispatch countrywide, pay by M-Pesa or card.</p>';
 		$h  .= '<h2>About the ' . esc_html( $title ) . '</h2>';
 		$h  .= '<p>' . esc_html( $text ? rtrim( $text, '.' ) . '.' : 'A ' . $kind . ' ' . $cap . ' from NURA Beauty, chosen for a natural look and easy everyday wear.' ) . '</p>';
 		$h  .= '<h2>Why you will love it</h2><ul><li>' . implode( '</li><li>', $why ) . '</li></ul>';
@@ -150,7 +150,7 @@ class NURAX_Desk_Catalogue {
 			. ( $p ? '<li>Price: <strong>' . esc_html( $p ) . '</strong>.</li>' : '' )
 			. '<li>Pay securely by M-Pesa or card at checkout, or order on WhatsApp and pay to our M-Pesa Buy Goods Till 1679269.</li>'
 			. ( $price && $price >= 7000 ? '<li>Lipa Mdogo Mdogo: reserve it with a 50% deposit and clear the balance within 2 weeks, no interest.</li>' : '' )
-			. '<li>Nairobi: same-day rider delivery for orders before 5 PM (from KSh 300). Countrywide: bus/shuttle parcel or courier in 1-3 days.</li>'
+			. '<li>Nairobi: same-day rider delivery for orders before 5 PM (from KSh 300). Countrywide: bus/shuttle parcel or courier, dispatched the same day.</li>'
 			. '<li>Prefer to see it first? Visit our studio at Stanbank House, 2nd Floor, Room 20, Moi Avenue, Nairobi CBD.</li></ul>';
 		$h .= '<h2>Need help choosing?</h2><p>Chat with a NURA stylist on WhatsApp (+254 714 994 898) or try the <a href="/ai-wig-finder/">Wig Finder</a>. We also install, style and revamp wigs at the studio.</p>';
 		$short = esc_html( $text ? rtrim( $text, '.' ) . '.' : ucfirst( $kind . ' ' . $cap ) . '.' ) . ( $cols ? ' <strong>Colours:</strong> ' . esc_html( implode( ', ', $cols ) ) . '.' : '' );
@@ -169,7 +169,7 @@ class NURAX_Desk_Catalogue {
 		$seo_t = $t . ' Kenya | ' . ucwords( $kind === 'premium heat-resistant fibre' ? 'Heat-Resistant Fibre' : ( 0 === strpos( $kind, '100%' ) ? '100% Human Hair' : 'Semi-Human' ) ) . ' ' . ucwords( $cap ) . ( $price ? ' | KSh ' . number_format( $price ) : '' ) . ' | NURA Beauty';
 		$cols  = array_values( array_filter( (array) $it['colours'] ) );
 		$cols  = $cols ? $cols : self::product_colours( $product );
-		$desc  = 'Buy the ' . $title . ', a ' . $kind . ' ' . $cap . ( $price ? ', KSh ' . number_format( $price ) : '' ) . ( $cols ? ', in ' . implode( ', ', array_slice( $cols, 0, 4 ) ) : '' ) . '. Same-day Nairobi delivery, countrywide 1-3 days, M-Pesa. NURA Beauty, Nairobi CBD.';
+		$desc  = 'Buy the ' . $title . ', a ' . $kind . ' ' . $cap . ( $price ? ', KSh ' . number_format( $price ) : '' ) . ( $cols ? ', in ' . implode( ', ', array_slice( $cols, 0, 4 ) ) : '' ) . '. Same-day Nairobi delivery, same-day dispatch countrywide, M-Pesa. NURA Beauty, Nairobi CBD.';
 		$product->update_meta_data( 'rank_math_title', mb_substr( $seo_t, 0, 120 ) );
 		$product->update_meta_data( 'rank_math_description', mb_substr( $desc, 0, 160 ) );
 		$product->update_meta_data( 'rank_math_focus_keyword', strtolower( trim( preg_replace( '/[()]/', '', $title ) ) ) . ( self::has( $title, '/wig/' ) ? '' : ' wig' ) . ' kenya' );

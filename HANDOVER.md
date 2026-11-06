@@ -11,6 +11,7 @@ Last updated: 5 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing 
 
 | Date | Agent | What happened | Pending after this session |
 | --- | --- | --- | --- |
+| 6 Nov 2026 (23:55) | Town assistant (Ray) | Owner: trade as NURA Beauty (registered NURA CROWN & BEAUTY) everywhere; delivery is same-day dispatch, not 1-3 days. Checked code: name already consistent (name NURA Beauty, legalName NURA CROWN & BEAUTY). Released theme 1.125.0/1.125.1 + plugin 1.103.0/1.103.1 (see section 2); installed, migration run, purged; verified live on home, /shipping-delivery/, /faq/, /product/black-jerry-curl-wig/ - no '1-3 days' left. Bing URL Submission: /, /shipping-delivery/, /faq/, /about-us/, /contact-us/, /wig-shop-nairobi-cbd/, /llms.txt (93 left). Google indexing for /, /shipping-delivery/, /faq/ + 7 guides folded into scheduled action 9e80c584 (~01:05 EAT 7 Nov). Apple: certificate received (address Imenti House - mismatch); sign-in failed (2FA), nothing uploaded. | Owner: Apple sign-in on trusted device; Stanbank proof-of-address (BRS update, lease or utility bill); Google Business Profile description - check it says same-day dispatch, not 1-3 days. |
 | 6 Nov 2026 (13:20) | Town assistant (Ray) | Scheduled Apple Business retry: first attempt timed out; second attempt blocked at Apple sign-in - "Verification codes can't be sent to this phone number at this time. Please try again later" (2FA phone ending 98). Domain Verify NOT re-run, location NOT sent for review. Nothing changed in Apple Business. | Owner: wait a few hours (Apple rate limit) or sign in once yourself on a trusted Apple device, then tell Ray to retry; also upload the business registration certificate (Business License). Ray: on owner's go-ahead, continue Browser Driver session j572njaajjr2wm72hf0m7b16dh8hny68 - Verify domain, then Send for Review. |
 | 6 Nov 2026 (09:55) | Town assistant (Ray) | Owner asked for a full repo update. HANDOVER section 1 versions set to theme 1.124.1 / plugin 1.102.0; section 2 release rows added for 1.119.0-1.124.1 and plugin 1.100.0-1.102.0; section 6 now opens with 'PENDING FOR THE NEXT AI AGENT'; stale GBP/Imenti lines marked resolved. README versions, release history and docs list updated. | See section 6 pending list. |
 | 6 Nov 2026 (09:45) | Town assistant (Ray) | Owner reports Apple TXT record added. Re-ran Apple Business domain Verify (org 817771916651): still no confirmation; 'Verify your organization' banner and Verify button remain; Send for Review disabled. Location draft intact (Mon-Sat 9:00-19:30, Sun closed). Business License upload ready. Retry scheduled for ~13:00 EAT today to allow DNS propagation. | Owner: upload business registration certificate (NURA CROWN & BEAUTY, BN-MJS7ALRV) in Apple Business > Verify organization > Business License. Ray: retry Verify, then Send for Review. |
@@ -113,8 +114,8 @@ Last updated: 5 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing 
 
 | Package | Version | Constant |
 | --- | --- | --- |
-| `nura-beauty/` (parent theme) | **1.124.1** (live 6 Nov 2026) | `Version:` in `style.css`, `NURA_VERSION` in `functions.php` |
-| `nura-experience/` (plugin) | **1.102.0** (live 6 Nov 2026) | header `Version:` and `NURAX_VERSION` in `nura-experience.php` |
+| `nura-beauty/` (parent theme) | **1.125.1** (live 6 Nov 2026) | `Version:` in `style.css`, `NURA_VERSION` in `functions.php` |
+| `nura-experience/` (plugin) | **1.103.1** (live 6 Nov 2026) | header `Version:` and `NURAX_VERSION` in `nura-experience.php` |
 | `nura-beauty-child/` | unchanged | - |
 
 Scope: this repo is NURA Beauty only. The sister site MK Auto Spares (`moselanto/https-mkautospares.co.ke-`, plugin `mk-desk`) was used only as a reference to copy features from. Do not change the MK repo from NURA work.
@@ -123,6 +124,8 @@ Scope: this repo is NURA Beauty only. The sister site MK Auto Spares (`moselanto
 
 | Theme | Plugin | Commit | What changed |
 | --- | --- | --- | --- |
+| 1.125.1 | 1.103.1 | (this commit) | Shipping page: 'usually 1 to 2 working days' and 'packed within 1 working day' replaced with same-day dispatch wording; FAQ 'and and' typo fixed. Migration version 1.125.1. |
+| 1.125.0 | 1.103.0 | (this commit) | **Owner (6 Nov): delivery = same-day dispatch once paid; the shuttle/courier sets arrival time.** Every '1-3 days' / '1 to 3 (business/working) days' phrase in theme + plugin code (homepage, PDP countdown, FAQ, guides, llms.txt, schema FAQ, WhatsApp order, Desk catalogue/social, city pages) now says same-day delivery in Nairobi before 5pm + same-day dispatch countrywide by shuttle or courier. `nura-facts.php` (theme + plugin) adds these phrases to the stored-content replacement map, the runtime the_content/gettext filter and the one-time DB migration (version 1.125.0). Product schema handlingTime 0-0 days (`nura-seo.php`, `nura-r3.php`). |
 | 1.124.1 | - | 75694f02 | Schema: guide author (`nura-services.php`) and encyclopedia publisher reference /#organization by @id only - one business entity/name on every page. |
 | 1.124.0 | - | 75694f02 | New `inc/nura-schema-v2.php` (rank_math/json_ld p99): BreadcrumbList on every singular page (product: Home > Shop > category chain > product), linked from WebPage; nested #organization refs reduced to bare @id. Found by structured-data validation of 6 key templates (all other types valid; only warning: products have no ratings yet). |
 | 1.123.0 | - | 20e46755 | Footer 'Wig guides' lists the 7 comparison guides (titles added to `nura_hub_guides()`; `nura_hub_link_list()` only renders slugs in that map). |
@@ -259,6 +262,8 @@ All MK Desk features worth porting are now in NURA. Not ported on purpose: MK ve
 ## 6. Open items / to verify on the live site
 
 ### PENDING FOR THE NEXT AI AGENT (updated 6 Nov 2026, 09:55 EAT) - start here
+
+**Newest (6 Nov 23:55):** delivery wording is now 'same-day dispatch countrywide' everywhere (owner rule: never promise 1-3 days or same-day arrival outside Nairobi - the shuttle/courier controls arrival). Name rule: trade name **NURA Beauty** everywhere customers see it; legal/registered name **NURA CROWN & BEAUTY (BN-MJS7ALRV)** only where a legal name is needed (schema legalName, Terms, About, Apple org). Code already follows this. **Apple:** owner sent the BN certificate (repo-private, not committed), but it shows the OLD registered address **Imenti House**, not Stanbank House - Apple may reject it; owner should update the address with BRS (eCitizen) or use a lease/utility bill for Stanbank. Apple sign-in failed twice (SMS 2FA rate limit / code rejected) - owner must sign in once on a trusted device, then Ray uploads the document, re-runs Verify and sends the location for review.
 
 **Waiting on the owner (do not invent values):**
 1. **Apple Business** (business.apple.com, org NURA CROWN & BEAUTY, ID 817771916651): location drafted (NURA Beauty, Stanbank House 2nd Floor Room 20, +254 714 994 898, Mon-Sat 9:00-19:30, Sun closed, Hair Salon). Owner says DNS TXT `apple-domain-verification=27BU8E1oB7xQ2c4c` was added; Apple Verify has not confirmed yet (retry scheduled ~13:00 EAT 6 Nov). Owner must upload the business registration certificate (Business License method). Then Send for Review.

@@ -210,7 +210,7 @@ class NURAX_Product_Page {
 			/* translators: %s: free delivery minimum, e.g. KSh 10,000 */
 			echo '<li>' . sprintf( esc_html__( 'Free delivery on orders over %s.', 'nura-experience' ), wp_strip_all_tags( wc_price( $free, array( 'decimals' => 0 ) ) ) ) . '</li>';
 		}
-		echo '<li>' . esc_html__( 'Countrywide delivery in 1-3 business days.', 'nura-experience' ) . '</li>';
+		echo '<li>' . esc_html__( 'Same-day dispatch countrywide; the shuttle or courier sets the arrival time.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'International shipping available on request.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'Pay with M-Pesa or card at checkout, or by M-Pesa Till 1679269 when you order on WhatsApp. Pay on delivery within Nairobi CBD only; pay at the shop when you collect.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'Unworn units in original condition may be returned within 48 hours of delivery; worn, cut or installed units cannot be returned for hygiene reasons.', 'nura-experience' ) . '</li>';

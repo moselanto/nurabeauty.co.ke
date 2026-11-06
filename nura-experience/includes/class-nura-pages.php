@@ -79,13 +79,13 @@ HTML;
 <h3>Delivery options and times</h3>
 <ul>
 <li><strong>Nairobi - rider delivery:</strong> same day for orders confirmed before 5:00pm (Monday to Saturday), otherwise the next working day. Fees start from KSh 300 depending on your area.</li>
-<li><strong>Outside Nairobi - bus &amp; shuttle parcel:</strong> usually 1 to 2 working days to your town's stage or office (for example Mombasa, Kisumu, Nakuru, Eldoret, Nyeri, Embu). You collect with your ID and the parcel code we send you. The fee is the shuttle or bus company's sending charge from its Nairobi CBD office; if your shuttle or bus leaves from outside the CBD (for example Eastleigh), a rider fee to take the parcel there is added to the sending cost.</li>
-<li><strong>Outside Nairobi - courier (Fargo / G4S):</strong> 1 to 3 working days to the courier branch nearest you, or to your door where the courier offers it. The fee depends on your location and the courier you choose (G4S, Wells Fargo or another available courier); we confirm it before you pay.</li>
+<li><strong>Outside Nairobi - bus &amp; shuttle parcel:</strong> dispatched the same day you pay to your town's stage or office; the shuttle sets the arrival time (for example Mombasa, Kisumu, Nakuru, Eldoret, Nyeri, Embu). You collect with your ID and the parcel code we send you. The fee is the shuttle or bus company's sending charge from its Nairobi CBD office; if your shuttle or bus leaves from outside the CBD (for example Eastleigh), a rider fee to take the parcel there is added to the sending cost.</li>
+<li><strong>Outside Nairobi - courier (Fargo / G4S):</strong> dispatched the same day you pay to the courier branch nearest you (the courier sets the arrival time), or to your door where the courier offers it. The fee depends on your location and the courier you choose (G4S, Wells Fargo or another available courier); we confirm it before you pay.</li>
 <li><strong>Free pick-up:</strong> collect from our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD, Monday to Saturday.</li>
 </ul>
 <p>The exact fee for your location is shown at checkout (and in our WhatsApp order form) before you pay. Free delivery applies to qualifying orders where shown at checkout.</p>
 <h3>Processing</h3>
-<p>Orders are packed within 1 working day of payment confirmation. We send your rider details, parcel code or courier tracking number by WhatsApp or SMS as soon as your order is dispatched. Orders placed on Sundays and public holidays are dispatched the next working day.</p>
+<p>Orders are packed and dispatched the same day payment is confirmed (Monday to Saturday). We send your rider details, parcel code or courier tracking number by WhatsApp or SMS as soon as your order is dispatched. Orders placed on Sundays and public holidays are dispatched the next working day.</p>
 <h3>Paying for delivery orders</h3>
 <ul>
 <li><strong>Nairobi:</strong> pay online (M-Pesa or card), by bank transfer, or to our M-Pesa Buy Goods Till 1679269 before dispatch. Within Nairobi CBD you can pay on delivery (cash or M-Pesa).</li>
@@ -279,7 +279,7 @@ HTML;
 <h3>How do I pay?</h3>
 <p>M-Pesa and Visa/Mastercard (both via Paystack), M-Pesa Buy Goods Till 1679269, and bank transfer. Delivered orders are paid before dispatch, except Nairobi CBD deliveries (pay on delivery, cash or M-Pesa); pay at the shop when you collect. See <a href="/payment-information/">Payment Information</a>.</p>
 <h3>How fast is delivery?</h3>
-<p>Same-day within Nairobi (order before 5:00pm), 1 to 3 business days countrywide, and and shipping abroad on request. See <a href="/shipping-delivery/">Shipping &amp; Delivery</a>.</p>
+<p>Same-day within Nairobi (order before 5:00pm), same-day dispatch countrywide (arrival time set by the shuttle or courier), and shipping abroad on request. See <a href="/shipping-delivery/">Shipping &amp; Delivery</a>.</p>
 <h3>Can I return or exchange a wig?</h3>
 <p>Unworn, unaltered units can be returned within 48 hours of delivery. Worn, cut or installed units cannot be returned for hygiene reasons. See <a href="/returns-refunds/">Refund &amp; Returns</a>.</p>
 <h3>Can I pay in instalments?</h3>

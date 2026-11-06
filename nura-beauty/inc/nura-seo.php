@@ -48,7 +48,7 @@ function nura_home_faqs() {
 		),
 		array(
 			__( 'Do you deliver wigs countrywide in Kenya?', 'nura-beauty' ),
-			__( 'Yes. We deliver the same day in Nairobi on orders placed before 5pm, and to Mombasa, Kisumu, Nakuru, Eldoret and the rest of Kenya in 1 to 3 days.', 'nura-beauty' ),
+			__( 'Yes. We deliver the same day in Nairobi on orders placed before 5pm, and to Mombasa, Kisumu, Nakuru, Eldoret and the rest of Kenya by shuttle or courier, dispatched the same day you pay.', 'nura-beauty' ),
 		),
 		array(
 			__( 'What is the difference between human hair, semi-human and synthetic wigs?', 'nura-beauty' ),
@@ -90,7 +90,7 @@ function nura_home_seo_section() {
 						nura_seo_cat_link( 'curly-wigs', __( 'curly wigs', 'nura-beauty' ) ) // phpcs:ignore WordPress.Security.EscapeOutput
 					);
 				?></p>
-				<p><?php esc_html_e( 'Every wig is quality-checked and clearly labelled as human hair, human-hair blend (semi-human) or heat-resistant fibre, so you know exactly what you are paying for. Prices are in Kenya Shillings, with same-day delivery in Nairobi before 5pm, countrywide delivery in 1-3 days, and secure payment by M-Pesa or card.', 'nura-beauty' ); ?></p>
+				<p><?php esc_html_e( 'Every wig is quality-checked and clearly labelled as human hair, human-hair blend (semi-human) or heat-resistant fibre, so you know exactly what you are paying for. Prices are in Kenya Shillings, with same-day delivery in Nairobi before 5pm, same-day dispatch countrywide, and secure payment by M-Pesa or card.', 'nura-beauty' ); ?></p>
 				<ul class="nura-seo-home__facts"><li><strong><?php echo esc_html( ( function_exists( 'nura_wigs_from_text' ) ? nura_wigs_from_text() : 'KSh ' . number_format( (float) ( function_exists( 'nura_fact' ) ? nura_fact( 'wigs_from', 1800 ) : 1800 ) ) ) . '+' ); ?></strong><span><?php esc_html_e( 'Wigs from', 'nura-beauty' ); ?></span></li><li><strong><?php esc_html_e( 'Same day', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Nairobi delivery', 'nura-beauty' ); ?></span></li><li><strong>48 <?php esc_html_e( 'hours', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Easy returns', 'nura-beauty' ); ?></span></li></ul>
 			</div>
 			<div class="nura-faq nura-seo-home__faq">
@@ -132,7 +132,7 @@ function nura_seo_enrich_offer( $offer ) {
 		'shippingDestination' => array( '@type' => 'DefinedRegion', 'addressCountry' => 'KE' ),
 		'deliveryTime'        => array(
 			'@type'        => 'ShippingDeliveryTime',
-			'handlingTime' => array( '@type' => 'QuantitativeValue', 'minValue' => 0, 'maxValue' => 1, 'unitCode' => 'DAY' ),
+			'handlingTime' => array( '@type' => 'QuantitativeValue', 'minValue' => 0, 'maxValue' => 0, 'unitCode' => 'DAY' ), // 1.125.0: same-day dispatch once paid.
 			'transitTime'  => array( '@type' => 'QuantitativeValue', 'minValue' => 0, 'maxValue' => 3, 'unitCode' => 'DAY' ),
 		),
 	);

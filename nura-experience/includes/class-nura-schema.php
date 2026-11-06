@@ -165,7 +165,7 @@ class NURAX_Schema {
 			),
 			array(
 				'How fast is delivery?',
-				'Same-day within Nairobi on orders before 5:00pm, 1 to 3 business days countrywide, and 3 to 10 business days internationally with tracking.',
+				'Same-day within Nairobi on orders before 5:00pm, same-day dispatch countrywide (arrival time set by the shuttle or courier), and 3 to 10 business days internationally with tracking.',
 			),
 			array(
 				'Can I return or exchange a wig?',

@@ -43,7 +43,7 @@ add_action( 'woocommerce_single_product_summary', function () {
 	}
 	$h = nura_pdp_cutoff_hour();
 	$t = ( $h > 12 ? ( $h - 12 ) . ' PM' : $h . ' AM' );
-	echo '<div class="nura-eta" data-nura-eta="' . (int) $h . '"><span class="nura-eta__dot" aria-hidden="true"></span><span class="nura-eta__t">' . esc_html( sprintf( 'Same-day delivery in Nairobi when you order before %s (Mon-Sat). Countrywide in 1-3 days.', $t ) ) . '</span></div>';
+	echo '<div class="nura-eta" data-nura-eta="' . (int) $h . '"><span class="nura-eta__dot" aria-hidden="true"></span><span class="nura-eta__t">' . esc_html( sprintf( 'Same-day delivery in Nairobi when you order before %s (Mon-Sat). Same-day dispatch countrywide.', $t ) ) . '</span></div>';
 }, 11 );
 
 /* 2. Payment row under the add-to-bag button. */
@@ -97,8 +97,8 @@ add_action( 'wp_footer', function () {
 	?>
 <script id="nura-eta-js">(function(){var els=document.querySelectorAll('[data-nura-eta]');if(!els.length)return;
 function txt(h){var n=new Date(),e=new Date(n.getTime()+(n.getTimezoneOffset()+180)*60000),d=e.getDay(),m=e.getHours()*60+e.getMinutes(),c=h*60;
-if(d!==0&&m<c){var l=c-m,hh=Math.floor(l/60),mm=l%60;return 'Order within '+(hh?hh+' h ':'')+mm+' min for <b>same-day delivery in Nairobi</b>. Countrywide in 1-3 days.';}
-var nd=(d===6||d===0)?'on Monday':'tomorrow';if(d===5&&m>=c)nd='on Saturday';return 'Order now - delivered in Nairobi <b>'+nd+'</b>. Countrywide in 1-3 days.';}
+if(d!==0&&m<c){var l=c-m,hh=Math.floor(l/60),mm=l%60;return 'Order within '+(hh?hh+' h ':'')+mm+' min for <b>same-day delivery in Nairobi</b>. Same-day dispatch countrywide.';}
+var nd=(d===6||d===0)?'on Monday':'tomorrow';if(d===5&&m>=c)nd='on Saturday';return 'Order now - delivered in Nairobi <b>'+nd+'</b>. Same-day dispatch countrywide.';}
 function run(){els.forEach(function(el){var t=el.querySelector('.nura-eta__t');if(t)t.innerHTML=txt(parseInt(el.getAttribute('data-nura-eta'),10)||17);});
 var s=document.querySelector('.nura-sticky-atc__info');if(s&&els[0]){var x=s.querySelector('.nura-sticky-atc__eta');if(!x){x=document.createElement('span');x.className='nura-sticky-atc__eta';s.appendChild(x);}x.innerHTML=txt(parseInt(els[0].getAttribute('data-nura-eta'),10)||17).replace(/ Countrywide.*$/,'');}}
 run();setInterval(run,60000);})();</script>

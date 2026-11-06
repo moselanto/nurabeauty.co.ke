@@ -841,12 +841,12 @@ return array(
 				),
 				array(
 					'Do you deliver to Mombasa?',
-					'Yes, by courier in 1 to 3 business days. Countrywide delivery is {delivery_ke}, and the exact fee shows at checkout.',
+					'Yes, by shuttle or courier, dispatched the same day you pay (the courier sets the arrival time). Countrywide delivery is {delivery_ke}, and the exact fee shows at checkout.',
 					array(),
 				),
 				array(
 					'Do you deliver to Kisumu?',
-					'Yes, by courier in 1 to 3 business days. Countrywide delivery is {delivery_ke}, and the exact fee shows at checkout.',
+					'Yes, by shuttle or courier, dispatched the same day you pay (the courier sets the arrival time). Countrywide delivery is {delivery_ke}, and the exact fee shows at checkout.',
 					array(),
 				),
 				array(
@@ -891,7 +891,7 @@ return array(
 				),
 				array(
 					'Do you offer countrywide delivery?',
-					'Yes, to all 47 counties: same day in Nairobi for orders before {cutoff}, and 1 to 3 business days elsewhere by courier.',
+					'Yes, to all 47 counties: same day in Nairobi for orders before {cutoff}, and same-day dispatch everywhere else by shuttle or courier.',
 					array(),
 				),
 			),

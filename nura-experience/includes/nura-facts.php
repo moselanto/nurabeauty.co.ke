@@ -219,17 +219,38 @@ if ( ! function_exists( 'nura_facts' ) ) {
 			'KSh 1,500 to KSh 17,300'                      => $wf . ' to KSh 17,300',
 			'KSh 1,500 - KSh 17,300'                       => $wf . ' - KSh 17,300',
 			'KSh 1,500+'                                   => $wf . '+',
+			'usually 1 to 2 working days to your town&#8217;s stage or office' => 'dispatched the same day you pay to your town&#8217;s stage or office; the shuttle sets the arrival time',
+			"usually 1 to 2 working days to your town's stage or office" => "dispatched the same day you pay to your town's stage or office; the shuttle sets the arrival time",
+			'usually 1 to 2 working days'                  => 'dispatched the same day you pay',
+			'Orders are packed within 1 working day of payment confirmation.' => 'Orders are packed and dispatched the same day payment is confirmed (Monday to Saturday).',
+			'and and shipping abroad'                      => 'and shipping abroad',
+			// 1.125.0 (owner, 6 Nov): paid orders are dispatched the same day; the shuttle or courier sets the arrival time.
+			'Countrywide in 1-3 days.'                     => 'Same-day dispatch countrywide.',
+			'countrywide in 1-3 days'                      => 'same-day dispatch countrywide',
+			'Kenya-wide in 1-3 days'                       => 'Same-day dispatch Kenya-wide',
+			'1-3 days countrywide'                         => 'same-day dispatch countrywide',
+			'1 to 3 days countrywide'                      => 'same-day dispatch countrywide',
+			'countrywide delivery in 1-3 days'             => 'same-day dispatch countrywide',
+			'1 to 3 business days countrywide'             => 'same-day dispatch countrywide (the shuttle or courier sets the arrival time)',
+			'1-3 business days countrywide'                => 'same-day dispatch countrywide (the shuttle or courier sets the arrival time)',
+			'in 1 to 3 business days'                      => 'with same-day dispatch (the courier sets the arrival time)',
+			'in 1-3 business days'                         => 'with same-day dispatch (the courier sets the arrival time)',
+			'1 to 3 working days'                          => 'same-day dispatch (the courier sets the arrival time)',
+			'in 1 to 3 days'                               => 'with same-day dispatch by shuttle or courier',
+			'in 1-3 days'                                  => 'with same-day dispatch by shuttle or courier',
+			'1 to 3 days'                                  => 'same-day dispatch',
+			'1-3 days'                                     => 'same-day dispatch',
 		);
 	}
 
 	add_action( 'admin_init', function () {
-		$ver = '1.80.0';
+		$ver = '1.125.1';
 		if ( get_option( 'nura_facts_migrated' ) === $ver || ! current_user_can( 'manage_options' ) || ! apply_filters( 'nura_facts_migrate', true ) ) {
 			return;
 		}
 		global $wpdb;
 		$map  = nura_facts_replacements();
-		$like = array( '%Imenti%', '%7 days of delivery%', '%<strong>7 days</strong>%', '%8:00am to 8:00pm%', '%8am to 8pm%', '%8:00–20:00%', '%2:00 PM%', '%cash on delivery in Nairobi%', '%card or cash on delivery%', '%7-day returns%' );
+		$like = array( '%Imenti%', '%7 days of delivery%', '%<strong>7 days</strong>%', '%8:00am to 8:00pm%', '%8am to 8pm%', '%8:00–20:00%', '%2:00 PM%', '%cash on delivery in Nairobi%', '%card or cash on delivery%', '%7-day returns%', '%1-3 days%', '%1 to 3 days%', '%1 to 3 business days%', '%1-3 business days%', '%1 to 3 working days%', '%1 to 2 working days%', '%within 1 working day%', '%and and shipping%' );
 		$where = implode( ' OR ', array_fill( 0, count( $like ), 'post_content LIKE %s' ) );
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders only.
 		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_status IN ('publish','private','draft','future') AND post_type IN ('page','post','product','nura_guide','nura_journal') AND ( {$where} ) LIMIT 500", $like ) );

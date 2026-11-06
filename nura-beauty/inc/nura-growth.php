@@ -138,7 +138,7 @@ add_action( 'woocommerce_single_product_summary', function () {
 	echo '<div class="nura-promise">';
 	echo '<p class="nura-promise__line nura-promise__line--delivery" data-nura-cutoff="17">';
 	echo '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/></svg>';
-	echo '<span class="nura-promise__text">' . esc_html__( 'Same-day delivery in Nairobi on orders before 5pm. Countrywide in 1-3 days.', 'nura-beauty' ) . '</span></p>';
+	echo '<span class="nura-promise__text">' . esc_html__( 'Same-day delivery in Nairobi on orders before 5pm. Same-day dispatch countrywide.', 'nura-beauty' ) . '</span></p>';
 	if ( $product->managing_stock() ) {
 		$qty = (int) $product->get_stock_quantity();
 		if ( $qty > 0 && $qty <= 3 ) {
@@ -191,7 +191,7 @@ add_action( 'wp_enqueue_scripts', function () {
 	wp_enqueue_script( 'nura-menu', NURA_URI . 'assets/js/nura-menu.js', array(), NURA_VERSION, true );
 	wp_localize_script( 'nura-growth', 'nuraGrowth', array(
 		'sameDay'  => __( 'Order within %s for same-day delivery in Nairobi.', 'nura-beauty' ),
-		'nextDay'  => __( 'Order now for next-day delivery in Nairobi. Countrywide in 1-3 days.', 'nura-beauty' ),
+		'nextDay'  => __( 'Order now for next-day delivery in Nairobi. Same-day dispatch countrywide once paid.', 'nura-beauty' ),
 		'hours'    => __( '%1$dh %2$dm', 'nura-beauty' ),
 		'minutes'  => __( '%dm', 'nura-beauty' ),
 		'viewItem' => __( 'View', 'nura-beauty' ),

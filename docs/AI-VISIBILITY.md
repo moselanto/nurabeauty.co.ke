@@ -1,5 +1,7 @@
 # NURA Beauty - monthly AI-visibility check
 
+Schedule: 1st of each month, 9:00 EAT (calendar event + Ray scheduled action; first run 1 Dec 2026).
+
 Purpose: track whether AI assistants recommend NURA Beauty (nurabeauty.co.ke) when people ask about wigs in Nairobi and Kenya.
 
 ## Method (keep identical every month)

@@ -99,7 +99,7 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 		if ( ! is_array( $node ) || empty( $node['@type'] ) || ! array_intersect( (array) $node['@type'], array( 'Article', 'BlogPosting', 'NewsArticle' ) ) ) {
 			continue;
 		}
-		$node['author']       = array( '@type' => 'Organization', '@id' => home_url( '/' ) . '#organization', 'name' => 'NURA Beauty stylist team' );
+		$node['author']       = array( '@id' => home_url( '/' ) . '#organization' ); // 1.124.1: one entity, one name.
 		$node['dateModified'] = get_the_modified_date( 'c' );
 		if ( empty( $node['datePublished'] ) ) {
 			$node['datePublished'] = get_the_date( 'c' );

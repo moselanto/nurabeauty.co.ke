@@ -99,7 +99,7 @@ function nura_encyclopedia_html() {
 		'description'    => 'Plain-language definitions of wig hair types, grades, lace and construction, textures, colour codes, density, fit, installation and care, by the NURA Beauty stylist team in Nairobi.',
 		'url'            => $url,
 		'inLanguage'     => 'en-KE',
-		'publisher'      => array( '@type' => 'Organization', 'name' => 'NURA Beauty', 'url' => home_url( '/' ) ),
+		'publisher'      => array( '@id' => home_url( '/' ) . '#organization' ),
 		'hasDefinedTerm' => $list,
 	);
 	$out .= '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>';

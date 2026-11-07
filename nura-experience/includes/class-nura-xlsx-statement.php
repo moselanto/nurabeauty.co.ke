@@ -26,6 +26,7 @@ class NURAX_Xlsx_Statement {
 	/* style ids (cellXfs order in styles()) */
 	const S_DEF = 0, S_BRAND = 1, S_TITLE = 2, S_SUB = 3, S_HEAD = 4, S_HEAD_R = 5, S_SEC = 6, S_LINE = 7, S_MONEY = 8, S_PCT = 9;
 	const S_TOT = 10, S_TOT_M = 11, S_TOT_P = 12, S_NET = 13, S_NET_M = 14, S_NET_P = 15, S_NOTE = 16, S_NOTE_C = 17, S_SMALL = 18, S_INT = 19, S_GOLD = 20, S_KPI = 21;
+	const S_DATE = 22, S_TXT = 23, S_MUTED = 24, S_ATTN = 25;
 
 	private static function x( $v ) {
 		return htmlspecialchars( (string) $v, ENT_XML1 | ENT_QUOTES, 'UTF-8' );
@@ -82,7 +83,7 @@ class NURAX_Xlsx_Statement {
 			'<border><left/><right/><top/><bottom style="hair"><color rgb="FFE3DCCD"/></bottom><diagonal/></border>',
 		);
 		// numFmt 164 accounting KES, 165 percent, 166 integer
-		$numfmts = '<numFmts count="3"><numFmt numFmtId="164" formatCode="#,##0;(#,##0);&quot;-&quot;"/><numFmt numFmtId="165" formatCode="0.0%;(0.0%);&quot;-&quot;"/><numFmt numFmtId="166" formatCode="#,##0"/></numFmts>';
+		$numfmts = '<numFmts count="4"><numFmt numFmtId="164" formatCode="#,##0;(#,##0);&quot;-&quot;"/><numFmt numFmtId="165" formatCode="0.0%;(0.0%);&quot;-&quot;"/><numFmt numFmtId="166" formatCode="#,##0"/><numFmt numFmtId="167" formatCode="d mmm yyyy"/></numFmts>';
 		$xf = function ( $font, $fill, $border, $num = 0, $h = '', $wrap = false, $indent = 0, $v = 'center' ) {
 			$a = '<alignment vertical="' . $v . '"' . ( $h ? ' horizontal="' . $h . '"' : '' ) . ( $wrap ? ' wrapText="1"' : '' ) . ( $indent ? ' indent="' . $indent . '"' : '' ) . '/>';
 			return '<xf numFmtId="' . $num . '" fontId="' . $font . '" fillId="' . $fill . '" borderId="' . $border . '" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"' . ( $num ? ' applyNumberFormat="1"' : '' ) . '>' . $a . '</xf>';
@@ -110,6 +111,10 @@ class NURAX_Xlsx_Statement {
 			$xf( 0, 0, 3, 166, 'right' ),          // 19 integer
 			$xf( 0, 4, 0 ),                        // 20 gold strip
 			$xf( 7, 0, 3, 0, 'left', false, 1 ),   // 21 kpi label
+			$xf( 0, 0, 3, 167, 'left' ),           // 22 date (1.104.0)
+			$xf( 0, 0, 3, 0, 'left', true ),       // 23 plain text, wraps (1.104.0)
+			$xf( 3, 0, 3, 0, 'left', true ),       // 24 muted text, wraps (1.104.0)
+			$xf( 0, 5, 3, 0, 'left', true ),       // 25 attention text on soft fill (1.104.0)
 		);
 		return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' . $numfmts
 			. '<fonts count="' . count( $fonts ) . '">' . implode( '', $fonts ) . '</fonts>'
@@ -368,6 +373,323 @@ class NURAX_Xlsx_Statement {
 		}
 
 		return self::zip_send( $sheets, $biz, 'profit-or-loss-statement_' . $meta['from'] . '_to_' . $meta['to'] );
+	}
+
+	/**
+	 * 1.104.0 (owner, 8 Nov 2026): the Expenses & income Excel report brought up to the
+	 * standard of the Statement of Profit or Loss. Sheets:
+	 *  1 Summary   - every category grouped by how it is treated (income, cost of sales,
+	 *                operating, one-off set-up, then items outside profit or loss), current
+	 *                period beside the comparative period, change KES / %, share of money
+	 *                spent, number of entries; totals charged to profit, paid out in total,
+	 *                net cash movement. Current-period figures are live SUMIFS on the register.
+	 *  2 Register  - every entry in date order, numbered, filterable, with a live total.
+	 *  3 Suppliers & methods - money paid per supplier and per payment method (live).
+	 *  4 Notes     - how each type is treated, and records that need attention
+	 *                (no reference, no receipt, rent advance without months).
+	 *
+	 * @param array $cur   entries() rows for the period.
+	 * @param array $prior entries() rows for the comparative period.
+	 * @param array $meta  from, to, label, pfrom, pto, plabel, cats, groups, methods.
+	 */
+	public static function send_entries( $cur, $prior, $meta, $path = '' ) {
+		if ( ! class_exists( 'ZipArchive' ) ) {
+			return false;
+		}
+		$biz  = class_exists( 'NURAX_Desk_POS' ) ? NURAX_Desk_POS::biz() : array( 'name' => 'NURA Beauty', 'web' => 'nurabeauty.co.ke', 'phone' => '+254 714 994 898', 'email' => 'care@nurabeauty.co.ke', 'pin' => '', 'addr' => '' );
+		$cats = $meta['cats'];
+		$grps = $meta['groups'];
+		$mth  = $meta['methods'];
+		$cl   = $meta['label'];
+		$pl   = $meta['plabel'];
+		$fmtd = function ( $d ) {
+			return function_exists( 'date_i18n' ) ? date_i18n( 'j M Y', strtotime( $d ) ) : gmdate( 'j M Y', strtotime( $d ) );
+		};
+		$prep  = 'Prepared ' . ( function_exists( 'wp_date' ) ? wp_date( 'j M Y, H:i' ) : gmdate( 'j M Y, H:i' ) ) . '  |  ' . $biz['web'];
+		$gof   = function ( $k ) use ( $cats ) {
+			return isset( $cats[ $k ] ) ? $cats[ $k ][1] : 'opex';
+		};
+		$label = function ( $k ) use ( $cats ) {
+			return isset( $cats[ $k ] ) ? $cats[ $k ][0] : (string) $k;
+		};
+		$serial = function ( $d ) {
+			$t = strtotime( $d . ' 00:00:00 UTC' );
+			return $t ? floor( $t / 86400 ) + 25569 : 0;
+		};
+		$rows = array_values( (array) $cur );
+		usort( $rows, function ( $a, $b ) {
+			return strcmp( $a->entry_date . sprintf( '%09d', $a->id ), $b->entry_date . sprintf( '%09d', $b->id ) );
+		} );
+		$ptot = array();
+		foreach ( (array) $prior as $e ) {
+			$ptot[ $e->category ] = ( isset( $ptot[ $e->category ] ) ? $ptot[ $e->category ] : 0 ) + (float) $e->amount;
+		}
+		$ccount = array();
+		foreach ( $rows as $e ) {
+			$ccount[ $e->category ] = ( isset( $ccount[ $e->category ] ) ? $ccount[ $e->category ] : 0 ) + 1;
+		}
+
+		/* ---------------- Sheet 2 first (Summary formulas point at it): Register ---------------- */
+		$last = 'K';
+		list( $xml, $merge, $r ) = self::header( $biz, 'Register of expenses and income', array(
+			'Period ' . $fmtd( $meta['from'] ) . ' to ' . $fmtd( $meta['to'] ) . '  |  ' . count( $rows ) . ' records, in date order. Amounts in Kenya Shillings (KES).',
+			$prep,
+		), $last );
+		$rh   = $r;
+		$heads = array( 'DATE', 'NO.', 'TYPE', 'CATEGORY', 'DESCRIPTION', 'PAID TO / RECEIVED FROM', 'PAID BY', 'REFERENCE', 'AMOUNT KES', 'NOTE', 'RECEIPT' );
+		$xml .= '<row r="' . $rh . '" ht="30" customHeight="1">';
+		foreach ( $heads as $i => $hd ) {
+			$xml .= self::t( self::col( $i ) . $rh, 'AMOUNT KES' === $hd ? self::S_HEAD_R : self::S_HEAD, $hd );
+		}
+		$xml .= '</row>';
+		$r    = $rh + 1;
+		$f0   = $r;
+		foreach ( $rows as $n => $e ) {
+			$g    = $gof( $e->category );
+			$note = trim( (string) $e->note . ( 'prepaid' === $e->category && class_exists( 'NURAX_Desk_Accounts' ) ? ' ' . NURAX_Desk_Accounts::cover_text( $e ) : '' ) );
+			$rcpt = ( ! empty( $e->receipt_id ) && function_exists( 'wp_get_attachment_url' ) ) ? (string) wp_get_attachment_url( $e->receipt_id ) : '';
+			$xml .= '<row r="' . $r . '">'
+				. self::n( 'A' . $r, self::S_DATE, $serial( $e->entry_date ) )
+				. self::n( 'B' . $r, self::S_INT, $n + 1 )
+				. self::t( 'C' . $r, self::S_TXT, isset( $grps[ $g ] ) ? $grps[ $g ] : $g )
+				. self::t( 'D' . $r, self::S_TXT, $label( $e->category ) )
+				. self::t( 'E' . $r, self::S_TXT, (string) $e->description )
+				. self::t( 'F' . $r, self::S_TXT, (string) $e->payee )
+				. self::t( 'G' . $r, self::S_TXT, isset( $mth[ $e->method ] ) ? $mth[ $e->method ] : (string) $e->method )
+				. self::t( 'H' . $r, self::S_TXT, (string) $e->ref )
+				. self::n( 'I' . $r, self::S_MONEY, (float) $e->amount )
+				. self::t( 'J' . $r, self::S_MUTED, $note )
+				. self::t( 'K' . $r, self::S_MUTED, $rcpt ? $rcpt : '' )
+				. '</row>';
+			$r++;
+		}
+		$l0 = max( $f0, $r - 1 );
+		if ( ! $rows ) {
+			$xml .= '<row r="' . $r . '">' . self::t( 'A' . $r, self::S_MUTED, 'No records in this period.' ) . '</row>';
+			$merge[] = 'A' . $r . ':' . $last . $r;
+			$r++;
+			$l0 = $r - 1;
+		}
+		$xml .= '<row r="' . $r . '" ht="22" customHeight="1">' . self::t( 'A' . $r, self::S_TOT, 'TOTAL OF ALL RECORDS (money in and out)' );
+		foreach ( array( 'B', 'C', 'D', 'E', 'F', 'G', 'H' ) as $c ) {
+			$xml .= self::e( $c . $r, self::S_TOT );
+		}
+		$xml .= self::f( 'I' . $r, self::S_TOT_M, 'SUBTOTAL(9,I' . $f0 . ':I' . $l0 . ')' ) . self::e( 'J' . $r, self::S_TOT ) . self::e( 'K' . $r, self::S_TOT ) . '</row>';
+		$merge[] = 'A' . $r . ':H' . $r;
+		$r++;
+		$xml .= '<row r="' . $r . '" ht="28" customHeight="1">' . self::t( 'A' . $r, self::S_SMALL, 'Use the filter arrows on the header row to show one type, category, supplier or payment method; the total then adds up only the rows shown. See the Summary sheet for how each type is treated in the accounts.' ) . '</row>';
+		$merge[] = 'A' . $r . ':' . $last . $r;
+		$reg_last = $r;
+		$cols = '<col min="1" max="1" width="12" customWidth="1"/><col min="2" max="2" width="6" customWidth="1"/><col min="3" max="3" width="30" customWidth="1"/><col min="4" max="4" width="30" customWidth="1"/><col min="5" max="5" width="40" customWidth="1"/><col min="6" max="6" width="26" customWidth="1"/><col min="7" max="7" width="13" customWidth="1"/><col min="8" max="8" width="14" customWidth="1"/><col min="9" max="9" width="15" customWidth="1"/><col min="10" max="10" width="40" customWidth="1"/><col min="11" max="11" width="24" customWidth="1"/>';
+		$ws_reg = self::sheet_xml( $xml, $cols, $merge, $last, $reg_last, $rh + 1, $biz, 'Register of expenses and income', true );
+		$ws_reg = str_replace( '</sheetData>', '</sheetData><autoFilter ref="A' . $rh . ':K' . $l0 . '"/>', $ws_reg );
+		$R  = "Register!";
+		$rc = $R . '$D$' . $f0 . ':$D$' . $l0;
+		$ra = $R . '$I$' . $f0 . ':$I$' . $l0;
+		$rp = $R . '$F$' . $f0 . ':$F$' . $l0;
+		$rm = $R . '$G$' . $f0 . ':$G$' . $l0;
+		$rt = $R . '$C$' . $f0 . ':$C$' . $l0;
+
+		/* ---------------- Sheet 1: Summary ---------------- */
+		$last = 'G';
+		list( $xml, $merge, $r ) = self::header( $biz, 'Expenses and income summary', array(
+			'For the period ' . $fmtd( $meta['from'] ) . ' to ' . $fmtd( $meta['to'] ) . '  (comparative: ' . $fmtd( $meta['pfrom'] ) . ' to ' . $fmtd( $meta['pto'] ) . ')',
+			'Presented in Kenya Shillings (KES). Grouped by how each item is treated in the accounts (IAS 1 by nature). Sales from the till and website are in the Profit or Loss report, not here.',
+			$prep,
+		), $last );
+		$h    = $r;
+		$xml .= '<row r="' . $h . '" ht="32" customHeight="1">' . self::t( 'A' . $h, self::S_HEAD, 'CATEGORY' ) . self::t( 'B' . $h, self::S_HEAD_R, strtoupper( $cl ) . "\nKES" ) . self::t( 'C' . $h, self::S_HEAD_R, strtoupper( $pl ) . "\nKES" ) . self::t( 'D' . $h, self::S_HEAD_R, "CHANGE\nKES" ) . self::t( 'E' . $h, self::S_HEAD_R, "CHANGE\n%" ) . self::t( 'F' . $h, self::S_HEAD_R, "% OF MONEY\nPAID OUT" ) . self::t( 'G' . $h, self::S_HEAD_R, 'ENTRIES' ) . '</row>';
+		$r    = $h + 1;
+		$tot  = array();
+		$outrow_ref = '__OUT__';
+		$line = function ( $lab, $b, $c, $st, $sm, $sp, $cnt = null ) use ( &$xml, &$r, $outrow_ref ) {
+			$xml .= '<row r="' . $r . '">' . self::t( 'A' . $r, $st, $lab )
+				. ( is_string( $b ) ? self::f( 'B' . $r, $sm, $b ) : self::n( 'B' . $r, $sm, $b ) )
+				. ( is_string( $c ) ? self::f( 'C' . $r, $sm, $c ) : self::n( 'C' . $r, $sm, $c ) )
+				. self::f( 'D' . $r, $sm, 'B' . $r . '-C' . $r )
+				. self::f( 'E' . $r, $sp, 'IF(C' . $r . '=0,"",(B' . $r . '-C' . $r . ')/ABS(C' . $r . '))' )
+				. self::f( 'F' . $r, $sp, 'IF(' . $outrow_ref . '=0,"",B' . $r . '/' . $outrow_ref . ')' )
+				. ( null === $cnt ? self::e( 'G' . $r, $sm ) : ( is_string( $cnt ) ? self::f( 'G' . $r, self::S_INT, $cnt ) : self::n( 'G' . $r, self::S_INT, $cnt ) ) )
+				. '</row>';
+			$r++;
+		};
+		$order = array(
+			'income'  => array( 'Other income (money in, not from the till)', 'Total other income' ),
+			'cogs'    => array( 'Cost of sales - extras', 'Total cost of sales extras' ),
+			'opex'    => array( 'Operating expenses', 'Total operating expenses' ),
+			'setup'   => array( 'One-off set-up costs (non-recurring)', 'Total one-off set-up costs' ),
+			'prepaid' => array( 'Paid in advance (becomes rent month by month)', 'Total paid in advance' ),
+			'stock'   => array( 'Stock bought (inventory)', 'Total stock bought' ),
+			'asset'   => array( 'Assets and refundable deposits', 'Total assets and deposits' ),
+			'owner'   => array( 'Owner capital and drawings', 'Total owner movements' ),
+		);
+		$secrow = function ( $text ) use ( &$xml, &$r ) {
+			$xml .= '<row r="' . $r . '" ht="22" customHeight="1">' . self::t( 'A' . $r, self::S_SEC, $text );
+			foreach ( array( 'B', 'C', 'D', 'E', 'F', 'G' ) as $c ) {
+				$xml .= self::e( $c . $r, self::S_SEC );
+			}
+			$xml .= '</row>';
+			$r++;
+		};
+		$catrows = array();
+		$do_group = function ( $g ) use ( &$xml, &$r, $order, $cats, $ptot, $ccount, $rc, $ra, $line, $secrow, &$tot, &$catrows ) {
+			$keys = array();
+			foreach ( $cats as $k => $c ) {
+				if ( $c[1] === $g && ( ! empty( $ccount[ $k ] ) || ! empty( $ptot[ $k ] ) ) ) {
+					$keys[] = $k;
+				}
+			}
+			$secrow( $order[ $g ][0] );
+			$first = $r;
+			foreach ( $keys as $k ) {
+				$catrows[ $k ] = $r;
+				$line( $cats[ $k ][0], 'SUMIFS(' . $ra . ',' . $rc . ',"' . str_replace( '"', '""', $cats[ $k ][0] ) . '")', isset( $ptot[ $k ] ) ? (float) $ptot[ $k ] : 0, self::S_LINE, self::S_MONEY, self::S_PCT, 'COUNTIFS(' . $rc . ',"' . str_replace( '"', '""', $cats[ $k ][0] ) . '")' );
+			}
+			if ( ! $keys ) {
+				$xml .= '<row r="' . $r . '">' . self::t( 'A' . $r, self::S_MUTED, 'Nothing recorded in either period.' ) . '</row>';
+				$r++;
+			}
+			$lastl = $r - 1;
+			$b = $keys ? 'SUM(B' . $first . ':B' . $lastl . ')' : '0';
+			$c = $keys ? 'SUM(C' . $first . ':C' . $lastl . ')' : '0';
+			$n = $keys ? 'SUM(G' . $first . ':G' . $lastl . ')' : '0';
+			$line( $order[ $g ][1], $b, $c, self::S_TOT, self::S_TOT_M, self::S_TOT_P, $n );
+			$tot[ $g ] = $r - 1;
+		};
+		$secrow( 'A. MONEY IN' );
+		$do_group( 'income' );
+		$r++;
+		$secrow( 'B. CHARGED TO PROFIT OR LOSS' );
+		foreach ( array( 'cogs', 'opex', 'setup' ) as $g ) {
+			$do_group( $g );
+		}
+		$line( 'TOTAL CHARGED TO PROFIT OR LOSS', 'B' . $tot['cogs'] . '+B' . $tot['opex'] . '+B' . $tot['setup'], 'C' . $tot['cogs'] . '+C' . $tot['opex'] . '+C' . $tot['setup'], self::S_NET, self::S_NET_M, self::S_NET_P, 'G' . $tot['cogs'] . '+G' . $tot['opex'] . '+G' . $tot['setup'] );
+		$tot['pl'] = $r - 1;
+		$r++;
+		$secrow( 'C. NOT CHARGED TO PROFIT OR LOSS (balance sheet items)' );
+		foreach ( array( 'prepaid', 'stock', 'asset', 'owner' ) as $g ) {
+			$do_group( $g );
+		}
+		$r++;
+		$secrow( 'D. CASH SUMMARY' );
+		$dr   = isset( $catrows['drawings'] ) ? $catrows['drawings'] : 0;
+		$cp   = isset( $catrows['capital'] ) ? $catrows['capital'] : 0;
+		$outb = 'B' . $tot['pl'] . '+B' . $tot['prepaid'] . '+B' . $tot['stock'] . '+B' . $tot['asset'] . ( $dr ? '+B' . $dr : '' );
+		$outc = 'C' . $tot['pl'] . '+C' . $tot['prepaid'] . '+C' . $tot['stock'] . '+C' . $tot['asset'] . ( $dr ? '+C' . $dr : '' );
+		$line( 'Total money paid out (all records except money in and capital)', $outb, $outc, self::S_TOT, self::S_TOT_M, self::S_TOT_P );
+		$tot['out'] = $r - 1;
+		$inb = 'B' . $tot['income'] . ( $cp ? '+B' . $cp : '' );
+		$inc = 'C' . $tot['income'] . ( $cp ? '+C' . $cp : '' );
+		$line( 'Total money in (other income and owner capital)', $inb, $inc, self::S_TOT, self::S_TOT_M, self::S_TOT_P );
+		$tot['in'] = $r - 1;
+		$line( 'NET CASH MOVEMENT FROM THESE RECORDS', 'B' . $tot['in'] . '-B' . $tot['out'], 'C' . $tot['in'] . '-C' . $tot['out'], self::S_NET, self::S_NET_M, self::S_NET_P );
+		$r++;
+		$xml .= '<row r="' . $r . '" ht="44" customHeight="1">' . self::t( 'A' . $r, self::S_SMALL, 'Current-period figures are live formulas on the Register sheet, so they update if a record there is corrected. Money paid out is shown as a positive amount; net cash movement in brackets means more went out than came in. Rent paid in advance is not a cost until the months it covers (see the Profit or Loss report). Unaudited management records.' ) . '</row>';
+		$merge[] = 'A' . $r . ':G' . $r;
+		$sum_last = $r;
+		$xml = str_replace( $outrow_ref, '$B$' . $tot['out'], $xml );
+		$ws_sum = self::sheet_xml( $xml, '<col min="1" max="1" width="52" customWidth="1"/><col min="2" max="4" width="16" customWidth="1"/><col min="5" max="6" width="12" customWidth="1"/><col min="7" max="7" width="9" customWidth="1"/>', $merge, $last, $sum_last, $h + 1, $biz, 'Expenses and income summary' );
+
+		/* ---------------- Sheet 3: Suppliers & methods ---------------- */
+		$last = 'D';
+		list( $xml, $merge, $r ) = self::header( $biz, 'Paid to and payment methods', array( $cl . ' - money paid out per supplier and per payment method (live from the Register). Money in is excluded.' ), $last );
+		$payees = array();
+		$methods_used = array();
+		foreach ( $rows as $e ) {
+			$g = $gof( $e->category );
+			if ( 'income' === $g || 'capital' === $e->category ) {
+				continue;
+			}
+			$pn = trim( (string) $e->payee );
+			$pn = '' === $pn ? '(not recorded)' : $pn;
+			$payees[ $pn ] = ( isset( $payees[ $pn ] ) ? $payees[ $pn ] : 0 ) + (float) $e->amount;
+			$mn = isset( $mth[ $e->method ] ) ? $mth[ $e->method ] : (string) $e->method;
+			$methods_used[ $mn ] = true;
+		}
+		arsort( $payees );
+		$excl = '"<>' . str_replace( '"', '""', isset( $grps['income'] ) ? $grps['income'] : 'income' ) . '",' . $rd = '';
+		$table = function ( $title, $items, $kind ) use ( &$xml, &$r, &$merge, $ra, $rp, $rm, $rt, $rc, $grps, $cats ) {
+			$xml .= '<row r="' . $r . '" ht="28" customHeight="1">' . self::t( 'A' . $r, self::S_HEAD, $title ) . self::t( 'B' . $r, self::S_HEAD_R, 'ENTRIES' ) . self::t( 'C' . $r, self::S_HEAD_R, 'PAID OUT KES' ) . self::t( 'D' . $r, self::S_HEAD_R, '% OF TOTAL' ) . '</row>';
+			$r++;
+			$f = $r;
+			$inc = str_replace( '"', '""', isset( $grps['income'] ) ? $grps['income'] : 'Other income' );
+			$cap = str_replace( '"', '""', isset( $cats['capital'] ) ? $cats['capital'][0] : 'Owner capital in' );
+			$n   = count( $items );
+			foreach ( $items as $name ) {
+				$crit_rng = 'payee' === $kind ? $rp : $rm;
+				$crit     = '(not recorded)' === $name ? '""' : '"' . str_replace( '"', '""', $name ) . '"';
+				$xml .= '<row r="' . $r . '">' . self::t( 'A' . $r, self::S_LINE, $name )
+					. self::f( 'B' . $r, self::S_INT, 'COUNTIFS(' . $crit_rng . ',' . $crit . ',' . $rt . ',"<>' . $inc . '",' . $rc . ',"<>' . $cap . '")' )
+					. self::f( 'C' . $r, self::S_MONEY, 'SUMIFS(' . $ra . ',' . $crit_rng . ',' . $crit . ',' . $rt . ',"<>' . $inc . '",' . $rc . ',"<>' . $cap . '")' )
+					. self::f( 'D' . $r, self::S_PCT, 'IF(SUM($C$' . $f . ':$C$' . ( $f + $n - 1 ) . ')=0,"",C' . $r . '/SUM($C$' . $f . ':$C$' . ( $f + $n - 1 ) . '))' )
+					. '</row>';
+				$r++;
+			}
+			$l = $r - 1;
+			$xml .= '<row r="' . $r . '" ht="22" customHeight="1">' . self::t( 'A' . $r, self::S_TOT, 'TOTAL' ) . self::f( 'B' . $r, self::S_TOT_M, $n ? 'SUM(B' . $f . ':B' . $l . ')' : '0' ) . self::f( 'C' . $r, self::S_TOT_M, $n ? 'SUM(C' . $f . ':C' . $l . ')' : '0' ) . self::f( 'D' . $r, self::S_TOT_P, $n ? 'SUM(D' . $f . ':D' . $l . ')' : '0' ) . '</row>';
+			$r += 2;
+		};
+		$table( 'PAID TO', array_keys( $payees ), 'payee' );
+		$table( 'PAYMENT METHOD', array_keys( $methods_used ), 'method' );
+		$xml .= '<row r="' . $r . '" ht="30" customHeight="1">' . self::t( 'A' . $r, self::S_SMALL, '"(not recorded)" means the supplier was left blank in NURA Desk - add it so spending per supplier is complete.' ) . '</row>';
+		$merge[] = 'A' . $r . ':D' . $r;
+		$ws_sup = self::sheet_xml( $xml, '<col min="1" max="1" width="44" customWidth="1"/><col min="2" max="2" width="10" customWidth="1"/><col min="3" max="3" width="18" customWidth="1"/><col min="4" max="4" width="12" customWidth="1"/>', $merge, $last, $r, 0, $biz, 'Paid to and payment methods' );
+
+		/* ---------------- Sheet 4: Notes ---------------- */
+		list( $xml, $merge, $r ) = self::header( $biz, 'Notes and records to check', array( 'How each type is treated, and records in this period that need attention.' ), 'D' );
+		$xml .= '<row r="' . $r . '" ht="26" customHeight="1">' . self::t( 'A' . $r, self::S_HEAD, 'TYPE' ) . self::t( 'B' . $r, self::S_HEAD, 'TREATMENT IN THE ACCOUNTS' ) . self::e( 'C' . $r, self::S_HEAD ) . self::e( 'D' . $r, self::S_HEAD ) . '</row>';
+		$merge[] = 'B' . $r . ':D' . $r;
+		$r++;
+		$treat = array(
+			'income'  => 'Money received outside the till or website (e.g. a service paid by M-Pesa). Added to revenue as other operating income.',
+			'cogs'    => 'Freight, duty and packaging not already in the buying price. Added to cost of sales in the month paid.',
+			'opex'    => 'Running costs of the month by nature (rent, wages, utilities, marketing, delivery, charges, software, repairs, supplies, insurance, taxes). Charged to profit or loss in the month paid.',
+			'setup'   => 'One-off costs of setting up the shop (fit-out, legal and lease fees, licences). Charged to profit or loss but shown separately as non-recurring so normal months compare fairly.',
+			'prepaid' => 'Rent paid ahead (IAS 1 prepayment). An asset when paid; released to rent expense evenly over the months it covers.',
+			'stock'   => 'Wigs, hair and products bought for resale (IAS 2 inventory). Becomes cost of sales only when each item is sold, at its buying price.',
+			'asset'   => 'Furniture and equipment kept for years, and refundable deposits. Not a cost of the month.',
+			'owner'   => 'Money the owner puts in or takes out. Equity movements, never income or expense.',
+		);
+		foreach ( $treat as $g => $tx ) {
+			$xml .= '<row r="' . $r . '" ht="44" customHeight="1">' . self::t( 'A' . $r, self::S_KPI, isset( $grps[ $g ] ) ? $grps[ $g ] : $g ) . self::t( 'B' . $r, self::S_NOTE, $tx ) . self::e( 'C' . $r, self::S_NOTE ) . self::e( 'D' . $r, self::S_NOTE ) . '</row>';
+			$merge[] = 'B' . $r . ':D' . $r;
+			$r++;
+		}
+		$r++;
+		$xml .= '<row r="' . $r . '" ht="26" customHeight="1">' . self::t( 'A' . $r, self::S_HEAD, 'RECORDS TO CHECK' ) . self::t( 'B' . $r, self::S_HEAD, 'DETAIL' ) . self::e( 'C' . $r, self::S_HEAD ) . self::t( 'D' . $r, self::S_HEAD_R, 'AMOUNT KES' ) . '</row>';
+		$merge[] = 'B' . $r . ':C' . $r;
+		$r++;
+		$checks = 0;
+		foreach ( $rows as $n => $e ) {
+			$issues = array();
+			if ( 'mpesa' === $e->method && '' === trim( (string) $e->ref ) ) {
+				$issues[] = 'M-Pesa payment without a transaction code';
+			}
+			if ( '' === trim( (string) $e->payee ) && 'income' !== $gof( $e->category ) ) {
+				$issues[] = 'supplier not recorded';
+			}
+			if ( empty( $e->receipt_id ) && (float) $e->amount >= 5000 ) {
+				$issues[] = 'no receipt attached (KSh 5,000 or more)';
+			}
+			if ( 'prepaid' === $e->category && ( empty( $e->cover_from ) ) ) {
+				$issues[] = 'months it covers not set, so no rent is released';
+			}
+			if ( ! $issues ) {
+				continue;
+			}
+			$checks++;
+			$xml .= '<row r="' . $r . '" ht="30" customHeight="1">' . self::t( 'A' . $r, self::S_ATTN, 'No. ' . ( $n + 1 ) . ' - ' . $fmtd( $e->entry_date ) ) . self::t( 'B' . $r, self::S_ATTN, $e->description . ': ' . implode( '; ', $issues ) ) . self::e( 'C' . $r, self::S_ATTN ) . self::n( 'D' . $r, self::S_MONEY, (float) $e->amount ) . '</row>';
+			$merge[] = 'B' . $r . ':C' . $r;
+			$r++;
+		}
+		if ( ! $checks ) {
+			$xml .= '<row r="' . $r . '">' . self::t( 'A' . $r, self::S_MUTED, 'Nothing to check - every record is complete.' ) . '</row>';
+			$merge[] = 'A' . $r . ':D' . $r;
+			$r++;
+		}
+		$ws_notes = self::sheet_xml( $xml, '<col min="1" max="1" width="36" customWidth="1"/><col min="2" max="2" width="44" customWidth="1"/><col min="3" max="3" width="20" customWidth="1"/><col min="4" max="4" width="16" customWidth="1"/>', $merge, 'D', $r, 0, $biz, 'Notes and records to check' );
+
+		return self::zip_send( array( array( 'Summary', $ws_sum ), array( 'Register', $ws_reg ), array( 'Suppliers & methods', $ws_sup ), array( 'Notes', $ws_notes ) ), $biz, 'expenses-and-income-report_' . $meta['from'] . '_to_' . $meta['to'], $path );
 	}
 
 	/** Package sheets and stream the file (or write to $path when given, for tests). */

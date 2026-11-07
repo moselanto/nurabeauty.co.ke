@@ -715,6 +715,23 @@ class NURAX_Desk_Accounts {
 				exit;
 			}
 		}
+		// 1.104.0: Expenses & income report at the same standard as the P&L (summary vs comparative period, register, suppliers & methods, notes and records to check).
+		if ( 'entries' === $sheet && 'csv' !== $fmt && class_exists( 'NURAX_Xlsx_Statement' ) && method_exists( 'NURAX_Xlsx_Statement', 'send_entries' ) && class_exists( 'ZipArchive' ) ) {
+			list( $pf, $pt, $plabel ) = self::prior_period( $from, $to );
+			if ( NURAX_Xlsx_Statement::send_entries( self::entries( $from, $to ), self::entries( $pf, $pt ), array(
+				'from'    => $from,
+				'to'      => $to,
+				'label'   => $label,
+				'pfrom'   => $pf,
+				'pto'     => $pt,
+				'plabel'  => $plabel,
+				'cats'    => self::categories(),
+				'groups'  => self::groups(),
+				'methods' => self::methods(),
+			) ) ) {
+				exit;
+			}
+		}
 		if ( 'csv' !== $fmt && class_exists( 'NURAX_Xlsx' ) && NURAX_Xlsx::available() ) {
 			$meta = array( 'period' => 'Period: ' . $label . ' (' . date_i18n( 'j M Y', strtotime( $from ) ) . ' - ' . date_i18n( 'j M Y', strtotime( $to ) ) . ')' );
 			if ( 'products' !== $sheet ) {

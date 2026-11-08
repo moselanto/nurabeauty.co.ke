@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class NURAX_Desk_Accounts {
 
-	const DBV     = '1.1.0'; // 1.1.0 (plugin 1.86.0): cover_from / cover_months for rent paid in advance.
+	const DBV     = '1.2.0'; // 1.1.0 (plugin 1.86.0): cover_from / cover_months. 1.2.0 (plugin 1.105.0): vouchers (txn) + change history table.
 	const DBV_OPT = 'nurax_ledger_db';
 	const PAGE    = 'nurax-accounts';
 
@@ -87,14 +87,113 @@ class NURAX_Desk_Accounts {
 			deleted_by bigint(20) unsigned NOT NULL DEFAULT 0,
 			cover_from date NULL DEFAULT NULL,
 			cover_months smallint(5) unsigned NOT NULL DEFAULT 0,
+			txn varchar(20) NOT NULL DEFAULT '',
 			PRIMARY KEY  (id),
 			KEY entry_date (entry_date),
 			KEY category (category),
-			KEY deleted (deleted)
+			KEY deleted (deleted),
+			KEY txn (txn),
+			KEY ref (ref)
+		) {$c};" );
+		$l = self::log_table();
+		dbDelta( "CREATE TABLE {$l} (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			entry_id bigint(20) unsigned NOT NULL DEFAULT 0,
+			txn varchar(20) NOT NULL DEFAULT '',
+			action varchar(12) NOT NULL DEFAULT '',
+			changes text NULL,
+			reason varchar(255) NOT NULL DEFAULT '',
+			user_id bigint(20) unsigned NOT NULL DEFAULT 0,
+			at datetime NOT NULL,
+			PRIMARY KEY  (id),
+			KEY txn (txn),
+			KEY entry_id (entry_id)
 		) {$c};" );
 		update_option( self::DBV_OPT, self::DBV, false );
 		self::seed();
 		self::migrate_advance();
+		self::migrate_txn();
+	}
+
+	/* ------------------------------------------------------------ vouchers (1.105.0)
+	 * One payment = one voucher (PV-0001 money paid out, RV-0001 money received), the way
+	 * accounting systems record a split transaction: the voucher holds the date, payment method,
+	 * M-Pesa / bank reference, payee and receipt; each item on the receipt is a line with its own
+	 * category, description and amount. Lines of one voucher always share the reference, so one
+	 * M-Pesa code is never typed twice and never double counted. Every add / edit / removal is kept
+	 * in nurax_ledger_log (who, when, old -> new, reason) - nothing is ever hard-deleted.
+	 */
+	public static function log_table() {
+		global $wpdb;
+		return $wpdb->prefix . 'nurax_ledger_log';
+	}
+
+	/** M-Pesa / bank references are compared without spaces and in capitals (sk l4x7 = SKL4X7). */
+	public static function norm_ref( $r ) {
+		return strtoupper( preg_replace( '/\s+/', '', (string) $r ) );
+	}
+
+	public static function is_in( $cat ) {
+		return 'income' === self::group_of( $cat ) || 'capital' === $cat;
+	}
+
+	private static function next_txn( $in ) {
+		global $wpdb;
+		$key = $in ? 'nurax_ledger_seq_rv' : 'nurax_ledger_seq_pv';
+		$n   = (int) get_option( $key, 0 );
+		do {
+			$n++;
+			$no  = ( $in ? 'RV-' : 'PV-' ) . str_pad( (string) $n, 4, '0', STR_PAD_LEFT );
+			$hit = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM ' . self::table() . ' WHERE txn = %s', $no ) ); // phpcs:ignore WordPress.DB
+		} while ( $hit );
+		update_option( $key, $n, false );
+		return $no;
+	}
+
+	/**
+	 * Give every existing record a voucher number, in date order. Records already sharing the same
+	 * reference, date, payment method and payee (items bought on one M-Pesa payment) are put on one
+	 * voucher. Runs once.
+	 */
+	private static function migrate_txn() {
+		if ( get_option( 'nurax_ledger_m_txn' ) ) {
+			return;
+		}
+		global $wpdb;
+		$rows   = (array) $wpdb->get_results( 'SELECT id, entry_date, category, method, ref, payee FROM ' . self::table() . " WHERE txn = '' ORDER BY entry_date ASC, id ASC" ); // phpcs:ignore WordPress.DB
+		$groups = array();
+		foreach ( $rows as $e ) {
+			$ref = self::norm_ref( $e->ref );
+			$k   = '' !== $ref ? $e->entry_date . '|' . $e->method . '|' . $ref . '|' . strtolower( trim( $e->payee ) ) : 'id' . $e->id;
+			if ( ! isset( $groups[ $k ] ) ) {
+				$groups[ $k ] = array( 'in' => self::is_in( $e->category ), 'ids' => array() );
+			}
+			$groups[ $k ]['ids'][] = (int) $e->id;
+		}
+		foreach ( $groups as $g ) {
+			$no = self::next_txn( $g['in'] );
+			$wpdb->query( $wpdb->prepare( 'UPDATE ' . self::table() . ' SET txn = %s WHERE id IN (' . implode( ',', array_map( 'intval', $g['ids'] ) ) . ')', $no ) ); // phpcs:ignore WordPress.DB
+		}
+		update_option( 'nurax_ledger_m_txn', time(), false );
+	}
+
+	private static function audit( $entry_id, $txn, $action, $changes = array(), $reason = '' ) {
+		global $wpdb;
+		$wpdb->insert( self::log_table(), array( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			'entry_id' => (int) $entry_id,
+			'txn'      => (string) $txn,
+			'action'   => $action,
+			'changes'  => $changes ? wp_json_encode( $changes ) : '',
+			'reason'   => mb_substr( (string) $reason, 0, 255 ),
+			'user_id'  => get_current_user_id(),
+			'at'       => current_time( 'mysql' ),
+		) );
+	}
+
+	/** Lines of a voucher (or of a single legacy record), oldest first. */
+	public static function voucher( $txn ) {
+		global $wpdb;
+		return (array) $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . self::table() . ' WHERE txn = %s AND deleted = 0 ORDER BY id ASC', $txn ) ); // phpcs:ignore WordPress.DB
 	}
 
 	/**
@@ -268,8 +367,8 @@ class NURAX_Desk_Accounts {
 		}
 		if ( '' !== $q ) {
 			$like = '%' . $wpdb->esc_like( $q ) . '%';
-			$sql .= ' AND ( description LIKE %s OR payee LIKE %s OR ref LIKE %s OR note LIKE %s )';
-			array_push( $a, $like, $like, $like, $like );
+			$sql .= ' AND ( description LIKE %s OR payee LIKE %s OR ref LIKE %s OR note LIKE %s OR txn LIKE %s )';
+			array_push( $a, $like, $like, $like, $like, $like );
 		}
 		$sql .= ' ORDER BY entry_date DESC, id DESC';
 		return (array) $wpdb->get_results( $wpdb->prepare( $sql, $a ) ); // phpcs:ignore WordPress.DB
@@ -546,58 +645,190 @@ class NURAX_Desk_Accounts {
 		exit;
 	}
 
+	/**
+	 * 1.105.0: save a voucher - one payment (date, method, reference, payee, receipt) with one or
+	 * more item lines. Editing re-opens the whole voucher: header changes (e.g. a corrected M-Pesa
+	 * code) apply to every line; lines can be added, changed or removed. Controls:
+	 *  - lines must add up to the receipt total when one is entered;
+	 *  - a reference already used on another voucher is stopped (double-posting guard) unless the
+	 *    owner confirms it really is a different payment;
+	 *  - changing an amount, category or date, or removing an item, needs a reason;
+	 *  - every change is written to the change history (old -> new, who, when, reason).
+	 * When a save is stopped the typed form is kept (transient) so nothing has to be retyped.
+	 */
 	public static function h_save() {
 		self::guard( 'nurax_acc_save' );
 		global $wpdb;
-		$id   = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
-		$date = NURAX_Desk::valid_date( isset( $_POST['entry_date'] ) ? sanitize_text_field( wp_unslash( $_POST['entry_date'] ) ) : '' );
-		$cat  = isset( $_POST['category'] ) ? sanitize_key( wp_unslash( $_POST['category'] ) ) : '';
-		$amt  = isset( $_POST['amount'] ) ? (float) preg_replace( '/[^0-9.]/', '', wp_unslash( $_POST['amount'] ) ) : 0; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-		$desc = isset( $_POST['description'] ) ? sanitize_text_field( wp_unslash( $_POST['description'] ) ) : '';
-		if ( ! $date || ! isset( self::categories()[ $cat ] ) || $amt <= 0 || '' === $desc ) {
-			self::back( array( 'nd_msg' => 'acc_invalid', 'tab' => 'entries', 'edit' => $id ? $id : 'new' ) );
-		}
-		$method = isset( $_POST['method'] ) ? sanitize_key( wp_unslash( $_POST['method'] ) ) : 'mpesa';
-		$cover_m = isset( $_POST['cover_months'] ) ? max( 0, min( 60, absint( $_POST['cover_months'] ) ) ) : 0;
-		$cover_f = isset( $_POST['cover_from'] ) ? sanitize_text_field( wp_unslash( $_POST['cover_from'] ) ) : '';
+		$t   = self::table();
+		$cats = self::categories();
+		$P   = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput,WordPress.Security.NonceVerification
+		$txn = isset( $P['txn'] ) ? strtoupper( sanitize_text_field( $P['txn'] ) ) : '';
+		$txn = preg_match( '/^(PV|RV)-\d{4,}$/', $txn ) ? $txn : '';
+		$date   = NURAX_Desk::valid_date( isset( $P['entry_date'] ) ? sanitize_text_field( $P['entry_date'] ) : '' );
+		$method = isset( $P['method'] ) ? sanitize_key( $P['method'] ) : 'mpesa';
+		$method = isset( self::methods()[ $method ] ) ? $method : 'other';
+		$ref    = mb_substr( self::norm_ref( isset( $P['ref'] ) ? sanitize_text_field( $P['ref'] ) : '' ), 0, 60 );
+		$payee  = mb_substr( isset( $P['payee'] ) ? sanitize_text_field( $P['payee'] ) : '', 0, 120 );
+		$note   = mb_substr( isset( $P['note'] ) ? sanitize_text_field( $P['note'] ) : '', 0, 255 );
+		$note_o = isset( $P['note_orig'] ) ? sanitize_text_field( $P['note_orig'] ) : '';
+		$reason = mb_substr( isset( $P['reason'] ) ? sanitize_text_field( $P['reason'] ) : '', 0, 255 );
+		$dup_ok = ! empty( $P['dup_ok'] );
+		$rtotal = isset( $P['receipt_total'] ) ? trim( (string) preg_replace( '/[^0-9.]/', '', (string) $P['receipt_total'] ) ) : '';
+		$cover_m = isset( $P['cover_months'] ) ? max( 1, min( 60, absint( $P['cover_months'] ) ) ) : 1;
+		$cover_f = isset( $P['cover_from'] ) ? sanitize_text_field( $P['cover_from'] ) : '';
 		$cover_f = preg_match( '/^\d{4}-\d{2}$/', $cover_f ) ? $cover_f . '-01' : null;
-		$row    = array(
-			'entry_date'  => $date,
-			'category'    => $cat,
-			'description' => mb_substr( $desc, 0, 190 ),
-			'amount'      => round( $amt, 2 ),
-			'method'      => isset( self::methods()[ $method ] ) ? $method : 'other',
-			'ref'         => mb_substr( isset( $_POST['ref'] ) ? sanitize_text_field( wp_unslash( $_POST['ref'] ) ) : '', 0, 60 ),
-			'payee'       => mb_substr( isset( $_POST['payee'] ) ? sanitize_text_field( wp_unslash( $_POST['payee'] ) ) : '', 0, 120 ),
-			'note'        => mb_substr( isset( $_POST['note'] ) ? sanitize_text_field( wp_unslash( $_POST['note'] ) ) : '', 0, 255 ),
-			'cover_from'  => 'prepaid' === $cat ? $cover_f : null,
-			'cover_months' => 'prepaid' === $cat ? max( 1, $cover_m ) : 0,
-		);
+
+		$raw = isset( $P['lines'] ) && is_array( $P['lines'] ) ? $P['lines'] : array();
+		if ( ! $raw && isset( $P['category'] ) ) { // older single-entry form.
+			$raw = array( array( 'id' => isset( $P['id'] ) ? $P['id'] : 0, 'category' => $P['category'], 'description' => isset( $P['description'] ) ? $P['description'] : '', 'amount' => isset( $P['amount'] ) ? $P['amount'] : '' ) );
+		}
+		$lines = array();
+		$bad   = false;
+		foreach ( $raw as $l ) {
+			if ( ! is_array( $l ) ) {
+				continue;
+			}
+			$ln = array(
+				'id'          => absint( isset( $l['id'] ) ? $l['id'] : 0 ),
+				'category'    => sanitize_key( isset( $l['category'] ) ? $l['category'] : '' ),
+				'description' => mb_substr( sanitize_text_field( isset( $l['description'] ) ? (string) $l['description'] : '' ), 0, 190 ),
+				'amount'      => round( (float) preg_replace( '/[^0-9.]/', '', isset( $l['amount'] ) ? (string) $l['amount'] : '' ), 2 ),
+			);
+			if ( ! $ln['id'] && '' === $ln['description'] && $ln['amount'] <= 0 ) {
+				continue; // empty spare row.
+			}
+			if ( ! isset( $cats[ $ln['category'] ] ) || '' === $ln['description'] || $ln['amount'] <= 0 ) {
+				$bad = true;
+			}
+			$lines[] = $ln;
+		}
+		$draft = array( 'txn' => $txn, 'entry_date' => $date ? $date : ( isset( $P['entry_date'] ) ? sanitize_text_field( $P['entry_date'] ) : '' ), 'method' => $method, 'ref' => $ref, 'payee' => $payee, 'note' => $note, 'note_orig' => $note_o, 'reason' => $reason, 'receipt_total' => $rtotal, 'cover_from' => $cover_f ? substr( $cover_f, 0, 7 ) : '', 'cover_months' => $cover_m, 'lines' => $lines );
+		$fail  = function ( $msg, $extra = array() ) use ( $draft, $txn ) {
+			set_transient( 'nurax_acc_draft_' . get_current_user_id(), $draft, HOUR_IN_SECONDS );
+			self::back( array_merge( array( 'nd_msg' => $msg, 'tab' => 'entries', 'edit' => $txn ? strtolower( $txn ) : 'new', 'draft' => 1 ), $extra ) );
+		};
+		if ( ! $date || ! $lines || $bad ) {
+			$fail( 'acc_invalid' );
+		}
+		$total = 0;
+		foreach ( $lines as $ln ) {
+			$total += $ln['amount'];
+		}
+		if ( '' !== $rtotal && abs( $total - (float) $rtotal ) > 0.005 ) {
+			$fail( 'acc_total' );
+		}
+		$old = array();
+		if ( $txn ) {
+			foreach ( self::voucher( $txn ) as $o ) {
+				$old[ (int) $o->id ] = $o;
+			}
+		}
+		if ( '' !== $ref && ! $dup_ok ) {
+			$other = $wpdb->get_var( $wpdb->prepare( "SELECT txn FROM {$t} WHERE deleted = 0 AND UPPER(REPLACE(ref, ' ', '')) = %s AND txn <> %s ORDER BY entry_date DESC, id DESC LIMIT 1", $ref, $txn ) ); // phpcs:ignore WordPress.DB
+			if ( $other ) {
+				$fail( 'acc_dupref', array( 'dup' => strtolower( $other ) ) );
+			}
+		}
+		// A reason is needed when a posted figure changes or an item is removed.
+		if ( $old && '' === $reason ) {
+			$first    = reset( $old );
+			$material = $first->entry_date !== $date;
+			$kept     = array();
+			foreach ( $lines as $ln ) {
+				if ( isset( $old[ $ln['id'] ] ) ) {
+					$kept[ $ln['id'] ] = true;
+					$o = $old[ $ln['id'] ];
+					if ( $o->category !== $ln['category'] || abs( (float) $o->amount - $ln['amount'] ) > 0.005 ) {
+						$material = true;
+					}
+				}
+			}
+			if ( count( $kept ) < count( $old ) ) {
+				$material = true;
+			}
+			if ( $material ) {
+				$fail( 'acc_reason' );
+			}
+		}
+		$receipt_id = 0;
 		if ( ! empty( $_FILES['receipt']['name'] ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 			require_once ABSPATH . 'wp-admin/includes/media.php';
 			require_once ABSPATH . 'wp-admin/includes/image.php';
 			$type = wp_check_filetype( sanitize_file_name( wp_unslash( $_FILES['receipt']['name'] ) ) );
 			if ( in_array( $type['ext'], array( 'jpg', 'jpeg', 'png', 'webp', 'pdf', 'heic' ), true ) ) {
-				$att = media_handle_upload( 'receipt', 0, array( 'post_title' => 'Receipt - ' . $row['description'] ) );
+				$att = media_handle_upload( 'receipt', 0, array( 'post_title' => 'Receipt - ' . ( $txn ? $txn . ' ' : '' ) . $lines[0]['description'] ) );
 				if ( ! is_wp_error( $att ) ) {
-					$row['receipt_id'] = (int) $att;
+					$receipt_id = (int) $att;
 				}
 			}
 		}
-		$uid = get_current_user_id();
-		$now = current_time( 'mysql' );
-		if ( $id ) {
-			$row['updated']    = $now;
-			$row['updated_by'] = $uid;
-			$wpdb->update( self::table(), $row, array( 'id' => $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		} else {
-			$row['created']    = $now;
-			$row['created_by'] = $uid;
-			$wpdb->insert( self::table(), $row ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		if ( ! $receipt_id && $old ) {
+			foreach ( $old as $o ) {
+				if ( $o->receipt_id ) {
+					$receipt_id = (int) $o->receipt_id;
+					break;
+				}
+			}
 		}
+		$new_txn = ! $txn;
+		if ( $new_txn ) {
+			$txn = self::next_txn( self::is_in( $lines[0]['category'] ) );
+		}
+		$uid  = get_current_user_id();
+		$now  = current_time( 'mysql' );
+		$keep = array();
+		$fields = array( 'entry_date', 'category', 'description', 'amount', 'method', 'ref', 'payee', 'note', 'receipt_id', 'cover_from', 'cover_months' );
+		foreach ( $lines as $ln ) {
+			$o   = isset( $old[ $ln['id'] ] ) ? $old[ $ln['id'] ] : null;
+			$pre = 'prepaid' === $ln['category'];
+			$row = array(
+				'txn'          => $txn,
+				'entry_date'   => $date,
+				'category'     => $ln['category'],
+				'description'  => $ln['description'],
+				'amount'       => $ln['amount'],
+				'method'       => $method,
+				'ref'          => $ref,
+				'payee'        => $payee,
+				'note'         => ( $o && $note === $note_o ) ? (string) $o->note : $note,
+				'receipt_id'   => $receipt_id ? $receipt_id : ( $o ? (int) $o->receipt_id : 0 ),
+				'cover_from'   => $pre ? $cover_f : null,
+				'cover_months' => $pre ? $cover_m : 0,
+			);
+			if ( $o ) {
+				$keep[ (int) $o->id ] = true;
+				$chg = array();
+				foreach ( $fields as $f ) {
+					$a = null === $o->$f ? '' : (string) $o->$f;
+					$b = null === $row[ $f ] ? '' : (string) $row[ $f ];
+					if ( 'amount' === $f ? abs( (float) $a - (float) $b ) > 0.005 : ( 'cover_months' === $f || 'receipt_id' === $f ? (int) $a !== (int) $b : $a !== $b ) ) {
+						$chg[ $f ] = array( $a, $b );
+					}
+				}
+				if ( $chg ) {
+					$row['updated']    = $now;
+					$row['updated_by'] = $uid;
+					$wpdb->update( $t, $row, array( 'id' => $o->id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+					self::audit( $o->id, $txn, 'edited', $chg, $reason );
+				}
+			} else {
+				$row['created']    = $now;
+				$row['created_by'] = $uid;
+				$wpdb->insert( $t, $row ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				self::audit( $wpdb->insert_id, $txn, 'added', array( 'amount' => array( '', (string) $ln['amount'] ), 'category' => array( '', $ln['category'] ), 'description' => array( '', $ln['description'] ) ), $new_txn ? '' : $reason );
+			}
+		}
+		foreach ( $old as $id => $o ) {
+			if ( empty( $keep[ $id ] ) ) {
+				$wpdb->update( $t, array( 'deleted' => 1, 'deleted_by' => $uid, 'updated' => $now ), array( 'id' => $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				self::audit( $id, $txn, 'removed', array( 'amount' => array( (string) $o->amount, '' ), 'description' => array( $o->description, '' ) ), $reason );
+			}
+		}
+		delete_transient( 'nurax_acc_draft_' . $uid );
+		self::bust();
 		if ( class_exists( 'NURAX_Staff' ) && method_exists( 'NURAX_Staff', 'log' ) ) {
-			NURAX_Staff::log( 'accounts', ( $id ? 'Edited' : 'Added' ) . ' ' . self::categories()[ $cat ][0] . ': ' . $row['description'] . ' (' . NURAX_Desk::money( $row['amount'] ) . ')' );
+			NURAX_Staff::log( 'accounts', ( $new_txn ? 'Added ' : 'Edited ' ) . $txn . ' (' . count( $lines ) . ' item' . ( 1 === count( $lines ) ? '' : 's' ) . ', ' . NURAX_Desk::money( $total ) . ')' . ( $reason ? ' - ' . $reason : '' ) );
 		}
 		self::back( array( 'nd_msg' => 'saved', 'tab' => 'entries' ) );
 	}
@@ -605,11 +836,15 @@ class NURAX_Desk_Accounts {
 	public static function h_delete() {
 		self::guard( 'nurax_acc_delete' );
 		global $wpdb;
-		$id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
-		if ( $id ) {
+		$id     = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+		$reason = isset( $_POST['reason'] ) ? mb_substr( sanitize_text_field( wp_unslash( $_POST['reason'] ) ), 0, 255 ) : '';
+		$o      = $id ? $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . self::table() . ' WHERE id = %d AND deleted = 0', $id ) ) : null; // phpcs:ignore WordPress.DB
+		if ( $o ) {
 			$wpdb->update( self::table(), array( 'deleted' => 1, 'deleted_by' => get_current_user_id(), 'updated' => current_time( 'mysql' ) ), array( 'id' => $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			self::audit( $id, $o->txn, 'removed', array( 'amount' => array( (string) $o->amount, '' ), 'description' => array( $o->description, '' ) ), $reason );
+			self::bust();
 			if ( class_exists( 'NURAX_Staff' ) && method_exists( 'NURAX_Staff', 'log' ) ) {
-				NURAX_Staff::log( 'accounts', 'Removed ledger entry #' . $id );
+				NURAX_Staff::log( 'accounts', 'Removed ' . ( $o->txn ? $o->txn . ' ' : '' ) . 'item: ' . $o->description . ' (' . NURAX_Desk::money( $o->amount ) . ')' . ( $reason ? ' - ' . $reason : '' ) );
 			}
 		}
 		self::back( array( 'nd_msg' => 'deleted', 'tab' => 'entries' ) );
@@ -627,10 +862,10 @@ class NURAX_Desk_Accounts {
 		$cats = self::categories();
 		$grp  = self::groups();
 		if ( 'entries' === $sheet ) {
-			$rows = array( array( 'Date', 'Type', 'Category', 'Description', 'Amount (KES)', 'Paid by', 'Reference', 'Paid to / received from', 'Note', 'Receipt link' ) );
+			$rows = array( array( 'Voucher', 'Date', 'Type', 'Category', 'Description', 'Amount (KES)', 'Paid by', 'Reference', 'Paid to / received from', 'Note', 'Receipt link' ) );
 			foreach ( array_reverse( self::entries( $from, $to ) ) as $e ) {
 				$g      = self::group_of( $e->category );
-				$rows[] = array( $e->entry_date, $grp[ $g ], isset( $cats[ $e->category ] ) ? $cats[ $e->category ][0] : $e->category, $e->description, round( (float) $e->amount, 2 ), self::methods()[ $e->method ] ?? $e->method, $e->ref, $e->payee, trim( $e->note . ( 'prepaid' === $e->category ? ' ' . self::cover_text( $e ) : '' ) ), $e->receipt_id ? (string) wp_get_attachment_url( $e->receipt_id ) : '' );
+				$rows[] = array( $e->txn, $e->entry_date, $grp[ $g ], isset( $cats[ $e->category ] ) ? $cats[ $e->category ][0] : $e->category, $e->description, round( (float) $e->amount, 2 ), self::methods()[ $e->method ] ?? $e->method, $e->ref, $e->payee, trim( $e->note . ( 'prepaid' === $e->category ? ' ' . self::cover_text( $e ) : '' ) ), $e->receipt_id ? (string) wp_get_attachment_url( $e->receipt_id ) : '' );
 			}
 			return $rows;
 		}
@@ -780,7 +1015,7 @@ class NURAX_Desk_Accounts {
 		$tab  = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'overview';
 		$cat  = isset( $_GET['cat'] ) ? sanitize_key( wp_unslash( $_GET['cat'] ) ) : '';
 		$q    = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
-		$edit = isset( $_GET['edit'] ) ? sanitize_key( wp_unslash( $_GET['edit'] ) ) : '';
+		$edit = isset( $_GET['edit'] ) ? sanitize_key( wp_unslash( $_GET['edit'] ) ) : ''; // line id, 'new' or a voucher no. like pv-0007.
 		// phpcs:enable
 		list( $from, $to, $label ) = self::period( $p, $fr, $tt );
 		$keep = array( 'p' => $p, 'from' => $fr, 'to' => $tt );
@@ -791,7 +1026,7 @@ class NURAX_Desk_Accounts {
 			return wp_nonce_url( add_query_arg( array_merge( $keep, array( 'action' => 'nurax_acc_csv', 'sheet' => $sheet, 'fmt' => $fmt ) ), admin_url( 'admin-post.php' ) ), 'nurax_acc_csv' );
 		};
 		$sheet_for = 'entries' === $tab ? 'entries' : ( 'products' === $tab ? 'products' : 'pnl' );
-		$act  = NURAX_Desk::btn( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => 'entries', 'edit' => 'new' ) ) ), '+ Record expense or income', 'nd-btn--primary' )
+		$act  = NURAX_Desk::btn( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => 'entries', 'edit' => 'new' ) ) ), '+ Record payment or income', 'nd-btn--primary' )
 			. '<a class="nd-btn nd-btn--xl" href="' . esc_url( $dl( $sheet_for, 'xlsx' ) ) . '" title="Branded Excel report: NURA black and gold header, logo, KSh formats, print-ready"><span class="nd-xl-ic" aria-hidden="true">X</span>Excel report</a>'
 			. '<a class="nd-btn nd-btn--ghost nd-btn--csv" href="' . esc_url( $dl( $sheet_for, 'csv' ) ) . '" title="Plain data file for accountants and other software (CSV cannot hold colours or a logo)">CSV data</a>';
 		NURAX_Desk::header( self::PAGE, 'Accounts', $act );
@@ -1099,54 +1334,192 @@ class NURAX_Desk_Accounts {
 		global $wpdb;
 		$cats = self::categories();
 		$grp  = self::groups();
-		$row  = null;
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$msg  = isset( $_GET['nd_msg'] ) ? sanitize_key( wp_unslash( $_GET['nd_msg'] ) ) : '';
+		$dup  = isset( $_GET['dup'] ) ? strtoupper( sanitize_key( wp_unslash( $_GET['dup'] ) ) ) : '';
+		$use_draft = ! empty( $_GET['draft'] );
+		// phpcs:enable
+		// Load the voucher being edited (by voucher no. or by a line id).
+		$txn   = '';
+		$lines = array();
 		if ( $edit && 'new' !== $edit ) {
-			$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . self::table() . ' WHERE id = %d AND deleted = 0', absint( $edit ) ) ); // phpcs:ignore WordPress.DB
+			if ( ctype_digit( (string) $edit ) ) {
+				$one = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . self::table() . ' WHERE id = %d AND deleted = 0', absint( $edit ) ) ); // phpcs:ignore WordPress.DB
+				if ( $one ) {
+					$txn   = (string) $one->txn;
+					$lines = $txn ? self::voucher( $txn ) : array( $one );
+				}
+			} elseif ( preg_match( '/^(pv|rv)-\d{4,}$/', (string) $edit ) ) {
+				$txn   = strtoupper( $edit );
+				$lines = self::voucher( $txn );
+				if ( ! $lines ) {
+					$txn = '';
+				}
+			}
+		}
+		$h0 = $lines ? $lines[0] : null;
+		$H  = array(
+			'entry_date'    => $h0 ? $h0->entry_date : NURAX_Desk::today(),
+			'method'        => $h0 ? $h0->method : 'mpesa',
+			'ref'           => $h0 ? $h0->ref : '',
+			'payee'         => $h0 ? $h0->payee : '',
+			'note'          => $h0 ? $h0->note : '',
+			'reason'        => '',
+			'receipt_total' => '',
+			'cover_from'    => $h0 && ! empty( $h0->cover_from ) ? substr( $h0->cover_from, 0, 7 ) : '',
+			'cover_months'  => $h0 && $h0->cover_months ? (int) $h0->cover_months : 2,
+		);
+		$receipt_id = 0;
+		$L = array();
+		foreach ( $lines as $e ) {
+			$L[] = array( 'id' => (int) $e->id, 'category' => $e->category, 'description' => $e->description, 'amount' => (float) $e->amount );
+			if ( ! $receipt_id && $e->receipt_id ) {
+				$receipt_id = (int) $e->receipt_id;
+			}
+			if ( 'prepaid' === $e->category ) {
+				$H['cover_from']   = ! empty( $e->cover_from ) ? substr( $e->cover_from, 0, 7 ) : '';
+				$H['cover_months'] = $e->cover_months ? (int) $e->cover_months : 2;
+			}
+		}
+		$note_orig = $H['note'];
+		$draft     = $use_draft ? get_transient( 'nurax_acc_draft_' . get_current_user_id() ) : false;
+		if ( is_array( $draft ) ) {
+			foreach ( $H as $k => $v ) {
+				if ( isset( $draft[ $k ] ) ) {
+					$H[ $k ] = $draft[ $k ];
+				}
+			}
+			$note_orig = isset( $draft['note_orig'] ) ? $draft['note_orig'] : $note_orig;
+			if ( ! empty( $draft['lines'] ) ) {
+				$L = $draft['lines'];
+			}
+		}
+		if ( ! $L ) {
+			$L = array( array( 'id' => 0, 'category' => 'rent', 'description' => '', 'amount' => '' ) );
 		}
 		$hid = '';
 		foreach ( array_merge( $keep, array( 'cat' => $cat, 'tab' => 'entries' ) ) as $k => $v ) {
 			$hid .= '<input type="hidden" name="_' . esc_attr( $k ) . '" value="' . esc_attr( $v ) . '">';
 		}
-		echo '<div class="na-grid na-grid--entries">';
-		// Form.
-		echo '<section class="nd-card na-form' . ( $edit ? ' is-open' : '' ) . '" id="na-form"><h2>' . ( $row ? 'Edit entry' : 'Record expense or income' ) . '</h2>';
-		echo '<form method="post" enctype="multipart/form-data" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
-		wp_nonce_field( 'nurax_acc_save' );
-		echo '<input type="hidden" name="action" value="nurax_acc_save"><input type="hidden" name="id" value="' . (int) ( $row ? $row->id : 0 ) . '">' . $hid; // phpcs:ignore WordPress.Security.EscapeOutput
-		echo '<div class="na-f"><label class="na-f__w"><span>What is it for? *</span><select name="category" required>';
-		foreach ( $grp as $g => $gl ) {
-			echo '<optgroup label="' . esc_attr( $gl ) . '">';
-			foreach ( $cats as $k => $c ) {
-				if ( $c[1] === $g ) {
-					echo '<option value="' . esc_attr( $k ) . '"' . selected( $row ? $row->category : 'rent', $k, false ) . ' title="' . esc_attr( $c[2] ) . '">' . esc_html( $c[0] ) . '</option>';
+		$catopts = function ( $sel ) use ( $cats, $grp ) {
+			$o = '';
+			foreach ( $grp as $g => $gl ) {
+				$o .= '<optgroup label="' . esc_attr( $gl ) . '">';
+				foreach ( $cats as $k => $c ) {
+					if ( $c[1] === $g ) {
+						$o .= '<option value="' . esc_attr( $k ) . '"' . selected( $sel, $k, false ) . ' title="' . esc_attr( $c[2] ) . '">' . esc_html( $c[0] ) . '</option>';
+					}
 				}
+				$o .= '</optgroup>';
 			}
-			echo '</optgroup>';
+			return $o;
+		};
+		$line_html = function ( $i, $ln ) use ( $catopts ) {
+			return '<tr class="na-ln"><td><input type="hidden" name="lines[' . $i . '][id]" value="' . (int) $ln['id'] . '"><select name="lines[' . $i . '][category]" class="na-ln__cat">' . $catopts( $ln['category'] ) . '</select></td>'
+				. '<td><input type="text" name="lines[' . $i . '][description]" maxlength="190" placeholder="e.g. LED shelf lights" value="' . esc_attr( $ln['description'] ) . '"></td>'
+				. '<td><input type="text" inputmode="decimal" class="na-ln__amt" name="lines[' . $i . '][amount]" placeholder="0" value="' . esc_attr( '' === $ln['amount'] ? '' : (float) $ln['amount'] ) . '"></td>'
+				. '<td><button type="button" class="nd-btn nd-btn--danger-ghost nd-btn--sm na-ln__rm" title="Remove this item">Remove</button></td></tr>';
+		};
+
+		echo '<div class="na-grid na-grid--entries">';
+		echo '<section class="nd-card na-form' . ( $edit ? ' is-open' : '' ) . '" id="na-form"><h2>' . ( $txn ? 'Edit ' . esc_html( $txn ) : 'Record a payment or money received' ) . '</h2>';
+		// Stopped-save notices.
+		if ( 'acc_total' === $msg ) {
+			echo '<p class="na-alert na-alert--err">The items do not add up to the receipt total you entered. Check each amount, or clear the receipt total. Nothing was saved.</p>';
+		} elseif ( 'acc_reason' === $msg ) {
+			echo '<p class="na-alert na-alert--err">You changed an amount, category or date, or removed an item. Please give a short reason for the change - it is kept in the change history. Nothing was saved yet.</p>';
+		} elseif ( 'acc_dupref' === $msg && $dup ) {
+			$dl = self::voucher( $dup );
+			$ds = 0;
+			foreach ( $dl as $x ) {
+				$ds += (float) $x->amount;
+			}
+			echo '<p class="na-alert na-alert--err">This reference is already recorded on <strong>' . esc_html( $dup ) . '</strong>' . ( $dl ? ' (' . esc_html( date_i18n( 'j M Y', strtotime( $dl[0]->entry_date ) ) ) . ', ' . count( $dl ) . ' item' . ( 1 === count( $dl ) ? '' : 's' ) . ', ' . esc_html( NURAX_Desk::money( $ds ) ) . ')' : '' ) . '. If these items were paid with that same payment, <a href="' . esc_url( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => 'entries', 'edit' => strtolower( $dup ) ) ) ) ) . '#na-form">open ' . esc_html( $dup ) . ' and add them there</a> so the payment is recorded once. If it really is a different payment, tick the box below and save again. Nothing was saved yet.</p>';
 		}
-		echo '</select></label>';
-		echo '<label class="na-f__w"><span>Description *</span><input type="text" name="description" maxlength="190" required placeholder="e.g. November rent, LED shelf lights, 10 bob wigs from supplier" value="' . esc_attr( $row ? $row->description : '' ) . '"></label>';
-		echo '<label><span>Amount (KSh) *</span><input type="text" inputmode="decimal" name="amount" required placeholder="0" value="' . esc_attr( $row ? (float) $row->amount : '' ) . '"></label>';
-		echo '<label><span>Date *</span><input type="date" name="entry_date" required value="' . esc_attr( $row ? $row->entry_date : NURAX_Desk::today() ) . '"></label>';
+		echo '<p class="na-muted">One payment = one record. If one M-Pesa payment or receipt covered several items, add a line for each item: they share the date, reference, supplier and receipt, and the payment is counted once.</p>';
+		echo '<form method="post" enctype="multipart/form-data" class="na-vform" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		wp_nonce_field( 'nurax_acc_save' );
+		echo '<input type="hidden" name="action" value="nurax_acc_save"><input type="hidden" name="txn" value="' . esc_attr( $txn ) . '"><input type="hidden" name="note_orig" value="' . esc_attr( $note_orig ) . '">' . $hid; // phpcs:ignore WordPress.Security.EscapeOutput
+		echo '<div class="na-f">';
+		echo '<label><span>Date *</span><input type="date" name="entry_date" required value="' . esc_attr( $H['entry_date'] ) . '"></label>';
 		echo '<label><span>Paid by</span><select name="method">';
 		foreach ( self::methods() as $k => $l ) {
-			echo '<option value="' . esc_attr( $k ) . '"' . selected( $row ? $row->method : 'mpesa', $k, false ) . '>' . esc_html( $l ) . '</option>';
+			echo '<option value="' . esc_attr( $k ) . '"' . selected( $H['method'], $k, false ) . '>' . esc_html( $l ) . '</option>';
 		}
 		echo '</select></label>';
-		echo '<label><span>M-Pesa / bank reference</span><input type="text" name="ref" maxlength="60" placeholder="e.g. SKL4X7Y2ZQ" value="' . esc_attr( $row ? $row->ref : '' ) . '"></label>';
-		echo '<label class="na-f__w"><span>Paid to / received from</span><input type="text" name="payee" maxlength="120" placeholder="Landlord, supplier, staff name..." value="' . esc_attr( $row ? $row->payee : '' ) . '"></label>';
-		echo '<label class="na-f__w"><span>Note</span><input type="text" name="note" maxlength="255" value="' . esc_attr( $row ? $row->note : '' ) . '"></label>';
-		$cf = $row && ! empty( $row->cover_from ) ? substr( $row->cover_from, 0, 7 ) : '';
+		echo '<label><span>M-Pesa code / bank reference</span><input type="text" name="ref" maxlength="60" placeholder="e.g. SKL4X7Y2ZQ" value="' . esc_attr( $H['ref'] ) . '" style="text-transform:uppercase"></label>';
+		echo '<label><span>Paid to / received from</span><input type="text" name="payee" maxlength="120" placeholder="Landlord, supplier, staff name..." value="' . esc_attr( $H['payee'] ) . '"></label>';
+		echo '</div>';
+		// Item lines.
+		echo '<div class="nd-table-wrap"><table class="na-lines"><thead><tr><th>What is it for? *</th><th>Item / description *</th><th class="na-r">Amount (KSh) *</th><th></th></tr></thead><tbody data-na-lines>';
+		$i = 0;
+		foreach ( $L as $ln ) {
+			echo $line_html( $i++, $ln ); // phpcs:ignore WordPress.Security.EscapeOutput
+		}
+		echo '</tbody><tfoot><tr><td colspan="2"><button type="button" class="nd-btn nd-btn--ghost nd-btn--sm" data-na-add>+ Add another item on this receipt</button></td><td class="na-r"><strong data-na-sum>0</strong></td><td></td></tr></tfoot></table></div>';
+		echo '<template id="na-ln-tpl">' . $line_html( '__I__', array( 'id' => 0, 'category' => 'supplies', 'description' => '', 'amount' => '' ) ) . '</template>'; // phpcs:ignore WordPress.Security.EscapeOutput
+		echo '<div class="na-f">';
+		echo '<label><span>Receipt / M-Pesa total (optional check)</span><input type="text" inputmode="decimal" name="receipt_total" placeholder="Total on the receipt" value="' . esc_attr( $H['receipt_total'] ) . '"><small class="na-warn" data-na-diff hidden></small></label>';
+		echo '<label class="na-f__w"><span>Note</span><input type="text" name="note" maxlength="255" value="' . esc_attr( $H['note'] ) . '"></label>';
 		echo '<div class="na-f__w na-adv" data-na-adv><p class="na-adv__t">Rent paid in advance</p><div class="na-adv__g">';
-		echo '<label><span>First month it covers</span><input type="month" name="cover_from" value="' . esc_attr( $cf ) . '"></label>';
-		echo '<label><span>Number of months</span><input type="number" min="1" max="60" name="cover_months" value="' . esc_attr( $row && $row->cover_months ? (int) $row->cover_months : 2 ) . '"></label></div>';
+		echo '<label><span>First month it covers</span><input type="month" name="cover_from" value="' . esc_attr( $H['cover_from'] ) . '"></label>';
+		echo '<label><span>Number of months</span><input type="number" min="1" max="60" name="cover_months" value="' . esc_attr( (int) $H['cover_months'] ) . '"></label></div>';
 		echo '<p class="na-muted">It is counted as rent month by month in the months it covers. Not sure yet? Leave the month empty - it stays as "paid in advance, not yet used" and never inflates any month.</p></div>';
-		echo '<label class="na-f__w"><span>Receipt (photo or PDF)' . ( $row && $row->receipt_id ? ' - <a href="' . esc_url( wp_get_attachment_url( $row->receipt_id ) ) . '" target="_blank" rel="noopener">view current</a>' : '' ) . '</span><input type="file" name="receipt" accept="image/*,application/pdf"></label></div>';
-		echo '<p class="na-f__acts"><button class="nd-btn nd-btn--primary">' . ( $row ? 'Save changes' : 'Save entry' ) . '</button> ';
-		if ( $row ) {
+		echo '<label class="na-f__w"><span>Receipt (photo or PDF)' . ( $receipt_id ? ' - <a href="' . esc_url( wp_get_attachment_url( $receipt_id ) ) . '" target="_blank" rel="noopener">view current</a>' : '' ) . '</span><input type="file" name="receipt" accept="image/*,application/pdf"></label>';
+		if ( $txn ) {
+			echo '<label class="na-f__w"><span>Reason for change (needed if you change an amount, category or date, or remove an item)</span><input type="text" name="reason" maxlength="255" placeholder="e.g. wrong category - glue is shop fit-out, not rent" value="' . esc_attr( $H['reason'] ) . '"></label>';
+		}
+		if ( 'acc_dupref' === $msg ) {
+			echo '<label class="na-f__w na-check"><input type="checkbox" name="dup_ok" value="1"> <span>This is a different payment that has the same reference</span></label>';
+		}
+		echo '</div>';
+		echo '<p class="na-f__acts"><button class="nd-btn nd-btn--primary">' . ( $txn ? 'Save changes' : 'Save' ) . '</button> ';
+		if ( $txn || $edit ) {
 			echo '<a class="nd-btn nd-btn--ghost" href="' . esc_url( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => 'entries' ) ) ) ) . '">Cancel</a>';
 		}
 		echo '</p></form>';
-		echo '<script>(function(){var s=document.querySelector(\'.na-form select[name=category]\'),b=document.querySelector(\'[data-na-adv]\');if(!s||!b)return;function t(){b.hidden=s.value!==\'prepaid\';}s.addEventListener(\'change\',t);t();})();</script>';
+		echo '<script>(function(){var f=document.querySelector(".na-vform");if(!f)return;var tb=f.querySelector("[data-na-lines]"),tpl=document.getElementById("na-ln-tpl"),n=' . (int) $i . ',adv=f.querySelector("[data-na-adv]"),sum=f.querySelector("[data-na-sum]"),rt=f.querySelector("[name=receipt_total]"),diff=f.querySelector("[data-na-diff]");'
+			. 'function num(v){v=parseFloat(String(v).replace(/[^0-9.]/g,""));return isNaN(v)?0:v;}function fmt(v){return "KSh "+v.toLocaleString("en-KE",{minimumFractionDigits:0,maximumFractionDigits:2});}'
+			. 'function calc(){var t=0,pre=false;tb.querySelectorAll(".na-ln").forEach(function(r){t+=num(r.querySelector(".na-ln__amt").value);if(r.querySelector(".na-ln__cat").value==="prepaid")pre=true;});sum.textContent=fmt(t);if(adv)adv.hidden=!pre;var ok=true;if(rt&&rt.value.trim()!==""){var d=Math.round((num(rt.value)-t)*100)/100;ok=Math.abs(d)<0.005;diff.hidden=ok;diff.textContent=ok?"":(d>0?fmt(d)+" of the receipt is not on any item yet":"Items are "+fmt(-d)+" more than the receipt");}else{diff.hidden=true;}return ok;}'
+			. 'f.querySelector("[data-na-add]").addEventListener("click",function(){var h=tpl.innerHTML.split("__I__").join(String(n++));tb.insertAdjacentHTML("beforeend",h);calc();var r=tb.lastElementChild;if(r)r.querySelector("input[type=text]").focus();});'
+			. 'tb.addEventListener("click",function(e){var b=e.target.closest(".na-ln__rm");if(!b)return;if(tb.querySelectorAll(".na-ln").length<2){alert("A record needs at least one item.");return;}b.closest(".na-ln").remove();calc();});'
+			. 'f.addEventListener("input",calc);f.addEventListener("change",calc);f.addEventListener("submit",function(e){if(!calc()){e.preventDefault();alert("The items do not add up to the receipt total.");}});calc();})();</script>';
+		// Change history.
+		if ( $txn ) {
+			$hist = (array) $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . self::log_table() . ' WHERE txn = %s ORDER BY id DESC LIMIT 40', $txn ) ); // phpcs:ignore WordPress.DB
+			if ( $hist ) {
+				$names = array( 'entry_date' => 'date', 'category' => 'category', 'description' => 'item', 'amount' => 'amount', 'method' => 'paid by', 'ref' => 'reference', 'payee' => 'paid to', 'note' => 'note', 'receipt_id' => 'receipt', 'cover_from' => 'first month', 'cover_months' => 'months' );
+				echo '<details class="na-hist"><summary>Change history (' . count( $hist ) . ')</summary><ul>';
+				foreach ( $hist as $hrow ) {
+					$u   = $hrow->user_id ? get_userdata( $hrow->user_id ) : null;
+					$chg = $hrow->changes ? json_decode( $hrow->changes, true ) : array();
+					$bits = array();
+					if ( 'edited' === $hrow->action && is_array( $chg ) ) {
+						foreach ( $chg as $f => $ab ) {
+							$fa = $ab[0];
+							$fb = $ab[1];
+							if ( 'category' === $f ) {
+								$fa = isset( $cats[ $fa ] ) ? $cats[ $fa ][0] : $fa;
+								$fb = isset( $cats[ $fb ] ) ? $cats[ $fb ][0] : $fb;
+							} elseif ( 'amount' === $f ) {
+								$fa = NURAX_Desk::money( (float) $fa );
+								$fb = NURAX_Desk::money( (float) $fb );
+							} elseif ( 'receipt_id' === $f ) {
+								$fa = $fa ? 'attached' : 'none';
+								$fb = $fb ? 'new file' : 'none';
+							}
+							$bits[] = ( isset( $names[ $f ] ) ? $names[ $f ] : $f ) . ': ' . ( '' === (string) $fa ? '(blank)' : $fa ) . ' -> ' . ( '' === (string) $fb ? '(blank)' : $fb );
+						}
+					} elseif ( is_array( $chg ) ) {
+						$d    = isset( $chg['description'] ) ? ( 'added' === $hrow->action ? $chg['description'][1] : $chg['description'][0] ) : '';
+						$am   = isset( $chg['amount'] ) ? ( 'added' === $hrow->action ? $chg['amount'][1] : $chg['amount'][0] ) : 0;
+						$bits[] = $d . ' ' . NURAX_Desk::money( (float) $am );
+					}
+					echo '<li><span class="na-muted">' . esc_html( date_i18n( 'j M Y H:i', strtotime( $hrow->at ) ) ) . ' - ' . esc_html( $u ? $u->display_name : 'System' ) . '</span> <strong>' . esc_html( ucfirst( $hrow->action ) ) . '</strong> ' . esc_html( implode( '; ', $bits ) ) . ( $hrow->reason ? ' <em>Reason: ' . esc_html( $hrow->reason ) . '</em>' : '' ) . '</li>';
+				}
+				echo '</ul></details>';
+			}
+		}
 		echo '<p class="na-muted na-tip">Tip: stock you buy, refundable deposits and furniture/equipment are recorded but kept out of profit - you still own them. Stock becomes a cost when it sells, at its buying price.</p></section>';
 
 		// List.
@@ -1162,27 +1535,41 @@ class NURAX_Desk_Accounts {
 		foreach ( $cats as $k => $c ) {
 			echo '<option value="' . esc_attr( $k ) . '"' . selected( $cat, $k, false ) . '>&nbsp;&nbsp;' . esc_html( $c[0] ) . '</option>';
 		}
-		echo '</select><input type="search" name="q" placeholder="Search description, payee, reference" value="' . esc_attr( $q ) . '"><button class="nd-btn nd-btn--ghost nd-btn--sm">Search</button></form>';
+		echo '</select><input type="search" name="q" placeholder="Search item, payee, M-Pesa code, PV number" value="' . esc_attr( $q ) . '"><button class="nd-btn nd-btn--ghost nd-btn--sm">Search</button></form>';
 		if ( ! $list ) {
 			echo '<p class="nd-empty">Nothing recorded for this period yet. Use the form to add your first entry.</p></section></div>';
 			return;
 		}
-		$tot = 0;
+		// Voucher sizes / totals (whole voucher, not only the filtered lines).
+		$vt = array();
+		$ids = array_unique( array_filter( wp_list_pluck( $list, 'txn' ) ) );
+		if ( $ids ) {
+			$ph = implode( ',', array_fill( 0, count( $ids ), '%s' ) );
+			foreach ( (array) $wpdb->get_results( $wpdb->prepare( 'SELECT txn, COUNT(*) n, SUM(amount) s FROM ' . self::table() . " WHERE deleted = 0 AND txn IN ({$ph}) GROUP BY txn", array_values( $ids ) ) ) as $v ) { // phpcs:ignore WordPress.DB
+				$vt[ $v->txn ] = $v;
+			}
+		}
+		$tot  = 0;
+		$seen = array();
 		echo '<div class="nd-table-wrap"><table class="nd-table na-tbl"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Paid by</th><th class="na-r">Amount</th><th></th></tr></thead><tbody>';
 		foreach ( $list as $e ) {
 			$g    = self::group_of( $e->category );
 			$tot += (float) $e->amount;
-			echo '<tr><td class="na-nowrap">' . esc_html( date_i18n( 'j M Y', strtotime( $e->entry_date ) ) ) . '</td>';
-			echo '<td><strong>' . esc_html( $e->description ) . '</strong>' . ( $e->payee ? '<small>' . esc_html( $e->payee ) . '</small>' : '' ) . ( $e->note ? '<small class="na-note">' . esc_html( $e->note ) . '</small>' : '' ) . ( 'prepaid' === $e->category ? '<small class="na-cover">' . esc_html( self::cover_text( $e ) ) . '</small>' : '' ) . '</td>';
+			$v    = $e->txn && isset( $vt[ $e->txn ] ) ? $vt[ $e->txn ] : null;
+			$multi = $v && (int) $v->n > 1;
+			$seen[ $e->txn ] = isset( $seen[ $e->txn ] ) ? $seen[ $e->txn ] + 1 : 1;
+			echo '<tr' . ( $multi ? ' class="na-multi"' : '' ) . '><td class="na-nowrap">' . esc_html( date_i18n( 'j M Y', strtotime( $e->entry_date ) ) ) . ( $e->txn ? '<small class="na-vch">' . esc_html( $e->txn ) . '</small>' : '' ) . '</td>';
+			echo '<td><strong>' . esc_html( $e->description ) . '</strong>' . ( $e->payee ? '<small>' . esc_html( $e->payee ) . '</small>' : '' ) . ( $multi ? '<small class="na-vch">One of ' . (int) $v->n . ' items on this payment - total ' . esc_html( NURAX_Desk::money( $v->s ) ) . '</small>' : '' ) . ( $e->note ? '<small class="na-note">' . esc_html( $e->note ) . '</small>' : '' ) . ( 'prepaid' === $e->category ? '<small class="na-cover">' . esc_html( self::cover_text( $e ) ) . '</small>' : '' ) . '</td>';
 			echo '<td><span class="na-chip na-g--' . esc_attr( $g ) . '">' . esc_html( isset( $cats[ $e->category ] ) ? $cats[ $e->category ][0] : $e->category ) . '</span></td>';
 			echo '<td class="na-nowrap">' . esc_html( self::methods()[ $e->method ] ?? $e->method ) . ( $e->ref ? '<small>' . esc_html( $e->ref ) . '</small>' : '' ) . '</td>';
-			echo '<td class="na-r na-amt na-amt--' . esc_attr( 'income' === $g || 'capital' === $e->category ? 'in' : 'out' ) . '">' . esc_html( ( 'income' === $g || 'capital' === $e->category ? '+ ' : '' ) . NURAX_Desk::money( $e->amount ) ) . '</td>';
+			echo '<td class="na-r na-amt na-amt--' . esc_attr( self::is_in( $e->category ) ? 'in' : 'out' ) . '">' . esc_html( ( self::is_in( $e->category ) ? '+ ' : '' ) . NURAX_Desk::money( $e->amount ) ) . '</td>';
 			echo '<td class="na-acts">' . ( $e->receipt_id ? '<a class="nd-btn nd-btn--ghost nd-btn--sm" href="' . esc_url( wp_get_attachment_url( $e->receipt_id ) ) . '" target="_blank" rel="noopener">Receipt</a>' : '' );
-			echo '<a class="nd-btn nd-btn--ghost nd-btn--sm" href="' . esc_url( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => 'entries', 'edit' => $e->id, 'cat' => $cat ) ) ) ) . '#na-form">Edit</a>';
-			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" onsubmit="return confirm(\'Remove this entry? It will no longer count in the accounts.\')">';
+			echo '<a class="nd-btn nd-btn--ghost nd-btn--sm" href="' . esc_url( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => 'entries', 'edit' => $e->txn ? strtolower( $e->txn ) : $e->id, 'cat' => $cat ) ) ) ) . '#na-form">Edit</a>';
+			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" onsubmit="var r=prompt(\'Remove this item? It will no longer count in the accounts. Reason (kept in the change history):\');if(r===null)return false;this.reason.value=r;return true;">';
 			wp_nonce_field( 'nurax_acc_delete' );
-			echo '<input type="hidden" name="action" value="nurax_acc_delete"><input type="hidden" name="id" value="' . (int) $e->id . '">' . $hid . '<button class="nd-btn nd-btn--danger-ghost nd-btn--sm">Remove</button></form></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput
+			echo '<input type="hidden" name="action" value="nurax_acc_delete"><input type="hidden" name="id" value="' . (int) $e->id . '"><input type="hidden" name="reason" value="">' . $hid . '<button class="nd-btn nd-btn--danger-ghost nd-btn--sm">Remove</button></form></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput
 		}
-		echo '</tbody><tfoot><tr><th colspan="4">' . count( $list ) . ' entr' . ( 1 === count( $list ) ? 'y' : 'ies' ) . '</th><th class="na-r">' . esc_html( NURAX_Desk::money( $tot ) ) . '</th><th></th></tr></tfoot></table></div></section></div>';
+		$nv = count( array_unique( wp_list_pluck( $list, 'txn' ) ) );
+		echo '</tbody><tfoot><tr><th colspan="4">' . count( $list ) . ' item' . ( 1 === count( $list ) ? '' : 's' ) . ' on ' . (int) $nv . ' payment' . ( 1 === $nv ? '' : 's' ) . '</th><th class="na-r">' . esc_html( NURAX_Desk::money( $tot ) ) . '</th><th></th></tr></tfoot></table></div></section></div>';
 	}
 }

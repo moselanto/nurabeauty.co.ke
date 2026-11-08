@@ -436,7 +436,7 @@ class NURAX_Xlsx_Statement {
 			$prep,
 		), $last );
 		$rh   = $r;
-		$heads = array( 'DATE', 'NO.', 'TYPE', 'CATEGORY', 'DESCRIPTION', 'PAID TO / RECEIVED FROM', 'PAID BY', 'REFERENCE', 'AMOUNT KES', 'NOTE', 'RECEIPT' );
+		$heads = array( 'DATE', 'VOUCHER', 'TYPE', 'CATEGORY', 'DESCRIPTION', 'PAID TO / RECEIVED FROM', 'PAID BY', 'REFERENCE', 'AMOUNT KES', 'NOTE', 'RECEIPT' );
 		$xml .= '<row r="' . $rh . '" ht="30" customHeight="1">';
 		foreach ( $heads as $i => $hd ) {
 			$xml .= self::t( self::col( $i ) . $rh, 'AMOUNT KES' === $hd ? self::S_HEAD_R : self::S_HEAD, $hd );
@@ -450,7 +450,7 @@ class NURAX_Xlsx_Statement {
 			$rcpt = ( ! empty( $e->receipt_id ) && function_exists( 'wp_get_attachment_url' ) ) ? (string) wp_get_attachment_url( $e->receipt_id ) : '';
 			$xml .= '<row r="' . $r . '">'
 				. self::n( 'A' . $r, self::S_DATE, $serial( $e->entry_date ) )
-				. self::n( 'B' . $r, self::S_INT, $n + 1 )
+				. ( ! empty( $e->txn ) ? self::t( 'B' . $r, self::S_TXT, (string) $e->txn ) : self::n( 'B' . $r, self::S_INT, $n + 1 ) )
 				. self::t( 'C' . $r, self::S_TXT, isset( $grps[ $g ] ) ? $grps[ $g ] : $g )
 				. self::t( 'D' . $r, self::S_TXT, $label( $e->category ) )
 				. self::t( 'E' . $r, self::S_TXT, (string) $e->description )
@@ -480,7 +480,7 @@ class NURAX_Xlsx_Statement {
 		$xml .= '<row r="' . $r . '" ht="28" customHeight="1">' . self::t( 'A' . $r, self::S_SMALL, 'Use the filter arrows on the header row to show one type, category, supplier or payment method; the total then adds up only the rows shown. See the Summary sheet for how each type is treated in the accounts.' ) . '</row>';
 		$merge[] = 'A' . $r . ':' . $last . $r;
 		$reg_last = $r;
-		$cols = '<col min="1" max="1" width="12" customWidth="1"/><col min="2" max="2" width="6" customWidth="1"/><col min="3" max="3" width="30" customWidth="1"/><col min="4" max="4" width="30" customWidth="1"/><col min="5" max="5" width="40" customWidth="1"/><col min="6" max="6" width="26" customWidth="1"/><col min="7" max="7" width="13" customWidth="1"/><col min="8" max="8" width="14" customWidth="1"/><col min="9" max="9" width="15" customWidth="1"/><col min="10" max="10" width="40" customWidth="1"/><col min="11" max="11" width="24" customWidth="1"/>';
+		$cols = '<col min="1" max="1" width="12" customWidth="1"/><col min="2" max="2" width="10" customWidth="1"/><col min="3" max="3" width="30" customWidth="1"/><col min="4" max="4" width="30" customWidth="1"/><col min="5" max="5" width="40" customWidth="1"/><col min="6" max="6" width="26" customWidth="1"/><col min="7" max="7" width="13" customWidth="1"/><col min="8" max="8" width="14" customWidth="1"/><col min="9" max="9" width="15" customWidth="1"/><col min="10" max="10" width="40" customWidth="1"/><col min="11" max="11" width="24" customWidth="1"/>';
 		$ws_reg = self::sheet_xml( $xml, $cols, $merge, $last, $reg_last, $rh + 1, $biz, 'Register of expenses and income', true );
 		$ws_reg = str_replace( '</sheetData>', '</sheetData><autoFilter ref="A' . $rh . ':K' . $l0 . '"/>', $ws_reg );
 		$R  = "Register!";
@@ -660,16 +660,32 @@ class NURAX_Xlsx_Statement {
 		$merge[] = 'B' . $r . ':C' . $r;
 		$r++;
 		$checks = 0;
+		// 1.105.0: whole-payment totals (receipt rule) and references used on more than one voucher.
+		$vtot = array();
+		$rtx  = array();
+		foreach ( $rows as $e ) {
+			$k = ! empty( $e->txn ) ? $e->txn : 'id' . $e->id;
+			$vtot[ $k ] = ( isset( $vtot[ $k ] ) ? $vtot[ $k ] : 0 ) + (float) $e->amount;
+			$rf = strtoupper( preg_replace( '/\\s+/', '', (string) $e->ref ) );
+			if ( '' !== $rf ) {
+				$rtx[ $rf ][ $k ] = true;
+			}
+		}
 		foreach ( $rows as $n => $e ) {
 			$issues = array();
+			$vk     = ! empty( $e->txn ) ? $e->txn : 'id' . $e->id;
+			$rf     = strtoupper( preg_replace( '/\\s+/', '', (string) $e->ref ) );
+			if ( '' !== $rf && count( $rtx[ $rf ] ) > 1 ) {
+				$issues[] = 'same reference is on ' . count( $rtx[ $rf ] ) . ' different vouchers - check it is not recorded twice';
+			}
 			if ( 'mpesa' === $e->method && '' === trim( (string) $e->ref ) ) {
 				$issues[] = 'M-Pesa payment without a transaction code';
 			}
 			if ( '' === trim( (string) $e->payee ) && 'income' !== $gof( $e->category ) ) {
 				$issues[] = 'supplier not recorded';
 			}
-			if ( empty( $e->receipt_id ) && (float) $e->amount >= 5000 ) {
-				$issues[] = 'no receipt attached (KSh 5,000 or more)';
+			if ( empty( $e->receipt_id ) && $vtot[ $vk ] >= 5000 ) {
+				$issues[] = 'no receipt attached (payment of KSh 5,000 or more)';
 			}
 			if ( 'prepaid' === $e->category && ( empty( $e->cover_from ) ) ) {
 				$issues[] = 'months it covers not set, so no rent is released';
@@ -678,7 +694,7 @@ class NURAX_Xlsx_Statement {
 				continue;
 			}
 			$checks++;
-			$xml .= '<row r="' . $r . '" ht="30" customHeight="1">' . self::t( 'A' . $r, self::S_ATTN, 'No. ' . ( $n + 1 ) . ' - ' . $fmtd( $e->entry_date ) ) . self::t( 'B' . $r, self::S_ATTN, $e->description . ': ' . implode( '; ', $issues ) ) . self::e( 'C' . $r, self::S_ATTN ) . self::n( 'D' . $r, self::S_MONEY, (float) $e->amount ) . '</row>';
+			$xml .= '<row r="' . $r . '" ht="30" customHeight="1">' . self::t( 'A' . $r, self::S_ATTN, ( ! empty( $e->txn ) ? $e->txn : 'No. ' . ( $n + 1 ) ) . ' - ' . $fmtd( $e->entry_date ) ) . self::t( 'B' . $r, self::S_ATTN, $e->description . ': ' . implode( '; ', $issues ) ) . self::e( 'C' . $r, self::S_ATTN ) . self::n( 'D' . $r, self::S_MONEY, (float) $e->amount ) . '</row>';
 			$merge[] = 'B' . $r . ':C' . $r;
 			$r++;
 		}

@@ -11,7 +11,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 <br>
 
 [![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.125.1-0E0E0E?style=for-the-badge)](nura-beauty)
-[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.94.0-C9A24B?style=for-the-badge)](nura-experience)
+[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.105.0-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -167,6 +167,8 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| - | 1.105.0 | Accounts: payment vouchers (PV/RV numbers) with several items on one receipt / M-Pesa code, edit whole voucher (ref, payee, date apply to all items), duplicate-reference guard, reason for changes, full change history; Excel Register shows voucher no. (built, install pending) |
+| - | 1.104.0 | Expenses & income Excel report at P&L standard: Summary vs comparative, Register, Suppliers & methods, Notes / records to check |
 | 1.125.1 | 1.103.1 | Delivery wording: same-day delivery in Nairobi, same-day dispatch countrywide (courier sets arrival); stored content migrated |
 | 1.124.1 | 1.102.0 | Schema: breadcrumbs on all pages, one business entity; wig encyclopedia (44 terms) + 7 comparison guides linked from products, footer and llms.txt; on-site review requests; Accounts comparative statement + IAS 1 Excel export |
 | 1.112.0 | 1.94.0 | Pay on delivery within Nairobi CBD only (checkout + WhatsApp pop-up); M-Pesa PIN prompt via Paystack in the WhatsApp pop-up; site-wide payment/delivery wording |

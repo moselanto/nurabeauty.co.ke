@@ -528,7 +528,10 @@ class NURAX_Desk {
 			'full'      => array( 'warning', 'Saved, but this time slot is now over its capacity.' ),
 			'notfound'  => array( 'error', 'That record could not be found.' ),
 			'deleted'   => array( 'success', 'Deleted.' ),
-			'acc_invalid' => array( 'error', 'Please complete the entry: what it is for, a description, an amount above zero and a valid date. Nothing was saved.' ),
+			'acc_invalid' => array( 'error', 'Please complete every item: what it is for, a description and an amount above zero, plus a valid date. Your typing was kept - nothing was saved yet.' ),
+			'acc_total'   => array( 'error', 'The items do not add up to the receipt total. Nothing was saved yet.' ),
+			'acc_dupref'  => array( 'error', 'That M-Pesa code / reference is already recorded on another payment. Nothing was saved yet.' ),
+			'acc_reason'  => array( 'error', 'Please give a reason for the change. Nothing was saved yet.' ),
 			'synced'    => array( 'success', 'Audience refreshed from the shop, accounts, WhatsApp orders, plans and appointments.' ),
 			'tested'    => array( 'success', 'Test e-mail sent. Check your inbox (and spam folder).' ),
 		);

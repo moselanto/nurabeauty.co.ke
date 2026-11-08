@@ -916,3 +916,21 @@ a.nt-who:hover{color:#a07a24}
 .na-notes{margin-top:18px}
 .na-notes ol{margin:8px 0 8px 18px;line-height:1.6;font-size:13px}
 .na-notes li{margin:0 0 6px}
+
+/* 1.105.0 accounts: vouchers with several items, change history */
+.na-lines{width:100%;border-collapse:collapse;margin:.6rem 0}
+.na-lines th{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:.35rem .4rem;border-bottom:1px solid #e5e0d6}
+.na-lines td{padding:.3rem .4rem;vertical-align:top}
+.na-lines select,.na-lines input{width:100%}
+.na-lines .na-ln__amt{text-align:right;min-width:7rem}
+.na-lines tfoot td{border-top:1px solid #e5e0d6;padding-top:.5rem}
+.na-alert{padding:.6rem .8rem;border-radius:8px;margin:.5rem 0;font-size:.9rem}
+.na-alert--err{background:#fdecea;border:1px solid #f5c2bd;color:#7a1f16}
+.na-check{display:flex;gap:.5rem;align-items:center}
+.na-vch{display:block;color:#8a6d2b;font-size:.75rem;letter-spacing:.02em}
+.na-tbl tr.na-multi td{background:#fffaf0}
+.na-hist{margin:.8rem 0;font-size:.85rem}
+.na-hist summary{cursor:pointer;font-weight:600}
+.na-hist ul{margin:.4rem 0 0;padding-left:1.1rem}
+.na-hist li{margin:.25rem 0}
+.na-hist em{color:#555}

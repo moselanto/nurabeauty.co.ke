@@ -728,7 +728,7 @@ a.nt-who:hover{color:#a07a24}
 .na-kpis{grid-template-columns:repeat(5,minmax(0,1fr))}
 .na-tabs{margin:6px 0 16px}
 .na-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:18px;align-items:start}
-.na-grid--entries{grid-template-columns:minmax(300px,420px) minmax(0,1fr)}
+.na-grid--entries{grid-template-columns:minmax(380px,500px) minmax(0,1fr)}
 .na-muted{color:var(--mut);font-size:12.5px;line-height:1.55}
 
 /* Profit & Loss statement */
@@ -934,3 +934,32 @@ a.nt-who:hover{color:#a07a24}
 .na-hist ul{margin:.4rem 0 0;padding-left:1.1rem}
 .na-hist li{margin:.25rem 0}
 .na-hist em{color:#555}
+
+/* 1.107.0 accounts UI: item cards instead of a cramped table, cleaner entries list */
+.na-items{grid-column:1/-1;margin:14px 0 4px;border:1px solid var(--line);border-radius:12px;background:#fbfaf7;padding:12px}
+.na-items__t{margin:0 0 8px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a6d2b}
+.na-lines{display:flex;flex-direction:column;gap:10px;margin:0}
+.na-ln{position:relative;display:grid;grid-template-columns:1fr 130px;gap:8px 10px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 38px 10px 10px}
+.na-ln label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:#555}
+.na-ln__c,.na-ln__d{grid-column:1/-1}
+.na-ln__d{grid-column:1/2}
+.na-ln__a{grid-column:2/3}
+.na-ln select,.na-ln input{width:100%;max-width:none;min-height:38px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font-size:14px;background:#fff}
+.na-ln select:focus,.na-ln input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,75,.18);outline:0}
+.na-ln .na-ln__amt{text-align:right;font-variant-numeric:tabular-nums}
+.na-ln__rm{position:absolute;top:8px;right:8px;width:24px;height:24px;border:0;border-radius:50%;background:#f3eee4;color:#7a1f16;font-size:16px;line-height:24px;cursor:pointer;padding:0}
+.na-ln__rm:hover{background:#fdecea}
+.na-ln:only-child .na-ln__rm{display:none}
+.na-items__f{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.na-items__sum{font-size:13px;color:#555}
+.na-items__sum strong{font-size:16px;color:#111;margin-left:6px;font-variant-numeric:tabular-nums}
+.na-tbl--entries th{position:sticky;top:0;background:#fff;z-index:1}
+.na-tbl--entries td{padding-top:12px;padding-bottom:12px}
+.na-tbl--entries td:nth-child(2){min-width:180px}
+.na-tbl--entries .na-chip{white-space:nowrap}
+.na-tbl--entries .na-amt{white-space:nowrap;font-variant-numeric:tabular-nums}
+.na-acts--row{display:flex;justify-content:flex-end;gap:4px;margin-top:8px;opacity:.55;transition:opacity .15s}
+.na-tbl--entries tr:hover .na-acts--row,.na-acts--row:focus-within{opacity:1}
+.na-acts--row form{margin:0}
+.na-acts--row .nd-btn--sm{padding:2px 8px;font-size:11px;min-height:24px}
+@media (max-width:700px){.na-ln{grid-template-columns:1fr}.na-ln__d,.na-ln__a{grid-column:1/-1}.na-acts--row{opacity:1}}

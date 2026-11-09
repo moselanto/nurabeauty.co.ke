@@ -377,6 +377,10 @@ class NURAX_Desk_Accounts {
 
 	public static function bust() {
 		global $wpdb;
+		// 1.107.0: with a persistent object cache (LiteSpeed / Redis) transients are not in the options
+		// table, so deleting rows there left old figures on screen. Bump a generation number instead -
+		// every cache key includes it, so all cached figures are dropped at once.
+		update_option( 'nurax_acc_gen', (int) get_option( 'nurax_acc_gen', 0 ) + 1, false );
 		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '\\_transient\\_nurax\\_acc\\_%' OR option_name LIKE '\\_transient\\_timeout\\_nurax\\_acc\\_%'" ); // phpcs:ignore WordPress.DB
 	}
 
@@ -551,7 +555,7 @@ class NURAX_Desk_Accounts {
 	}
 
 	public static function sales( $from, $to ) {
-		$key = 'nurax_acc_v3_' . md5( $from . $to );
+		$key = 'nurax_acc_v3_' . md5( $from . $to . '|' . (int) get_option( 'nurax_acc_gen', 0 ) );
 		$hit = get_transient( $key );
 		if ( is_array( $hit ) ) {
 			return $hit;
@@ -1524,10 +1528,11 @@ class NURAX_Desk_Accounts {
 			return $o;
 		};
 		$line_html = function ( $i, $ln ) use ( $catopts ) {
-			return '<tr class="na-ln"><td><input type="hidden" name="lines[' . $i . '][id]" value="' . (int) $ln['id'] . '"><select name="lines[' . $i . '][category]" class="na-ln__cat">' . $catopts( $ln['category'] ) . '</select></td>'
-				. '<td><input type="text" name="lines[' . $i . '][description]" maxlength="190" placeholder="e.g. LED shelf lights" value="' . esc_attr( $ln['description'] ) . '"></td>'
-				. '<td><input type="text" inputmode="decimal" class="na-ln__amt" name="lines[' . $i . '][amount]" placeholder="0" value="' . esc_attr( '' === $ln['amount'] ? '' : (float) $ln['amount'] ) . '"></td>'
-				. '<td><button type="button" class="nd-btn nd-btn--danger-ghost nd-btn--sm na-ln__rm" title="Remove this item">Remove</button></td></tr>';
+			return '<div class="na-ln"><input type="hidden" name="lines[' . $i . '][id]" value="' . (int) $ln['id'] . '">'
+				. '<label class="na-ln__c"><span>What is it for? *</span><select name="lines[' . $i . '][category]" class="na-ln__cat">' . $catopts( $ln['category'] ) . '</select></label>'
+				. '<label class="na-ln__d"><span>Item / description *</span><input type="text" name="lines[' . $i . '][description]" maxlength="190" placeholder="e.g. LED shelf lights" value="' . esc_attr( $ln['description'] ) . '"></label>'
+				. '<label class="na-ln__a"><span>Amount (KSh) *</span><input type="text" inputmode="decimal" class="na-ln__amt" name="lines[' . $i . '][amount]" placeholder="0" value="' . esc_attr( '' === $ln['amount'] ? '' : (float) $ln['amount'] ) . '"></label>'
+				. '<button type="button" class="na-ln__rm" title="Remove this item" aria-label="Remove this item">&times;</button></div>';
 		};
 
 		echo '<div class="na-grid na-grid--entries">';
@@ -1560,12 +1565,12 @@ class NURAX_Desk_Accounts {
 		echo '<label><span>Paid to / received from</span><input type="text" name="payee" maxlength="120" placeholder="Landlord, supplier, staff name..." value="' . esc_attr( $H['payee'] ) . '"></label>';
 		echo '</div>';
 		// Item lines.
-		echo '<div class="nd-table-wrap"><table class="na-lines"><thead><tr><th>What is it for? *</th><th>Item / description *</th><th class="na-r">Amount (KSh) *</th><th></th></tr></thead><tbody data-na-lines>';
+		echo '<div class="na-items"><p class="na-items__t">Items on this payment</p><div class="na-lines" data-na-lines>';
 		$i = 0;
 		foreach ( $L as $ln ) {
 			echo $line_html( $i++, $ln ); // phpcs:ignore WordPress.Security.EscapeOutput
 		}
-		echo '</tbody><tfoot><tr><td colspan="2"><button type="button" class="nd-btn nd-btn--ghost nd-btn--sm" data-na-add>+ Add another item on this receipt</button></td><td class="na-r"><strong data-na-sum>0</strong></td><td></td></tr></tfoot></table></div>';
+		echo '</div><div class="na-items__f"><button type="button" class="nd-btn nd-btn--ghost nd-btn--sm" data-na-add>+ Add another item on this receipt</button><span class="na-items__sum">Total <strong data-na-sum>0</strong></span></div></div>';
 		echo '<template id="na-ln-tpl">' . $line_html( '__I__', array( 'id' => 0, 'category' => 'supplies', 'description' => '', 'amount' => '' ) ) . '</template>'; // phpcs:ignore WordPress.Security.EscapeOutput
 		echo '<div class="na-f">';
 		echo '<label><span>Receipt / M-Pesa total (optional check)</span><input type="text" inputmode="decimal" name="receipt_total" placeholder="Total on the receipt" value="' . esc_attr( $H['receipt_total'] ) . '"><small class="na-warn" data-na-diff hidden></small></label>';
@@ -1590,7 +1595,7 @@ class NURAX_Desk_Accounts {
 		echo '<script>(function(){var f=document.querySelector(".na-vform");if(!f)return;var tb=f.querySelector("[data-na-lines]"),tpl=document.getElementById("na-ln-tpl"),n=' . (int) $i . ',adv=f.querySelector("[data-na-adv]"),sum=f.querySelector("[data-na-sum]"),rt=f.querySelector("[name=receipt_total]"),diff=f.querySelector("[data-na-diff]");'
 			. 'function num(v){v=parseFloat(String(v).replace(/[^0-9.]/g,""));return isNaN(v)?0:v;}function fmt(v){return "KSh "+v.toLocaleString("en-KE",{minimumFractionDigits:0,maximumFractionDigits:2});}'
 			. 'function calc(){var t=0,pre=false;tb.querySelectorAll(".na-ln").forEach(function(r){t+=num(r.querySelector(".na-ln__amt").value);if(r.querySelector(".na-ln__cat").value==="prepaid")pre=true;});sum.textContent=fmt(t);if(adv)adv.hidden=!pre;var ok=true;if(rt&&rt.value.trim()!==""){var d=Math.round((num(rt.value)-t)*100)/100;ok=Math.abs(d)<0.005;diff.hidden=ok;diff.textContent=ok?"":(d>0?fmt(d)+" of the receipt is not on any item yet":"Items are "+fmt(-d)+" more than the receipt");}else{diff.hidden=true;}return ok;}'
-			. 'f.querySelector("[data-na-add]").addEventListener("click",function(){var h=tpl.innerHTML.split("__I__").join(String(n++));tb.insertAdjacentHTML("beforeend",h);calc();var r=tb.lastElementChild;if(r)r.querySelector("input[type=text]").focus();});'
+			. 'f.querySelector("[data-na-add]").addEventListener("click",function(){var h=tpl.innerHTML.split("__I__").join(String(n++));tb.insertAdjacentHTML("beforeend",h);calc();var r=tb.lastElementChild;if(r)r.querySelector(".na-ln__d input").focus();});'
 			. 'tb.addEventListener("click",function(e){var b=e.target.closest(".na-ln__rm");if(!b)return;if(tb.querySelectorAll(".na-ln").length<2){alert("A record needs at least one item.");return;}b.closest(".na-ln").remove();calc();});'
 			. 'f.addEventListener("input",calc);f.addEventListener("change",calc);f.addEventListener("submit",function(e){if(!calc()){e.preventDefault();alert("The items do not add up to the receipt total.");}});calc();})();</script>';
 		// Change history.
@@ -1660,7 +1665,7 @@ class NURAX_Desk_Accounts {
 		}
 		$tot  = 0;
 		$seen = array();
-		echo '<div class="nd-table-wrap"><table class="nd-table na-tbl"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Paid by</th><th class="na-r">Amount</th><th></th></tr></thead><tbody>';
+		echo '<div class="nd-table-wrap"><table class="nd-table na-tbl na-tbl--entries"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Paid by</th><th class="na-r">Amount</th></tr></thead><tbody>';
 		foreach ( $list as $e ) {
 			$g    = self::group_of( $e->category );
 			$tot += (float) $e->amount;
@@ -1671,14 +1676,14 @@ class NURAX_Desk_Accounts {
 			echo '<td><strong>' . esc_html( $e->description ) . '</strong>' . ( $e->payee ? '<small>' . esc_html( $e->payee ) . '</small>' : '' ) . ( $multi ? '<small class="na-vch">One of ' . (int) $v->n . ' items on this payment - total ' . esc_html( NURAX_Desk::money( $v->s ) ) . '</small>' : '' ) . ( $e->note ? '<small class="na-note">' . esc_html( $e->note ) . '</small>' : '' ) . ( 'prepaid' === $e->category ? '<small class="na-cover">' . esc_html( self::cover_text( $e ) ) . '</small>' : '' ) . '</td>';
 			echo '<td><span class="na-chip na-g--' . esc_attr( $g ) . '">' . esc_html( isset( $cats[ $e->category ] ) ? $cats[ $e->category ][0] : $e->category ) . '</span></td>';
 			echo '<td class="na-nowrap">' . esc_html( self::methods()[ $e->method ] ?? $e->method ) . ( $e->ref ? '<small>' . esc_html( $e->ref ) . '</small>' : '' ) . '</td>';
-			echo '<td class="na-r na-amt na-amt--' . esc_attr( self::is_in( $e->category ) ? 'in' : 'out' ) . '">' . esc_html( ( self::is_in( $e->category ) ? '+ ' : '' ) . NURAX_Desk::money( $e->amount ) ) . '</td>';
-			echo '<td class="na-acts">' . ( $e->receipt_id ? '<a class="nd-btn nd-btn--ghost nd-btn--sm" href="' . esc_url( wp_get_attachment_url( $e->receipt_id ) ) . '" target="_blank" rel="noopener">Receipt</a>' : '' );
+			echo '<td class="na-r na-amt na-amt--' . esc_attr( self::is_in( $e->category ) ? 'in' : 'out' ) . '">' . esc_html( ( self::is_in( $e->category ) ? '+ ' : '' ) . NURAX_Desk::money( $e->amount ) ) . '';
+			echo '<div class="na-acts na-acts--row">' . ( $e->receipt_id ? '<a class="nd-btn nd-btn--ghost nd-btn--sm" href="' . esc_url( wp_get_attachment_url( $e->receipt_id ) ) . '" target="_blank" rel="noopener">Receipt</a>' : '' );
 			echo '<a class="nd-btn nd-btn--ghost nd-btn--sm" href="' . esc_url( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => 'entries', 'edit' => $e->txn ? strtolower( $e->txn ) : $e->id, 'cat' => $cat ) ) ) ) . '#na-form">Edit</a>';
 			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" onsubmit="var r=prompt(\'Remove this item? It will no longer count in the accounts. Reason (kept in the change history):\');if(r===null)return false;this.reason.value=r;return true;">';
 			wp_nonce_field( 'nurax_acc_delete' );
-			echo '<input type="hidden" name="action" value="nurax_acc_delete"><input type="hidden" name="id" value="' . (int) $e->id . '"><input type="hidden" name="reason" value="">' . $hid . '<button class="nd-btn nd-btn--danger-ghost nd-btn--sm">Remove</button></form></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput
+			echo '<input type="hidden" name="action" value="nurax_acc_delete"><input type="hidden" name="id" value="' . (int) $e->id . '"><input type="hidden" name="reason" value="">' . $hid . '<button class="nd-btn nd-btn--danger-ghost nd-btn--sm">Remove</button></form></div></td></tr>'; // phpcs:ignore WordPress.Security.EscapeOutput
 		}
 		$nv = count( array_unique( wp_list_pluck( $list, 'txn' ) ) );
-		echo '</tbody><tfoot><tr><th colspan="4">' . count( $list ) . ' item' . ( 1 === count( $list ) ? '' : 's' ) . ' on ' . (int) $nv . ' payment' . ( 1 === $nv ? '' : 's' ) . '</th><th class="na-r">' . esc_html( NURAX_Desk::money( $tot ) ) . '</th><th></th></tr></tfoot></table></div></section></div>';
+		echo '</tbody><tfoot><tr><th colspan="4">' . count( $list ) . ' item' . ( 1 === count( $list ) ? '' : 's' ) . ' on ' . (int) $nv . ' payment' . ( 1 === $nv ? '' : 's' ) . '</th><th class="na-r">' . esc_html( NURAX_Desk::money( $tot ) ) . '</th></tr></tfoot></table></div></section></div>';
 	}
 }

@@ -44,6 +44,7 @@ class NURAX_Desk_Accounts {
 		add_action( 'admin_post_nurax_acc_save', array( __CLASS__, 'h_save' ) );
 		add_action( 'admin_post_nurax_acc_delete', array( __CLASS__, 'h_delete' ) );
 		add_action( 'admin_post_nurax_acc_csv', array( __CLASS__, 'h_csv' ) );
+		add_action( 'admin_post_nurax_acc_sale', array( __CLASS__, 'h_sale' ) );
 		add_action( 'woocommerce_order_status_changed', array( __CLASS__, 'bust' ) );
 		add_action( 'woocommerce_order_refunded', array( __CLASS__, 'bust' ) );
 		add_action( 'woocommerce_update_product', array( __CLASS__, 'bust' ) );
@@ -453,17 +454,113 @@ class NURAX_Desk_Accounts {
 	}
 
 	/** WooCommerce sales (website + Point of sale) paid in the period, plus cost of each item sold. */
+	/**
+	 * 1.106.0: is a WooCommerce order a sale? Only money actually received counts (IFRS 15: revenue
+	 * when the goods are handed over and paid). The owner can mark any order on the Profit & Loss tab:
+	 *  paid    - sold and paid (counted)
+	 *  pending - ordered but not paid yet, e.g. WhatsApp / cash-on-delivery customer who has not paid
+	 *  test    - a test order by the owner (never counted)
+	 * Without a mark: Completed = paid; Processing paid online = paid; Processing cash on delivery,
+	 * Pending payment and On hold = pending.
+	 */
+	public static function sale_state( $o ) {
+		$set = (string) $o->get_meta( '_nura_sale', true );
+		if ( in_array( $set, array( 'paid', 'pending', 'test' ), true ) ) {
+			return $set;
+		}
+		$st = $o->get_status();
+		if ( 'completed' === $st ) {
+			return 'paid';
+		}
+		if ( 'processing' === $st && 'cod' !== $o->get_payment_method() && $o->get_date_paid() ) {
+			return 'paid';
+		}
+		return 'pending';
+	}
+
+	public static function h_sale() {
+		self::guard( 'nurax_acc_sale' );
+		$id = isset( $_POST['order_id'] ) ? absint( $_POST['order_id'] ) : 0;
+		$to = isset( $_POST['to'] ) ? sanitize_key( wp_unslash( $_POST['to'] ) ) : '';
+		$o  = $id && function_exists( 'wc_get_order' ) ? wc_get_order( $id ) : null;
+		$lb = array( 'paid' => 'Sold - paid', 'pending' => 'Not paid yet (pending)', 'test' => 'Test order (not a sale)', 'auto' => 'Automatic (from order status)' );
+		if ( $o && isset( $lb[ $to ] ) ) {
+			if ( 'auto' === $to ) {
+				$o->delete_meta_data( '_nura_sale' );
+			} else {
+				$o->update_meta_data( '_nura_sale', $to );
+			}
+			$o->save();
+			$u = wp_get_current_user();
+			$o->add_order_note( 'Accounts: marked as ' . $lb[ $to ] . ' by ' . ( $u && $u->ID ? $u->display_name : 'owner' ) . '.' );
+			self::bust();
+			if ( class_exists( 'NURAX_Staff' ) && method_exists( 'NURAX_Staff', 'log' ) ) {
+				NURAX_Staff::log( 'accounts', 'Order #' . $o->get_order_number() . ' marked as ' . $lb[ $to ] );
+			}
+		}
+		self::back( array( 'nd_msg' => 'saved', 'tab' => 'overview' ) );
+	}
+
+	/** Orders of the period with their sale state and one-click marks (Profit & Loss tab). */
+	private static function render_orders( $r, $keep ) {
+		$s    = $r['sales'];
+		$hid  = '';
+		foreach ( array_merge( $keep, array( 'tab' => 'overview' ) ) as $k => $v ) {
+			$hid .= '<input type="hidden" name="_' . esc_attr( $k ) . '" value="' . esc_attr( $v ) . '">';
+		}
+		$wa_n = 0;
+		$wa_v = 0.0;
+		if ( class_exists( 'NURAX_Desk_Orders' ) ) {
+			$q = get_posts( array( 'post_type' => NURAX_Desk_Orders::CPT, 'post_status' => 'private', 'numberposts' => 500, 'fields' => 'ids' ) );
+			foreach ( $q as $pid ) {
+				if ( 'cancelled' !== NURAX_Desk_Orders::status( $pid ) && ! NURAX_Desk_Orders::is_paid( $pid ) ) {
+					$d = NURAX_Desk_Orders::data( $pid );
+					$wa_n++;
+					$wa_v += (float) $d['total'];
+				}
+			}
+		}
+		echo '<section class="nd-card na-orders"><header class="nd-card__h"><h2>Orders: sold or not paid yet</h2></header>';
+		echo '<p class="na-muted">Only paid orders count as sales. Mark each order: <strong>Sold</strong> when the money is received, <strong>Not paid</strong> while you wait (e.g. a WhatsApp or cash-on-delivery customer), <strong>Test</strong> for your own test orders.</p>';
+		if ( ! $s['list'] ) {
+			echo '<p class="nd-empty">No website or till orders in this period.</p>';
+		} else {
+			$tag = array( 'paid' => array( 'completed', 'Sold - counted' ), 'pending' => array( 'request', 'Not paid - not counted' ), 'test' => array( 'muted', 'Test - not counted' ) );
+			echo '<div class="nd-table-wrap"><table class="nd-table na-tbl"><thead><tr><th>Order</th><th>Customer</th><th>Payment</th><th class="na-r">Total</th><th>In the accounts</th><th></th></tr></thead><tbody>';
+			foreach ( $s['list'] as $o ) {
+				echo '<tr><td class="na-nowrap"><a href="' . esc_url( admin_url( 'post.php?post=' . (int) $o['id'] . '&action=edit' ) ) . '">#' . esc_html( $o['no'] ) . '</a><small>' . esc_html( $o['date'] ? date_i18n( 'j M Y', strtotime( $o['date'] ) ) : '' ) . ' - ' . esc_html( function_exists( 'wc_get_order_status_name' ) ? wc_get_order_status_name( $o['status'] ) : $o['status'] ) . '</small></td>';
+				echo '<td>' . esc_html( $o['name'] ) . '</td><td>' . esc_html( $o['method'] ) . '</td><td class="na-r">' . esc_html( NURAX_Desk::money( $o['total'] ) ) . '</td>';
+				echo '<td>' . NURAX_Desk::badge( $tag[ $o['state'] ][0], $tag[ $o['state'] ][1] ) . ( $o['set'] ? '' : '<small class="na-muted">automatic</small>' ) . '</td><td class="na-acts">'; // phpcs:ignore WordPress.Security.EscapeOutput
+				foreach ( array( 'paid' => 'Sold', 'pending' => 'Not paid', 'test' => 'Test' ) as $to => $lab ) {
+					if ( $to === $o['state'] ) {
+						continue;
+					}
+					echo '<form method="post" class="nd-inline" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+					wp_nonce_field( 'nurax_acc_sale' );
+					echo '<input type="hidden" name="action" value="nurax_acc_sale"><input type="hidden" name="order_id" value="' . (int) $o['id'] . '"><input type="hidden" name="to" value="' . esc_attr( $to ) . '">' . $hid . '<button class="nd-btn nd-btn--ghost nd-btn--sm">' . esc_html( $lab ) . '</button></form>'; // phpcs:ignore WordPress.Security.EscapeOutput
+				}
+				echo '</td></tr>';
+			}
+			echo '</tbody></table></div>';
+			echo '<p class="na-muted">' . esc_html( 'Not paid yet: ' . (int) $s['awaiting_n'] . ' order(s), ' . NURAX_Desk::money( $s['awaiting'] ) . ' (not in sales).' . ( $s['tests'] ? ' Test orders: ' . (int) $s['tests'] . '.' : '' ) ) . '</p>';
+		}
+		if ( $wa_n ) {
+			echo '<p class="na-muted">WhatsApp orders not paid yet: ' . (int) $wa_n . ' (' . esc_html( NURAX_Desk::money( $wa_v ) ) . ') - never counted as sales. <a href="' . esc_url( NURAX_Desk::url( NURAX_Desk::P_ORDERS, array() ) ) . '">Open WhatsApp orders</a> to mark them paid or cancelled.</p>';
+		}
+		echo '</section>';
+	}
+
 	public static function sales( $from, $to ) {
-		$key = 'nurax_acc_v2_' . md5( $from . $to );
+		$key = 'nurax_acc_v3_' . md5( $from . $to );
 		$hit = get_transient( $key );
 		if ( is_array( $hit ) ) {
 			return $hit;
 		}
-		$out = array( 'online' => 0.0, 'pos' => 0.0, 'shipping' => 0.0, 'refunds' => 0.0, 'orders' => 0, 'cost' => 0.0, 'units' => 0, 'missing' => 0, 'missing_rev' => 0.0, 'products' => array() );
+		$out = array( 'online' => 0.0, 'pos' => 0.0, 'shipping' => 0.0, 'refunds' => 0.0, 'orders' => 0, 'cost' => 0.0, 'units' => 0, 'missing' => 0, 'missing_rev' => 0.0, 'products' => array(), 'list' => array(), 'awaiting' => 0.0, 'awaiting_n' => 0, 'tests' => 0 );
 		if ( function_exists( 'wc_get_orders' ) ) {
 			$ids = wc_get_orders( array(
 				'type'         => 'shop_order',
-				'status'       => array( 'wc-processing', 'wc-completed' ),
+				'status'       => array( 'wc-processing', 'wc-completed', 'wc-pending', 'wc-on-hold' ),
 				'date_created' => $from . '...' . $to . ' 23:59:59',
 				'limit'        => -1,
 				'return'       => 'ids',
@@ -472,6 +569,17 @@ class NURAX_Desk_Accounts {
 				$o = wc_get_order( $id );
 				if ( ! $o ) {
 					continue;
+				}
+				$state = self::sale_state( $o );
+				$out['list'][] = array( 'id' => $o->get_id(), 'no' => $o->get_order_number(), 'date' => $o->get_date_created() ? $o->get_date_created()->date( 'Y-m-d' ) : '', 'name' => trim( $o->get_billing_first_name() . ' ' . $o->get_billing_last_name() ), 'total' => (float) $o->get_total(), 'method' => $o->get_payment_method_title(), 'status' => $o->get_status(), 'state' => $state, 'set' => (string) $o->get_meta( '_nura_sale', true ) );
+				if ( 'paid' !== $state ) {
+					if ( 'test' === $state ) {
+						$out['tests']++;
+					} else {
+						$out['awaiting']   += (float) $o->get_total();
+						$out['awaiting_n']++;
+					}
+					continue; // 1.106.0: only paid orders are sales.
 				}
 				$net = (float) $o->get_total() - (float) $o->get_shipping_total() - (float) $o->get_shipping_tax();
 				if ( 'nura_pos' === $o->get_created_via() ) {
@@ -1082,6 +1190,7 @@ class NURAX_Desk_Accounts {
 			self::render_breakdown( $r );
 		} else {
 			self::render_pnl( $r, $label, $rp, $plabel, $from, $to, $pf, $pt );
+			self::render_orders( $r, $keep );
 		}
 		echo '</div></div>';
 	}

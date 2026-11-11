@@ -399,8 +399,10 @@ add_action( 'woocommerce_after_shop_loop_item_title', function () {
 	}
 	$dep = ceil( $price * $s['deposit'] / 100 );
 	$wk  = ceil( ( $price - $dep ) / max( array_map( 'absint', (array) $s['weeks'] ) ) );
-	/* translators: %s: weekly amount. */
-	echo '<span class="nura-lmm-chip">' . esc_html( sprintf( __( 'or %s/week with Lipa Mdogo Mdogo', 'nura-beauty' ), nura_boost_ksh( $wk ) ) ) . '</span>';
+	// 1.127.0: say what Lipa Mdogo Mdogo really is (deposit now, balance later, released when paid) - the old 'KSh X/week' line hid the deposit.
+	$wks = max( array_map( 'absint', (array) $s['weeks'] ) );
+	/* translators: 1: deposit amount, 2: number of weeks. */
+	echo '<span class="nura-lmm-chip">' . esc_html( sprintf( __( 'or %1$s deposit, balance within %2$d weeks (Lipa Mdogo Mdogo)', 'nura-beauty' ), nura_boost_ksh( $dep ), $wks ) ) . '</span>';
 }, 11 );
 
 /* ===========================================================================

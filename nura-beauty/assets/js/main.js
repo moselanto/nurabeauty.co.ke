@@ -101,7 +101,31 @@
 			d.addEventListener('click', function (e) {
 				if (e.target && e.target.closest && e.target.closest('#wpconsent-root')) { setTimeout(syncSticky, 400); }
 			});
-			sticky.addEventListener('click', function () { atc.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+			// 1.127.0: the bar follows the chosen colour/option. Once a full variation is chosen
+			// (or for simple products) tapping it adds to bag; otherwise it scrolls to the options.
+			var sBtn = sticky.querySelector('.nura-sticky-atc__btn'), sPrice = sticky.querySelector('.nura-sticky-atc__price');
+			var sBase = sBtn ? sBtn.textContent : '', sBasePrice = sPrice ? sPrice.innerHTML : '';
+			var sReady = function () {
+				var vid = atc.querySelector('input[name=variation_id]');
+				var btn = atc.querySelector('.single_add_to_cart_button');
+				if (!btn || btn.disabled || btn.classList.contains('disabled')) { return null; }
+				if (vid && !(parseInt(vid.value, 10) > 0)) { return null; }
+				return btn;
+			};
+			if (window.jQuery && atc.classList.contains('variations_form')) {
+				window.jQuery(atc).on('found_variation', function (ev, v) {
+					if (sBtn) { sBtn.textContent = v && v.is_in_stock === false ? 'Sold out' : 'Add to bag'; }
+					if (sPrice && v && v.price_html) { sPrice.innerHTML = v.price_html; }
+				}).on('reset_data hide_variation', function () {
+					if (sBtn) { sBtn.textContent = sBase; }
+					if (sPrice) { sPrice.innerHTML = sBasePrice; }
+				});
+			}
+			sticky.addEventListener('click', function () {
+				var b = sReady();
+				if (b) { b.click(); return; }
+				atc.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			});
 		}
 	});
 })();
@@ -187,6 +211,8 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form||form.hasAttr
 					var cRes=d.querySelector("[data-nura-results]"),cBar=d.querySelector("[data-nura-filterbar]");
 					if(nRes&&cRes){cRes.parentNode.replaceChild(nRes,cRes);}
 					if(nBar&&cBar){cBar.parentNode.replaceChild(nBar,cBar);}
+					/* 1.127.0: tell screen-reader and keyboard users the results changed. */
+					try{var live=d.getElementById("nura-filter-live");if(!live){live=d.createElement("p");live.id="nura-filter-live";live.className="screen-reader-text";live.setAttribute("role","status");live.setAttribute("aria-live","polite");d.body.appendChild(live);}var rc=d.querySelector("[data-nura-results] .woocommerce-result-count");var n=d.querySelectorAll("[data-nura-results] li.product").length;live.textContent=rc?rc.textContent.replace(/\s+/g," ").trim():(n+" products shown");}catch(x){}
 					if(d.body.classList.contains("nura-filters-open")){var p=panel();if(p){p.classList.add("is-open");p.setAttribute("aria-hidden","false");}}
 					if(push&&window.history&&window.history.pushState){window.history.pushState({nura:1},"",url);}
 					var anchor=d.querySelector(".nura-filterbar");

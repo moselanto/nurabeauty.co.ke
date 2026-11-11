@@ -66,7 +66,7 @@ $nf_tryon   = $nf_page( 'virtual-try-on' );
 $nf_privacy = function_exists( 'get_privacy_policy_url' ) ? get_privacy_policy_url() : '';
 
 $nf_steps = array(
-	array( 'camera', __( 'Share your look', 'nura-beauty' ), __( 'Answer a few quick questions about texture, length, colour and budget.', 'nura-beauty' ) ),
+	array( 'camera', __( 'Share your look', 'nura-beauty' ), __( 'Answer a few quick questions about texture, length, hair type and colour.', 'nura-beauty' ) ),
 	array( 'spark', __( 'We match you', 'nura-beauty' ), __( 'NURA matches your answers on texture, length, hair type, colour and lace to our collection.', 'nura-beauty' ) ),
 	array( 'list', __( 'Get your shortlist', 'nura-beauty' ), __( 'See curated units with lengths, textures and prices.', 'nura-beauty' ) ),
 	array( 'cal', __( 'Try or confirm', 'nura-beauty' ), __( 'Save your matches, ask a stylist on WhatsApp or book a free consultation.', 'nura-beauty' ) ),
@@ -116,7 +116,7 @@ $nf_steps = array(
 				<div class="nura-wf-tool__body">
 					<?php echo do_shortcode( '[nura_ai_wig_finder]' ); // phpcs:ignore ?>
 				</div>
-				<p class="nura-wf-privacy"><?php echo $nf_icon( 'lock' ); // phpcs:ignore ?><span><?php esc_html_e( 'Your answers and photo are used only to generate your recommendation and are never shared.', 'nura-beauty' ); ?><?php if ( $nf_privacy ) : ?> <a href="<?php echo esc_url( $nf_privacy ); ?>"><?php esc_html_e( 'Privacy policy', 'nura-beauty' ); ?></a><?php endif; ?></span></p>
+				<p class="nura-wf-privacy"><?php echo $nf_icon( 'lock' ); // phpcs:ignore ?><span><?php esc_html_e( 'Your answers are used only to generate your recommendation and are never shared.', 'nura-beauty' ); ?><?php if ( $nf_privacy ) : ?> <a href="<?php echo esc_url( $nf_privacy ); ?>"><?php esc_html_e( 'Privacy policy', 'nura-beauty' ); ?></a><?php endif; ?></span></p>
 			</div>
 		</div>
 	</section>

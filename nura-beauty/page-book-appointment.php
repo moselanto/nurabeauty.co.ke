@@ -120,6 +120,7 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 							<label><input type="radio" name="type" value="video"><span><?php esc_html_e( 'Video call', 'nura-beauty' ); ?></span></label>
 							<label><input type="radio" name="type" value="whatsapp"><span><?php esc_html_e( 'WhatsApp', 'nura-beauty' ); ?></span></label>
 						</div>
+						<p class="nura-bk__typehint"><?php esc_html_e( 'Studio visit: morning slots (9:00 to 11:30 am), secured with a small deposit that comes off your bill. Video call or WhatsApp: free, no deposit. Afternoons are for walk-ins.', 'nura-beauty' ); ?></p>
 					</div>
 					<div class="nura-bk__row">
 						<div class="nura-bk__f">

@@ -869,3 +869,24 @@ add_action( 'wp_footer', function () {
 	</script>
 	<?php
 }, 99 );
+
+
+/* 1.127.0: empty cart - clear ways back into the shop instead of a bare message. */
+add_action( 'woocommerce_cart_is_empty', function () {
+	$wigs = get_term_by( 'slug', 'wigs', 'product_cat' );
+	$care = get_term_by( 'slug', 'wig-care', 'product_cat' );
+	$w    = ( $wigs && ! is_wp_error( $wigs ) ) ? get_term_link( $wigs ) : '';
+	$c    = ( $care && ! is_wp_error( $care ) && $care->count > 0 ) ? get_term_link( $care ) : '';
+	$shop = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
+	echo '<div class="nura-empty-cart">';
+	echo '<a class="nura-btn nura-btn--gold" href="' . esc_url( ( $w && ! is_wp_error( $w ) ) ? $w : $shop ) . '">' . esc_html__( 'Shop wigs', 'nura-beauty' ) . '</a>';
+	if ( $c && ! is_wp_error( $c ) ) {
+		echo '<a class="nura-btn nura-btn--ghost" href="' . esc_url( $c ) . '">' . esc_html__( 'Shop wig care', 'nura-beauty' ) . '</a>';
+	}
+	echo '<a class="nura-btn nura-btn--ghost" href="' . esc_url( home_url( '/ai-wig-finder/' ) ) . '">' . esc_html__( 'Find my wig', 'nura-beauty' ) . '</a>';
+	echo '</div>';
+}, 20 );
+
+add_action( 'wp_head', function () {
+	echo '<style id="nura-ux-1127">.nura-empty-cart{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:18px 0 28px}.nura-empty-cart .nura-btn{min-height:46px}.nura-bk__typehint{margin:8px 0 0;font-size:.86rem;line-height:1.5;color:#6b6259}.nura-lmm-chip{white-space:normal}</style>' . "\n";
+}, 30 );

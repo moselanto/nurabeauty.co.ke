@@ -124,6 +124,11 @@ if ( ! function_exists( 'nura_delivery_lines' ) ) {
 					$enabled = true;
 					if ( isset( $m->id ) && 'free_shipping' === $m->id ) {
 						$has_free = true;
+						$min      = isset( $m->min_amount ) ? (float) $m->min_amount : 0;
+						if ( $min > 0 && ( empty( $free_min ) || $min < $free_min ) ) {
+							$free_min  = $min;
+							$free_zone = isset( $zone['zone_name'] ) ? (string) $zone['zone_name'] : '';
+						}
 					}
 				}
 				if ( $enabled && ! empty( $zone['zone_name'] ) ) {
@@ -131,7 +136,17 @@ if ( ! function_exists( 'nura_delivery_lines' ) ) {
 				}
 			}
 			if ( $has_free ) {
-				$lines[] = __( 'Free delivery available', 'nura-beauty' );
+				// 1.127.0: name the threshold instead of a vague 'Free delivery available'.
+				if ( ! empty( $free_min ) ) {
+					$amt      = 'KSh ' . number_format( $free_min );
+					$lines[] = ( ! empty( $free_zone ) && false !== stripos( $free_zone, 'nairobi' ) )
+						/* translators: %s: amount. */
+						? sprintf( __( 'Free Nairobi delivery over %s', 'nura-beauty' ), $amt )
+						/* translators: %s: amount. */
+						: sprintf( __( 'Free delivery over %s', 'nura-beauty' ), $amt );
+				} else {
+					$lines[] = __( 'Free delivery available', 'nura-beauty' );
+				}
 			}
 			$slots = max( 0, $max - count( $lines ) );
 			foreach ( array_slice( array_values( array_unique( $names ) ), 0, $slots ) as $nm ) {

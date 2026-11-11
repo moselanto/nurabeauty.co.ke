@@ -10,7 +10,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.126.0-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.127.0-0E0E0E?style=for-the-badge)](nura-beauty)
 [![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.108.2-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
@@ -59,7 +59,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.126.0 | Parent theme |
+| `nura-beauty/` | 1.127.0 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
 | `nura-experience/` | 1.108.2 | Plugin |
 
@@ -167,6 +167,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.127.0 | - | UX pass: sticky buy bar follows the chosen colour and adds to bag; Lipa Mdogo Mdogo card line shows deposit + weeks; free-delivery line names the threshold; booking explains studio vs video/WhatsApp; Wig Finder copy matches its questions; empty cart has Shop wigs / wig care / Find my wig; filter results announced to screen readers |
 | 1.126.0 | 1.108.2 | AI visibility for every product, now and future: real supplier brand (Luodais, Ghost Bond, CSCR ...) in schema, Brands terms and social feeds; full description in Product schema; own questions for wig care / beauty / tools (wig questions no longer shown on them); every product with brand, price and summary in /llms.txt |
 | - | 1.108.1 | WhatsApp order pop-up: phone footer button no longer cut off at the right edge |
 | - | 1.108.0 | Order on WhatsApp pop-up simplified: two steps (your details, then pay & send) with Continue / Back buttons, smaller header and one-row footer on phones, and a 'More below' hint while there is more to scroll |

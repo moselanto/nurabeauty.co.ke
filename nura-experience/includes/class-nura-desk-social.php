@@ -141,7 +141,7 @@ class NURAX_Desk_Social {
 					self::track( $v->get_permalink(), $src, 'paid_social', 'catalogue' ),
 					$img,
 					implode( ',', $gal ),
-					'NURA Beauty',
+					function_exists( 'nura_product_brand' ) ? nura_product_brand( $p ) : 'NURA Beauty', // 1.108.2: real brand (Luodais, Ghost Bond ...), not always NURA.
 					$p->is_type( 'variable' ) ? 'NURA-' . $id : '',
 					$color,
 					$size,

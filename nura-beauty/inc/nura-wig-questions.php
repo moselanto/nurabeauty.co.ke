@@ -327,6 +327,9 @@ add_filter( 'nura_llms_extra', function ( $lines, $full ) {
  * visible text mirrored in a FAQPage node for answer engines.
  * ------------------------------------------------------------------ */
 function nura_pq_items( $p ) {
+	if ( $p && function_exists( 'nura_pai_is_hair' ) && ! nura_pai_is_hair( $p ) ) {
+		return nura_pai_items( $p ); // 1.126.0: wig care, beauty and tools get their own questions (inc/nura-product-ai.php).
+	}
 	if ( ! $p || ! nura_wq_ready() ) {
 		return array();
 	}
@@ -363,7 +366,8 @@ add_action( 'woocommerce_after_single_product_summary', function () {
 	if ( ! $items ) {
 		return;
 	}
-	echo '<section class="nura-pq"><h2>' . esc_html__( 'Questions about this wig', 'nura-beauty' ) . '</h2>';
+	$nura_pq_h = ( function_exists( 'nura_pai_is_hair' ) && ! nura_pai_is_hair( $product ) ) ? __( 'Questions about this product', 'nura-beauty' ) : __( 'Questions about this wig', 'nura-beauty' );
+	echo '<section class="nura-pq"><h2>' . esc_html( $nura_pq_h ) . '</h2>';
 	foreach ( $items as $qa ) {
 		echo '<details class="nura-wq-q"><summary><h3>' . esc_html( $qa[0] ) . '</h3></summary><p>' . esc_html( $qa[1] ) . '</p></details>';
 	}

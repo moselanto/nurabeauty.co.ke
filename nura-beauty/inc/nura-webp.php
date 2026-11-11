@@ -30,6 +30,11 @@ function nura_webp_widths() {
 	return (array) apply_filters( 'nura_webp_widths', array( 480, 640, 828, 1024 ) );
 }
 
+/** 1.130.0: file-name suffix; bump to rebuild every WebP (s2 = sharpened, quality 86). */
+function nura_webp_tag() {
+	return (string) apply_filters( 'nura_webp_tag', 's2' );
+}
+
 function nura_webp_dir() {
 	$u = wp_upload_dir( null, false );
 	return array( trailingslashit( $u['basedir'] ) . 'nura-webp/', trailingslashit( $u['baseurl'] ) . 'nura-webp/' );
@@ -61,7 +66,7 @@ function nura_webp_variants( $id ) {
 	list( $dir, $url ) = nura_webp_dir();
 	$out = array();
 	foreach ( nura_webp_targets( $id ) as $w ) {
-		$f = $id . '-' . $w . '.webp';
+		$f = $id . '-' . $w . '-' . nura_webp_tag() . '.webp';
 		if ( ! file_exists( $dir . $f ) ) {
 			return $cache[ $id ] = array();
 		}
@@ -136,9 +141,12 @@ function nura_webp_build_one( $id ) {
 		return true;
 	}
 	foreach ( nura_webp_targets( $id ) as $w ) {
-		$dest = $dir . $id . '-' . $w . '.webp';
+		$dest = $dir . $id . '-' . $w . '-' . nura_webp_tag() . '.webp';
 		if ( file_exists( $dest ) ) {
 			continue;
+		}
+		if ( nura_webp_build_sharp( $file, $dest, $w ) ) {
+			continue; // 1.130.0: resized with Lanczos + unsharp mask.
 		}
 		$ed = wp_get_image_editor( $file );
 		if ( is_wp_error( $ed ) ) {
@@ -148,13 +156,73 @@ function nura_webp_build_one( $id ) {
 		if ( ! empty( $size['width'] ) && (int) $size['width'] > $w ) {
 			$ed->resize( $w, null, false );
 		}
-		$ed->set_quality( (int) apply_filters( 'nura_webp_quality', 78 ) );
+		$ed->set_quality( (int) apply_filters( 'nura_webp_quality', 86 ) );
 		$saved = $ed->save( $dest, 'image/webp' );
 		if ( is_wp_error( $saved ) || ! file_exists( $dest ) ) {
 			return true;
 		}
 	}
 	return true;
+}
+
+
+/**
+ * 1.130.0: product photos looked soft (owner, 11 Nov). Most wig originals are only
+ * 768-896 px wide, so resize with a high-quality filter and add a light unsharp
+ * mask, then save WebP at quality 86. Imagick first, GD second; false = let the
+ * normal WordPress editor do it. Strength: filter nura_webp_sharpen (0 = off).
+ */
+function nura_webp_build_sharp( $file, $dest, $w ) {
+	$amount = (float) apply_filters( 'nura_webp_sharpen', 0.8 );
+	$q      = (int) apply_filters( 'nura_webp_quality', 86 );
+	if ( $amount <= 0 ) {
+		return false;
+	}
+	if ( class_exists( 'Imagick' ) ) {
+		try {
+			$im = new Imagick( $file );
+			if ( method_exists( $im, 'autoOrient' ) ) {
+				$im->autoOrient();
+			}
+			if ( $im->getImageWidth() > $w ) {
+				$im->resizeImage( $w, 0, Imagick::FILTER_LANCZOS, 1 );
+			}
+			$im->unsharpMaskImage( 0, 0.9, $amount, 0.02 );
+			$im->setImageFormat( 'webp' );
+			$im->setImageCompressionQuality( $q );
+			$im->stripImage();
+			$ok = $im->writeImage( $dest );
+			$im->clear();
+			if ( $ok && file_exists( $dest ) ) {
+				return true;
+			}
+		} catch ( Exception $e ) {
+			// Fall through to GD.
+		}
+	}
+	if ( function_exists( 'imagecreatefromstring' ) && function_exists( 'imagewebp' ) && function_exists( 'imageconvolution' ) ) {
+		$src = @imagecreatefromstring( (string) file_get_contents( $file ) ); // phpcs:ignore
+		if ( ! $src ) {
+			return false;
+		}
+		$sw = imagesx( $src );
+		$sh = imagesy( $src );
+		if ( $sw > $w ) {
+			$nh  = (int) round( $sh * $w / $sw );
+			$dst = imagecreatetruecolor( $w, $nh );
+			imagealphablending( $dst, false );
+			imagesavealpha( $dst, true );
+			imagecopyresampled( $dst, $src, 0, 0, 0, 0, $w, $nh, $sw, $sh );
+			imagedestroy( $src );
+			$src = $dst;
+		}
+		$k = 1 + 8 * $amount / 2; // mild 3x3 sharpen
+		imageconvolution( $src, array( array( 0, -$amount / 2, 0 ), array( -$amount / 2, 1 + 2 * $amount, -$amount / 2 ), array( 0, -$amount / 2, 0 ) ), 1, 0 );
+		$ok = imagewebp( $src, $dest, $q );
+		imagedestroy( $src );
+		return $ok && file_exists( $dest );
+	}
+	return false;
 }
 
 add_action( 'nura_webp_build', function () {
@@ -226,6 +294,42 @@ add_filter( 'woocommerce_single_product_image_thumbnail_html', function ( $html,
 		return preg_replace( '/^<img\b/i', '<img srcset="' . esc_attr( $set ) . '" sizes="' . esc_attr( nura_webp_sizes() ) . '"', $tag, 1 );
 	}, $html, 1 );
 }, 30, 2 );
+
+
+/* 1.130.0: shop / category / homepage cards use the sharpened WebP too (up to 828 px),
+ * sized for the slot: 2 per row on phones, 3 on tablets, ~310-340 px on desktop. */
+add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment ) {
+	if ( ! nura_webp_on() || is_admin() || ! $attachment ) {
+		return $attr;
+	}
+	$class = isset( $attr['class'] ) ? (string) $attr['class'] : '';
+	if ( false === strpos( $class, 'attachment-nura_card' ) && false === strpos( $class, 'attachment-woocommerce_thumbnail' ) ) {
+		return $attr;
+	}
+	$id = (int) $attachment->ID;
+	$v  = nura_webp_variants( $id );
+	if ( ! $v ) {
+		$pid = (int) $attachment->post_parent;
+		nura_webp_queue( array( $id ), $pid );
+		return $attr;
+	}
+	$set = array();
+	$src = '';
+	foreach ( $v as $w => $u ) {
+		if ( $w <= 828 ) {
+			$set[] = esc_url( $u ) . ' ' . $w . 'w';
+			if ( '' === $src || $w <= 640 ) {
+				$src = $u;
+			}
+		}
+	}
+	if ( $set ) {
+		$attr['srcset'] = implode( ', ', $set );
+		$attr['src']    = $src;
+		$attr['sizes']  = '(max-width: 600px) 50vw, (max-width: 1024px) 33vw, 400px';
+	}
+	return $attr;
+}, 40, 2 );
 
 /* ------------------------------------------------------------ admin */
 

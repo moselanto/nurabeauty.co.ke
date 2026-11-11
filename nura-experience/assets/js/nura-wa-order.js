@@ -31,6 +31,16 @@
   var pickupEl = modal.querySelector('[data-nwo-pickup]');
   var formErr = modal.querySelector('[data-nwo-formerr]');
   var steps = modal.querySelectorAll('[data-nwo-step]');
+  /* 1.108.0: two simple steps (details, then pay & send) with a 'More below' hint. */
+  var views = modal.querySelectorAll('[data-nwo-view]');
+  var nextBtn = modal.querySelector('[data-nwo-next]');
+  var sendBtn = modal.querySelector('[data-nwo-send]');
+  var backBtn = modal.querySelector('[data-nwo-back]');
+  var billEl = modal.querySelector('.nwo-bill');
+  var smallEl = modal.querySelector('.nwo-small');
+  var bodyEl = modal.querySelector('.nwo-body');
+  var moreEl = modal.querySelector('[data-nwo-more]');
+  var view = 0;
   var payBox = modal.querySelector('[data-nwo-paybox]');
   var payAmt = modal.querySelector('[data-nwo-payamt]');
   var shopOpt = modal.querySelector('[data-nwo-shoponly]');
@@ -141,7 +151,7 @@
     var wrap = el.closest('.nwo-f');
     if (wrap) { wrap.classList.toggle('is-error', !!msg); }
   }
-  function validate() {
+  function validate(scope) {
     var ok = true, first = null;
     var n = form.elements.name, p = form.elements.phone, l = form.elements.location;
     if (clean(n.value).length < 2) { setErr(n, 'Please enter your full name.'); ok = false; first = first || n; } else { setErr(n, ''); }
@@ -152,7 +162,7 @@
       if (clean(tw.value).length < 2) { setErr(tw, 'Please enter your town.'); ok = false; first = first || tw; } else { setErr(tw, ''); }
     }
     var mc = form.elements.mpesa_code;
-    if (mc) {
+    if (mc && scope !== 0) {
       if (payTill() && clean(mc.value) && !normCode(mc.value)) { setErr(mc, 'An M-Pesa code has 10 letters and numbers, e.g. TJR4ABC12D. Leave it empty if you have not paid yet.'); ok = false; first = first || mc; }
       else { setErr(mc, ''); }
     }
@@ -168,7 +178,10 @@
         s.removeAttribute('aria-invalid'); s.parentNode.classList.remove('is-error');
       }
     }
-    if (first) { first.focus(); }
+    if (first) {
+      if (views.length && view !== 0 && first.closest && first.closest('[data-nwo-view="0"]')) { showView(0); }
+      first.focus();
+    }
     return ok;
   }
 
@@ -505,6 +518,36 @@
       if (n === i) { s.setAttribute('aria-current', 'step'); } else { s.removeAttribute('aria-current'); }
     });
   }
+  function updMore() {
+    if (!bodyEl || !moreEl) { return; }
+    moreEl.hidden = !(bodyEl.scrollHeight - bodyEl.scrollTop - bodyEl.clientHeight > 24);
+  }
+  function showView(i) {
+    if (!views.length) { setStep(i); return; }
+    view = i;
+    [].forEach.call(views, function (v) { v.hidden = parseInt(v.getAttribute('data-nwo-view'), 10) !== i; });
+    if (nextBtn) { nextBtn.hidden = i !== 0; }
+    if (sendBtn) { sendBtn.hidden = i === 0; }
+    if (backBtn) { backBtn.hidden = i === 0; }
+    if (billEl) { billEl.hidden = i === 0; }
+    if (smallEl) { smallEl.hidden = i === 0; }
+    setStep(i);
+    if (bodyEl) { bodyEl.scrollTop = 0; }
+    setTimeout(updMore, 40);
+  }
+  function goPay() {
+    formErr.hidden = true;
+    if (!validate(0)) { return; }
+    showView(1);
+    var h = views[1] ? views[1].querySelector('.nwo-sec') : null;
+    if (h) { h.setAttribute('tabindex', '-1'); try { h.focus({ preventScroll: true }); } catch (e) { h.focus(); } }
+  }
+  if (nextBtn) { nextBtn.addEventListener('click', goPay); }
+  if (backBtn) { backBtn.addEventListener('click', function () { showView(0); if (nextBtn) { nextBtn.focus(); } }); }
+  if (bodyEl) { bodyEl.addEventListener('scroll', updMore, { passive: true }); }
+  window.addEventListener('resize', updMore);
+  form.addEventListener('change', function () { setTimeout(updMore, 40); });
+  if (moreEl) { moreEl.addEventListener('click', function () { try { bodyEl.scrollBy({ top: bodyEl.clientHeight * 0.7, behavior: 'smooth' }); } catch (e) { bodyEl.scrollTop += bodyEl.clientHeight * 0.7; } }); }
   function syncFulfil() {
     var pick = val('fulfil') === 'pickup';
     deliveryEl.hidden = pick;
@@ -522,7 +565,7 @@
     doneEl.hidden = true;
     formErr.hidden = true;
     sending = false;
-    setStep(0);
+    showView(0);
     prefill();
     syncFulfil();
     renderSummary();
@@ -715,7 +758,8 @@
     e.preventDefault();
     if (sending || !state) { return; }
     formErr.hidden = true;
-    if (!validate()) { return; }
+    if (views.length && view === 0) { goPay(); return; }
+    if (!validate(1)) { return; }
     if (!C.wa) { formErr.textContent = 'WhatsApp ordering is not set up yet. Please call us.'; formErr.hidden = false; return; }
     sending = true;
     var ref = stkRef || makeRef();
@@ -739,7 +783,7 @@
     stk = null; stkRef = ''; clearTimeout(stkTimer);
     if (stkStatus) { stkStatus.hidden = true; stkStatus.textContent = ''; }
     if (stkBtn) { stkBtn.disabled = false; }
-    setStep(1);
+    setStep(2);
     var title = doneEl.querySelector('.nwo-done__title');
     if (title) { title.focus(); }
 

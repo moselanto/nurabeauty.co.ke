@@ -620,6 +620,7 @@ class NURAX_WA_Order {
 
 				<form class="nwo-form" data-nwo-form novalidate>
 					<div class="nwo-body">
+						<div class="nwo-view" data-nwo-view="0"><?php // 1.108.0: step 1 = product, contact, delivery. ?>
 						<div class="nwo-card">
 							<div class="nwo-sum" data-nwo-sum></div>
 							<div class="nwo-opts" data-nwo-opts hidden></div>
@@ -688,6 +689,8 @@ class NURAX_WA_Order {
 						<p class="nwo-pickup" data-nwo-pickup hidden><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><span><?php echo esc_html( self::pickup_text() ); ?></span></p>
 						<div class="nwo-ship" data-nwo-ship aria-live="polite" hidden></div>
 
+						</div>
+						<div class="nwo-view" data-nwo-view="1" hidden><?php // 1.108.0: step 2 = payment and send. ?>
 						<h3 class="nwo-sec"><span aria-hidden="true">3</span><?php esc_html_e( 'Payment', 'nura-experience' ); ?></h3>
 						<fieldset class="nwo-f nwo-choice">
 							<legend><?php esc_html_e( 'How will you pay?', 'nura-experience' ); ?></legend>
@@ -756,19 +759,23 @@ class NURAX_WA_Order {
 							<li><?php esc_html_e( 'Dispatched once payment is verified', 'nura-experience' ); ?></li>
 							<li><?php esc_html_e( '48-hour returns', 'nura-experience' ); ?></li>
 						</ul>
+						</div>
+						<button type="button" class="nwo-more" data-nwo-more hidden><?php esc_html_e( 'More below', 'nura-experience' ); ?> <span aria-hidden="true">&#8595;</span></button>
 					</div>
 
 					<div class="nwo-foot">
 						<p class="nwo-formerr" data-nwo-formerr role="alert" hidden></p>
-						<dl class="nwo-bill">
+						<dl class="nwo-bill" hidden>
 							<div><dt><?php esc_html_e( 'Subtotal', 'nura-experience' ); ?></dt><dd data-nwo-bsub></dd></div>
 							<div><dt><?php esc_html_e( 'Delivery', 'nura-experience' ); ?></dt><dd data-nwo-bship><?php esc_html_e( 'Select your county', 'nura-experience' ); ?></dd></div>
 						</dl>
 						<div class="nwo-foot__row">
 							<div class="nwo-foot__total"><span><?php esc_html_e( 'Total', 'nura-experience' ); ?></span><strong data-nwo-foottotal aria-live="polite"></strong></div>
-							<button type="submit" class="nwo-submit"><?php echo self::wa_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Send order on WhatsApp', 'nura-experience' ); ?></span></button>
+							<button type="button" class="nwo-submit nwo-next" data-nwo-next><span><?php esc_html_e( 'Continue to payment', 'nura-experience' ); ?></span><span class="nwo-arrow" aria-hidden="true">&#8594;</span></button>
+							<button type="submit" class="nwo-submit" data-nwo-send hidden><?php echo self::wa_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?><span><?php esc_html_e( 'Send order on WhatsApp', 'nura-experience' ); ?></span></button>
 						</div>
-						<p class="nwo-small"><?php esc_html_e( 'WhatsApp opens with your order and payment details ready. Just tap send.', 'nura-experience' ); ?></p>
+						<button type="button" class="nwo-back" data-nwo-back hidden>&#8592; <?php esc_html_e( 'Back to your details', 'nura-experience' ); ?></button>
+						<p class="nwo-small" hidden><?php esc_html_e( 'WhatsApp opens with your order and payment details ready. Just tap send.', 'nura-experience' ); ?></p>
 					</div>
 				</form>
 

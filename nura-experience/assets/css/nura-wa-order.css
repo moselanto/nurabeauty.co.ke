@@ -269,3 +269,26 @@ html.nwo-lock,html.nwo-lock body{overflow:hidden!important}
 .nwo-stk__or{margin:4px 0 8px;font-size:.8rem;color:var(--nwo-mut)}
 .screen-reader-text{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
 @media (max-width:380px){.nwo-stk__row{flex-direction:column}.nwo-stk__btn{width:100%}}
+
+/* 1.108.0: simpler two-step sheet - details, then pay & send. Smaller header and footer on phones so the form gets the screen, plus a 'More below' hint while there is more to scroll. */
+.nwo-view[hidden],.nwo-foot [hidden],.nwo-more[hidden],.nwo-bill[hidden]{display:none!important}
+.nwo-next .nwo-arrow{font-size:1.25em;line-height:1}
+.nwo-back{display:block;width:100%;margin:6px 0 0;padding:6px;border:0;background:none;color:var(--nwo-mut);font-family:var(--nwo-ui);font-size:.86rem;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.nwo-back:hover{color:var(--nwo-ink)}
+.nwo-more{position:sticky;bottom:8px;z-index:3;display:flex;align-items:center;gap:6px;width:max-content;margin:12px auto 0;padding:9px 18px;border:0;border-radius:999px;background:var(--nwo-ink);color:#fff;font-family:var(--nwo-ui);font-size:.82rem;font-weight:600;box-shadow:0 8px 20px rgba(0,0,0,.22);cursor:pointer;animation:nwoBob 1.6s ease-in-out infinite}
+@keyframes nwoBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.nwo-more{animation:none}}
+@media (max-width:640px){
+  .nwo__eyebrow{display:none}
+  .nwo__title{font-size:1.15rem}
+  .nwo-progress{padding:0 16px 8px;gap:6px}
+  .nwo-progress__step{flex-direction:row;align-items:center;gap:6px;padding-bottom:8px;font-size:.72rem}
+  .nwo-progress__dot{width:20px;height:20px;font-size:.68rem}
+  .nwo-progress__step:not(.is-active) .nwo-progress__label{display:none}
+  .nwo-foot{padding-top:8px}
+  .nwo-foot__row{flex-direction:row!important;align-items:center!important;gap:10px!important}
+  .nwo-foot__total{flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:0!important}
+  .nwo-submit{flex:1 1 auto;min-width:0;min-height:50px;padding:0 12px;font-size:.95rem}
+  .nwo-submit span{white-space:normal;line-height:1.2}
+  .nwo-bill,.nwo-small{display:none!important}
+}

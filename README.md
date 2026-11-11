@@ -11,7 +11,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 <br>
 
 [![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.125.1-0E0E0E?style=for-the-badge)](nura-beauty)
-[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.105.0-C9A24B?style=for-the-badge)](nura-experience)
+[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.107.0-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -41,7 +41,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Packages | Payments | Delivery | Back office |
 | :---: | :---: | :---: | :---: |
-| Theme, child theme, plugin | M-Pesa, card (Paystack), M-Pesa Till 1679269, bank; pay in store on pick-up only | Same-day Nairobi before 5 PM, 1-3 days countrywide | NURA Desk: till, orders, plans, bookings, sourcing, team |
+| Theme, child theme, plugin | M-Pesa, card (Paystack), M-Pesa Till 1679269, bank; pay in store on pick-up only | Same-day Nairobi before 5 PM, same-day dispatch countrywide | NURA Desk: till, orders, plans, bookings, sourcing, team |
 
 ## Documentation
 
@@ -61,7 +61,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 | --- | --- | --- |
 | `nura-beauty/` | 1.125.1 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
-| `nura-experience/` | 1.103.1 | Plugin |
+| `nura-experience/` | 1.107.0 | Plugin |
 
 ## Features
 

@@ -872,19 +872,32 @@ add_action( 'wp_footer', function () {
 
 
 /* 1.127.0: empty cart - clear ways back into the shop instead of a bare message. */
-add_action( 'woocommerce_cart_is_empty', function () {
+function nura_empty_cart_actions_html() {
 	$wigs = get_term_by( 'slug', 'wigs', 'product_cat' );
 	$care = get_term_by( 'slug', 'wig-care', 'product_cat' );
 	$w    = ( $wigs && ! is_wp_error( $wigs ) ) ? get_term_link( $wigs ) : '';
 	$c    = ( $care && ! is_wp_error( $care ) && $care->count > 0 ) ? get_term_link( $care ) : '';
 	$shop = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' );
-	echo '<div class="nura-empty-cart">';
-	echo '<a class="nura-btn nura-btn--gold" href="' . esc_url( ( $w && ! is_wp_error( $w ) ) ? $w : $shop ) . '">' . esc_html__( 'Shop wigs', 'nura-beauty' ) . '</a>';
+	$o    = '<div class="nura-empty-cart">';
+	$o   .= '<a class="nura-btn nura-btn--gold" href="' . esc_url( ( $w && ! is_wp_error( $w ) ) ? $w : $shop ) . '">' . esc_html__( 'Shop wigs', 'nura-beauty' ) . '</a>';
 	if ( $c && ! is_wp_error( $c ) ) {
-		echo '<a class="nura-btn nura-btn--ghost" href="' . esc_url( $c ) . '">' . esc_html__( 'Shop wig care', 'nura-beauty' ) . '</a>';
+		$o .= '<a class="nura-btn nura-btn--ghost" href="' . esc_url( $c ) . '">' . esc_html__( 'Shop wig care', 'nura-beauty' ) . '</a>';
 	}
-	echo '<a class="nura-btn nura-btn--ghost" href="' . esc_url( home_url( '/ai-wig-finder/' ) ) . '">' . esc_html__( 'Find my wig', 'nura-beauty' ) . '</a>';
-	echo '</div>';
+	$o .= '<a class="nura-btn nura-btn--ghost" href="' . esc_url( home_url( '/ai-wig-finder/' ) ) . '">' . esc_html__( 'Find my wig', 'nura-beauty' ) . '</a>';
+	return $o . '</div>';
+}
+
+/* 1.127.1: the live cart is the WooCommerce Cart block, so add the actions to its Empty Cart block too. */
+add_filter( 'render_block', function ( $html, $block ) {
+	if ( empty( $block['blockName'] ) || 'woocommerce/empty-cart-block' !== $block['blockName'] || false !== strpos( $html, 'nura-empty-cart' ) ) {
+		return $html;
+	}
+	$pos = strpos( $html, '</h2>' );
+	return false === $pos ? $html : substr_replace( $html, '</h2>' . nura_empty_cart_actions_html(), $pos, 5 );
+}, 10, 2 );
+
+add_action( 'woocommerce_cart_is_empty', function () {
+	echo nura_empty_cart_actions_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the helper.
 }, 20 );
 
 add_action( 'wp_head', function () {

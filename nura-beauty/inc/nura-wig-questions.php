@@ -357,6 +357,11 @@ function nura_pq_items( $p ) {
 		$q[] = array( __( 'Can I pay for this wig in instalments?', 'nura-beauty' ), sprintf( __( 'Yes, with Lipa Mdogo Mdogo: pay a 50%% deposit (about %s) and the balance within 1 or 2 weeks, then we release your wig.', 'nura-beauty' ), 'KSh ' . number_format( ceil( $price / 2 ) ) ) );
 	}
 	$q[] = array( __( 'Can I return it if it does not suit me?', 'nura-beauty' ), $tok['{returns}'] . ' ' . __( 'Returns are accepted at the studio or by courier.', 'nura-beauty' ) );
+	// 1.129.3: the question shoppers and AI assistants actually ask.
+	$q[] = array(
+		sprintf( __( 'Where can I buy the %s in Kenya?', 'nura-beauty' ), $name ),
+		sprintf( __( 'At NURA Beauty: online at nurabeauty.co.ke, on WhatsApp (+254 714 994 898) or at the NURA studio, %1$s, where you can try it on and have it installed. %2$s Same-day delivery in Nairobi for orders before %3$s and same-day dispatch countrywide; pay by M-Pesa or card.', 'nura-beauty' ), $tok['{address}'], $price > 0 ? sprintf( __( 'Price: from KSh %s.', 'nura-beauty' ), number_format( $price ) ) : '', function_exists( 'nura_fact' ) ? nura_fact( 'cutoff', '5 PM' ) : '5 PM' ),
+	);
 	return $q;
 }
 

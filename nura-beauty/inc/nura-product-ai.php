@@ -185,6 +185,35 @@ add_action( 'admin_init', function () {
 	delete_transient( 'nura_llms_full' );
 } );
 
+
+/* ------------------------------------------------ 1b. alternate (old) names */
+
+/**
+ * 1.129.3: product titles were shortened (11 Nov 2026). Shoppers and AI assistants
+ * still search the long supplier names, so keep them as schema alternateName,
+ * in llms.txt and in the "Where can I buy" answer. Filter: nura_pai_alt_names.
+ */
+function nura_pai_alt_names( $id ) {
+	$map = (array) apply_filters(
+		'nura_pai_alt_names',
+		array(
+			2146 => array( 'Luodais Human Hair Wig and Weave Repair Serum' ),
+			2144 => array( 'Luodais Classic Curl Keeper and Repair Serum' ),
+			2145 => array( 'Luodais Curl Keeper Smooth Shine Conditioner', 'Luodais No5 Noir Shine Styling' ),
+			2147 => array( 'IKT Hair Wax Stick, Strong Hold Styling Wax' ),
+			2139 => array( 'Ghost Bond XL Wig Fixing Glue', 'Ghost Bond XL lace wig glue 38 ml' ),
+			2138 => array( 'Lace Wig Glue and Tape Remover', 'lace wig bond and toupee tape remover' ),
+			2131 => array( 'CSCR Professional Lace Melting Spray' ),
+			2152 => array( 'CSCR Lace Tint Spray, Quick Drying, Natural Look' ),
+			2133 => array( 'ASTYLSST Elastic and Fluffing Hair Mousse' ),
+			2148 => array( 'Asstylist Hair Gel for Laying Edges' ),
+			2149 => array( 'ASTYLSST Texture Setting Spray' ),
+			2132 => array( 'Nylon Bristle Detangling Hair Brush' ),
+		)
+	);
+	return isset( $map[ (int) $id ] ) ? array_values( array_filter( (array) $map[ (int) $id ] ) ) : array();
+}
+
 /* --------------------------------------------------------- 2. product schema */
 
 function nura_pai_schema_walk( &$node, $brand ) {
@@ -216,6 +245,10 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 			continue;
 		}
 		nura_pai_schema_walk( $data[ $key ], $brand );
+		$alts = nura_pai_alt_names( $p->get_id() );
+		if ( $alts && empty( $data[ $key ]['alternateName'] ) ) {
+			$data[ $key ]['alternateName'] = $alts; // 1.129.3.
+		}
 		$cur = isset( $node['description'] ) ? wp_strip_all_tags( (string) $node['description'] ) : '';
 		if ( '' !== $full && strlen( $cur ) < 200 && strlen( $full ) > strlen( $cur ) ) {
 			$data[ $key ]['description'] = $full;
@@ -261,8 +294,9 @@ function nura_pai_items( $p ) {
 			$q[] = array( sprintf( __( 'How do I use the %s?', 'nura-beauty' ), $name ), nura_pai_cap( implode( ' ', $use ), 420 ) );
 		}
 	}
-	$q[] = array(
-		sprintf( __( 'Where can I buy the %s in Kenya?', 'nura-beauty' ), $name ),
+	$alts = nura_pai_alt_names( $p->get_id() );
+	$q[]  = array(
+		sprintf( __( 'Where can I buy the %s in Kenya?', 'nura-beauty' ), $alts ? $alts[0] : $name ),
 		sprintf( __( 'NURA Beauty sells the %1$s%2$s online at nurabeauty.co.ke, on WhatsApp (%3$s) and at its Nairobi studio, %4$s. Delivery is same day in Nairobi for orders before %5$s, with same-day dispatch countrywide once paid.', 'nura-beauty' ), $name, $price ? ' for ' . $price : '', $phone, $addr, $cutoff ),
 	);
 	if ( $price ) {
@@ -305,7 +339,8 @@ add_filter( 'nura_llms_extra', function ( $lines, $full = false ) {
 		$sent  = nura_pai_sentences( nura_pai_text( $p ) );
 		$sum   = $sent ? nura_pai_cap( implode( ' ', array_slice( $sent, 0, $full ? 2 : 1 ) ), $full ? 320 : 180 ) : '';
 		$price = nura_pai_price( $p );
-		$lines[] = '- [' . wp_strip_all_tags( $p->get_name() ) . '](' . get_permalink( $p->get_id() ) . ') - Brand: ' . $brand . ( $price ? ' - ' . $price : '' ) . ( $sum ? ' - ' . $sum : '' );
+		$aka     = nura_pai_alt_names( $p->get_id() );
+		$lines[] = '- [' . wp_strip_all_tags( $p->get_name() ) . '](' . get_permalink( $p->get_id() ) . ')' . ( $aka ? ' (also listed as: ' . implode( '; ', $aka ) . ')' : '' ) . ' - Brand: ' . $brand . ( $price ? ' - ' . $price : '' ) . ( $sum ? ' - ' . $sum : '' );
 	}
 	$lines[] = '';
 	return $lines;

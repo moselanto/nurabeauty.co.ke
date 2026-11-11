@@ -121,7 +121,7 @@ add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment,
 	$attr['decoding'] = 'async';
 	if ( ! empty( $attr['srcset'] ) ) {
 		// Cards are 2 per row on phones, 3 on tablets, 4-5 on desktop.
-		$attr['sizes'] = '(max-width: 600px) 50vw, (max-width: 1024px) 33vw, 300px';
+		$attr['sizes'] = '(max-width: 600px) 50vw, (max-width: 1024px) 33vw, 400px'; // 1.129.2: desktop cards are ~310-340px; 400px makes laptops/Macs (1.25x-2x screens) pick the 600/768 file instead of a stretched 300/440 one.
 		// 1.69.1: drop candidates wider than 800px so a phone never downloads the 600 KB original.
 		$keep = array();
 		foreach ( explode( ',', (string) $attr['srcset'] ) as $cand ) {
@@ -215,7 +215,7 @@ add_filter( 'image_downsize', function ( $out, $id, $size ) {
 	if ( is_wp_error( $ed ) ) {
 		return $out;
 	}
-	$ed->set_quality( 78 );
+	$ed->set_quality( 88 ); // 1.129.2: was 78 (soft on desktop).
 	if ( is_wp_error( $ed->resize( 440, null, false ) ) ) {
 		return $out;
 	}

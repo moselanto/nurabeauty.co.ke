@@ -112,6 +112,28 @@ function nura_short_pickup_names( $locs ) {
 }
 add_filter( 'option_pickup_location_pickup_locations', 'nura_short_pickup_names', 120 );
 
+
+/* 1.129.2: block checkout reads the payment name and the Ship/Pickup choice from
+ * settings (not from the gateway/rate filters), so set them on the front end only. */
+add_filter( 'option_woocommerce_cod_settings', function ( $v ) {
+	if ( ! nura_checkout_ux_on() || ( is_admin() && ! wp_doing_ajax() ) || ! is_array( $v ) ) {
+		return $v;
+	}
+	$v['title']       = __( 'Pay on delivery (cash or M-Pesa)', 'nura-beauty' );
+	$v['description'] = __( 'Nairobi CBD delivery: pay the rider in cash or M-Pesa when your order arrives. Studio pickup: pay when you collect. All other deliveries are paid before dispatch.', 'nura-beauty' );
+	return $v;
+}, 120 );
+add_filter( 'option_woocommerce_pickup_location_settings', function ( $v ) {
+	if ( ! nura_checkout_ux_on() || ( is_admin() && ! wp_doing_ajax() ) || ! is_array( $v ) ) {
+		return $v;
+	}
+	$v['title'] = __( 'Studio pickup (free)', 'nura-beauty' );
+	return $v;
+}, 120 );
+add_filter( 'woocommerce_gateway_title', function ( $title, $id = '' ) {
+	return ( 'cod' === $id && nura_checkout_ux_on() ) ? __( 'Pay on delivery (cash or M-Pesa)', 'nura-beauty' ) : $title;
+}, 20, 2 );
+
 /* 4 + 5. Checkout script: totals stay visible, cut-off refreshed by Nairobi time. */
 add_action( 'wp_footer', function () {
 	if ( ! nura_checkout_ux_on() || ! function_exists( 'is_checkout' ) || ! ( is_checkout() || is_cart() ) || is_order_received_page() ) {
@@ -121,28 +143,29 @@ add_action( 'wp_footer', function () {
 	$lbl = strtolower( str_replace( ' ', '', function_exists( 'nura_fact' ) ? (string) nura_fact( 'cutoff', '5 PM' ) : '5 PM' ) );
 	?>
 	<style id="nura-co-ux">
-	.wc-block-components-totals-item__value[data-nura-last]:empty::before,
-	.wc-block-components-totals-footer-item-tax-value[data-nura-last]:empty::before{content:attr(data-nura-last);opacity:.55}
-	html.nura-totals-updating .wc-block-components-totals-item__value .wc-block-components-skeleton__element,
-	html.nura-totals-updating .wc-block-components-totals-footer-item-tax-value .wc-block-components-skeleton__element{display:none}
-	html.nura-totals-updating .wc-block-components-totals-item__value[data-nura-last]:has(.wc-block-components-skeleton__element)::before{content:attr(data-nura-last);opacity:.55}
-	html.nura-totals-updating .wc-block-components-totals-footer-item::after{content:"Updating totals...";display:block;width:100%;font-size:.8em;color:#7a5a12;margin-top:.3em}
+	/* 1.129.2: while WooCommerce recalculates, each amount is swapped for an empty
+	   div.wc-block-components-skeleton__element (recorded live 11 Nov). Keep the last
+	   amount visible (dimmed) on the row instead, and say the totals are updating. */
+	.wc-block-components-totals-item[data-nura-last]{position:relative}
+	.wc-block-components-totals-item[data-nura-last] .wc-block-components-skeleton__element{visibility:hidden}
+	.wc-block-components-totals-item[data-nura-last]:has(.wc-block-components-skeleton__element)::after{content:attr(data-nura-last);position:absolute;right:0;top:0;opacity:.55;white-space:nowrap;font-weight:inherit}
+	html.nura-totals-updating .wc-block-components-totals-footer-item .wc-block-components-totals-item__label::after{content:" (updating...)";font-weight:400;font-size:.8em;color:#7a5a12}
 	</style>
 	<script>
 	(function () {
-		var SEL = '.wc-block-components-totals-item__value, .wc-block-components-totals-footer-item-tax-value';
+		var VAL = '.wc-block-components-totals-item__value, .wc-block-components-totals-footer-item-tax-value';
 		function scan() {
 			var busy = false;
-			document.querySelectorAll(SEL).forEach(function (el) {
-				var t = (el.textContent || '').trim();
-				var skel = el.querySelector('.wc-block-components-skeleton__element');
-				if (t && !skel && /\d/.test(t)) { if (el.getAttribute('data-nura-last') !== t) { el.setAttribute('data-nura-last', t); } }
-				else if (el.getAttribute('data-nura-last')) { busy = true; }
+			document.querySelectorAll('.wc-block-components-totals-item').forEach(function (row) {
+				var v = row.querySelector(VAL);
+				var t = v ? (v.textContent || '').trim() : '';
+				if (t && /\d/.test(t)) { if (row.getAttribute('data-nura-last') !== t) { row.setAttribute('data-nura-last', t); } }
+				if (row.querySelector('.wc-block-components-skeleton__element')) { busy = true; }
 			});
 			document.documentElement.classList.toggle('nura-totals-updating', busy);
 		}
 		var t;
-		new MutationObserver(function () { clearTimeout(t); t = setTimeout(scan, 20); }).observe(document.body, { childList: true, subtree: true, characterData: true });
+		new MutationObserver(function () { clearTimeout(t); t = setTimeout(scan, 10); }).observe(document.body, { childList: true, subtree: true, characterData: true });
 		scan();
 		// Cut-off line by Nairobi time (cached pages stay correct).
 		function cutoff() {
@@ -151,7 +174,7 @@ add_action( 'wp_footer', function () {
 				var wd = '', hr = 0;
 				p.forEach(function (x) { if (x.type === 'weekday') { wd = x.value; } if (x.type === 'hour') { hr = parseInt(x.value, 10) % 24; } });
 				var dow = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 }[wd] || 1;
-				var txt = (dow <= 6 && hr < <?php echo (int) $cut; ?>) ? 'Order before <?php echo esc_js( $lbl ); ?> for delivery today' : (dow <= 5 ? 'Order now for delivery tomorrow' : 'Order now for delivery on Monday');
+				var txt = (dow <= 6 && hr < <?php echo (int) $cut; ?>) ? 'Order before <?php echo esc_js( $lbl ); ?> for delivery today.' : (dow <= 5 ? 'Order now for delivery tomorrow.' : 'Order now for delivery on Monday.');
 				document.querySelectorAll('[data-nura-cutoff]').forEach(function (el) { el.textContent = txt; });
 			} catch (e) {}
 		}

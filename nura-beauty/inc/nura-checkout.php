@@ -49,7 +49,7 @@ add_filter( 'the_content', function ( $html ) {
 	$wa    = function_exists( 'nura_opt' ) && nura_opt( 'nura_whatsapp' ) ? nura_opt( 'nura_whatsapp' ) : 'https://wa.me/254714994898';
 	$items = array(
 		array( 'lock', __( 'Secure payment', 'nura-beauty' ), __( 'M-Pesa, Visa and Mastercard through Paystack', 'nura-beauty' ) ),
-		array( 'bike', __( 'Nairobi delivery', 'nura-beauty' ), '<span data-nura-cutoff>' . esc_html( function_exists( 'nura_cutoff_line' ) ? nura_cutoff_line() : __( 'Order before 5pm for same-day delivery', 'nura-beauty' ) ) . '</span>. ' . esc_html__( 'Pay on delivery in Nairobi CBD', 'nura-beauty' ) ), // 1.129.0: time-aware.
+		array( 'bike', __( 'Nairobi delivery', 'nura-beauty' ), '<span data-nura-cutoff>' . esc_html( ( function_exists( 'nura_cutoff_line' ) ? nura_cutoff_line() : __( 'Order before 5pm for same-day delivery', 'nura-beauty' ) ) . '.' ) . '</span><span>' . esc_html__( 'Pay on delivery in Nairobi CBD.', 'nura-beauty' ) . '</span>' ), // 1.129.0: time-aware.
 		array( 'back', __( '48-hour returns', 'nura-beauty' ), __( 'Unworn wigs in their original condition', 'nura-beauty' ) ),
 		array( 'chat', __( 'Need help?', 'nura-beauty' ), '<a href="' . esc_url( $wa ) . '" target="_blank" rel="noopener">' . esc_html__( 'Chat with a stylist on WhatsApp', 'nura-beauty' ) . '</a>' ),
 	);

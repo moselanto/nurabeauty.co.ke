@@ -10,7 +10,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.127.1-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.128.0-0E0E0E?style=for-the-badge)](nura-beauty)
 [![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.108.2-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
@@ -59,7 +59,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.127.1 | Parent theme |
+| `nura-beauty/` | 1.128.0 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
 | `nura-experience/` | 1.108.2 | Plugin |
 

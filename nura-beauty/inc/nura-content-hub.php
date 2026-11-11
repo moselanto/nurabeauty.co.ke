@@ -153,11 +153,26 @@ function nura_hub_ksh( $n ) {
 /** [nura_price_table hair="" cat="" list="0"] */
 function nura_hub_price_table( $atts = array() ) {
 	$a    = shortcode_atts( array( 'hair' => '', 'cat' => '', 'list' => '0' ), $atts, 'nura_price_table' );
-	$rows = array_filter( nura_hub_rows(), function ( $r ) use ( $a ) {
+	// 1.128.0: a category also counts the wigs in its sub-categories (e.g. Jerry Curl
+	// Wigs under Human Hair Wigs), so the table matches the products listed above it.
+	$cat_set = array();
+	if ( '' !== $a['cat'] ) {
+		$cat_set[] = $a['cat'];
+		$t = get_term_by( 'slug', $a['cat'], 'product_cat' );
+		if ( $t && ! is_wp_error( $t ) ) {
+			foreach ( (array) get_term_children( $t->term_id, 'product_cat' ) as $cid ) {
+				$c = get_term( $cid, 'product_cat' );
+				if ( $c && ! is_wp_error( $c ) ) {
+					$cat_set[] = $c->slug;
+				}
+			}
+		}
+	}
+	$rows = array_filter( nura_hub_rows(), function ( $r ) use ( $a, $cat_set ) {
 		if ( '' !== $a['hair'] && $r['hair'] !== $a['hair'] ) {
 			return false;
 		}
-		return '' === $a['cat'] || ( is_array( $r['cats'] ) && in_array( $a['cat'], $r['cats'], true ) );
+		return '' === $a['cat'] || ( is_array( $r['cats'] ) && array_intersect( $cat_set, $r['cats'] ) );
 	} );
 	if ( ! $rows ) {
 		return '';
@@ -693,7 +708,7 @@ function nura_hub_link_list( $slugs, $title, $class = 'nura-hub-links' ) {
 
 /** Footer: guides + delivery cities + price list, on every page (crawlable links). */
 function nura_hub_footer_links() {
-	$guides = nura_hub_link_list( array( 'best-wigs-in-kenya-buying-guide', 'human-hair-vs-semi-human-vs-fibre-wigs-kenya', 'frontal-vs-closure-wig', 'closure-sizes-2x2-4x4-5x5-vs-13x4-frontal', 'hd-lace-vs-transparent-lace', 'body-wave-vs-water-wave-vs-deep-wave', 'remy-vs-virgin-vs-non-remy-hair', 'glueless-vs-glued-wig-install', 'human-hair-vs-fibre-wig-cost-per-wear', 'wig-density-130-150-180-explained', 'how-long-does-a-wig-last', 'wig-installation-nairobi-what-to-expect', 'how-to-buy-wigs-online-in-kenya-safely' ), __( 'Wig guides', 'nura-beauty' ), 'nura-foot-links' ); // 1.122.0: comparison guides added.
+	$guides = nura_hub_link_list( array( 'best-wigs-in-kenya-buying-guide', 'human-hair-vs-semi-human-vs-fibre-wigs-kenya', 'frontal-vs-closure-wig', 'closure-sizes-2x2-4x4-5x5-vs-13x4-frontal', 'hd-lace-vs-transparent-lace', 'body-wave-vs-water-wave-vs-deep-wave', 'remy-vs-virgin-vs-non-remy-hair', 'glueless-vs-glued-wig-install', 'human-hair-vs-fibre-wig-cost-per-wear', 'wig-density-130-150-180-explained', 'how-long-does-a-wig-last', 'how-to-buy-wigs-online-in-kenya-safely' ), __( 'Wig guides', 'nura-beauty' ), 'nura-foot-links' ); // 1.122.0: comparison guides added. 1.128.0: installation what-to-expect guide removed (near-duplicate of the Wig installation Nairobi page in the next list).
 	$cities = '';
 	foreach ( array( 'wig-encyclopedia' => __( 'Wig encyclopedia (A-Z)', 'nura-beauty' ), 'wig-installation-nairobi' => __( 'Wig installation Nairobi', 'nura-beauty' ), 'maswali-ya-wigi' => __( 'Maswali ya wigi (Kiswahili)', 'nura-beauty' ), 'find-your-wig' => __( 'Find your wig (AI Stylist)', 'nura-beauty' ), 'wig-questions' => __( 'Wig questions answered', 'nura-beauty' ), 'wig-prices-kenya' => __( 'Wig prices in Kenya', 'nura-beauty' ), 'wigs-mombasa' => __( 'Wigs in Mombasa', 'nura-beauty' ), 'wigs-kisumu' => __( 'Wigs in Kisumu', 'nura-beauty' ), 'wigs-nakuru' => __( 'Wigs in Nakuru', 'nura-beauty' ), 'wigs-eldoret' => __( 'Wigs in Eldoret', 'nura-beauty' ), 'wigs-thika' => __( 'Wigs in Thika', 'nura-beauty' ), 'wigs-kiambu' => __( 'Wigs in Kiambu', 'nura-beauty' ), 'wigs-machakos' => __( 'Wigs in Machakos', 'nura-beauty' ), 'wigs-nyeri' => __( 'Wigs in Nyeri', 'nura-beauty' ), 'wigs-kakamega' => __( 'Wigs in Kakamega', 'nura-beauty' ) ) as $slug => $label ) {
 		$u = nura_hub_url( $slug, 'page' );

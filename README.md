@@ -11,7 +11,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 <br>
 
 [![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.125.2-0E0E0E?style=for-the-badge)](nura-beauty)
-[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.108.0-C9A24B?style=for-the-badge)](nura-experience)
+[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.108.1-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -61,7 +61,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 | --- | --- | --- |
 | `nura-beauty/` | 1.125.2 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
-| `nura-experience/` | 1.108.0 | Plugin |
+| `nura-experience/` | 1.108.1 | Plugin |
 
 ## Features
 
@@ -167,6 +167,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| - | 1.108.1 | WhatsApp order pop-up: phone footer button no longer cut off at the right edge |
 | - | 1.108.0 | Order on WhatsApp pop-up simplified: two steps (your details, then pay & send) with Continue / Back buttons, smaller header and one-row footer on phones, and a 'More below' hint while there is more to scroll |
 | - | 1.107.1 | M-Pesa till name shown in the WhatsApp order pay box, payment steps and order message is now NURA CROWN & BEAUTY (what the customer's M-Pesa message shows) |
 | 1.125.2 | - | Homepage tabs: no product repeats across New In / Best Sellers / Under KSh 5,000 (top-up only when the catalogue is too small); hidden tab panels ship in `<template>` and load on first use; Wig Care section nesting fixed on the homepage |

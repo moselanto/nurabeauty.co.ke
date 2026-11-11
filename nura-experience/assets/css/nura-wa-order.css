@@ -292,3 +292,12 @@ html.nwo-lock,html.nwo-lock body{overflow:hidden!important}
   .nwo-submit span{white-space:normal;line-height:1.2}
   .nwo-bill,.nwo-small{display:none!important}
 }
+/* 1.108.1: phone footer - the button no longer spills off the right edge (it kept width:100% next to the total). */
+@media (max-width:640px){
+  .nwo-foot__row{width:100%;min-width:0}
+  .nwo-foot__total{flex:0 0 auto!important;max-width:42%}
+  .nwo-foot__total strong{font-size:.98rem;white-space:nowrap}
+  .nwo-foot__row .nwo-submit{flex:1 1 0!important;width:auto!important;min-width:0!important;max-width:100%;padding:0 10px;gap:6px;font-size:.9rem;letter-spacing:0}
+  .nwo-foot__row .nwo-submit span{overflow:hidden;text-overflow:ellipsis}
+  .nwo-foot__row .nwo-submit .nwo-ico{width:18px;height:18px;flex:none}
+}

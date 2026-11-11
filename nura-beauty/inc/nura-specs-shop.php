@@ -180,6 +180,18 @@ add_filter( 'woocommerce_product_tabs', function ( $tabs ) {
 		return $tabs;
 	}
 	unset( $tabs['additional_information'] );
+	// 1.129.1: wig care / beauty products get their own tabs, never wig text
+	// ("Your NURA unit", "How to care for your NURA wig", wig warranty).
+	global $product;
+	$p = $product instanceof WC_Product ? $product : ( function_exists( 'wc_get_product' ) ? wc_get_product( get_the_ID() ) : null );
+	if ( $p instanceof WC_Product && function_exists( 'nura_hub_is_wig' ) && ! nura_hub_is_wig( $p ) ) {
+		unset( $tabs['nura_hair'], $tabs['nura_care'], $tabs['nura_warranty'] );
+		if ( isset( $tabs['nura_shipping'] ) ) {
+			$tabs['nura_shipping']['title']    = __( 'Delivery & returns', 'nura-beauty' );
+			$tabs['nura_shipping']['callback'] = 'nura_specs_care_shipping_tab';
+		}
+		return $tabs;
+	}
 	if ( isset( $tabs['nura_hair'] ) ) {
 		$tabs['nura_hair']['title']    = __( "What's included", 'nura-beauty' );
 		$tabs['nura_hair']['callback'] = 'nura_specs_included_tab';
@@ -190,6 +202,23 @@ add_filter( 'woocommerce_product_tabs', function ( $tabs ) {
 function nura_specs_included_tab() {
 	echo '<ul class="nura-inc"><li>' . esc_html__( 'Your NURA unit', 'nura-beauty' ) . '</li><li>' . esc_html__( 'Provenance note', 'nura-beauty' ) . '</li><li>' . esc_html__( 'Written longevity guarantee', 'nura-beauty' ) . '</li><li>' . esc_html__( 'Satin storage bag', 'nura-beauty' ) . '</li></ul>';
 	echo '<p class="nura-note">' . esc_html__( 'Length guide: lengths are measured straightened, tip to tip. Curly and wavy textures appear shorter once styled. Full specifications are listed beside the price.', 'nura-beauty' ) . '</p>';
+}
+
+
+/** 1.129.1: delivery and returns for wig care / beauty products. */
+function nura_specs_care_shipping_tab() {
+	$free = function_exists( 'nura_free_delivery_threshold' ) ? (float) nura_free_delivery_threshold() : 0;
+	echo '<ul class="nura-inc">';
+	echo '<li>' . esc_html__( 'Same-day delivery in Nairobi on orders placed before 5:00pm; otherwise next day.', 'nura-beauty' ) . '</li>';
+	if ( $free > 0 ) {
+		/* translators: %s: free delivery minimum. */
+		echo '<li>' . esc_html( sprintf( __( 'Free Nairobi delivery on orders over %s.', 'nura-beauty' ), 'KSh ' . number_format( $free ) ) ) . '</li>';
+	}
+	echo '<li>' . esc_html__( 'Same-day dispatch countrywide; the shuttle or courier sets the arrival time.', 'nura-beauty' ) . '</li>';
+	echo '<li>' . esc_html__( 'Pay with M-Pesa or card at checkout, or by M-Pesa Till 1679269 when you order on WhatsApp. Pay on delivery within Nairobi CBD only; pay at the shop when you collect.', 'nura-beauty' ) . '</li>';
+	echo '<li>' . esc_html__( 'Unopened products in their original packaging may be returned within 48 hours of delivery; opened products cannot be returned for hygiene reasons.', 'nura-beauty' ) . '</li>';
+	echo '<li>' . esc_html__( 'Directions are in the Description tab and on the label. Do a patch test before first use of glues, sprays and removers.', 'nura-beauty' ) . '</li>';
+	echo '</ul>';
 }
 
 /* ---------------------------------------------------------------------------

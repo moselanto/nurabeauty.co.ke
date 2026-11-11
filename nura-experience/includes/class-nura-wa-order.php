@@ -133,9 +133,9 @@ class NURAX_WA_Order {
 		return (string) preg_replace( '/\D+/', '', (string) apply_filters( 'nurax_mpesa_till', $t ) );
 	}
 
-	/** Optional business name M-Pesa shows for the till (filter nurax_mpesa_till_name). */
+	/** Business name M-Pesa shows for the till (filter nurax_mpesa_till_name). 1.107.1: owner confirmed the M-Pesa message reads NURA CROWN & BEAUTY. */
 	public static function till_name() {
-		return trim( wp_strip_all_tags( (string) apply_filters( 'nurax_mpesa_till_name', defined( 'NURAX_MPESA_TILL_NAME' ) ? (string) NURAX_MPESA_TILL_NAME : 'Nura Beauty & Crown' ) ) );
+		return trim( wp_strip_all_tags( (string) apply_filters( 'nurax_mpesa_till_name', defined( 'NURAX_MPESA_TILL_NAME' ) ? (string) NURAX_MPESA_TILL_NAME : 'NURA CROWN & BEAUTY' ) ) );
 	}
 
 	/** Normalise an M-Pesa confirmation code (10 letters/digits, e.g. TJR4ABC12D), or ''. */

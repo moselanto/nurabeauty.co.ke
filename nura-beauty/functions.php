@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.128.0' );
+define( 'NURA_VERSION', '1.129.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -99,6 +99,7 @@ nura_require( 'nura-autofix' );
 nura_require( 'nura-boost' );
 nura_require( 'nura-schema-v2' ); // 1.124.0 breadcrumbs + single org entity.
 nura_require( 'nura-specs-shop' ); // 1.128.0: one Specifications section + Wigs/Wig Care shop split, one filter style.
+nura_require( 'nura-checkout-ux' ); // 1.129.0: checkout clarity (bag wording, delivery labels, CBD pay on delivery, totals, time-aware cut-off, pickup label).
 
 /**
  * Contact page design (v1.45.0): use page-contact.php for the contact page

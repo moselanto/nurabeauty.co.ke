@@ -112,18 +112,51 @@
 				if (vid && !(parseInt(vid.value, 10) > 0)) { return null; }
 				return btn;
 			};
+			// 1.129.0: show the chosen colour/options, an Adding... state, and block double taps.
+			var sOpt = sticky.querySelector('.nura-sticky-atc__opt'), sBusy = false, sTimer = null, sLabel = sBase;
+			var optText = function () {
+				var parts = [];
+				[].slice.call(atc.querySelectorAll('select[name^="attribute_"]')).forEach(function (sel) {
+					if (sel.value && sel.selectedIndex > -1) { parts.push(sel.options[sel.selectedIndex].text.trim()); }
+				});
+				return parts.join(', ');
+			};
+			var sSet = function (txt) { if (sBtn) { sBtn.textContent = txt; } };
+			var sDone = function (txt) {
+				clearTimeout(sTimer);
+				sBusy = false;
+				sticky.classList.remove('is-busy');
+				if (sBtn) { sBtn.disabled = false; sBtn.removeAttribute('aria-busy'); }
+				sSet(txt || sLabel);
+				if (txt) { sTimer = setTimeout(function () { sSet(sLabel); }, 2200); }
+			};
 			if (window.jQuery && atc.classList.contains('variations_form')) {
 				window.jQuery(atc).on('found_variation', function (ev, v) {
-					if (sBtn) { sBtn.textContent = v && v.is_in_stock === false ? 'Sold out' : 'Add to bag'; }
+					sLabel = v && v.is_in_stock === false ? 'Sold out' : 'Add to bag';
+					if (!sBusy) { sSet(sLabel); }
 					if (sPrice && v && v.price_html) { sPrice.innerHTML = v.price_html; }
+					if (sOpt) { sOpt.textContent = optText(); }
 				}).on('reset_data hide_variation', function () {
-					if (sBtn) { sBtn.textContent = sBase; }
+					sLabel = sBase;
+					if (!sBusy) { sSet(sBase); }
 					if (sPrice) { sPrice.innerHTML = sBasePrice; }
+					if (sOpt) { sOpt.textContent = ''; }
 				});
+				window.jQuery(d.body).on('added_to_cart', function () { if (sBusy) { sDone('Added to bag'); } });
+				window.jQuery(d.body).on('ajax_request_not_sent.adding_to_cart wc_cart_button_updated', function () { if (sBusy) { sDone(); } });
 			}
 			sticky.addEventListener('click', function () {
+				if (sBusy) { return; }
 				var b = sReady();
-				if (b) { b.click(); return; }
+				if (b) {
+					sBusy = true;
+					sticky.classList.add('is-busy');
+					if (sBtn) { sBtn.disabled = true; sBtn.setAttribute('aria-busy', 'true'); }
+					sSet('Adding...');
+					sTimer = setTimeout(function () { sDone(); }, 9000);
+					b.click();
+					return;
+				}
 				atc.scrollIntoView({ behavior: 'smooth', block: 'center' });
 			});
 		}

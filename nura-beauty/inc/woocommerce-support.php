@@ -139,7 +139,8 @@ function nura_sticky_atc() {
 		? ( $product->is_type( 'variable' ) ? __( 'Choose options', 'nura-beauty' ) : __( 'Add to bag', 'nura-beauty' ) )
 		: __( 'Sold out', 'nura-beauty' );
 	printf(
-		'<div class="nura-sticky-atc" data-product="%1$d" aria-hidden="true"><span class="nura-sticky-atc__info"><span class="nura-sticky-atc__title">%2$s</span><span class="nura-sticky-atc__price">%3$s</span></span><span class="nura-sticky-atc__btn">%4$s</span></div>',
+		// 1.129.0: real button (keyboard / screen readers), chosen option line, live status.
+		'<div class="nura-sticky-atc" data-product="%1$d"><span class="nura-sticky-atc__info"><span class="nura-sticky-atc__title">%2$s</span><span class="nura-sticky-atc__opt" aria-live="polite"></span><span class="nura-sticky-atc__price">%3$s</span></span><button type="button" class="nura-sticky-atc__btn">%4$s</button></div>',
 		absint( $product->get_id() ),
 		esc_html( $product->get_name() ),
 		wp_kses_post( $product->get_price_html() ),
@@ -720,6 +721,19 @@ if ( ! function_exists( 'nura_rate_label' ) ) {
 				return (string) $pkg['rates'][ $rate_id ]->get_label();
 			}
 		}
+		// 1.129.0: block checkout (Store API) often asks before packages are rebuilt;
+		// fall back to the rates WooCommerce keeps in the session.
+		if ( WC()->session ) {
+			for ( $i = 0; $i < 10; $i++ ) {
+				$sp = WC()->session->get( 'shipping_for_package_' . $i );
+				if ( ! is_array( $sp ) ) {
+					break;
+				}
+				if ( isset( $sp['rates'][ $rate_id ] ) && is_object( $sp['rates'][ $rate_id ] ) ) {
+					return (string) $sp['rates'][ $rate_id ]->get_label();
+				}
+			}
+		}
 		return '';
 	}
 }
@@ -840,8 +854,19 @@ add_action( 'wp_footer', function () {
 				});
 				return any && all;
 			}
-			var blk = document.querySelector('.wc-block-checkout__shipping-method-option--selected');
-			if (blk) { return /pick|\bcbd\b/i.test(blk.textContent || '') || /pickup/i.test(blk.id || ''); }
+			// 1.129.0: block checkout - read the chosen delivery RATE (the old check read the
+			// Ship/Pickup toggle, so Nairobi CBD delivery never showed pay on delivery).
+			var tog = document.querySelector('.wc-block-checkout__shipping-method-option--selected');
+			if (tog && /pick/i.test((tog.textContent || '') + ' ' + (tog.id || ''))) { return true; }
+			var rate = document.querySelector('.wc-block-components-shipping-rates-control input[type="radio"]:checked');
+			if (rate) {
+				if (/^(local_pickup|pickup_location)/.test(rate.value)) { return true; }
+				var rl = rate.closest('label') || rate.parentNode;
+				return /\bcbd\b/i.test(rl ? rl.textContent : '');
+			}
+			var only = document.querySelectorAll('.wc-block-components-shipping-rates-control .wc-block-components-radio-control__option, .wc-block-components-shipping-rates-control__package');
+			if (only.length === 1) { return /\bcbd\b/i.test(only[0].textContent || ''); }
+			if (tog) { return false; }
 			return !!document.querySelector('.wc-block-checkout__pickup-options');
 		}
 		function apply() {

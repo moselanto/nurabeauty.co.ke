@@ -10,7 +10,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.125.1-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.125.2-0E0E0E?style=for-the-badge)](nura-beauty)
 [![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.107.0-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
@@ -59,7 +59,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.125.1 | Parent theme |
+| `nura-beauty/` | 1.125.2 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
 | `nura-experience/` | 1.107.0 | Plugin |
 
@@ -167,6 +167,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.125.2 | - | Homepage tabs: no product repeats across New In / Best Sellers / Under KSh 5,000 (top-up only when the catalogue is too small); hidden tab panels ship in `<template>` and load on first use; Wig Care section nesting fixed on the homepage |
 | - | 1.105.0 | Accounts: payment vouchers (PV/RV numbers) with several items on one receipt / M-Pesa code, edit whole voucher (ref, payee, date apply to all items), duplicate-reference guard, reason for changes, full change history; Excel Register shows voucher no. (built, install pending) |
 | - | 1.104.0 | Expenses & income Excel report at P&L standard: Summary vs comparative, Register, Suppliers & methods, Notes / records to check |
 | 1.125.1 | 1.103.1 | Delivery wording: same-day delivery in Nairobi, same-day dispatch countrywide (courier sets arrival); stored content migrated |

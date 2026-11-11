@@ -255,6 +255,9 @@ $slides = array(
 				<button type="button" class="nura-care-rail__btn nura-care-rail__btn--next" data-dir="1" aria-label="<?php esc_attr_e( 'More wig care products', 'nura-beauty' ); ?>">&#8250;</button>
 			</div>
 			<?php endif; ?>
+		</div>
+	</section>
+	<?php endif; // 1.125.2: Wig Care section now closes here, so the sections below no longer depend on wig-care stock. ?>
 
 	<!-- SHOP BY CATEGORY - four pillars -->
 	<section class="section nura-pillars-section" id="shop-nura">
@@ -442,10 +445,6 @@ $slides = array(
 			</div>
 		</div>
 	</section>
-
-		</div>
-	</section>
-	<?php endif; ?>
 
 	<!-- THE NURA EXPERIENCE (services summary + single CTA) -->
 	<section class="section section--ink text-center" id="services">

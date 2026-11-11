@@ -746,10 +746,18 @@ r(function(){[].slice.call(d.querySelectorAll("[data-nura-tabs]")).forEach(funct
 	var tabs=[].slice.call(w.querySelectorAll("[role=tab]")),panels=[].slice.call(w.querySelectorAll("[role=tabpanel]"));
 	if(tabs.length<2){return;}
 	var sec=w.closest("section"),more=sec?sec.querySelector("[data-nura-tabs-viewall]"):null;
-	function sel(i){tabs.forEach(function(t,j){var on=i===j;t.setAttribute("aria-selected",on?"true":"false");t.tabIndex=on?0:-1;t.classList.toggle("is-active",on);if(panels[j]){panels[j].hidden=!on;}});
+	/* 1.125.2: hidden panels arrive as <template data-nura-panel>; add each one to the page the first time its tab is used. */
+	function load(p){if(!p||p.getAttribute("data-loaded")){return;}var tp=p.querySelector("template[data-nura-panel]");if(!tp){return;}p.setAttribute("data-loaded","1");
+		p.appendChild(d.importNode(tp.content,true));tp.parentNode.removeChild(tp);
+		[].forEach.call(p.querySelectorAll("img[data-src]:not(.nura-loop-2nd)"),function(im){var s=im.getAttribute("src")||"";if(!s||s.indexOf("data:")===0){im.src=im.getAttribute("data-src");var ss=im.getAttribute("data-srcset");if(ss){im.srcset=ss;}}});
+		if(window.nuraShuffle){window.nuraShuffle(p);}
+		try{d.dispatchEvent(new CustomEvent("nura:panel-loaded",{detail:{panel:p}}));}catch(err){}
+		if(window.jQuery){window.jQuery(d.body).trigger("nura_panel_loaded",[p]);}}
+	function sel(i){load(panels[i]);tabs.forEach(function(t,j){var on=i===j;t.setAttribute("aria-selected",on?"true":"false");t.tabIndex=on?0:-1;t.classList.toggle("is-active",on);if(panels[j]){panels[j].hidden=!on;}});
 		if(more&&tabs[i].getAttribute("data-viewall")){more.href=tabs[i].getAttribute("data-viewall");}}
 	tabs.forEach(function(t,i){
 		t.addEventListener("click",function(){sel(i);});
+		t.addEventListener("mouseenter",function(){load(panels[i]);});t.addEventListener("focus",function(){load(panels[i]);});
 		t.addEventListener("keydown",function(e){var k=e.key,n=-1;if(k==="ArrowRight"){n=(i+1)%tabs.length;}else if(k==="ArrowLeft"){n=(i-1+tabs.length)%tabs.length;}else if(k==="Home"){n=0;}else if(k==="End"){n=tabs.length-1;}
 			if(n>-1){e.preventDefault();sel(n);tabs[n].focus();}});
 	});
@@ -871,7 +879,7 @@ f.addEventListener("submit",function(e){e.preventDefault();err.hidden=true;
 /* v1.55.5 Fresh products on every homepage load: each [data-nura-shuffle] box holds a
    larger pool; pick a random set to show (New In keeps newest-first order). */
 (function(d){
-	d.querySelectorAll("[data-nura-shuffle]").forEach(function(box){
+	function shuffleBox(box){
 		var ul=box.querySelector("ul.products"); if(!ul){return;}
 		var items=Array.prototype.slice.call(ul.children);
 		var n=parseInt(box.getAttribute("data-show"),10)||items.length;
@@ -886,5 +894,8 @@ f.addEventListener("submit",function(e){e.preventDefault();err.hidden=true;
 			if(pos>=n){li.hidden=true;li.style.display="none";}else{li.hidden=false;li.style.display="";}
 			ul.appendChild(li);
 		});
-	});
+	}
+	/* 1.125.2: also used by the homepage tabs for panels added later from <template>. */
+	window.nuraShuffle=function(root){(root||d).querySelectorAll("[data-nura-shuffle]").forEach(shuffleBox);};
+	window.nuraShuffle(d);
 })(document);

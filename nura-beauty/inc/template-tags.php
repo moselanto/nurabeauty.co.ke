@@ -320,7 +320,9 @@ if ( function_exists( 'nura_home_product_ids' ) === false ) {
 		$ids = array_map( 'intval', $q->posts );
 		wp_reset_postdata();
 		if ( count( $ids ) < $limit && $fallback ) {
-			$fb  = new WP_Query( array_merge( $base, (array) $fallback, array( 'post__not_in' => $ids, 'posts_per_page' => $limit - count( $ids ) ) ) );
+			// 1.125.2: keep the caller's exclusions (other homepage tabs) in the fallback too.
+			$skip = isset( $args['post__not_in'] ) ? array_map( 'intval', (array) $args['post__not_in'] ) : array();
+			$fb   = new WP_Query( array_merge( $base, (array) $fallback, array( 'post__not_in' => array_merge( $skip, $ids ), 'posts_per_page' => $limit - count( $ids ) ) ) );
 			$ids = array_merge( $ids, array_map( 'intval', $fb->posts ) );
 			wp_reset_postdata();
 		}
@@ -384,38 +386,66 @@ if ( function_exists( 'nura_home_product_tabs' ) === false ) {
 			array(
 				'key'   => 'new',
 				'label' => __( 'New In', 'nura-beauty' ),
-				'ids'   => nura_home_product_ids( array( 'orderby' => 'date', 'order' => 'DESC' ), $pool ),
+				'args'  => array( 'orderby' => 'date', 'order' => 'DESC' ),
 				'url'   => add_query_arg( 'orderby', 'date', $shop_url ),
 			),
 			array(
 				'key'   => 'best',
 				'label' => __( 'Best Sellers', 'nura-beauty' ),
-				'ids'   => nura_home_product_ids(
-					array(
-						'meta_key'   => 'total_sales',
-						'orderby'    => 'meta_value_num',
-						'order'      => 'DESC',
-						'meta_query' => array( array( 'key' => 'total_sales', 'value' => 0, 'compare' => '>', 'type' => 'NUMERIC' ) ),
-					),
-					$pool,
-					array( 'orderby' => 'rand' )
+				'args'  => array(
+					'meta_key'   => 'total_sales',
+					'orderby'    => 'meta_value_num',
+					'order'      => 'DESC',
+					'meta_query' => array( array( 'key' => 'total_sales', 'value' => 0, 'compare' => '>', 'type' => 'NUMERIC' ) ),
 				),
+				'fb'    => array( 'orderby' => 'rand' ),
 				'url'   => add_query_arg( 'orderby', 'popularity', $shop_url ),
 			),
 			array(
 				'key'   => 'budget',
 				'label' => __( 'Under KSh 5,000', 'nura-beauty' ),
-				'ids'   => nura_home_product_ids(
-					array(
-						'orderby'    => 'date',
-						'order'      => 'DESC',
-						'meta_query' => array( array( 'key' => '_price', 'value' => 5000, 'compare' => '<=', 'type' => 'NUMERIC' ) ),
-					),
-					$pool
+				'args'  => array(
+					'orderby'    => 'date',
+					'order'      => 'DESC',
+					'meta_query' => array( array( 'key' => '_price', 'value' => 5000, 'compare' => '<=', 'type' => 'NUMERIC' ) ),
 				),
 				'url'   => add_query_arg( array( 'min_price' => 0, 'max_price' => 5000 ), $shop_url ),
 			),
 		);
+		/*
+		 * 1.125.2: no product repeats across tabs. Tabs are filled in order (New In,
+		 * Best Sellers, Under KSh 5,000); each later tab skips every product an earlier
+		 * tab rendered (its whole shuffle pool, since main.js may show any of them).
+		 * When the catalogue is too small for that, the tab is topped up from its own
+		 * list so it still shows $limit products - a short overlap beats an empty tab.
+		 * Off switch: add_filter( 'nura_home_tabs_dedupe', '__return_false' );
+		 */
+		$dedupe = (bool) apply_filters( 'nura_home_tabs_dedupe', true );
+		$used   = array();
+		foreach ( $tabs as $k => $t ) {
+			$fb  = isset( $t['fb'] ) ? $t['fb'] : array();
+			$ids = array();
+			if ( $dedupe && $used ) {
+				$ids = nura_home_product_ids( array_merge( $t['args'], array( 'post__not_in' => $used ) ), $pool, $fb );
+			}
+			if ( ! $dedupe || ! $used || count( $ids ) < $limit ) {
+				$all = nura_home_product_ids( $t['args'], $pool, $fb );
+				if ( ! $dedupe || ! $used ) {
+					$ids = $all;
+				} else {
+					foreach ( $all as $id ) {
+						if ( count( $ids ) >= $limit ) {
+							break;
+						}
+						if ( ! in_array( $id, $ids, true ) ) {
+							$ids[] = $id;
+						}
+					}
+				}
+			}
+			$tabs[ $k ]['ids'] = $ids;
+			$used              = array_values( array_unique( array_merge( $used, $ids ) ) );
+		}
 		$tabs = array_values( array_filter( $tabs, function ( $t ) { return ! empty( $t['ids'] ); } ) );
 		if ( empty( $tabs ) ) {
 			return;
@@ -442,9 +472,18 @@ if ( function_exists( 'nura_home_product_tabs' ) === false ) {
 				esc_attr( $t['key'] ),
 				0 === $i ? '' : ' hidden'
 			);
+			// 1.125.2: hidden panels ship inside <template> so the raw page lists each
+			// product card once; main.js adds a panel the first time its tab is opened.
+			$lazy = $i > 0 && apply_filters( 'nura_home_tabs_lazy', true );
+			if ( $lazy ) {
+				echo '<template data-nura-panel>';
+			}
 			echo '<div data-nura-shuffle data-show="' . esc_attr( $limit ) . '"' . ( 'new' === $t['key'] ? ' data-keep-order' : '' ) . '>';
 			nura_home_product_grid( $t['ids'] );
 			echo '</div>';
+			if ( $lazy ) {
+				echo '</template>';
+			}
 			echo '</div>';
 		}
 		echo '</div>';

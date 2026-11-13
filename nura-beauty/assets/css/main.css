@@ -2049,3 +2049,20 @@ html body ul.products li.product[hidden],html body .woocommerce ul.products li.p
 
 /* 1.140.0 phones: owner slide - photo higher and text lower so the heading sits below her neck and hand */
 @media(max-width:768px){.nura-slide--owner .nura-slide__media{background-position:86% -150px}.nura-slide--owner{padding-bottom:44px}.nura-slide--owner .nura-hero-kw{font-size:.62rem;margin-bottom:.4rem}}
+
+/* 1.141.0 booking deposit: M-Pesa phone box readable on phones (the deposit box's uppercase/letter-spacing style was squeezing the number; button now goes under it) */
+.nura-bk__dep .nura-bk__stk-row input{text-transform:none;letter-spacing:normal;font-size:16px;min-height:48px;padding:0 14px}
+.nura-bk__dep .nura-bk__stk-row input::placeholder{text-transform:none;letter-spacing:normal}
+@media(max-width:560px){.nura-bk__stk-row{flex-direction:column}.nura-bk__dep .nura-bk__stk-row input,.nura-bk__stk-btn{width:100%;min-height:48px}}
+
+/* 1.142.0 phones: picture and text no longer overlap - photo panel on top (faces always whole), headline and buttons below on black */
+@media(max-width:768px){
+.nura-slides,.nura-slide{min-height:0}
+.nura-slide,.nura-slide--owner{flex-direction:column;align-items:stretch;padding:0;background:var(--nura-ink)}
+.nura-slide__media,.nura-slide--owner .nura-slide__media{position:relative;inset:auto;flex:0 0 auto;width:100%;height:min(84vw,360px);background-position:86% 0}
+.nura-slide__media::after{background:linear-gradient(180deg,rgba(14,14,14,0) 62%,rgba(14,14,14,.8) 90%,#0e0e0e 100%)}
+.nura-slide__inner{padding-top:6px;padding-bottom:72px;min-height:250px}
+.nura-slide__inner .nura-hero-h{font-size:clamp(1.6rem,7vw,2rem);line-height:1.12}
+.nura-slide--owner .nura-hero-kw{font-size:.62rem}
+.nura-slider-dots{bottom:26px}
+}

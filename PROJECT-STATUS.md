@@ -43,6 +43,7 @@ Last updated: 13 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 - Prices: Luodais Wig Serum (renamed from Wig Repair Serum) KSh 400; CSCR Lace Melting Spray KSh 1,000 (all 4 options).
 - Google Merchant Center (account 5874670354, login nurabeautyke@gmail.com): free listings on, site verified, 132 product entries approved, Kenya shipping set, return policy "Standard for Kenya" saved 13 Nov (Google review up to 10 days).
 - Service prices (1.134.0-1.135.0), the same on every page, FAQ, schema and Google snippet: installation KSh 1,000, half up half down 1,500, tonging 800, flat ironing 500, revamp 1,500, bridal styling 3,500, colouring 2,500-3,500 (human hair only), re-lacing/repair 2,000. Source of truth: `nura_services()` in inc/nura-services.php and theme_mod `nura_inst_services`.
+- Google Business Profile (login nurabeautyke@gmail.com), 13 Nov 2026: services and prices edited to match the banner. Wig Installation KSh 1,000; Tonging KSh 800 (renamed from Wig Styling & Restyle); Wig Colouring price field "From KSh 2,500" with KSh 2,500-3,500, human hair only, in the description (Google has no range field); Wig Wash & Revamp KSh 1,500; Wig Re-lacing & Repair KSh 2,000; added Half up half down KSh 1,500, Flat ironing KSh 500, Bridal styling KSh 3,500. **Status at 20:30 EAT 13 Nov: pending Google review** (panel-wide "Your edit is pending review" notice, nothing rejected). The public Search/Maps listing does not show a Services menu yet.
 - Full-site audit 13 Nov (131 URLs, 47 internal links, 292 images): no PHP errors, no broken images, valid JSON-LD. Fixed old hair words in product SEO titles, leftover product text, 6 links to deleted products (301 redirects + guide links rewritten), 3 missing meta descriptions (1.133.0).
 
 ## Pending - owner input needed
@@ -53,6 +54,7 @@ Last updated: 13 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 5. Business decisions: Apple Business Connect (certificate still shows old Imenti House address), Bing Places, paid directories, missing colour photos for some options, two-factor login for admin accounts.
 
 ## Next for the developer/agent
+0. Google Business Profile: re-check the services panel after 14 Nov. Confirm the "pending review" notice is gone and nothing is rejected. Also check whether a Services menu now shows publicly on Search/Maps; if one shows, confirm the 8 prices match `nura_services()`.
 1. Merchant Center (parked by owner until website work is done): check the return policy was approved; consider richer descriptions for the 110 entries Google flagged; review the 5 products Google found on the site (avoid duplicates).
 2. Long SEO titles: many product titles are 80-120 characters (Google shows about 60). Shorten the template in `class-nura-desk-catalogue.php::seo_meta()` and the stored `rank_math_title` values.
 3. Replace soft wig photos when the owner sends them (Tools > NURA images rebuilds WebP).

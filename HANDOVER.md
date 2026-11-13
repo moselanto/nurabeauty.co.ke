@@ -11,6 +11,7 @@ Last updated: 11 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing
 
 | Date | Agent | What happened | Pending after this session |
 | --- | --- | --- | --- |
+| 13 Nov 2026 (20:30) | Town assistant (Ray) | Google Business Profile services/prices updated to match the banner (8 services; see PROJECT-STATUS.md). Pending Google review; nothing rejected; Services menu not yet visible on public Search/Maps. No code change. | Re-check GBP review after 14 Nov. |
 | 13 Nov 2026 (19:50) | Town assistant (Ray) | Owner: colouring 2,500-3,500 and re-lacing 2,000 still offered; make every page and Google snippet match the service prices. Theme 1.135.0 + plugin 1.109.4. | - |
 | 13 Nov 2026 (19:40) | Town assistant (Ray) | Owner sent the Wig Services price list banner: /installation/ prices updated. Theme 1.134.0 + plugin 1.109.3. | Owner: confirm whether colouring and re-lacing are still offered (prices for them remain in some FAQ answers). |
 | 13 Nov 2026 (19:30) | Town assistant (Ray) | Owner: cross-check the whole website and fix issues; record status for the next agent. Audit + theme 1.133.0 + plugin 1.109.2; PROJECT-STATUS.md added. | See PROJECT-STATUS.md > Pending. |

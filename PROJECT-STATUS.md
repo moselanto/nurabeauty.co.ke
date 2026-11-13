@@ -5,8 +5,8 @@ Last updated: 13 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 ## Live versions
 | Component | Version | Notes |
 |---|---|---|
-| Theme `nura-beauty/` (parent) | **1.133.0** | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
-| Plugin `nura-experience/` | **1.109.2** | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks. |
+| Theme `nura-beauty/` (parent) | **1.134.0** | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
+| Plugin `nura-experience/` | **1.109.3** | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks. |
 
 ## How a release is done (the working method)
 1. Edit in the repo, run `php -l` on every changed file.
@@ -21,6 +21,7 @@ Last updated: 13 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 | `inc/nura-hair-types-2026.php` | `nura_ht_2026_done` | Hair Type attribute per product, two renames, product text, hair categories |
 | `inc/nura-site-words-2026.php` | `nura_sw_2026_done` | Hair-type wording on 32 published pages/posts, Human Blend Wigs category |
 | `inc/nura-audit-fixes-2026.php` | `nura_af_2026_done` | Product SEO titles/descriptions, leftover product text, local attributes, links to deleted products |
+| `inc/nura-audit-fixes-2026.php` | `nura_inst_2026_done` | Installation price list theme_mod + 'installation from KSh 1,500' -> 1,000 on pages |
 
 ## Business rules (do not break)
 - Real reviews, prices, clients and photos only. Never invent anything.
@@ -40,9 +41,11 @@ Last updated: 13 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 - WooCommerce > Ask for reviews: one row per paying customer, opens WhatsApp with per-product review links, records the date (plugin 1.109.0).
 - Prices: Luodais Wig Serum (renamed from Wig Repair Serum) KSh 400; CSCR Lace Melting Spray KSh 1,000 (all 4 options).
 - Google Merchant Center (account 5874670354, login nurabeautyke@gmail.com): free listings on, site verified, 132 product entries approved, Kenya shipping set, return policy "Standard for Kenya" saved 13 Nov (Google review up to 10 days).
+- Installation price list from the owner's banner (1.134.0): installation KSh 1,000, half up half down 1,500, tonging 800, flat ironing 500, revamp 1,500, bridal styling 3,500.
 - Full-site audit 13 Nov (131 URLs, 47 internal links, 292 images): no PHP errors, no broken images, valid JSON-LD. Fixed old hair words in product SEO titles, leftover product text, 6 links to deleted products (301 redirects + guide links rewritten), 3 missing meta descriptions (1.133.0).
 
 ## Pending - owner input needed
+0. **Colouring and re-lacing services**: not on the new price banner, so removed from /installation/; some FAQ answers still quote colouring KSh 2,500-5,000 and re-lacing from KSh 2,000. Confirm if still offered.
 1. **Checkout totals on a phone**: the "updating..." fix (1.129.2) is not yet confirmed by the owner.
 2. **New wig photos (1200 px or larger)**: softest originals are Human Hair Bob, Bob Wavy, Latisha Sensational Headband, 12 Inch Jerry Curls, Loose Wave Frontal, Luxury Body Wave, Minky Headband. Two care images are only 680 px (Texture Spray `2026/11/2-3.jpg`, Melting Spray `2026/11/cscr-1.jpg`).
 3. **October orders**: most were marked Test, so revenue shows KSh 0; one cash-on-delivery order (#1777, KSh 8,800) and 13 WhatsApp orders (KSh 58,410) are unpaid. Mark real ones as paid in NURA Desk > Accounts; they then appear in Ask for reviews.

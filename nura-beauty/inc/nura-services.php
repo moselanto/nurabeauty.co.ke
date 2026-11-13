@@ -154,9 +154,9 @@ add_action( 'admin_init', function () {
 	$pages = array(
 		'wig-installation-nairobi' => array(
 			'Wig Installation in Nairobi: Prices and Booking',
-			'<p class="nura-answer"><strong>Short answer:</strong> NURA Beauty installs wigs at our studio at Stanbank House, 2nd Floor, Room 20, Moi Avenue, Nairobi CBD. Installation is from KSh 1,500 for your NURA wig or one you bought elsewhere. Book a morning appointment online; a deposit secures your slot and is deducted from your bill.</p>[nura_service_prices]<h2>How it works</h2><ol><li>Choose your service and a morning time on the <a href="{page:book-appointment}">booking page</a>.</li><li>Pay the deposit by M-Pesa and enter the code. We confirm on WhatsApp; a booking is only confirmed once we confirm it.</li><li>Come with clean, dry hair, braided flat if possible, and arrive on time (15-minute grace period).</li><li>Your stylist fits the wig, cuts the lace, and styles the hairline.</li></ol><h2>Questions about installation</h2>[nura_installation_faq]<p>Read <a href="{post:wig-installation-nairobi-what-to-expect}">what to expect at your installation</a>, <a href="{post:glueless-wigs-kenya}">glueless wigs</a> and <a href="{post:frontal-vs-closure-wig}">lace front vs closure</a>. Need a wig first? <a href="{page:find-your-wig}">Find your wig in 5 questions</a>.</p><p class="nura-cta-row"><a class="nura-btn nura-btn--gold" href="{page:book-appointment}">Book installation</a> <a class="nura-btn nura-btn--ghost" href="{wa}">Ask on WhatsApp</a></p>',
-			'Wig Installation in Nairobi: Prices from KSh 1,500 & Booking | NURA Beauty',
-			'Wig installation in Nairobi CBD from KSh 1,500: lace front, 4x4 closure and glueless fitting, styling, revamp, colouring and re-lacing. Book a morning slot at Stanbank House.',
+			'<p class="nura-answer"><strong>Short answer:</strong> NURA Beauty installs wigs at our studio at Stanbank House, 2nd Floor, Room 20, Moi Avenue, Nairobi CBD. Installation is from KSh 1,000 for your NURA wig or one you bought elsewhere. Book a morning appointment online; a deposit secures your slot and is deducted from your bill.</p>[nura_service_prices]<h2>How it works</h2><ol><li>Choose your service and a morning time on the <a href="{page:book-appointment}">booking page</a>.</li><li>Pay the deposit by M-Pesa and enter the code. We confirm on WhatsApp; a booking is only confirmed once we confirm it.</li><li>Come with clean, dry hair, braided flat if possible, and arrive on time (15-minute grace period).</li><li>Your stylist fits the wig, cuts the lace, and styles the hairline.</li></ol><h2>Questions about installation</h2>[nura_installation_faq]<p>Read <a href="{post:wig-installation-nairobi-what-to-expect}">what to expect at your installation</a>, <a href="{post:glueless-wigs-kenya}">glueless wigs</a> and <a href="{post:frontal-vs-closure-wig}">lace front vs closure</a>. Need a wig first? <a href="{page:find-your-wig}">Find your wig in 5 questions</a>.</p><p class="nura-cta-row"><a class="nura-btn nura-btn--gold" href="{page:book-appointment}">Book installation</a> <a class="nura-btn nura-btn--ghost" href="{wa}">Ask on WhatsApp</a></p>',
+			'Wig Installation in Nairobi: Prices from KSh 1,000 & Booking | NURA Beauty',
+			'Wig installation in Nairobi CBD from KSh 1,000: half up half down, tonging, flat ironing, revamp and bridal styling. Book a morning slot at Stanbank House.',
 			'wig installation nairobi',
 		),
 		'maswali-ya-wigi' => array(
@@ -224,7 +224,7 @@ function nura_sw_items() {
 		array( 'Bei ya human hair wig ni ngapi?', 'Wigi zetu za Pure Human zinauzwa {human_min} hadi {human_max}, bei ikipanda kulingana na urefu. Wigi za Semi Human zinaanza {blend_min}.' ),
 		array( 'Nataka wig ya budget ya 3k. Mnayo?', 'Ndiyo. Tuna wigi za fibre chini ya KSh 3,000, zikiwemo headband (hazihitaji gundi) na 4x4 closure za kinky straight (Yaki), loose wave na bob ya water curl.' ),
 		array( 'Nataka wig isihitaji glue. Ni ipi?', 'Headband wig haihitaji gundi kabisa. 4x4 closure kwa kawaida huvaliwa bila gundi kwa kutumia kamba na vishikio vinavyoweza kurekebishwa.' ),
-		array( 'Mnaweka wig (installation)?', 'Ndiyo. Installation inaanza KSh 1,500, kwa wigi ya NURA au ya mahali pengine. Tunafanya studio yetu: {address}. Weka miadi ya asubuhi mtandaoni.' ),
+		array( 'Mnaweka wig (installation)?', 'Ndiyo. Installation inaanza KSh 1,000, kwa wigi ya NURA au ya mahali pengine. Tunafanya studio yetu: {address}. Weka miadi ya asubuhi mtandaoni.' ),
 		array( 'Mnaweza kuniinstall leo?', 'Miadi ya studio ni asubuhi. Chagua muda wa mapema kwenye ukurasa wa kuweka miadi, au tuandikie WhatsApp kuangalia nafasi ya leo. Miadi inathibitishwa tu baada ya sisi kuthibitisha.' ),
 		array( 'Mko CBD? Duka lenu liko wapi?', 'Ndiyo. Tuko {address}. Tunafungua ' . $hours . '. Unakaribishwa bila miadi ukitaka kuangalia wigi.' ),
 		array( 'Mnafanya delivery?', 'Ndiyo. Nairobi tunaleta siku hiyo hiyo ukiagiza kabla ya {cutoff}. Nchi nzima ni siku 1 hadi 3 kwa courier, ada ni {delivery_ke}, na ada kamili inaonekana unapolipa.' ),
@@ -243,7 +243,7 @@ function nura_sw_fill( $t ) {
 }
 
 add_shortcode( 'nura_maswali', function () {
-	$h  = '<div class="nura-wq"><p class="nura-answer"><strong>Jibu fupi:</strong> ' . esc_html( nura_sw_fill( 'NURA Beauty ni studio na duka la wigi Nairobi CBD, {address}. Wigi za Semi Human zinaanza {blend_min}, Pure Human {human_min} hadi {human_max}. Tunaweka wigi (installation kuanzia KSh 1,500) na tunaleta nchi nzima.' ) ) . '</p>';
+	$h  = '<div class="nura-wq"><p class="nura-answer"><strong>Jibu fupi:</strong> ' . esc_html( nura_sw_fill( 'NURA Beauty ni studio na duka la wigi Nairobi CBD, {address}. Wigi za Semi Human zinaanza {blend_min}, Pure Human {human_min} hadi {human_max}. Tunaweka wigi (installation kuanzia KSh 1,000) na tunaleta nchi nzima.' ) ) . '</p>';
 	foreach ( nura_sw_items() as $qa ) {
 		$h .= '<details class="nura-wq-q"><summary><h3>' . esc_html( $qa[0] ) . '</h3></summary><p>' . esc_html( nura_sw_fill( $qa[1] ) ) . '</p></details>';
 	}

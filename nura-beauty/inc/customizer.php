@@ -75,12 +75,12 @@ function nura_settings_map() {
 
 		// ---- Installation page (v1.47.0). Lists: one item per line, parts separated by | ----
 		'nura_inst_eyebrow' => array( 'default' => 'NURA Studio', 'label' => __( 'Eyebrow above the title', 'nura-beauty' ), 'section' => 'nura_install' ),
-		'nura_inst_lede'    => array( 'default' => 'Book your install, styling, colouring or revamp with our atelier. Studio appointments, and at-home service for VIP clients.', 'label' => __( 'Intro text', 'nura-beauty' ), 'section' => 'nura_install', 'control' => 'textarea' ),
+		'nura_inst_lede'    => array( 'default' => 'Book your install, tonging, flat ironing, revamp or bridal styling with our atelier. Studio appointments, and at-home service for VIP clients.', 'label' => __( 'Intro text', 'nura-beauty' ), 'section' => 'nura_install', 'control' => 'textarea' ),
 		'nura_inst_facts'   => array( 'default' => 'Studio in Nairobi CBD, At-home service for VIP clients, Mon–Sat 9:00am–7:30pm', 'label' => __( 'Fact chips under the intro (comma separated)', 'nura-beauty' ), 'section' => 'nura_install' ),
 		'nura_inst_cta'     => array( 'default' => 'Book installation', 'label' => __( 'Main button text', 'nura-beauty' ), 'section' => 'nura_install' ),
 		'nura_inst_services_title' => array( 'default' => 'Services & guide prices', 'label' => __( 'Services heading', 'nura-beauty' ), 'section' => 'nura_install' ),
 		'nura_inst_services' => array(
-			'default' => "Wig installation | From KSh 1,500 | A secure, natural-looking install of your NURA unit or your own.\nStyling / restyle | KSh 1,000 - 2,500 | A fresh cut, curls or a new parting to change your look.\nWash & revamp | From KSh 1,500 | Deep wash, condition and restyle to bring a tired unit back to life.\nColouring | KSh 2,500 - 5,000 | Custom colour for human hair units.\nRe-lacing / repair | From KSh 2,000 | New lace or repairs so your unit fits and lasts.",
+			'default' => "Wig installation | KSh 1,000 | Mid part or side part.\nHalf up half down | KSh 1,500 | Half up, half down installation.\nTonging | KSh 800 | Soft curls and waves.\nFlat ironing | KSh 500 | Sleek, straight finish.\nRevamp | KSh 1,500 | Washing and styling to bring your unit back to life.\nBridal styling | KSh 3,500 | Your crown for the big day.",
 			'label'   => __( 'Services - one per line: Name | Price | Short description', 'nura-beauty' ),
 			'section' => 'nura_install',
 			'control' => 'textarea',

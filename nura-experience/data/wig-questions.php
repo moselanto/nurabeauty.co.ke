@@ -352,7 +352,7 @@ return array(
 				),
 				array(
 					'How much does wig installation cost?',
-					'Wig installation is from KSh 1,500, for your NURA unit or your own. Guide prices: styling or restyle KSh 1,000 to 2,500, wash and revamp from KSh 1,500, colouring KSh 2,500 to 5,000 (human hair only), re-lacing or repair from 2,000. Your stylist confirms the final price for your unit.',
+					'Wig installation (mid part or side part) is KSh 1,000, for your NURA unit or your own. Half up half down KSh 1,500, tonging KSh 800, flat ironing KSh 500, revamp (washing and styling) KSh 1,500 and bridal styling KSh 3,500.',
 					array(),
 				),
 				array(

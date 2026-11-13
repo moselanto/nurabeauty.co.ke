@@ -186,7 +186,7 @@ function nura_sf_render() {
 			$h .= '</ul>';
 		}
 		$book = home_url( '/book-appointment/?service=installation' );
-		$h   .= '<p class="nura-sf__next">' . ( 'pro' === $a['i'] ? '<a class="nura-btn nura-btn--ghost" href="' . esc_url( $book ) . '">' . esc_html__( 'Book installation (from KSh 1,500)', 'nura-beauty' ) . '</a> ' : '' ) . nura_wq_chip( __( 'Help me choose between these wigs', 'nura-beauty' ), __( 'Ask NURA Stylist', 'nura-beauty' ) ) . '</p>';
+		$h   .= '<p class="nura-sf__next">' . ( 'pro' === $a['i'] ? '<a class="nura-btn nura-btn--ghost" href="' . esc_url( $book ) . '">' . esc_html__( 'Book installation (from KSh 1,000)', 'nura-beauty' ) . '</a> ' : '' ) . nura_wq_chip( __( 'Help me choose between these wigs', 'nura-beauty' ), __( 'Ask NURA Stylist', 'nura-beauty' ) ) . '</p>';
 		$h   .= '<p class="nura-sf__note">' . esc_html__( 'Live prices and stock from our shop. Prefer a person? Visit our studio or message us on WhatsApp.', 'nura-beauty' ) . '</p></div>';
 	}
 	return $h . '</div>';
@@ -353,7 +353,7 @@ function nura_pq_items( $p ) {
 	} elseif ( false !== strpos( $t, 'closure' ) ) {
 		$q[] = array( __( 'Do I need glue for this wig?', 'nura-beauty' ), __( 'Usually not. 4x4 closure wigs are normally worn glueless with the adjustable straps and combs, and give a natural parting.', 'nura-beauty' ) );
 	} else {
-		$q[] = array( __( 'Can you install this lace front for me?', 'nura-beauty' ), sprintf( __( 'Yes. Our stylists fit it, cut the lace and style the hairline at %1$s. Installation is from KSh 1,500; book a morning slot online.', 'nura-beauty' ), $tok['{address}'] ) );
+		$q[] = array( __( 'Can you install this lace front for me?', 'nura-beauty' ), sprintf( __( 'Yes. Our stylists fit it, cut the lace and style the hairline at %1$s. Installation is from KSh 1,000; book a morning slot online.', 'nura-beauty' ), $tok['{address}'] ) );
 	}
 	$q[] = array( __( 'How much is delivery and how fast is it?', 'nura-beauty' ), sprintf( __( 'Same day in Nairobi for orders before %1$s (rider from KSh 300, free in Nairobi over KSh 10,000), and same-day dispatch countrywide by shuttle or courier (%2$s); the shuttle or courier sets the arrival time. Pay by M-Pesa or card before dispatch; pay on delivery (cash or M-Pesa) is available within Nairobi CBD only.', 'nura-beauty' ), $tok['{cutoff}'], $tok['{delivery_ke}'] ) );
 	if ( $price > 0 ) {

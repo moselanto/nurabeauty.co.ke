@@ -203,3 +203,63 @@ add_action( 'admin_notices', function () {
 		echo '<div class="notice notice-info"><p><strong>Audit fixes applied:</strong> ' . esc_html( implode( ' | ', $log ) ) . '</p></div>';
 	}
 } );
+
+/* 1.134.0: installation price list from the owner's banner (13 Nov 2026). */
+function nura_inst_2026_services() {
+	return "Wig installation | KSh 1,000 | Mid part or side part.\nHalf up half down | KSh 1,500 | Half up, half down installation.\nTonging | KSh 800 | Soft curls and waves.\nFlat ironing | KSh 500 | Sleek, straight finish.\nRevamp | KSh 1,500 | Washing and styling to bring your unit back to life.\nBridal styling | KSh 3,500 | Your crown for the big day.";
+}
+add_action( 'admin_init', function () {
+	if ( get_option( 'nura_inst_2026_done' ) || ! current_user_can( 'manage_woocommerce' ) ) {
+		return;
+	}
+	update_option( 'nura_inst_2026_done', time(), false );
+	set_theme_mod( 'nura_inst_services', nura_inst_2026_services() );
+	$lede = (string) get_theme_mod( 'nura_inst_lede', '' );
+	if ( '' !== $lede ) {
+		set_theme_mod( 'nura_inst_lede', str_replace( 'install, styling, colouring or revamp', 'install, tonging, flat ironing, revamp or bridal styling', $lede ) );
+	}
+	$log = array( 'services price list set' );
+	$rep = array(
+		'Installation is from KSh 1,500'     => 'Installation is from KSh 1,000',
+		'Installation starts from KSh 1,500' => 'Installation starts from KSh 1,000',
+		'installation from KSh 1,500'        => 'installation from KSh 1,000',
+		'Installation from KSh 1,500'        => 'Installation from KSh 1,000',
+		'Prices from KSh 1,500 &'            => 'Prices from KSh 1,000 &',
+		'Nairobi CBD from KSh 1,500:'        => 'Nairobi CBD from KSh 1,000:',
+		'Installation inaanza KSh 1,500'     => 'Installation inaanza KSh 1,000',
+		'installation kuanzia KSh 1,500'     => 'installation kuanzia KSh 1,000',
+		'(from KSh 1,500)'                   => '(from KSh 1,000)',
+	);
+	global $wpdb;
+	$ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_status='publish' AND post_type IN ('post','page') AND post_content LIKE '%KSh 1,500%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	foreach ( (array) $ids as $pid ) {
+		$c = (string) get_post_field( 'post_content', $pid );
+		$n = strtr( $c, $rep );
+		if ( $n !== $c ) {
+			kses_remove_filters();
+			wp_update_post( wp_slash( array( 'ID' => (int) $pid, 'post_content' => $n ) ) );
+			kses_init_filters();
+			$log[] = 'page ' . $pid;
+		}
+	}
+	foreach ( (array) $wpdb->get_col( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ('rank_math_title','rank_math_description') AND meta_value LIKE '%KSh 1,500%'" ) as $pid ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		foreach ( array( 'rank_math_title', 'rank_math_description' ) as $mk ) {
+			$v = (string) get_post_meta( $pid, $mk, true );
+			$n = strtr( $v, $rep );
+			if ( $n !== $v ) {
+				update_post_meta( $pid, $mk, $n );
+				$log[] = $mk . ' ' . $pid;
+			}
+		}
+	}
+	update_option( 'nura_inst_2026_log', $log, false );
+}, 33 );
+add_action( 'admin_notices', function () {
+	if ( ! current_user_can( 'manage_woocommerce' ) || ! isset( $_GET['page'] ) || 'nura-images' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return;
+	}
+	$log = (array) get_option( 'nura_inst_2026_log', array() );
+	if ( $log ) {
+		echo '<div class="notice notice-info"><p><strong>Installation prices updated:</strong> ' . esc_html( implode( ' | ', $log ) ) . '</p></div>';
+	}
+} );

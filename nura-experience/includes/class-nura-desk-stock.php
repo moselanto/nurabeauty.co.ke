@@ -68,7 +68,9 @@ class NURAX_Desk_Stock {
 
 	public function __construct() {
 		add_action( 'admin_init', array( __CLASS__, 'maybe_install' ) );
-		add_action( 'admin_menu', array( $this, 'menu' ), 30 );
+		// After NURAX_Desk::menu() (priority 56) so the NURA Desk parent exists; earlier priorities
+		// register the page under the wrong hook (403 on admin.php?page=nurax-stock, menu link to /wp-admin/nurax-stock).
+		add_action( 'admin_menu', array( $this, 'menu' ), 57 );
 		foreach ( array( 'adjust', 'move', 'count', 'export', 'costs' ) as $a ) {
 			add_action( 'admin_post_nurax_stock_' . $a, array( __CLASS__, 'do_' . $a ) );
 		}
@@ -536,7 +538,7 @@ class NURAX_Desk_Stock {
 	/* ------------------------------------------------------------------ */
 
 	public function menu() {
-		add_submenu_page( NURAX_Desk::MENU, 'Stock', 'Stock', NURAX_Desk::CAP, self::PAGE, array( __CLASS__, 'page' ) );
+		add_submenu_page( NURAX_Desk::MENU, 'Stock', 'Stock', NURAX_Desk::CAP, self::PAGE, array( __CLASS__, 'page' ), 2 );
 	}
 
 	public static function can_change() {

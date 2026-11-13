@@ -166,7 +166,7 @@ class NURAX_Desk_Catalogue {
 		list( $kind, $cap ) = self::classify( $it, $title, $product );
 		$price = self::product_price( $product );
 		$t     = $title . ( self::has( $title, '/wig/' ) ? '' : ( self::has( $cap, '/closure|frontal|headband/' ) ? '' : ' Wig' ) );
-		$seo_t = $t . ' Kenya | ' . ucwords( $kind === 'premium luxury fibre' ? 'Luxury Fibre' : ( 0 === strpos( $kind, '100%' ) ? 'Pure Human' : 'Semi-Human' ) ) . ' ' . ucwords( $cap ) . ( $price ? ' | KSh ' . number_format( $price ) : '' ) . ' | NURA Beauty';
+		$seo_t = $t . ' Kenya | ' . ucwords( $kind === 'premium luxury fibre' ? 'Luxury Fibre' : ( 0 === strpos( $kind, '100%' ) ? 'Pure Human' : 'Semi Human' ) ) . ' ' . ucwords( $cap ) . ( $price ? ' | KSh ' . number_format( $price ) : '' ) . ' | NURA Beauty';
 		$cols  = array_values( array_filter( (array) $it['colours'] ) );
 		$cols  = $cols ? $cols : self::product_colours( $product );
 		$desc  = 'Buy the ' . $title . ', a ' . $kind . ' ' . $cap . ( $price ? ', KSh ' . number_format( $price ) : '' ) . ( $cols ? ', in ' . implode( ', ', array_slice( $cols, 0, 4 ) ) : '' ) . '. Same-day Nairobi delivery, same-day dispatch countrywide, M-Pesa. NURA Beauty, Nairobi CBD.';

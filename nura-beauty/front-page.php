@@ -124,6 +124,13 @@ $slides = array(
 		'title'   => __( 'Wear Your Crown', 'nura-beauty' ),
 		'sub'     => __( 'Discover premium wigs and beauty essentials curated for the modern woman.', 'nura-beauty' ),
 	),
+	array( // 1.136.0: the owner, from the NURA branding banners (owner request 14 Nov 2026).
+		'img'     => NURA_URI . 'assets/images/hero-owner.webp',
+		'class'   => 'nura-slide--owner',
+		'eyebrow' => __( 'NURA Beauty • Wig Shop & Installation Studio', 'nura-beauty' ),
+		'title'   => __( 'The House of Radiant Confidence', 'nura-beauty' ),
+		'sub'     => __( 'Wigs, installation and care from our studio at Stanbank House, Nairobi CBD.', 'nura-beauty' ),
+	),
 	array(
 		'img'     => NURA_URI . 'assets/images/hero-2.webp',
 		'eyebrow' => __( 'Bridal & Occasion', 'nura-beauty' ),
@@ -145,7 +152,7 @@ $slides = array(
 		<div class="nura-slides">
 			<?php $nura_total = count( $slides ); ?>
 			<?php foreach ( $slides as $i => $s ) : ?>
-				<div class="nura-slide<?php echo 0 === $i ? ' is-active' : ''; ?>" role="group" aria-roledescription="<?php esc_attr_e( 'slide', 'nura-beauty' ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: 1: current slide number, 2: total slides. */ __( '%1$d of %2$d', 'nura-beauty' ), $i + 1, $nura_total ) ); ?>">
+				<div class="nura-slide<?php echo 0 === $i ? ' is-active' : ''; ?><?php echo ! empty( $s['class'] ) ? ' ' . esc_attr( $s['class'] ) : ''; ?>" role="group" aria-roledescription="<?php esc_attr_e( 'slide', 'nura-beauty' ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: 1: current slide number, 2: total slides. */ __( '%1$d of %2$d', 'nura-beauty' ), $i + 1, $nura_total ) ); ?>">
 					<?php if ( 0 === $i ) : ?><div class="nura-slide__media" style="background-image:url('<?php echo esc_url( $s['img'] ); ?>')" aria-hidden="true"></div><?php else : ?><div class="nura-slide__media" data-hero-bg="<?php echo esc_url( $s['img'] ); ?>" aria-hidden="true"></div><?php endif; ?>
 					<div class="nura-container nura-slide__inner">
 						<?php if ( 0 === $i ) : // One keyword H1 for the page; slide titles are H2 with the same look. ?>

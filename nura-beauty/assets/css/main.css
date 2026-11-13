@@ -2019,3 +2019,6 @@ html body ul.products li.product[hidden],html body .woocommerce ul.products li.p
 
 /* 1.129.0 sticky bar: chosen option, busy state, real button */
 .nura-sticky-atc__opt{display:block;font-size:.8rem;opacity:.85}.nura-sticky-atc__opt:empty{display:none}.nura-sticky-atc__btn{font:inherit;color:inherit;background:var(--nura-gold);color:var(--nura-ink);border:0;border-radius:999px;padding:.7rem 1.3rem;font-weight:600;cursor:pointer;min-height:44px}.nura-sticky-atc__btn:focus-visible{outline:2px solid var(--nura-ivory);outline-offset:2px}.nura-sticky-atc.is-busy .nura-sticky-atc__btn{opacity:.7;cursor:progress}
+
+/* 1.136.0 owner slide: keep her face in view on phones */
+@media(max-width:768px){.nura-slide--owner .nura-slide__media{background-position:74% center}}

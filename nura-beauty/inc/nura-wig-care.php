@@ -167,11 +167,11 @@ add_filter( 'nurax_knowledge_base', function ( $kb ) {
 		'h'      => array(),
 		'guides' => array( 'how-to-care-for-a-human-hair-wig', 'human-hair-wig-care-guide' ),
 		'q'      => array(
-			array( 'What do I need to melt or install lace?', 'For lace installs we use the CSCR Lace Melting Spray (KSh 750), Ghost Bond XL wig glue (KSh 400) and the CSCR Lace Tint Spray in Medium Brown (KSh 500) to match the lace to your skin. Remove glue gently with the Ghost Bond Glue Remover (KSh 400). Do a patch test first. Shop: ' . $shop, array() ),
+			array( 'What do I need to melt or install lace?', 'For lace installs we use the CSCR Lace Melting Spray (KSh 1,000), Ghost Bond XL wig glue (KSh 400) and the CSCR Lace Tint Spray in Medium Brown (KSh 500) to match the lace to your skin. Remove glue gently with the Lace Glue Remover (KSh 400). Do a patch test first. Shop: ' . $shop, array() ),
 			array( 'How do I lay my edges and control flyaways?', 'Use the Asstylist edge gel (KSh 500) to lay edges and baby hairs, and the IKT Hair Wax Stick (KSh 400) for flyaways. Finish with the ASTYLSST Texture Setting Spray (KSh 500) for hold and shine. Shop: ' . $shop, array() ),
 			array( 'How do I keep a curly wig bouncy?', 'Wash every 2-3 weeks, condition with the Luodais Curl Keeper Smooth Shine Conditioner (KSh 350), then define curls with the Luodais Classic Curl Keeper and Repair Serum (KSh 350) or the ASTYLSST Hair Mousse (KSh 500, Lanolin or Jojoba). Shop: ' . $shop, array() ),
 			array( 'Which brush should I use on my wig?', 'The Nylon Bristle Detangling Brush (KSh 400, pink, red, black or white) detangles wigs, weaves and natural hair gently. Start at the ends and work up. Shop: ' . $shop, array() ),
-			array( 'My wig looks dry and dull, what can I use?', 'The Luodais Wig and Weave Repair Serum (KSh 300) adds shine and moisture to human and synthetic wigs. For a deeper fix, book a wig laundry (wash and revamp) at the studio. Shop: ' . $shop, array() ),
+			array( 'My wig looks dry and dull, what can I use?', 'The Luodais Wig Serum (KSh 400) adds shine and moisture to human and synthetic wigs. For a deeper fix, book a wig laundry (wash and revamp) at the studio. Shop: ' . $shop, array() ),
 		),
 	);
 	return $kb;

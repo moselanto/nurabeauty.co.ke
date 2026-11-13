@@ -206,7 +206,7 @@ add_action( 'admin_notices', function () {
 
 /* 1.134.0: installation price list from the owner's banner (13 Nov 2026). */
 function nura_inst_2026_services() {
-	return "Wig installation | KSh 1,000 | Mid part or side part.\nHalf up half down | KSh 1,500 | Half up, half down installation.\nTonging | KSh 800 | Soft curls and waves.\nFlat ironing | KSh 500 | Sleek, straight finish.\nRevamp | KSh 1,500 | Washing and styling to bring your unit back to life.\nBridal styling | KSh 3,500 | Your crown for the big day.";
+	return "Wig installation | KSh 1,000 | Mid part or side part.\nHalf up half down | KSh 1,500 | Half up, half down installation.\nTonging | KSh 800 | Soft curls and waves.\nFlat ironing | KSh 500 | Sleek, straight finish.\nRevamp | KSh 1,500 | Washing and styling to bring your unit back to life.\nBridal styling | KSh 3,500 | Your crown for the big day.\nColouring | KSh 2,500 - 3,500 | Custom colour for human hair units only.\nRe-lacing / repair | KSh 2,000 | New lace or repairs so your unit fits and lasts.";
 }
 add_action( 'admin_init', function () {
 	if ( get_option( 'nura_inst_2026_done' ) || ! current_user_can( 'manage_woocommerce' ) ) {
@@ -261,5 +261,75 @@ add_action( 'admin_notices', function () {
 	$log = (array) get_option( 'nura_inst_2026_log', array() );
 	if ( $log ) {
 		echo '<div class="notice notice-info"><p><strong>Installation prices updated:</strong> ' . esc_html( implode( ' | ', $log ) ) . '</p></div>';
+	}
+} );
+
+/* 1.135.0: service prices everywhere match the owner's banner + colouring/re-lacing (13 Nov 2026). */
+add_action( 'admin_init', function () {
+	if ( get_option( 'nura_svc_2026_done' ) || ! current_user_can( 'manage_woocommerce' ) || ! function_exists( 'nura_inst_2026_services' ) ) {
+		return;
+	}
+	update_option( 'nura_svc_2026_done', time(), false );
+	set_theme_mod( 'nura_inst_services', nura_inst_2026_services() );
+	$d   = '\s*(?:-|–|—|&\#8211;|&\#8212;|&ndash;|to)\s*';
+	$c   = '(\s*</t[dh]>\s*<t[dh][^>]*>\s*)';
+	$rep = array(
+		'#(Installation' . $c . ')From KSh 1,500#i'                => '${1}KSh 1,000',
+		'#(Wash &(?:amp;)? revamp[^<]{0,20}' . $c . ')From KSh 1,500#i'      => '${1}KSh 1,500',
+		'#(re-lacing[^<]{0,20}' . $c . ')From KSh 2,000#i'                   => '${1}KSh 2,000',
+		'#Styling / restyle(' . $c . ')KSh 1,000' . $d . '2,500#i' => 'Tonging / flat ironing${1}KSh 500 - 800',
+		'#KSh 2,500' . $d . '5,000#'                               => 'KSh 2,500 - 3,500',
+		'#2,500 to 5,000#'                                         => '2,500 to 3,500',
+		'#installation at our studio starts from KSh 1,500#i'      => 'installation at our studio is KSh 1,000',
+		'#[Ii]nstallation (is|starts) from KSh 1,500#'             => 'Installation $1 from KSh 1,000',
+		'#a wash and revamp from KSh 1,500#'                       => 'a wash and revamp is KSh 1,500',
+		'#[Ww]ash and revamp is from KSh 1,500#'                   => 'Wash and revamp is KSh 1,500',
+		'#re-lacing or repair (is )?from KSh 2,000#'               => 're-lacing or repair is KSh 2,000',
+		'#Re-lacing or repair is from KSh 2,000#'                  => 'Re-lacing or repair is KSh 2,000',
+		'#[Ss]tyling or restyling[^.<]{0,60}costs KSh 1,000 to 2,500#' => 'Tonging is KSh 800 and flat ironing KSh 500',
+		'#Revamps start from KSh 1,500#'                           => 'Revamps are KSh 1,500',
+		'#CSCR Lace Melting Spray \(KSh 750\)#'                    => 'CSCR Lace Melting Spray (KSh 1,000)',
+	);
+	$fix = function ( $t ) use ( $rep ) {
+		foreach ( $rep as $re => $to ) {
+			$n = preg_replace( $re, $to, (string) $t );
+			if ( null !== $n ) {
+				$t = $n;
+			}
+		}
+		return $t;
+	};
+	global $wpdb;
+	$log = array( 'services price list set' );
+	$ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_status='publish' AND post_type IN ('post','page') AND ( post_content LIKE '%KSh%' )" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	foreach ( (array) $ids as $pid ) {
+		$o = (string) get_post_field( 'post_content', $pid );
+		$n = $fix( $o );
+		if ( $n !== $o ) {
+			kses_remove_filters();
+			wp_update_post( wp_slash( array( 'ID' => (int) $pid, 'post_content' => $n ) ) );
+			kses_init_filters();
+			$log[] = 'page ' . $pid;
+		}
+	}
+	foreach ( (array) $wpdb->get_col( "SELECT DISTINCT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ('rank_math_title','rank_math_description') AND meta_value LIKE '%KSh%'" ) as $pid ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		foreach ( array( 'rank_math_title', 'rank_math_description' ) as $mk ) {
+			$v = (string) get_post_meta( $pid, $mk, true );
+			$n = $fix( $v );
+			if ( $n !== $v ) {
+				update_post_meta( $pid, $mk, $n );
+				$log[] = $mk . ' ' . $pid;
+			}
+		}
+	}
+	update_option( 'nura_svc_2026_log', $log, false );
+}, 34 );
+add_action( 'admin_notices', function () {
+	if ( ! current_user_can( 'manage_woocommerce' ) || ! isset( $_GET['page'] ) || 'nura-images' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return;
+	}
+	$log = (array) get_option( 'nura_svc_2026_log', array() );
+	if ( $log ) {
+		echo '<div class="notice notice-info"><p><strong>Service prices updated:</strong> ' . esc_html( implode( ' | ', $log ) ) . '</p></div>';
 	}
 } );

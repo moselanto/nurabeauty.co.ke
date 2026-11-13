@@ -80,7 +80,7 @@ function nura_settings_map() {
 		'nura_inst_cta'     => array( 'default' => 'Book installation', 'label' => __( 'Main button text', 'nura-beauty' ), 'section' => 'nura_install' ),
 		'nura_inst_services_title' => array( 'default' => 'Services & guide prices', 'label' => __( 'Services heading', 'nura-beauty' ), 'section' => 'nura_install' ),
 		'nura_inst_services' => array(
-			'default' => "Wig installation | KSh 1,000 | Mid part or side part.\nHalf up half down | KSh 1,500 | Half up, half down installation.\nTonging | KSh 800 | Soft curls and waves.\nFlat ironing | KSh 500 | Sleek, straight finish.\nRevamp | KSh 1,500 | Washing and styling to bring your unit back to life.\nBridal styling | KSh 3,500 | Your crown for the big day.",
+			'default' => "Wig installation | KSh 1,000 | Mid part or side part.\nHalf up half down | KSh 1,500 | Half up, half down installation.\nTonging | KSh 800 | Soft curls and waves.\nFlat ironing | KSh 500 | Sleek, straight finish.\nRevamp | KSh 1,500 | Washing and styling to bring your unit back to life.\nBridal styling | KSh 3,500 | Your crown for the big day.\nColouring | KSh 2,500 - 3,500 | Custom colour for human hair units only.\nRe-lacing / repair | KSh 2,000 | New lace or repairs so your unit fits and lasts.",
 			'label'   => __( 'Services - one per line: Name | Price | Short description', 'nura-beauty' ),
 			'section' => 'nura_install',
 			'control' => 'textarea',

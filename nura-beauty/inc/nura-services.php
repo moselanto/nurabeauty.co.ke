@@ -26,13 +26,15 @@ function nura_services() {
 	// 1.107.0: owner's service list (3 Nov 2026): installation, styling, laundry, customization, repair, bridal styling.
 	// A price of 0 means "quoted after consultation" (owner has not set a guide price yet).
 	return apply_filters( 'nura_services', array(
-		'installation'  => array( 'Wig installation', 1500, 0, 'A secure, natural-looking install of your NURA unit or your own.' ),
-		'styling'       => array( 'Wig styling', 1000, 2500, 'A fresh cut, curls, a new parting or a sleek finish to change your look.' ),
-		'revamp'        => array( 'Wig laundry (wash & revamp)', 1500, 0, 'Deep wash, condition and restyle to bring a tired unit back to life.' ),
+		// 1.135.0: owner's banner (13 Nov 2026). Equal from/to = fixed price.
+		'installation'  => array( 'Wig installation', 1000, 1000, 'Mid part or side part, for your NURA unit or your own.' ),
+		'halfup'        => array( 'Half up half down', 1500, 1500, 'Half up, half down installation.' ),
+		'styling'       => array( 'Tonging / flat ironing', 500, 800, 'Flat ironing KSh 500 for a sleek straight finish; tonging KSh 800 for soft curls and waves.' ),
+		'revamp'        => array( 'Wig laundry (wash & revamp)', 1500, 1500, 'Washing and styling to bring a tired unit back to life.' ),
 		'customization' => array( 'Wig customization', 0, 0, 'Plucked hairline, bleached knots, cut-to-shape and other changes so a unit looks made for you.' ),
-		'colouring'     => array( 'Colouring (human hair units)', 2500, 5000, 'Custom colour for Pure Human units.' ),
-		'relacing'      => array( 'Wig repair & re-lacing', 2000, 0, 'New lace or repairs so your unit fits and lasts.' ),
-		'bridal'        => array( 'Bridal styling', 0, 0, 'Wig installation and styling for your wedding day, planned with you in advance.' ),
+		'colouring'     => array( 'Colouring (human hair units)', 2500, 3500, 'Custom colour for Pure Human units only.' ),
+		'relacing'      => array( 'Wig repair & re-lacing', 2000, 2000, 'New lace or repairs so your unit fits and lasts.' ),
+		'bridal'        => array( 'Bridal styling', 3500, 3500, 'Your crown for the big day: installation and styling for your wedding, planned with you in advance.' ),
 	) );
 }
 
@@ -43,6 +45,9 @@ function nura_service_price_text( $s ) {
 	if ( empty( $s[1] ) ) {
 		return __( 'Price agreed after consultation', 'nura-beauty' );
 	}
+	if ( (float) $s[2] === (float) $s[1] ) {
+		return $f( $s[1] );
+	}
 	return $s[2] ? $f( $s[1] ) . ' - ' . number_format( (float) $s[2] ) : sprintf( __( 'From %s', 'nura-beauty' ), $f( $s[1] ) );
 }
 
@@ -50,7 +55,7 @@ add_shortcode( 'nura_service_prices', function () {
 	$book = home_url( '/book-appointment/' );
 	$h    = '<div class="nura-svc"><table class="nura-svc__t"><thead><tr><th>' . esc_html__( 'Service', 'nura-beauty' ) . '</th><th>' . esc_html__( 'Guide price', 'nura-beauty' ) . '</th><th></th></tr></thead><tbody>';
 	foreach ( nura_services() as $k => $s ) {
-		$h .= '<tr><td><strong>' . esc_html( $s[0] ) . '</strong><br><span>' . esc_html( $s[3] ) . '</span></td><td>' . esc_html( nura_service_price_text( $s ) ) . '</td><td><a class="nura-btn nura-btn--ghost" href="' . esc_url( add_query_arg( 'service', 'relacing' === $k ? 'installation' : $k, $book ) ) . '">' . esc_html__( 'Book this', 'nura-beauty' ) . '</a></td></tr>';
+		$h .= '<tr><td><strong>' . esc_html( $s[0] ) . '</strong><br><span>' . esc_html( $s[3] ) . '</span></td><td>' . esc_html( nura_service_price_text( $s ) ) . '</td><td><a class="nura-btn nura-btn--ghost" href="' . esc_url( add_query_arg( 'service', in_array( $k, array( 'relacing', 'halfup' ), true ) ? 'installation' : $k, $book ) ) . '">' . esc_html__( 'Book this', 'nura-beauty' ) . '</a></td></tr>';
 	}
 	return $h . '</tbody></table><p class="nura-svc__note">' . esc_html__( 'Guide prices; your stylist confirms the final price for your wig. Studio visits are mornings, by booking.', 'nura-beauty' ) . '</p></div>';
 } );
@@ -156,7 +161,7 @@ add_action( 'admin_init', function () {
 			'Wig Installation in Nairobi: Prices and Booking',
 			'<p class="nura-answer"><strong>Short answer:</strong> NURA Beauty installs wigs at our studio at Stanbank House, 2nd Floor, Room 20, Moi Avenue, Nairobi CBD. Installation is from KSh 1,000 for your NURA wig or one you bought elsewhere. Book a morning appointment online; a deposit secures your slot and is deducted from your bill.</p>[nura_service_prices]<h2>How it works</h2><ol><li>Choose your service and a morning time on the <a href="{page:book-appointment}">booking page</a>.</li><li>Pay the deposit by M-Pesa and enter the code. We confirm on WhatsApp; a booking is only confirmed once we confirm it.</li><li>Come with clean, dry hair, braided flat if possible, and arrive on time (15-minute grace period).</li><li>Your stylist fits the wig, cuts the lace, and styles the hairline.</li></ol><h2>Questions about installation</h2>[nura_installation_faq]<p>Read <a href="{post:wig-installation-nairobi-what-to-expect}">what to expect at your installation</a>, <a href="{post:glueless-wigs-kenya}">glueless wigs</a> and <a href="{post:frontal-vs-closure-wig}">lace front vs closure</a>. Need a wig first? <a href="{page:find-your-wig}">Find your wig in 5 questions</a>.</p><p class="nura-cta-row"><a class="nura-btn nura-btn--gold" href="{page:book-appointment}">Book installation</a> <a class="nura-btn nura-btn--ghost" href="{wa}">Ask on WhatsApp</a></p>',
 			'Wig Installation in Nairobi: Prices from KSh 1,000 & Booking | NURA Beauty',
-			'Wig installation in Nairobi CBD from KSh 1,000: half up half down, tonging, flat ironing, revamp and bridal styling. Book a morning slot at Stanbank House.',
+			'Wig installation in Nairobi CBD from KSh 1,000: half up half down, tonging, flat ironing, revamp, bridal styling, colouring and re-lacing. Book a morning slot at Stanbank House.',
 			'wig installation nairobi',
 		),
 		'maswali-ya-wigi' => array(

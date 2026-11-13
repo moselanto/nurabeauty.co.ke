@@ -175,8 +175,14 @@ function nura_product_hair_claim( $product ) {
 	if ( '' === $name ) {
 		return '';
 	}
-	if ( false !== strpos( $name, 'blend' ) ) {
-		return __( 'Premium human-hair blend', 'nura-beauty' );
+	if ( false !== strpos( $name, 'human blend' ) ) {
+		return __( 'Human Blend', 'nura-beauty' );
+	}
+	if ( false !== strpos( $name, 'semi' ) || false !== strpos( $name, 'blend' ) ) {
+		return __( 'Semi Human: human hair mixed with good-quality fibre', 'nura-beauty' );
+	}
+	if ( false !== strpos( $name, 'pure human' ) ) {
+		return __( 'Pure Human: 100% human hair', 'nura-beauty' );
 	}
 	if ( false !== strpos( $name, 'human hair' ) ) {
 		return __( '100% human hair, quality guaranteed', 'nura-beauty' );

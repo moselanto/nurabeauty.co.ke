@@ -71,7 +71,7 @@ if ( ! function_exists( 'nura_hair_type_from_text' ) ) {
 		if ( preg_match( '/semi[\s-]*human|blend/', $t ) ) {
 			return 'blend';
 		}
-		if ( false !== strpos( $t, 'human hair' ) || false !== strpos( $t, 'human-hair' ) ) {
+		if ( false !== strpos( $t, 'pure human' ) || false !== strpos( $t, 'human hair' ) || false !== strpos( $t, 'human-hair' ) ) {
 			return 'human';
 		}
 		if ( preg_match( '/synthetic|fib(re|er)|heat[\s-]*(resistant|friendly)/', $t ) ) {
@@ -84,8 +84,8 @@ if ( ! function_exists( 'nura_hair_type_from_text' ) ) {
 if ( ! function_exists( 'nura_hair_type_label_text' ) ) {
 	function nura_hair_type_label_text( $key ) {
 		$labels = array(
-			'human' => __( '100% Human Hair', 'nura-beauty' ),
-			'blend' => __( 'Human-Hair Blend', 'nura-beauty' ),
+			'human' => __( 'Pure Human', 'nura-beauty' ), // 1.131.0: Kenyan shop words (owner).
+			'blend' => __( 'Semi Human', 'nura-beauty' ),
 			'fibre' => __( 'Fibre', 'nura-beauty' ),
 		);
 		return isset( $labels[ $key ] ) ? $labels[ $key ] : '';
@@ -106,7 +106,11 @@ function nura_loop_hair_type() {
 	}
 	$parts = array();
 	foreach ( $types as $k ) {
-		$parts[] = '<span class="nura-hairtype__tag nura-hairtype__tag--' . esc_attr( $k ) . '">' . esc_html( nura_hair_type_label_text( $k ) ) . '</span>';
+		$lbl = nura_hair_type_label_text( $k );
+		if ( 'blend' === $k && false !== stripos( (string) $product->get_attribute( 'pa_hair-type' ), 'human blend' ) ) {
+			$lbl = __( 'Human Blend', 'nura-beauty' ); // 1.131.0: Bob Wavy keeps its own label.
+		}
+		$parts[] = '<span class="nura-hairtype__tag nura-hairtype__tag--' . esc_attr( $k ) . '">' . esc_html( $lbl ) . '</span>';
 	}
 	echo '<div class="nura-hairtype" title="' . esc_attr__( 'Hair type', 'nura-beauty' ) . '">' . implode( '', $parts ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
 }

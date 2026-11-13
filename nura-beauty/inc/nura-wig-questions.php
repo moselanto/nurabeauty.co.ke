@@ -335,16 +335,19 @@ function nura_pq_items( $p ) {
 	}
 	$name  = wp_strip_all_tags( $p->get_name() );
 	$t     = strtolower( $name . ' ' . $p->get_attribute( 'pa_construction' ) . ' ' . $p->get_attribute( 'pa_hair-type' ) );
-	$hair  = false !== strpos( $t, 'blend' ) || false !== strpos( $t, 'semi' ) ? 'blend' : ( false !== strpos( $t, 'human' ) ? 'human' : 'fibre' );
+	$hair  = false !== strpos( $t, 'blend' ) || false !== strpos( $t, 'semi' ) ? 'blend' : ( false !== strpos( $t, 'human' ) ? 'human' : ( preg_match( '/fib(re|er)|synthetic/', $t ) ? 'fibre' : '' ) );
+	$hblend = false !== strpos( $t, 'human blend' );
 	$price = $p->is_type( 'variable' ) ? (float) $p->get_variation_price( 'min', true ) : (float) wc_get_price_to_display( $p );
 	$tok   = NURAX_Knowledge::tokens();
 	$q     = array();
 	$hq    = array(
-		'human' => array( sprintf( __( 'Is the %s real human hair?', 'nura-beauty' ), $name ), __( 'Yes. It is 100% human hair, so you can straighten, curl and colour it (use a heat protectant). With regular wear and good care it lasts about a year or more.', 'nura-beauty' ) ),
-		'blend' => array( sprintf( __( 'Is the %s real human hair?', 'nura-beauty' ), $name ), __( 'Partly. It is a human-hair blend (semi-human): human hair mixed with heat-resistant fibre, softer than fibre and less than 100% human hair. Use low to medium heat only. It lasts about 6 to 9 months with good care.', 'nura-beauty' ) ),
+		'human' => array( sprintf( __( 'Is the %s real human hair?', 'nura-beauty' ), $name ), __( 'Yes. It is Pure Human: 100% human hair, so you can straighten, curl and colour it (use a heat protectant). With regular wear and good care it lasts about a year or more.', 'nura-beauty' ) ),
+		'blend' => array( sprintf( __( 'Is the %s real human hair?', 'nura-beauty' ), $name ), ( $hblend ? __( 'Partly. It is a Human Blend wig. Low heat is fine for straightening or curling. It lasts about 6 to 9 months with good care.', 'nura-beauty' ) : __( 'Partly. It is Semi Human: human hair mixed with good-quality fibre. Low heat is fine for straightening or curling. It lasts about 6 to 9 months with good care.', 'nura-beauty' ) ) ),
 		'fibre' => array( sprintf( __( 'Is the %s human hair?', 'nura-beauty' ), $name ), __( 'No. It is heat-resistant fibre: styled out of the box, easy to care for and affordable. Use low heat only. It lasts about 3 to 6 months of regular wear with good care.', 'nura-beauty' ) ),
 	);
-	$q[] = $hq[ $hair ];
+	if ( isset( $hq[ $hair ] ) ) {
+		$q[] = $hq[ $hair ]; // 1.131.0: no hair-type question when the owner does not state one.
+	}
 	if ( false !== strpos( $t, 'headband' ) ) {
 		$q[] = array( __( 'Do I need glue for this wig?', 'nura-beauty' ), __( 'No. It is a headband wig: no lace and no glue. Slip it on, adjust the band and go, in about five minutes.', 'nura-beauty' ) );
 	} elseif ( false !== strpos( $t, 'closure' ) ) {

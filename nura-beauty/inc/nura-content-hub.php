@@ -31,8 +31,8 @@ function nura_hub_hair( $p ) {
 
 function nura_hub_labels() {
 	return array(
-		'human' => __( '100% human hair', 'nura-beauty' ),
-		'blend' => __( 'Human-hair blend (semi-human)', 'nura-beauty' ),
+		'human' => __( 'Pure Human (100% human hair)', 'nura-beauty' ),
+		'blend' => __( 'Semi Human (human hair mixed with fibre)', 'nura-beauty' ),
 		'fibre' => __( 'Heat-resistant fibre', 'nura-beauty' ),
 	);
 }

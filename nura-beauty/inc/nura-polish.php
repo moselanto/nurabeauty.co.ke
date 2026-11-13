@@ -2,7 +2,7 @@
 /**
  * NURA Beauty v1.34.0 - storefront polish.
  *
- * - Hair-type label on every product card (100% Human Hair / Blend / Fibre), read from
+ * - Hair-type label on every product card (Pure Human / Blend / Fibre), read from
  *   the Hair Type attribute first, then the category, then the product name. Products
  *   with no hair type (care, beauty) get an empty placeholder so cards stay aligned.
  * - Footer menus never repeat a link that an earlier footer column already shows.

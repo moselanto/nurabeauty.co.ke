@@ -56,7 +56,7 @@ function nura_wq_render() {
 	}
 	$cats = NURAX_Knowledge::categories();
 	$h    = '<div class="nura-wq">';
-	$h   .= '<p class="nura-answer"><strong>' . esc_html__( 'Short answer:', 'nura-beauty' ) . '</strong> ' . esc_html( NURAX_Knowledge::fill( 'At NURA Beauty, heat-resistant fibre wigs cost {fibre_min} to {fibre_max}, human-hair blend wigs start at {blend_min} and 100% human hair wigs cost {human_min} to {human_max}. Headband and 4x4 closure wigs need no glue, our studio at {address} installs and revamps wigs, and we deliver countrywide. Every answer below comes from our stylists and our live shop.' ) ) . '</p>';
+	$h   .= '<p class="nura-answer"><strong>' . esc_html__( 'Short answer:', 'nura-beauty' ) . '</strong> ' . esc_html( NURAX_Knowledge::fill( 'At NURA Beauty, Semi Human wigs start at {blend_min} and Pure Human wigs cost {human_min} to {human_max}. Headband and 4x4 closure wigs need no glue, our studio at {address} installs and revamps wigs, and we deliver countrywide. Every answer below comes from our stylists and our live shop.' ) ) . '</p>';
 	$h   .= '<p class="nura-wq-ask">' . nura_wq_chip( __( 'Help me choose a wig', 'nura-beauty' ), __( 'Ask NURA Stylist', 'nura-beauty' ) ) . ' <span>' . esc_html__( 'English, Kiswahili or Sheng: "Ni wig gani poa ya daily?"', 'nura-beauty' ) . '</span></p>';
 	$h   .= nura_sf_render();
 	$h   .= '<nav class="nura-wq-toc" aria-label="' . esc_attr__( 'Question topics', 'nura-beauty' ) . '"><ol>';
@@ -231,7 +231,7 @@ add_action( 'admin_init', function () {
 		), true );
 		if ( $id && ! is_wp_error( $id ) ) {
 			update_post_meta( $id, 'rank_math_title', 'Wig Questions Kenya: Prices, Glueless, Installation & Care | NURA Beauty' );
-			update_post_meta( $id, 'rank_math_description', 'Honest answers to 120+ wig questions Kenyans ask: prices, human hair vs semi-human vs fibre, glueless wigs, installation in Nairobi, face shape, colours, care and delivery.' );
+			update_post_meta( $id, 'rank_math_description', 'Honest answers to 120+ wig questions Kenyans ask: prices, human hair vs Semi Human vs fibre, glueless wigs, installation in Nairobi, face shape, colours, care and delivery.' );
 			update_post_meta( $id, 'rank_math_focus_keyword', 'wig questions kenya' );
 		}
 	}
@@ -341,9 +341,9 @@ function nura_pq_items( $p ) {
 	$tok   = NURAX_Knowledge::tokens();
 	$q     = array();
 	$hq    = array(
-		'human' => array( sprintf( __( 'Is the %s real human hair?', 'nura-beauty' ), $name ), __( 'Yes. It is Pure Human: 100% human hair, so you can straighten, curl and colour it (use a heat protectant). With regular wear and good care it lasts about a year or more.', 'nura-beauty' ) ),
+		'human' => array( sprintf( __( 'Is the %s real human hair?', 'nura-beauty' ), $name ), __( 'Yes. It is Pure Human: Pure Human, so you can straighten, curl and colour it (use a heat protectant). With regular wear and good care it lasts about a year or more.', 'nura-beauty' ) ),
 		'blend' => array( sprintf( __( 'Is the %s real human hair?', 'nura-beauty' ), $name ), ( $hblend ? __( 'Partly. It is a Human Blend wig. Low heat is fine for straightening or curling. It lasts about 6 to 9 months with good care.', 'nura-beauty' ) : __( 'Partly. It is Semi Human: human hair mixed with good-quality fibre. Low heat is fine for straightening or curling. It lasts about 6 to 9 months with good care.', 'nura-beauty' ) ) ),
-		'fibre' => array( sprintf( __( 'Is the %s human hair?', 'nura-beauty' ), $name ), __( 'No. It is heat-resistant fibre: styled out of the box, easy to care for and affordable. Use low heat only. It lasts about 3 to 6 months of regular wear with good care.', 'nura-beauty' ) ),
+		'fibre' => array( sprintf( __( 'Is the %s human hair?', 'nura-beauty' ), $name ), __( 'No. It is luxury fibre: styled out of the box, easy to care for and affordable. Use low heat only. It lasts about 3 to 6 months of regular wear with good care.', 'nura-beauty' ) ),
 	);
 	if ( isset( $hq[ $hair ] ) ) {
 		$q[] = $hq[ $hair ]; // 1.131.0: no hair-type question when the owner does not state one.
@@ -415,7 +415,7 @@ function nura_guide_pick_queries() {
 		'how-to-buy-wigs-online-in-kenya-safely'       => 'best value wig',
 		'bridal-wigs-kenya'                            => 'wedding lace front wig',
 		'best-wigs-for-beginners-kenya'                => 'beginner headband wig',
-		'semi-human-wigs-kenya-guide'                  => 'semi-human blend wig',
+		'semi-human-wigs-kenya-guide'                  => 'Semi Human wig',
 		'wig-revamp-nairobi'                           => 'human hair wig',
 	) );
 }

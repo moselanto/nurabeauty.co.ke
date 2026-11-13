@@ -41,7 +41,7 @@ class NURAX_Wig_Attributes {
 			'hair-type' => array(
 				'label'   => 'Hair Type',
 				'archive' => true,
-				'terms'   => array( '100% Human Hair', 'Human Hair Blend', 'Synthetic', 'Heat-Friendly Synthetic' ),
+				'terms'   => array( 'Pure Human', 'Semi Human', 'Synthetic', 'Heat-Friendly Synthetic' ),
 			),
 			'texture' => array(
 				'label'   => 'Texture',
@@ -97,7 +97,7 @@ class NURAX_Wig_Attributes {
 	public static function cats() {
 		return array(
 			'Wigs' => array(
-				'Human Hair Wigs', 'Human Hair Blend Wigs', 'Synthetic Wigs', 'Heat-Friendly Wigs',
+				'Human Hair Wigs', 'Semi Human Wigs', 'Synthetic Wigs', 'Heat-Friendly Wigs',
 				'Lace Front Wigs', 'HD Lace Wigs', 'Glueless Wigs', 'Closure Wigs', '360 Lace Wigs',
 				'Full Lace Wigs', 'Headband Wigs', 'Bob Wigs', 'Pixie Wigs',
 				'Straight Wigs', 'Body Wave Wigs', 'Loose Wave Wigs', 'Water Wave Wigs', 'Deep Wave Wigs',

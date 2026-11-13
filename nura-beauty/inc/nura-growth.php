@@ -83,15 +83,15 @@ add_filter( 'nura_home_faqs', function ( $faqs ) {
 	$parts = array();
 	if ( isset( $b['fibre'] ) ) {
 		/* translators: 1: lowest price, 2: highest price. */
-		$parts[] = sprintf( __( 'heat-resistant fibre wigs cost %1$s to %2$s', 'nura-beauty' ), nura_growth_ksh( $b['fibre'][0] ), nura_growth_ksh( $b['fibre'][1] ) );
+		$parts[] = sprintf( __( 'luxury fibre wigs cost %1$s to %2$s', 'nura-beauty' ), nura_growth_ksh( $b['fibre'][0] ), nura_growth_ksh( $b['fibre'][1] ) );
 	}
 	if ( isset( $b['blend'] ) ) {
 		/* translators: 1: lowest price, 2: highest price. */
-		$parts[] = sprintf( __( 'human-hair blend (semi-human) wigs %1$s to %2$s', 'nura-beauty' ), nura_growth_ksh( $b['blend'][0] ), nura_growth_ksh( $b['blend'][1] ) );
+		$parts[] = sprintf( __( 'Semi Human wigs %1$s to %2$s', 'nura-beauty' ), nura_growth_ksh( $b['blend'][0] ), nura_growth_ksh( $b['blend'][1] ) );
 	}
 	if ( isset( $b['human'] ) ) {
 		/* translators: 1: lowest price, 2: highest price. */
-		$parts[] = sprintf( __( '100%% human hair wigs %1$s to %2$s depending on length', 'nura-beauty' ), nura_growth_ksh( $b['human'][0] ), nura_growth_ksh( $b['human'][1] ) );
+		$parts[] = sprintf( __( 'Pure Human wigs %1$s to %2$s depending on length', 'nura-beauty' ), nura_growth_ksh( $b['human'][0] ), nura_growth_ksh( $b['human'][1] ) );
 	}
 	if ( ! $parts ) {
 		return $faqs;

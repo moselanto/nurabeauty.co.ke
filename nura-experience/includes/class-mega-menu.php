@@ -134,8 +134,8 @@ class NURAX_Mega_Menu {
 						'Bridal & Occasion' => self::cat_url( 'bridal-occasion' ),
 					),
 					'By Hair Type' => array(
-						'100% Human Hair'  => self::cat_url( 'human-hair-wigs' ),
-						'Human-Hair Blend' => self::cat_url( 'human-hair-blend-wigs' ),
+						'Pure Human'  => self::cat_url( 'human-hair-wigs' ),
+						'Semi Human' => self::cat_url( 'human-hair-blend-wigs' ),
 						'Curly Wigs'       => self::cat_url( 'curly-wigs' ),
 						'Jerry Curl Wigs'  => self::cat_url( 'jerry-curl-wigs' ),
 					),

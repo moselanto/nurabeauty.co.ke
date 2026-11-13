@@ -9,7 +9,7 @@
  *     Care & install, Shipping & returns, Warranty.
  *   - "Complete your NURA look" cross-sell row (cross-sells -> upsells -> Wig
  *     Care fallback).
- *   - Fixes the hardcoded "100% human hair" reassurance line so it reflects the
+ *   - Fixes the hardcoded "Pure Human" reassurance line so it reflects the
  *     product's real Hair Type attribute (no false claim on blends/synthetic).
  *
  * Native WooCommerce variations already update price/image/stock on selection,
@@ -122,7 +122,7 @@ class NURAX_Product_Page {
 		global $product;
 		$hair  = ( $product instanceof WC_Product ) ? $product->get_attribute( 'pa_hair-type' ) : '';
 		$first = $hair
-			? sprintf( /* translators: %s: hair type, e.g. 100% Human Hair */ __( '%s, quality guaranteed', 'nura-experience' ), $hair )
+			? sprintf( /* translators: %s: hair type, e.g. Pure Human */ __( '%s, quality guaranteed', 'nura-experience' ), $hair )
 			: __( 'Premium quality, quality guaranteed', 'nura-experience' );
 
 		// Delivery + payment mirror the store's real WooCommerce shipping zones

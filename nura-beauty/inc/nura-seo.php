@@ -39,7 +39,7 @@ function nura_home_faqs() {
 	return apply_filters( 'nura_home_faqs', array(
 		array(
 			__( 'How much is a wig in Kenya?', 'nura-beauty' ),
-			sprintf( /* translators: %s: cheapest wig price */ __( 'At NURA, wigs start from %s. Heat-resistant fibre wigs are the most affordable, human-hair blend (semi-human) wigs sit in the middle, and 100%% human hair lace front wigs cost the most, rising with length. Every price is shown in Kenya Shillings on the product page.', 'nura-beauty' ), function_exists( 'nura_wigs_from_text' ) ? nura_wigs_from_text() : 'KSh 1,800' ),
+			sprintf( /* translators: %s: cheapest wig price */ __( 'At NURA, wigs start from %s. Semi Human wigs are the most affordable and Pure Human lace front wigs cost the most, rising with length. Every price is shown in Kenya Shillings on the product page.', 'nura-beauty' ), function_exists( 'nura_wigs_from_text' ) ? nura_wigs_from_text() : 'KSh 1,800' ),
 		),
 		array(
 			__( 'Where can I buy wigs in Nairobi?', 'nura-beauty' ),
@@ -51,8 +51,8 @@ function nura_home_faqs() {
 			__( 'Yes. We deliver the same day in Nairobi on orders placed before 5pm, and to Mombasa, Kisumu, Nakuru, Eldoret and the rest of Kenya by shuttle or courier, dispatched the same day you pay.', 'nura-beauty' ),
 		),
 		array(
-			__( 'What is the difference between human hair, semi-human and synthetic wigs?', 'nura-beauty' ),
-			__( '100% human hair wigs look and move most naturally and can be heat-styled and coloured. Human-hair blend wigs (often called semi-human) mix human hair with fibre for a lower price. Heat-resistant fibre (synthetic) wigs are the most affordable and hold their style. Every NURA product name states its hair type.', 'nura-beauty' ),
+			__( 'What is the difference between human hair, Semi Human and synthetic wigs?', 'nura-beauty' ),
+			__( 'Pure Human wigs look and move most naturally and can be heat-styled and coloured. Semi Human wigs mix human hair with good-quality fibre for a lower price, and low heat is fine. Human Blend is a separate label on a few units. Every NURA product name states its hair type.', 'nura-beauty' ),
 		),
 		array(
 			__( 'How do I pay for my wig?', 'nura-beauty' ),
@@ -82,7 +82,7 @@ function nura_home_seo_section() {
 					printf(
 						/* translators: 1-6: links to wig categories */
 						esc_html__( 'NURA is a Nairobi wig shop serving women across Kenya. Choose from %1$s, %2$s, %3$s, %4$s, %5$s and %6$s - in straight, body wave, water wave, jerry curl, kinky and deep curl textures, from short bobs to 22-inch lengths.', 'nura-beauty' ),
-						nura_seo_cat_link( 'human-hair-wigs', __( '100% human hair wigs', 'nura-beauty' ) ), // phpcs:ignore WordPress.Security.EscapeOutput
+						nura_seo_cat_link( 'human-hair-wigs', __( 'Pure Human wigs', 'nura-beauty' ) ), // phpcs:ignore WordPress.Security.EscapeOutput
 						nura_seo_cat_link( 'lace-front-wigs', __( 'HD lace front (frontal) wigs', 'nura-beauty' ) ), // phpcs:ignore WordPress.Security.EscapeOutput
 						nura_seo_cat_link( 'closure-wigs', __( '4x4 closure wigs', 'nura-beauty' ) ), // phpcs:ignore WordPress.Security.EscapeOutput
 						nura_seo_cat_link( 'headband-wigs', __( 'headband wigs', 'nura-beauty' ) ), // phpcs:ignore WordPress.Security.EscapeOutput
@@ -90,7 +90,7 @@ function nura_home_seo_section() {
 						nura_seo_cat_link( 'curly-wigs', __( 'curly wigs', 'nura-beauty' ) ) // phpcs:ignore WordPress.Security.EscapeOutput
 					);
 				?></p>
-				<p><?php esc_html_e( 'Every wig is quality-checked and clearly labelled as human hair, human-hair blend (semi-human) or heat-resistant fibre, so you know exactly what you are paying for. Prices are in Kenya Shillings, with same-day delivery in Nairobi before 5pm, same-day dispatch countrywide, and secure payment by M-Pesa or card.', 'nura-beauty' ); ?></p>
+				<p><?php esc_html_e( 'Every wig is quality-checked and clearly labelled as human hair, Semi Human or luxury fibre, so you know exactly what you are paying for. Prices are in Kenya Shillings, with same-day delivery in Nairobi before 5pm, same-day dispatch countrywide, and secure payment by M-Pesa or card.', 'nura-beauty' ); ?></p>
 				<ul class="nura-seo-home__facts"><li><strong><?php echo esc_html( ( function_exists( 'nura_wigs_from_text' ) ? nura_wigs_from_text() : 'KSh ' . number_format( (float) ( function_exists( 'nura_fact' ) ? nura_fact( 'wigs_from', 1800 ) : 1800 ) ) ) . '+' ); ?></strong><span><?php esc_html_e( 'Wigs from', 'nura-beauty' ); ?></span></li><li><strong><?php esc_html_e( 'Same day', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Nairobi delivery', 'nura-beauty' ); ?></span></li><li><strong>48 <?php esc_html_e( 'hours', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Easy returns', 'nura-beauty' ); ?></span></li></ul>
 			</div>
 			<div class="nura-faq nura-seo-home__faq">

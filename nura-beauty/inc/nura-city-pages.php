@@ -112,7 +112,7 @@ function nura_city_render( $slug ) {
 				<li><?php esc_html_e( 'Pay by M-Pesa or card. We confirm your order and send the tracking details.', 'nura-beauty' ); ?></li>
 				<li><?php esc_html_e( 'Collect from the courier or receive it at your address.', 'nura-beauty' ); ?></li>
 			</ol>
-			<p><?php esc_html_e( 'Every wig is quality-checked before dispatch and clearly labelled as 100% human hair, human-hair blend or heat-resistant fibre. Need a fitting? Ask for a free video consultation on WhatsApp.', 'nura-beauty' ); ?></p>
+			<p><?php esc_html_e( 'Every wig is quality-checked before dispatch and clearly labelled as Pure Human, Semi Human or luxury fibre. Need a fitting? Ask for a free video consultation on WhatsApp.', 'nura-beauty' ); ?></p>
 		</section>
 
 		<section class="npg-faq">
@@ -180,11 +180,11 @@ add_action( 'admin_init', function () {
 			'post_name'    => $slug,
 			'post_title'   => sprintf( 'Wigs in %s', $c[0] ),
 			'post_status'  => 'publish',
-			'post_content' => sprintf( '<p>NURA Beauty delivers human hair, semi-human and fibre wigs to %1$s and across %2$s County. This page shows live delivery fees, prices and popular wigs.</p>', $c[0], $c[1] ),
+			'post_content' => sprintf( '<p>NURA Beauty delivers human hair, Semi Human and fibre wigs to %1$s and across %2$s County. This page shows live delivery fees, prices and popular wigs.</p>', $c[0], $c[1] ),
 		), true );
 		if ( $id && ! is_wp_error( $id ) ) {
 			update_post_meta( $id, 'rank_math_title', sprintf( 'Wigs in %s: Delivery, Prices & Payment | NURA Beauty', $c[0] ) );
-			update_post_meta( $id, 'rank_math_description', sprintf( 'Buy human hair, semi-human and fibre wigs in %s. Live prices, delivery fee and time to %s County, M-Pesa and card payment, 48-hour returns. Order online or on WhatsApp.', $c[0], $c[1] ) );
+			update_post_meta( $id, 'rank_math_description', sprintf( 'Buy human hair, Semi Human and fibre wigs in %s. Live prices, delivery fee and time to %s County, M-Pesa and card payment, 48-hour returns. Order online or on WhatsApp.', $c[0], $c[1] ) );
 			update_post_meta( $id, 'rank_math_focus_keyword', strtolower( 'wigs in ' . $c[0] ) );
 		}
 	}

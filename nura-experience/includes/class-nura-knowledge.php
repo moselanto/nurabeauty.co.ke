@@ -307,7 +307,7 @@ final class NURAX_Knowledge {
 
 	/** Product cards (name, price, hair type, image, url, stock). */
 	public static function cards( $ids ) {
-		$labels = array( 'human' => '100% human hair', 'blend' => 'Human-hair blend (semi-human)', 'fibre' => 'Heat-resistant fibre' );
+		$labels = array( 'human' => 'Pure Human', 'blend' => 'Semi Human', 'fibre' => 'Luxury fibre' );
 		$out    = array();
 		foreach ( (array) $ids as $id ) {
 			$p = function_exists( 'wc_get_product' ) ? wc_get_product( $id ) : null;
@@ -356,7 +356,7 @@ final class NURAX_Knowledge {
 		} elseif ( false !== strpos( $t, 'lace front' ) || false !== strpos( $t, 'frontal' ) ) {
 			$out[] = __( 'Lace front for the most natural hairline (we can install it)', 'nura-experience' );
 		}
-		$hair = array( 'human' => __( '100% human hair: heat-style, colour, lasts about a year or more', 'nura-experience' ), 'blend' => __( 'Human-hair blend: softer than fibre for less than human hair', 'nura-experience' ), 'fibre' => __( 'Heat-resistant fibre: styled out of the box, easy care', 'nura-experience' ) );
+		$hair = array( 'human' => __( 'Pure Human: heat-style, colour, lasts about a year or more', 'nura-experience' ), 'blend' => __( 'Semi Human: softer than fibre for less than human hair', 'nura-experience' ), 'fibre' => __( 'Luxury fibre: styled out of the box, easy care', 'nura-experience' ) );
 		$out[] = $hair[ $row['hair'] ];
 		if ( ! empty( $hints['texture'] ) && false !== strpos( $t, (string) $hints['texture'] ) ) {
 			$out[] = __( 'Matches the texture you want', 'nura-experience' );
@@ -433,7 +433,7 @@ final class NURAX_Knowledge {
 		$p .= "You are NURA Stylist, NURA Beauty's AI wig consultant. Understand English, Kiswahili and Sheng (for example 'Ni wig gani iko poa?', 'Nataka wig ya daily use', 'Bei ya human hair ni ngapi?', 'Nataka wig isihitaji glue', 'Mnaweka wig?', 'Mko CBD?', 'Nataka wig ya 3k') and reply in the customer's language mix.\n";
 		$p .= "- Ask for the budget in KES before recommending if it is unknown, then construction, hair type, texture/length, occasion and whether they need installation. Ask one or two questions at a time.\n";
 		$p .= "- Recommend at most three products, only from the catalogue facts, with exact name, price, hair type, construction and why it fits. Never invent products, prices, discounts, stock or lifespans beyond the answers below.\n";
-		$p .= "- Never call fibre or blend wigs human hair. Distinguish 100% human hair, human-hair blend (semi-human) and heat-resistant fibre.\n";
+		$p .= "- Never call fibre or blend wigs human hair. Distinguish Pure Human, Semi Human and luxury fibre.\n";
 		$p .= "- Distinguish buying a wig, installing a NURA wig and installing the customer's own wig. Never say an appointment is confirmed; send them to the booking page or WhatsApp.\n";
 		$p .= "- Be warm and never pushy. Face-shape advice is a suggestion, not a rule.\n";
 		$p .= "\nNURA ANSWERS TO COMMON QUESTIONS (use these facts):\n";

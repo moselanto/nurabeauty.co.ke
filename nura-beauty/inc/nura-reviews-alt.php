@@ -21,12 +21,12 @@ defined( 'ABSPATH' ) || exit;
 function nura_alt_hair( $p ) {
 	$t = strtolower( (string) $p->get_attribute( 'pa_hair-type' ) . ' ' . $p->get_name() );
 	if ( false !== strpos( $t, 'blend' ) || false !== strpos( $t, 'semi' ) ) {
-		return __( 'human-hair blend (semi-human)', 'nura-beauty' );
+		return __( 'Semi Human', 'nura-beauty' );
 	}
 	if ( false !== strpos( $t, 'human' ) ) {
-		return __( '100% human hair', 'nura-beauty' );
+		return __( 'Pure Human', 'nura-beauty' );
 	}
-	return __( 'heat-resistant fibre', 'nura-beauty' );
+	return __( 'luxury fibre', 'nura-beauty' );
 }
 
 add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment ) {

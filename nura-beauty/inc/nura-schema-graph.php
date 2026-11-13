@@ -66,7 +66,7 @@ add_action( 'save_post_product', function () {
 
 /** One factual sentence AI engines and Google can quote about the business. */
 function nura_schema_org_description() {
-	return 'NURA Beauty (registered in Kenya as NURA CROWN & BEAUTY, BN-MJS7ALRV) is a Nairobi wig shop selling 100% human hair, human-hair blend and heat-resistant fibre wigs online across Kenya, with a fitting and installation studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD. Prices in Kenya Shillings; same-day Nairobi delivery before 5pm; M-Pesa and card (pay on delivery within Nairobi CBD only); Lipa Mdogo Mdogo payment plans.';
+	return 'NURA Beauty (registered in Kenya as NURA CROWN & BEAUTY, BN-MJS7ALRV) is a Nairobi wig shop selling Pure Human, Semi Human and luxury fibre wigs online across Kenya, with a fitting and installation studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD. Prices in Kenya Shillings; same-day Nairobi delivery before 5pm; M-Pesa and card (pay on delivery within Nairobi CBD only); Lipa Mdogo Mdogo payment plans.';
 }
 
 /** Services from the Installation page settings: [ name, price text, description ]. */
@@ -138,7 +138,7 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 			$data[ $key ]['paymentAccepted']    = 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash (in store)';
 			unset( $data[ $key ]['openingHoursSpecification'], $data[ $key ]['openingHours'], $data[ $key ]['geo'], $data[ $key ]['hasMap'] );
 			$data[ $key ]['knowsAbout'] = array(
-				'Wigs', 'Human hair wigs', 'Human hair blend (semi-human) wigs', 'Heat-resistant fibre wigs',
+				'Wigs', 'Human hair wigs', 'Semi Human wigs', 'Luxury fibre wigs',
 				'Lace front wigs', '4x4 lace closure wigs', 'Headband wigs', 'Glueless wigs',
 				'Wig installation', 'Wig revamp', 'Wig styling', 'Wig colouring', 'Wig repair', 'Wig care',
 			);

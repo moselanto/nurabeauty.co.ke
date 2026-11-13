@@ -12,7 +12,7 @@
  *      spends its time on real category and product pages, not thousands of
  *      near-duplicate filter combinations.
  *   5. wp-admin notice listing products whose Hair Type is blend/synthetic but
- *      whose text still says "100% human hair" (accuracy for shoppers + Merchant Center).
+ *      whose text still says "Pure Human" (accuracy for shoppers + Merchant Center).
  *
  * Switch off with: add_filter( 'nura_seo_fixes_enabled', '__return_false' );
  *
@@ -155,7 +155,7 @@ add_action( 'admin_notices', function () {
 	if ( empty( $rows ) ) {
 		return;
 	}
-	echo '<div class="notice notice-warning"><p><strong>NURA - product accuracy:</strong> these products are set to a blend/synthetic Hair Type but their title or description says "100% human hair". Please correct the wording (or the Hair Type) so shoppers and Google see the same thing:</p><ul style="list-style:disc;margin-left:20px">';
+	echo '<div class="notice notice-warning"><p><strong>NURA - product accuracy:</strong> these products are set to a blend/synthetic Hair Type but their title or description says "Pure Human". Please correct the wording (or the Hair Type) so shoppers and Google see the same thing:</p><ul style="list-style:disc;margin-left:20px">';
 	foreach ( array_slice( $rows, 0, 30 ) as $r ) {
 		printf( '<li><a href="%s">%s</a> (%s)</li>', esc_url( get_edit_post_link( $r['id'] ) ), esc_html( $r['name'] ), esc_html( $r['type'] ) );
 	}

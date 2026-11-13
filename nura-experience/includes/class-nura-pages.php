@@ -45,10 +45,10 @@ class NURAX_Pages {
 
 		$about = <<<HTML
 <h2>The House of Radiant Confidence</h2>
-<p>$biz is a Nairobi-based house of premium wigs in Kenya - 100% human hair, human-hair blend and heat-resistant fibre, each clearly labelled - built on a simple belief: every woman deserves to wear her crown with confidence. We hand-finish and personally curate each unit, then back it with the kind of concierge service you would expect from a luxury house.</p>
+<p>$biz is a Nairobi-based house of premium wigs in Kenya - Pure Human, Semi Human and luxury fibre, each clearly labelled - built on a simple belief: every woman deserves to wear her crown with confidence. We hand-finish and personally curate each unit, then back it with the kind of concierge service you would expect from a luxury house.</p>
 <h3>What we stand for</h3>
 <ul>
-<li><strong>Honest hair.</strong> Every unit is clearly labelled as 100% human hair, human-hair blend (semi-human) or heat-resistant fibre, so you know exactly what you are paying for. We never sell a blend or fibre unit as human hair.</li>
+<li><strong>Honest hair.</strong> Every unit is clearly labelled as Pure Human, Semi Human or luxury fibre, so you know exactly what you are paying for. We never sell a blend or fibre unit as human hair.</li>
 <li><strong>Personal service.</strong> From your first consultation to installation and aftercare, our team helps you choose, fit and maintain the right wig for your face shape, lifestyle and budget.</li>
 <li><strong>Made for Kenya.</strong> Same-day delivery in Nairobi, fast countrywide shipping and M-Pesa checkout, designed around how our clients actually shop for wigs in Kenya.</li>
 </ul>
@@ -271,7 +271,7 @@ HTML;
 		$faq = <<<HTML
 <h2>Frequently Asked Questions</h2>
 <h3>Are NURA wigs real human hair?</h3>
-<p>We sell three types, and every product is clearly labelled with its type: 100% human hair, human-hair blend, and heat-resistant fibre. Human-hair units are listed under Human Hair Wigs. If you are unsure which type a unit is, ask us on WhatsApp before you order.</p>
+<p>We sell three types, and every product is clearly labelled with its type: Pure Human, Semi Human, and luxury fibre. Human-hair units are listed under Human Hair Wigs. If you are unsure which type a unit is, ask us on WhatsApp before you order.</p>
 <h3>How do I choose the right wig?</h3>
 <p>Take our Find Your Wig quiz, chat with NURA Stylist, or book a consultation. You can also visit our Nairobi studio for a fitting.</p>
 <h3>What lengths, textures and colours are available?</h3>

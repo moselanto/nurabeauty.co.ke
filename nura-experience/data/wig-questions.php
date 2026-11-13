@@ -98,12 +98,12 @@ return array(
 			'q' => array(
 				array(
 					'How much is a good wig in Kenya?',
-					'At NURA, heat-resistant fibre wigs cost {fibre_min} to {fibre_max}, human-hair blend (semi-human) wigs start at {blend_min}, and 100% human hair wigs cost {human_min} to {human_max}, rising with length. A good wig is one whose hair type, length and lace suit how often you will wear it, so tell us your budget and we will match you.',
+					'At NURA, Semi Human wigs start at {blend_min}, and Pure Human wigs cost {human_min} to {human_max}, rising with length. A good wig is one whose hair type, length and lace suit how often you will wear it, so tell us your budget and we will match you.',
 					array(),
 				),
 				array(
 					'Where can I buy affordable human hair wigs in Nairobi?',
-					'At the NURA Beauty studio, {address}, open {hours}, or online with same-day Nairobi delivery for orders before {cutoff}. Our 100% human hair wigs start at {human_min}, and the shorter lengths and bobs are the most affordable.',
+					'At the NURA Beauty studio, {address}, open {hours}, or online with same-day Nairobi delivery for orders before {cutoff}. Our Pure Human wigs start at {human_min}, and the shorter lengths and bobs are the most affordable.',
 					array(
 						'hair' => 'human',
 						'sort' => 'cheap',
@@ -111,7 +111,7 @@ return array(
 				),
 				array(
 					'Which wigs can I get for KES 2,000?',
-					'Around KES 2,000 you are looking at heat-resistant fibre wigs. Our most affordable unit starts at {fibre_min}; headband and 4x4 closure fibre wigs sit just above that.',
+					'Around KES 2,000 you are looking at Semi Human wigs. Our most affordable unit starts at {blend_min}, mostly headband and closure styles.',
 					array(
 						'max' => 2500,
 						'sort' => 'cheap',
@@ -119,7 +119,7 @@ return array(
 				),
 				array(
 					'Do you have good wigs under KES 3,000?',
-					'Yes. Several heat-resistant fibre wigs are under KES 3,000, including headband wigs (no glue needed) and 4x4 closure wigs in kinky straight (Yaki), loose wave and short water-curl bob styles.',
+					'Yes. Several luxury fibre wigs are under KES 3,000, including headband wigs (no glue needed) and 4x4 closure wigs in kinky straight (Yaki), loose wave and short water-curl bob styles.',
 					array(
 						'max' => 3000,
 						'sort' => 'cheap',
@@ -127,12 +127,12 @@ return array(
 				),
 				array(
 					'What is the difference between a KES 3,000 wig and a KES 10,000 wig?',
-					'Mostly the hair. Around KES 3,000 you get heat-resistant fibre: styled out of the box, low maintenance, about 3 to 6 months of regular wear. Around KES 10,000 you get 100% human hair: the most natural movement, can be heat-styled and coloured, and lasts about a year or more with good care.',
+					'Mostly the hair. Around KES 3,000 you get luxury fibre: styled out of the box, low maintenance, about 3 to 6 months of regular wear. Around KES 10,000 you get Pure Human: the most natural movement, can be heat-styled and coloured, and lasts about a year or more with good care.',
 					array(),
 				),
 				array(
-					'How much does a 100% human hair wig cost?',
-					'Our 100% human hair wigs cost {human_min} to {human_max}. Bobs and 12 to 14 inch curls are at the lower end; 18 to 22 inch lengths cost the most.',
+					'How much does a Pure Human wig cost?',
+					'Our Pure Human wigs cost {human_min} to {human_max}. Bobs and 12 to 14 inch curls are at the lower end; 18 to 22 inch lengths cost the most.',
 					array(
 						'hair' => 'human',
 						'sort' => 'cheap',
@@ -140,14 +140,14 @@ return array(
 				),
 				array(
 					'Can I get a good-looking wig for KES 5,000?',
-					'Yes. Up to KES 5,000 you can choose from our heat-resistant fibre wigs, including lace front and 4x4 closure styles, and most of them leave money for delivery.',
+					'Yes. Up to KES 5,000 you can choose from our luxury fibre wigs, including lace front and 4x4 closure styles, and most of them leave money for delivery.',
 					array(
 						'max' => 5000,
 					),
 				),
 				array(
 					'Which wig gives the best value for money?',
-					'If you will wear it every day for a year or more, a 100% human hair wig usually gives the best value over time. If you like changing styles often, two fibre wigs for the price of one human hair wig can be better value.',
+					'If you will wear it every day for a year or more, a Pure Human wig usually gives the best value over time. If you like changing styles often, two fibre wigs for the price of one human hair wig can be better value.',
 					array(),
 				),
 				array(
@@ -164,8 +164,8 @@ return array(
 		),
 		array(
 			'id' => 'hair-types',
-			'title' => 'Human hair vs synthetic vs semi-human',
-			'kw' => 'human hair synthetic fibre semi-human semi human blend real genuine flat iron straighten curl heat tangle natural difference better',
+			'title' => 'Human hair vs synthetic vs Semi Human',
+			'kw' => 'human hair synthetic fibre Semi Human semi human blend real genuine flat iron straighten curl heat tangle natural difference better',
 			'h' => array(),
 			'guides' => array(
 				'human-hair-vs-semi-human-vs-fibre-wigs-kenya',
@@ -174,40 +174,40 @@ return array(
 			'q' => array(
 				array(
 					'Which is better, human hair or synthetic wigs?',
-					'Neither is better for everyone. 100% human hair looks the most natural, takes heat and colour and lasts longest, but costs the most. Heat-resistant fibre (synthetic) costs much less and keeps its style with little effort. Choose by budget and how often you will wear it.',
+					'Neither is better for everyone. Pure Human looks the most natural, takes heat and colour and lasts longest, but costs the most. Luxury fibre (synthetic) costs much less and keeps its style with little effort. Choose by budget and how often you will wear it.',
 					array(),
 				),
 				array(
-					'What is semi-human hair?',
-					'Semi-human hair, also called a human-hair blend, mixes human hair with heat-resistant fibre. It feels softer and moves more naturally than pure fibre at a lower price than 100% human hair.',
+					'What is Semi Human hair?',
+					'Semi-human hair, also called a Semi Human, mixes human hair with luxury fibre. It feels softer and moves more naturally than pure fibre at a lower price than Pure Human.',
 					array(
 						'hair' => 'blend',
 					),
 				),
 				array(
-					'Is semi-human hair real human hair?',
-					'Only partly. A semi-human (blend) wig contains some human hair mixed with fibre, so it is not 100% human hair. Every NURA product name states its exact hair type.',
+					'Is Semi Human hair real human hair?',
+					'Only partly. A Semi Human (blend) wig contains some human hair mixed with fibre, so it is not Pure Human. Every NURA product name states its exact hair type.',
 					array(
 						'hair' => 'blend',
 					),
 				),
 				array(
 					'Which wigs can I straighten using a flat iron?',
-					'100% human hair wigs can be straightened with a flat iron using a heat protectant. Blend wigs take low to medium heat only, and heat-resistant fibre wigs low heat only.',
+					'Pure Human wigs can be straightened with a flat iron using a heat protectant. Blend wigs take low to medium heat only, and luxury fibre wigs low heat only.',
 					array(
 						'hair' => 'human',
 					),
 				),
 				array(
 					'Which wigs can I curl?',
-					'100% human hair wigs can be curled with heat. Blend wigs take gentle, low to medium heat. For fibre, choose a wig that already has the curl you want, such as water curl or bubble curl.',
+					'Pure Human wigs can be curled with heat. Blend wigs take gentle, low to medium heat. For fibre, choose a wig that already has the curl you want, such as water curl or bubble curl.',
 					array(
 						'hair' => 'human',
 					),
 				),
 				array(
 					'Do synthetic wigs look natural?',
-					'A good heat-resistant fibre wig can look neat and natural, especially a kinky straight (Yaki) or closure style, but it has more shine and less movement than human hair.',
+					'A good luxury fibre wig can look neat and natural, especially a kinky straight (Yaki) or closure style, but it has more shine and less movement than human hair.',
 					array(
 						'hair' => 'fibre',
 						'texture' => 'yaki',
@@ -215,7 +215,7 @@ return array(
 				),
 				array(
 					'Which wig lasts longer?',
-					'With regular wear and good care, 100% human hair lasts about a year or more, a semi-human (blend) wig about 6 to 9 months, and a heat-resistant fibre wig about 3 to 6 months.',
+					'With regular wear and good care, Pure Human lasts about a year or more, a Semi Human (blend) wig about 6 to 9 months, and a luxury fibre wig about 3 to 6 months.',
 					array(
 						'hair' => 'human',
 					),
@@ -236,7 +236,7 @@ return array(
 				),
 				array(
 					'How can I identify genuine human hair?',
-					'Human hair moves and feels like natural hair, takes heat without melting and has a soft, low shine. At NURA you do not have to guess: every product name states 100% human hair, human-hair blend or heat-resistant fibre, and you can feel the units at our studio.',
+					'Human hair moves and feels like natural hair, takes heat without melting and has a soft, low shine. At NURA you do not have to guess: every product name states Pure Human, Semi Human or luxury fibre, and you can feel the units at our studio.',
 					array(
 						'hair' => 'human',
 					),
@@ -535,7 +535,7 @@ return array(
 				),
 				array(
 					'What is Jerry curl?',
-					'Jerry curl is a defined, springy curl pattern that looks full and bouncy. Ours is available in 100% human hair from 14 to 22 inches.',
+					'Jerry curl is a defined, springy curl pattern that looks full and bouncy. Ours is available in Pure Human from 14 to 22 inches.',
 					array(
 						'texture' => 'jerry',
 					),
@@ -590,7 +590,7 @@ return array(
 				),
 				array(
 					'Which wig is easiest to maintain?',
-					'Heat-resistant fibre wigs in straight or kinky straight styles: they hold their style and need little more than gentle detangling.',
+					'Luxury fibre wigs in straight or kinky straight styles: they hold their style and need little more than gentle detangling.',
 					array(
 						'hair' => 'fibre',
 						'texture' => 'yaki',
@@ -672,7 +672,7 @@ return array(
 				),
 				array(
 					'Can human hair wigs be dyed?',
-					'Yes, 100% human hair wigs can be coloured by our stylists, from KSh 2,500 to 5,000. Blend wigs are not recommended for colouring and fibre wigs cannot be dyed.',
+					'Yes, Pure Human wigs can be coloured by our stylists, from KSh 2,500 to 5,000. Blend wigs are not recommended for colouring and fibre wigs cannot be dyed.',
 					array(
 						'hair' => 'human',
 					),
@@ -734,7 +734,7 @@ return array(
 				),
 				array(
 					'How long does a synthetic wig last?',
-					'A heat-resistant fibre wig lasts about 3 to 6 months of regular wear with good care, longer if you rotate it.',
+					'A luxury fibre wig lasts about 3 to 6 months of regular wear with good care, longer if you rotate it.',
 					array(
 						'hair' => 'fibre',
 					),
@@ -970,7 +970,7 @@ return array(
 				),
 				array(
 					'Which wig can I wear every day?',
-					'A headband or 4x4 closure wig. For daily wear over a year or more, consider 100% human hair.',
+					'A headband or 4x4 closure wig. For daily wear over a year or more, consider Pure Human.',
 					array(
 						'construction' => 'headband',
 					),
@@ -999,7 +999,7 @@ return array(
 				),
 				array(
 					'Which wig requires the least maintenance?',
-					'A heat-resistant fibre wig in a straight or kinky straight style.',
+					'A luxury fibre wig in a straight or kinky straight style.',
 					array(
 						'hair' => 'fibre',
 						'texture' => 'yaki',

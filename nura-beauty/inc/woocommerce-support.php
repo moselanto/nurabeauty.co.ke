@@ -182,13 +182,13 @@ function nura_product_hair_claim( $product ) {
 		return __( 'Semi Human: human hair mixed with good-quality fibre', 'nura-beauty' );
 	}
 	if ( false !== strpos( $name, 'pure human' ) ) {
-		return __( 'Pure Human: 100% human hair', 'nura-beauty' );
+		return __( 'Pure Human: Pure Human', 'nura-beauty' );
 	}
 	if ( false !== strpos( $name, 'human hair' ) ) {
-		return __( '100% human hair, quality guaranteed', 'nura-beauty' );
+		return __( 'Pure Human, quality guaranteed', 'nura-beauty' );
 	}
 	if ( false !== strpos( $name, 'synthetic' ) ) {
-		return __( 'Premium heat-resistant fibre', 'nura-beauty' );
+		return __( 'Premium luxury fibre', 'nura-beauty' );
 	}
 	return '';
 }

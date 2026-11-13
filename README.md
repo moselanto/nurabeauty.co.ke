@@ -10,8 +10,8 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.131.0-0E0E0E?style=for-the-badge)](nura-beauty)
-[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.109.0-C9A24B?style=for-the-badge)](nura-experience)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.132.0-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.109.1-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -59,9 +59,9 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.131.0 | Parent theme |
+| `nura-beauty/` | 1.132.0 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
-| `nura-experience/` | 1.109.0 | Plugin |
+| `nura-experience/` | 1.109.1 | Plugin |
 
 ## Features
 
@@ -168,7 +168,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
 | 1.127.0 | - | UX pass: sticky buy bar follows the chosen colour and adds to bag; Lipa Mdogo Mdogo card line shows deposit + weeks; free-delivery line names the threshold; booking explains studio vs video/WhatsApp; Wig Finder copy matches its questions; empty cart has Shop wigs / wig care / Find my wig; filter results announced to screen readers |
-| 1.126.0 | 1.109.0 | AI visibility for every product, now and future: real supplier brand (Luodais, Ghost Bond, CSCR ...) in schema, Brands terms and social feeds; full description in Product schema; own questions for wig care / beauty / tools (wig questions no longer shown on them); every product with brand, price and summary in /llms.txt |
+| 1.126.0 | 1.109.1 | AI visibility for every product, now and future: real supplier brand (Luodais, Ghost Bond, CSCR ...) in schema, Brands terms and social feeds; full description in Product schema; own questions for wig care / beauty / tools (wig questions no longer shown on them); every product with brand, price and summary in /llms.txt |
 | - | 1.108.1 | WhatsApp order pop-up: phone footer button no longer cut off at the right edge |
 | - | 1.108.0 | Order on WhatsApp pop-up simplified: two steps (your details, then pay & send) with Continue / Back buttons, smaller header and one-row footer on phones, and a 'More below' hint while there is more to scroll |
 | - | 1.107.1 | M-Pesa till name shown in the WhatsApp order pay box, payment steps and order message is now NURA CROWN & BEAUTY (what the customer's M-Pesa message shows) |

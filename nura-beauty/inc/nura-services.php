@@ -30,7 +30,7 @@ function nura_services() {
 		'styling'       => array( 'Wig styling', 1000, 2500, 'A fresh cut, curls, a new parting or a sleek finish to change your look.' ),
 		'revamp'        => array( 'Wig laundry (wash & revamp)', 1500, 0, 'Deep wash, condition and restyle to bring a tired unit back to life.' ),
 		'customization' => array( 'Wig customization', 0, 0, 'Plucked hairline, bleached knots, cut-to-shape and other changes so a unit looks made for you.' ),
-		'colouring'     => array( 'Colouring (human hair units)', 2500, 5000, 'Custom colour for 100% human hair units.' ),
+		'colouring'     => array( 'Colouring (human hair units)', 2500, 5000, 'Custom colour for Pure Human units.' ),
 		'relacing'      => array( 'Wig repair & re-lacing', 2000, 0, 'New lace or repairs so your unit fits and lasts.' ),
 		'bridal'        => array( 'Bridal styling', 0, 0, 'Wig installation and styling for your wedding day, planned with you in advance.' ),
 	) );
@@ -220,8 +220,8 @@ function nura_sw_items() {
 	};
 	$hours = 'Jumatatu hadi Jumamosi, saa ' . $f( 'opens', '09:00' ) . ' hadi ' . $f( 'closes', '19:30' );
 	return array(
-		array( 'Ni wig gani poa ya kutumia kila siku (daily)?', 'Wigi ya headband au 4x4 closure. Hazihitaji gundi, unaivaa kwa dakika chache na kuiondoa jioni. Kwa matumizi ya kila siku kwa mwaka mmoja au zaidi, fikiria wigi ya 100% human hair.' ),
-		array( 'Bei ya human hair wig ni ngapi?', 'Wigi zetu za 100% human hair zinauzwa {human_min} hadi {human_max}, bei ikipanda kulingana na urefu. Wigi za fibre zinaanza {fibre_min}, na za human-hair blend (semi-human) zinaanza {blend_min}.' ),
+		array( 'Ni wig gani poa ya kutumia kila siku (daily)?', 'Wigi ya headband au 4x4 closure. Hazihitaji gundi, unaivaa kwa dakika chache na kuiondoa jioni. Kwa matumizi ya kila siku kwa mwaka mmoja au zaidi, fikiria wigi ya Pure Human.' ),
+		array( 'Bei ya human hair wig ni ngapi?', 'Wigi zetu za Pure Human zinauzwa {human_min} hadi {human_max}, bei ikipanda kulingana na urefu. Wigi za Semi Human zinaanza {blend_min}.' ),
 		array( 'Nataka wig ya budget ya 3k. Mnayo?', 'Ndiyo. Tuna wigi za fibre chini ya KSh 3,000, zikiwemo headband (hazihitaji gundi) na 4x4 closure za kinky straight (Yaki), loose wave na bob ya water curl.' ),
 		array( 'Nataka wig isihitaji glue. Ni ipi?', 'Headband wig haihitaji gundi kabisa. 4x4 closure kwa kawaida huvaliwa bila gundi kwa kutumia kamba na vishikio vinavyoweza kurekebishwa.' ),
 		array( 'Mnaweka wig (installation)?', 'Ndiyo. Installation inaanza KSh 1,500, kwa wigi ya NURA au ya mahali pengine. Tunafanya studio yetu: {address}. Weka miadi ya asubuhi mtandaoni.' ),
@@ -230,7 +230,7 @@ function nura_sw_items() {
 		array( 'Mnafanya delivery?', 'Ndiyo. Nairobi tunaleta siku hiyo hiyo ukiagiza kabla ya {cutoff}. Nchi nzima ni siku 1 hadi 3 kwa courier, ada ni {delivery_ke}, na ada kamili inaonekana unapolipa.' ),
 		array( 'Naweza kulipa pole pole?', 'Ndiyo, kupitia Lipa Mdogo Mdogo: lipa amana ya 50% kisha salio ndani ya wiki 1 au 2, na tunakutumia wigi yako.' ),
 		array( 'Mnapokea M-Pesa?', 'Ndiyo. M-Pesa na kadi wakati wa kulipa mtandaoni, M-Pesa Buy Goods Till {till} kwa oda za WhatsApp, au bank transfer. Kulipa unapopokea (cash au M-Pesa) ni kwa usafirishaji ndani ya Nairobi CBD tu; oda nyingine zote hulipwa kabla ya kutumwa. Ukichukua wigi studio unaweza kulipa hapo.' ),
-		array( 'Hii wig inaweza kudumu?', 'Ukiitunza vizuri: human hair hudumu mwaka mmoja au zaidi, semi-human miezi 6 hadi 9, na fibre miezi 3 hadi 6. Usilale na wigi, na ifunue kutoka chini kwa kitana chenye meno mapana.' ),
+		array( 'Hii wig inaweza kudumu?', 'Ukiitunza vizuri: human hair hudumu mwaka mmoja au zaidi, Semi Human miezi 6 hadi 9, na fibre miezi 3 hadi 6. Usilale na wigi, na ifunue kutoka chini kwa kitana chenye meno mapana.' ),
 		array( 'Nataka bob fupi. Mko na?', 'Ndiyo. Tuna Human Hair Bob Lace Front na 8 Inch Water Curl 4x4 Closure Bob. Angalia bei na upatikanaji kwenye duka letu.' ),
 		array( 'Mko na curls?', 'Ndiyo: jerry curl, deep curl, water curl na bubble curl, kwa human hair na fibre.' ),
 		array( 'Nataka wig ionekane natural. Nichague ipi?', 'Kinky straight (Yaki) ya rangi ya natural black (1B) au dark brown inaonekana kama nywele zako za asili. Lace front hutoa mstari wa nywele wa asili zaidi, na tunaweza kuiweka kwa ajili yako.' ),
@@ -243,7 +243,7 @@ function nura_sw_fill( $t ) {
 }
 
 add_shortcode( 'nura_maswali', function () {
-	$h  = '<div class="nura-wq"><p class="nura-answer"><strong>Jibu fupi:</strong> ' . esc_html( nura_sw_fill( 'NURA Beauty ni studio na duka la wigi Nairobi CBD, {address}. Wigi za fibre zinaanza {fibre_min}, human hair {human_min} hadi {human_max}. Tunaweka wigi (installation kuanzia KSh 1,500) na tunaleta nchi nzima.' ) ) . '</p>';
+	$h  = '<div class="nura-wq"><p class="nura-answer"><strong>Jibu fupi:</strong> ' . esc_html( nura_sw_fill( 'NURA Beauty ni studio na duka la wigi Nairobi CBD, {address}. Wigi za Semi Human zinaanza {blend_min}, Pure Human {human_min} hadi {human_max}. Tunaweka wigi (installation kuanzia KSh 1,500) na tunaleta nchi nzima.' ) ) . '</p>';
 	foreach ( nura_sw_items() as $qa ) {
 		$h .= '<details class="nura-wq-q"><summary><h3>' . esc_html( $qa[0] ) . '</h3></summary><p>' . esc_html( nura_sw_fill( $qa[1] ) ) . '</p></details>';
 	}

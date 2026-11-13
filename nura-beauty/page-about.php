@@ -69,7 +69,7 @@ $na_img     = get_template_directory_uri() . '/assets/images/model-editorial.web
 $na_map_q   = rawurlencode( nura_fact( 'lat' ) . ',' . nura_fact( 'lng' ) );
 
 $na_why = array(
-	array( 'shield', __( 'Honest hair', 'nura-beauty' ), __( 'Every unit is clearly labelled as 100% human hair, human-hair blend or heat-resistant fibre. We never sell a blend or fibre unit as human hair.', 'nura-beauty' ) ),
+	array( 'shield', __( 'Honest hair', 'nura-beauty' ), __( 'Every unit is clearly labelled as Pure Human, Semi Human or luxury fibre. We never sell a blend or fibre unit as human hair.', 'nura-beauty' ) ),
 	array( 'star', __( 'Concierge experience', 'nura-beauty' ), __( 'A premium ritual from consultation to unboxing, online and in our Nairobi studio.', 'nura-beauty' ) ),
 	array( 'truck', __( 'Made for how Kenya shops', 'nura-beauty' ), __( 'M-Pesa checkout, same-day delivery in Nairobi and fast countrywide shipping.', 'nura-beauty' ) ),
 	array( 'heart', __( 'Care for life', 'nura-beauty' ), __( 'The NURA Circle keeps your confidence going with care reminders, revamps and rewards.', 'nura-beauty' ) ),
@@ -125,7 +125,7 @@ $na_shop_links = array(
 				<p class="nura-eyebrow"><?php esc_html_e( 'Our story', 'nura-beauty' ); ?></p>
 				<h2><?php esc_html_e( 'Kenya\'s home for premium wigs', 'nura-beauty' ); ?></h2>
 				<p><?php esc_html_e( 'NURA Beauty is the online home of NURA CROWN & BEAUTY, a registered Nairobi business built on a simple belief: for a woman, hair is never just hair - it is identity, status and confidence.', 'nura-beauty' ); ?></p>
-				<p><?php esc_html_e( 'We set out to raise the standard for buying wigs in Kenya, a market long crowded at the bottom and thin on trust. We sell 100% human hair, human-hair blend and heat-resistant fibre wigs - every unit clearly labelled with its hair type, quality-checked and finished in Nairobi.', 'nura-beauty' ); ?></p>
+				<p><?php esc_html_e( 'We set out to raise the standard for buying wigs in Kenya, a market long crowded at the bottom and thin on trust. We sell Pure Human, Semi Human and luxury fibre wigs - every unit clearly labelled with its hair type, quality-checked and finished in Nairobi.', 'nura-beauty' ); ?></p>
 				<ul class="nura-ab-stats">
 					<li><strong>100%</strong><span><?php esc_html_e( 'Clearly labelled hair types', 'nura-beauty' ); ?></span></li>
 					<li><strong><?php esc_html_e( 'Same day', 'nura-beauty' ); ?></strong><span><?php esc_html_e( 'Delivery in Nairobi', 'nura-beauty' ); ?></span></li>

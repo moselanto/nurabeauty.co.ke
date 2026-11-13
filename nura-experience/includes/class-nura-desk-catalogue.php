@@ -78,14 +78,14 @@ class NURAX_Desk_Catalogue {
 		return $v > 0 ? $v : null;
 	}
 
-	/** [ kind, cap ] e.g. [ '100% human hair', 'lace front bob wig' ]. */
+	/** [ kind, cap ] e.g. [ 'Pure Human', 'lace front bob wig' ]. */
 	public static function classify( $it, $title, $product ) {
 		$cats = $product ? wp_strip_all_tags( wc_get_product_category_list( $product->get_id(), ' ' ) ) : '';
 		$attr = $product ? implode( ' ', array( $product->get_attribute( 'pa_hair-type' ), $product->get_attribute( 'pa_lace' ), $product->get_attribute( 'pa_texture' ), $product->get_attribute( 'Construction' ), $product->get_attribute( 'Hair Type' ) ) ) : '';
 		$name  = strtolower( $title . ' ' . $it['text'] . ' ' . $cats . ' ' . $attr );
 		$human = self::has( $name, '/100%\s*human|pure human|human hair wigs|human hair\b/' ) && ! self::has( $name, '/semi|blend|fibre|synthetic|heat-resistant/' );
 		$semi  = self::has( $name, '/semi|blend/' );
-		$kind  = $human ? '100% human hair' : ( $semi ? 'human-hair blend (semi-human)' : 'premium heat-resistant fibre' );
+		$kind  = $human ? 'Pure Human' : ( $semi ? 'Semi Human' : 'premium luxury fibre' );
 		if ( self::has( $name, '/headband/' ) ) {
 			$cap = 'headband wig';
 		} elseif ( self::has( $name, '/13\s*[x\*×]\s*4|13 by 4|frontal/' ) ) {
@@ -160,13 +160,13 @@ class NURAX_Desk_Catalogue {
 	/**
 	 * 1.88.0: search-engine title, description and focus keyword. The visible title stays the
 	 * short WhatsApp name; Google gets the full descriptive phrase people search
-	 * ("... Wig Kenya | 100% Human Hair Lace Front Bob | KSh 7,500").
+	 * ("... Wig Kenya | Pure Human Lace Front Bob | KSh 7,500").
 	 */
 	public static function seo_meta( $product, $it, $title ) {
 		list( $kind, $cap ) = self::classify( $it, $title, $product );
 		$price = self::product_price( $product );
 		$t     = $title . ( self::has( $title, '/wig/' ) ? '' : ( self::has( $cap, '/closure|frontal|headband/' ) ? '' : ' Wig' ) );
-		$seo_t = $t . ' Kenya | ' . ucwords( $kind === 'premium heat-resistant fibre' ? 'Heat-Resistant Fibre' : ( 0 === strpos( $kind, '100%' ) ? '100% Human Hair' : 'Semi-Human' ) ) . ' ' . ucwords( $cap ) . ( $price ? ' | KSh ' . number_format( $price ) : '' ) . ' | NURA Beauty';
+		$seo_t = $t . ' Kenya | ' . ucwords( $kind === 'premium luxury fibre' ? 'Luxury Fibre' : ( 0 === strpos( $kind, '100%' ) ? 'Pure Human' : 'Semi-Human' ) ) . ' ' . ucwords( $cap ) . ( $price ? ' | KSh ' . number_format( $price ) : '' ) . ' | NURA Beauty';
 		$cols  = array_values( array_filter( (array) $it['colours'] ) );
 		$cols  = $cols ? $cols : self::product_colours( $product );
 		$desc  = 'Buy the ' . $title . ', a ' . $kind . ' ' . $cap . ( $price ? ', KSh ' . number_format( $price ) : '' ) . ( $cols ? ', in ' . implode( ', ', array_slice( $cols, 0, 4 ) ) : '' ) . '. Same-day Nairobi delivery, same-day dispatch countrywide, M-Pesa. NURA Beauty, Nairobi CBD.';

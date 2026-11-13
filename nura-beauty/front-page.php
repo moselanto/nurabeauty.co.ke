@@ -277,7 +277,7 @@ $slides = array(
 				$nura_pillars = nura_filter_links( $nura_pillars );
 				// Fill empty pillar slots with stocked wig categories so the row stays full.
 				$nura_fills = array(
-					array( 'label' => __( 'Human Hair Wigs', 'nura-beauty' ), 'sub' => __( '100% human hair • Lace front', 'nura-beauty' ), 'slug' => 'human-hair-wigs' ),
+					array( 'label' => __( 'Human Hair Wigs', 'nura-beauty' ), 'sub' => __( 'Pure Human • Lace front', 'nura-beauty' ), 'slug' => 'human-hair-wigs' ),
 					array( 'label' => __( 'Headband Wigs', 'nura-beauty' ), 'sub' => __( 'No glue • Ready in minutes', 'nura-beauty' ), 'slug' => 'headband-wigs' ),
 					array( 'label' => __( 'Closure Wigs', 'nura-beauty' ), 'sub' => __( '4x4 lace • Natural parting', 'nura-beauty' ), 'slug' => 'closure-wigs' ),
 				);
@@ -350,7 +350,7 @@ $slides = array(
 				array(
 					'svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8l4 3 5-6 5 6 4-3-2 11H5L3 8z"/></svg>',
 					't'   => __( 'Quality-Checked Hair', 'nura-beauty' ),
-					'd'   => __( 'Human hair, human-hair blend and heat-resistant fibre units - each clearly labelled and checked before it ships.', 'nura-beauty' ),
+					'd'   => __( 'Human hair, Semi Human and luxury fibre units - each clearly labelled and checked before it ships.', 'nura-beauty' ),
 				),
 				array(
 					'svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17.5" cy="18" r="1.6"/></svg>',

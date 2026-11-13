@@ -157,7 +157,7 @@ class NURAX_Schema {
 		$qas = apply_filters( 'nurax_schema_faq', array(
 			array(
 				'Are NURA wigs real human hair?',
-				'We sell 100% human hair, human-hair blend and heat-resistant fibre wigs, and every product is clearly labelled with its hair type.',
+				'We sell Pure Human, Semi Human and luxury fibre wigs, and every product is clearly labelled with its hair type.',
 			),
 			array(
 				'How do I pay?',

@@ -30,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function nura_category_intro_defaults() {
 	return array(
-		'wigs'            => __( 'Shop premium wigs in Kenya at NURA — human hair, human-hair blends and quality synthetic units in lace front, closure, glueless and headband styles. Every wig is quality-checked, with same-day delivery in Nairobi, countrywide shipping and payment by M-Pesa or card.', 'nura-beauty' ),
+		'wigs'            => __( 'Shop premium wigs in Kenya at NURA — human hair, Semi Humans and quality synthetic units in lace front, closure, glueless and headband styles. Every wig is quality-checked, with same-day delivery in Nairobi, countrywide shipping and payment by M-Pesa or card.', 'nura-beauty' ),
 		'human-hair-wigs' => __( 'Discover 100% human-hair wigs at NURA Kenya — natural movement, heat-friendly styling and a flawless hairline. Perfect for everyday elegance, work and special occasions, with expert fitting and countrywide delivery.', 'nura-beauty' ),
 		'lace-front-wigs' => __( 'HD and transparent lace front wigs for an invisible, melt-into-skin hairline. Hand-finished for a natural parting and photograph-ready finish, with fitting and styling available in Nairobi.', 'nura-beauty' ),
 		'closure-wigs'    => __( '4x4, 5x5 and 6x6 closure wigs that give a natural crown with easy, protective installation — a versatile, everyday-friendly choice, quality-checked and ready to wear.', 'nura-beauty' ),
@@ -43,10 +43,10 @@ function nura_category_intro_defaults() {
 		'beauty'          => __( 'Complete your look with NURA beauty essentials and accessories, curated to pair with your wig for a polished, confident finish.', 'nura-beauty' ),
 		'glueless-wigs'   => __( 'Glueless wigs in Kenya - wear-and-go units with adjustable straps and combs, no glue and no lace cutting. The easiest wig for beginners, ready in minutes, with same-day Nairobi delivery and M-Pesa payment.', 'nura-beauty' ),
 		'frontal-wigs'    => __( 'Frontal wigs in Kenya - 13x4 and HD lace frontal units for a natural, ear-to-ear hairline you can part any way. Human hair and blend options, priced in Kenya Shillings, with fitting available in Nairobi CBD.', 'nura-beauty' ),
-		'human-hair-blend-wigs' => __( 'Semi human hair wigs (human-hair blend) in Kenya - the natural look of human hair at a friendlier price. Soft, easy to manage and clearly labelled, with same-day Nairobi delivery and countrywide shipping.', 'nura-beauty' ),
+		'human-hair-blend-wigs' => __( 'Semi Human wigs in Kenya - the natural look of human hair at a friendlier price. Soft, easy to manage and clearly labelled, with same-day Nairobi delivery and countrywide shipping.', 'nura-beauty' ),
 		'bone-straight-wigs' => __( 'Bone straight wigs in Kenya - sleek, silky units in bob and long lengths, human hair and blend. Quality-checked, priced in Kenya Shillings and delivered countrywide.', 'nura-beauty' ),
-		'semi-human-hair-wigs' => __( 'Semi human hair wigs (human-hair blend) in Kenya - the natural look of human hair at a friendlier price. Soft, easy to manage and clearly labelled, with same-day Nairobi delivery and countrywide shipping.', 'nura-beauty' ),
-		'synthetic-wigs'  => __( 'Affordable synthetic wigs in Kenya made from heat-resistant fibre - styles that hold their shape, from bobs to long curls. Budget-friendly, clearly labelled and delivered countrywide.', 'nura-beauty' ),
+		'semi-human-hair-wigs' => __( 'Semi Human wigs in Kenya - the natural look of human hair at a friendlier price. Soft, easy to manage and clearly labelled, with same-day Nairobi delivery and countrywide shipping.', 'nura-beauty' ),
+		'synthetic-wigs'  => __( 'Affordable synthetic wigs in Kenya made from luxury fibre - styles that hold their shape, from bobs to long curls. Budget-friendly, clearly labelled and delivered countrywide.', 'nura-beauty' ),
 		'pixie-wigs'      => __( 'Pixie cut wigs in Kenya - short, bold and low-maintenance, in human hair and blend. Light enough for everyday wear in Nairobi heat, with M-Pesa checkout and fast delivery.', 'nura-beauty' ),
 		'straight-wigs'   => __( 'Straight and bone straight wigs in Kenya - sleek, silky units in bob and long lengths, human hair and blend. Quality-checked, priced in Kenya Shillings and delivered countrywide.', 'nura-beauty' ),
 		'water-wave-wigs' => __( 'Water wave wigs in Kenya - defined, wet-look waves in human hair and blend, from bob to 22 inches. Same-day Nairobi delivery and payment by M-Pesa or card.', 'nura-beauty' ),

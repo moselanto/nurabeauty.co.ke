@@ -16,9 +16,9 @@ defined( 'ABSPATH' ) || exit;
 /** Terms: group, term, slug, definition. Filter: nura_encyclopedia_terms. */
 function nura_encyclopedia_terms() {
 	return (array) apply_filters( 'nura_encyclopedia_terms', array(
-		array( 'Hair types', '100% human hair', 'human-hair', 'Real human hair collected from donors and sewn or ventilated onto a wig cap. It looks and moves most naturally, can be washed, heat-styled and coloured, and lasts about a year or more with good care. It is the most expensive type.' ),
-		array( 'Hair types', 'Human-hair blend (semi-human)', 'semi-human', 'A mix of real human hair and heat-resistant fibre. Softer and more natural than fibre at a lower price than human hair; low to medium heat only. Lasts about 6 to 9 months of regular wear.' ),
-		array( 'Hair types', 'Heat-resistant fibre (synthetic)', 'fibre', 'Man-made fibre styled at the factory, so the curl or straightness holds out of the box. The most affordable type, light and low maintenance; use low heat only. Lasts about 3 to 6 months.' ),
+		array( 'Hair types', 'Pure Human', 'human-hair', 'Real human hair collected from donors and sewn or ventilated onto a wig cap. It looks and moves most naturally, can be washed, heat-styled and coloured, and lasts about a year or more with good care. It is the most expensive type.' ),
+		array( 'Hair types', 'Semi Human', 'semi-human', 'A mix of real human hair and luxury fibre. Softer and more natural than fibre at a lower price than human hair; low to medium heat only. Lasts about 6 to 9 months of regular wear.' ),
+		array( 'Hair types', 'Luxury fibre (synthetic)', 'fibre', 'Man-made fibre styled at the factory, so the curl or straightness holds out of the box. The most affordable type, light and low maintenance; use low heat only. Lasts about 3 to 6 months.' ),
 		array( 'Hair types', 'Kanekalon', 'kanekalon', 'A brand of modacrylic fibre widely used for braids and cheaper synthetic wigs. It melts under high heat and is not the same as human hair.' ),
 		array( 'Grades and processing', 'Remy hair', 'remy', 'Human hair collected with the cuticles kept in one direction, root to tip, which reduces tangling. Remy describes how the hair was collected, not how much it was processed.' ),
 		array( 'Grades and processing', 'Virgin hair', 'virgin', 'Human hair that has never been dyed, permed or chemically processed. It can be coloured once and usually lasts longest.' ),
@@ -134,7 +134,7 @@ add_action( 'admin_init', function () {
 		), true );
 		if ( $id && ! is_wp_error( $id ) ) {
 			update_post_meta( $id, 'rank_math_title', 'Wig Encyclopedia: Lace, Hair Types, Textures & Colour Codes Explained | NURA Beauty' );
-			update_post_meta( $id, 'rank_math_description', 'Every wig term explained in plain language: human hair vs semi-human vs fibre, remy and virgin, 13x4 frontal vs 4x4 closure, HD lace, textures, 1B/27/99J colours, density and care.' );
+			update_post_meta( $id, 'rank_math_description', 'Every wig term explained in plain language: human hair vs Semi Human vs fibre, remy and virgin, 13x4 frontal vs 4x4 closure, HD lace, textures, 1B/27/99J colours, density and care.' );
 			update_post_meta( $id, 'rank_math_focus_keyword', 'wig terms explained' );
 			$made[] = $id;
 		}

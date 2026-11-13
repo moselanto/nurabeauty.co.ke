@@ -1,7 +1,7 @@
 <?php
 /**
  * One-time content and settings update (v1.55.4). Runs once in wp-admin:
- *  - creates the "Wig Revamp in Nairobi" page and the semi-human wigs guide
+ *  - creates the "Wig Revamp in Nairobi" page and the Semi Human wigs guide
  *    (skipped if the slug already exists, so nothing is overwritten);
  *  - turns on star-rated product reviews (moderated, verified-owner label);
  *  - makes the phone number required at checkout.
@@ -32,14 +32,14 @@ add_action( 'admin_init', function () {
 			'slug'  => 'wig-revamp-nairobi',
 			'title' => 'Wig Revamp in Nairobi',
 			'html'  => nura_content_file( 'wig-revamp-nairobi' ) . $cta,
-			'seo'   => array( 'Wig Revamp in Nairobi | Wash & Restyle from KSh 1,500 | NURA Beauty', 'Wig wash, revamp and restyle at our Nairobi CBD studio, from KSh 1,500. Human hair, semi-human and high fibre wigs. Open Mon–Sat. Book on WhatsApp.', 'wig revamp nairobi' ),
+			'seo'   => array( 'Wig Revamp in Nairobi | Wash & Restyle from KSh 1,500 | NURA Beauty', 'Wig wash, revamp and restyle at our Nairobi CBD studio, from KSh 1,500. Human hair, Semi Human and high fibre wigs. Open Mon–Sat. Book on WhatsApp.', 'wig revamp nairobi' ),
 		),
 		array(
 			'type'  => 'post',
 			'slug'  => 'semi-human-wigs-kenya-guide',
-			'title' => 'Semi-Human Wigs in Kenya: What They Are and Who They Suit',
+			'title' => 'Semi Human Wigs in Kenya: What They Are and Who They Suit',
 			'html'  => nura_content_file( 'semi-human-wigs-kenya-guide' ),
-			'seo'   => array( 'Semi-Human Wigs in Kenya: Prices, Care & Who They Suit | NURA Beauty', 'What a semi-human (human hair blend) wig is, how it compares with human hair and high fibre, how to care for it, and prices in Kenya from KSh 1,800.', 'semi-human wigs kenya' ),
+			'seo'   => array( 'Semi Human Wigs in Kenya: Prices, Care & Who They Suit | NURA Beauty', 'What a Semi Human wig is, how it compares with human hair and high fibre, how to care for it, and prices in Kenya from KSh 1,800.', 'semi-human wigs kenya' ),
 		),
 	);
 	foreach ( $items as $it ) {

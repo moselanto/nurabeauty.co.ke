@@ -102,11 +102,11 @@ function nura_boost_cat_guides() {
 	return apply_filters( 'nura_cat_guides', array(
 		'wigs' => array(
 			'title'   => __( 'Wigs in Kenya', 'nura-beauty' ),
-			'intro'   => __( 'NURA is a Nairobi wig shop serving women across Kenya. Every unit is clearly labelled as 100% human hair, human-hair blend (semi-human) or heat-resistant fibre, so you always know what you are paying for. Choose by hair type, lace, length and texture, then pay by M-Pesa or card.', 'nura-beauty' ),
+			'intro'   => __( 'NURA is a Nairobi wig shop serving women across Kenya. Every unit is clearly labelled as Pure Human, Semi Human or luxury fibre, so you always know what you are paying for. Choose by hair type, lace, length and texture, then pay by M-Pesa or card.', 'nura-beauty' ),
 			'tips'    => array(
 				__( 'First wig? Headband and closure wigs are the easiest to wear - no glue and very little lace to cut.', 'nura-beauty' ),
-				__( 'Want the most natural look? Choose a lace front wig in human hair or a human-hair blend.', 'nura-beauty' ),
-				__( 'On a budget? Heat-resistant fibre wigs hold their style out of the box and cost the least.', 'nura-beauty' ),
+				__( 'Want the most natural look? Choose a lace front wig in human hair or a Semi Human.', 'nura-beauty' ),
+				__( 'On a budget? Luxury fibre wigs hold their style out of the box and cost the least.', 'nura-beauty' ),
 			),
 			'faqs'    => array(
 				array( __( 'Where can I buy wigs in Nairobi?', 'nura-beauty' ), __( 'Order online at nurabeauty.co.ke or on WhatsApp, or visit our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD (walk-ins welcome, appointments available).', 'nura-beauty' ) ),
@@ -116,7 +116,7 @@ function nura_boost_cat_guides() {
 		),
 		'human-hair-wigs' => array(
 			'title'   => __( 'Human hair wigs in Kenya', 'nura-beauty' ),
-			'intro'   => __( '100% human hair wigs look and move the most naturally. They can be straightened, curled and coloured, and with good care they last far longer than fibre units. Shop human hair wigs online or at our Nairobi CBD studio, with same-day Nairobi delivery.', 'nura-beauty' ),
+			'intro'   => __( 'Pure Human wigs look and move the most naturally. They can be straightened, curled and coloured, and with good care they last far longer than fibre units. Shop human hair wigs online or at our Nairobi CBD studio, with same-day Nairobi delivery.', 'nura-beauty' ),
 			'tips'    => array(
 				__( 'Longer lengths cost more because they use more hair - a 14-16 inch unit is a great everyday length.', 'nura-beauty' ),
 				__( 'Wash every 2-3 weeks with sulfate-free shampoo and always use a heat protectant.', 'nura-beauty' ),
@@ -129,14 +129,14 @@ function nura_boost_cat_guides() {
 			'related' => array( 'jerry-curl-wigs', 'curly-wigs', 'lace-front-wigs', 'human-hair-blend-wigs' ),
 		),
 		'human-hair-blend-wigs' => array(
-			'title'   => __( 'Semi-human (human-hair blend) wigs in Kenya', 'nura-beauty' ),
-			'intro'   => __( 'Human-hair blend wigs - often called semi-human - mix human hair with premium fibre. You get softer movement and a more natural shine than fibre, at a lower price than 100% human hair.', 'nura-beauty' ),
+			'title'   => __( 'Semi-human (Semi Human) wigs in Kenya', 'nura-beauty' ),
+			'intro'   => __( 'Semi Human wigs - often called Semi Human - mix human hair with premium fibre. You get softer movement and a more natural shine than fibre, at a lower price than Pure Human.', 'nura-beauty' ),
 			'tips'    => array(
 				__( 'Use low to medium heat only, and test on a small section first.', 'nura-beauty' ),
 				__( 'A great step up if you are moving from fibre wigs and want a more natural look.', 'nura-beauty' ),
 			),
 			'faqs'    => array(
-				array( __( 'Is semi-human hair the same as human hair?', 'nura-beauty' ), __( 'No. It is a blend of human hair and fibre. Every NURA product name and label states its exact hair type.', 'nura-beauty' ) ),
+				array( __( 'Is Semi Human hair the same as human hair?', 'nura-beauty' ), __( 'No. It is a blend of human hair and fibre. Every NURA product name and label states its exact hair type.', 'nura-beauty' ) ),
 			),
 			'related' => array( 'human-hair-wigs', 'lace-front-wigs', 'closure-wigs' ),
 		),

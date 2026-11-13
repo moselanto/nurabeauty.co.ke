@@ -41,7 +41,7 @@ function nura_geo_llms( $full = false ) {
 
 	$o[] = '# NURA Beauty';
 	$o[] = '';
-	$o[] = '> NURA Beauty is a Nairobi, Kenya wig shop and studio ("The House of Radiant Confidence"). It sells 100% human hair, human-hair blend (semi-human) and heat-resistant fibre wigs online across Kenya, with clear Kenya Shilling prices, same-day Nairobi delivery and a fitting and installation studio in Nairobi CBD.';
+	$o[] = '> NURA Beauty is a Nairobi, Kenya wig shop and studio ("The House of Radiant Confidence"). It sells Pure Human, Semi Human and luxury fibre wigs online across Kenya, with clear Kenya Shilling prices, same-day Nairobi delivery and a fitting and installation studio in Nairobi CBD.';
 	$o[] = '';
 	$o[] = '## Business facts';
 	$o[] = '- Trading name: NURA Beauty. Registered business name: NURA CROWN & BEAUTY (Kenya Business Registration Service, Business No. BN-MJS7ALRV).';
@@ -56,7 +56,7 @@ function nura_geo_llms( $full = false ) {
 	$o[] = '- Lipa Mdogo Mdogo (pay in instalments): 50% deposit, balance within 1 or 2 weeks, wig released when fully paid.';
 	$o[] = '- Returns: ' . nura_fact( 'returns_text' ) . ' Returns are accepted at the shop or by courier.';
 	$o[] = '- Services: wig consultation, fitting, installation, revamp, styling and bridal units at the studio (morning appointments, deposit secures a slot); free video and WhatsApp consultations.';
-	$o[] = '- Every product states its hair type (100% human hair, human-hair blend or heat-resistant fibre) so shoppers know exactly what they are buying.';
+	$o[] = '- Every product states its hair type (Pure Human, Semi Human or luxury fibre) so shoppers know exactly what they are buying.';
 	$o[] = '';
 
 	$o[] = '## Key pages';

@@ -33,13 +33,13 @@ function nura_hub_labels() {
 	return array(
 		'human' => __( 'Pure Human (100% human hair)', 'nura-beauty' ),
 		'blend' => __( 'Semi Human (human hair mixed with fibre)', 'nura-beauty' ),
-		'fibre' => __( 'Heat-resistant fibre', 'nura-beauty' ),
+		'fibre' => __( 'Luxury fibre', 'nura-beauty' ),
 	);
 }
 
 /**
  * 1.111.0: true when a product is a wig (or wig unit). Wig care, beauty and
- * extension products are not wigs, so they never set a "100% human hair from
+ * extension products are not wigs, so they never set a "Pure Human from
  * KSh 300" price. Filter: nura_hub_is_wig.
  */
 function nura_hub_is_wig( $p ) {
@@ -331,11 +331,11 @@ add_action( 'admin_init', function () {
 			'post_name'    => 'wig-prices-kenya',
 			'post_title'   => 'Wig Prices in Kenya',
 			'post_status'  => 'publish',
-			'post_content' => '<p class="nura-answer"><strong>Short answer:</strong> at NURA, heat-resistant fibre wigs are the most affordable, human-hair blend (semi-human) wigs sit in the middle, and 100% human hair wigs cost the most, rising with length. The table below is pulled live from our shop, so the prices are always current.</p>[nura_price_table list="1"]<h2>What affects the price of a wig?</h2><ul><li><strong>Hair type:</strong> human hair costs more than blend, and blend more than fibre.</li><li><strong>Length:</strong> longer wigs use more hair.</li><li><strong>Lace:</strong> lace front units cost more than closure or headband wigs.</li></ul><p>Pay by M-Pesa or card, or spread the cost with <a href="{page:lipa-mdogo-mdogo}">Lipa Mdogo Mdogo</a> (50% deposit, balance within 1 or 2 weeks). Read <a href="{post:human-hair-vs-semi-human-vs-fibre-wigs-kenya}">human hair vs semi-human vs fibre</a>.</p>',
+			'post_content' => '<p class="nura-answer"><strong>Short answer:</strong> at NURA, Semi Human wigs are the most affordable and Pure Human wigs cost the most, rising with length. The table below is pulled live from our shop, so the prices are always current.</p>[nura_price_table list="1"]<h2>What affects the price of a wig?</h2><ul><li><strong>Hair type:</strong> Pure Human costs more than Semi Human or Human Blend.</li><li><strong>Length:</strong> longer wigs use more hair.</li><li><strong>Lace:</strong> lace front units cost more than closure or headband wigs.</li></ul><p>Pay by M-Pesa or card, or spread the cost with <a href="{page:lipa-mdogo-mdogo}">Lipa Mdogo Mdogo</a> (50% deposit, balance within 1 or 2 weeks). Read <a href="{post:human-hair-vs-semi-human-vs-fibre-wigs-kenya}">Pure Human vs Semi Human vs fibre</a>.</p>',
 		), true );
 		if ( $id && ! is_wp_error( $id ) ) {
 			update_post_meta( $id, 'rank_math_title', 'Wig Prices in Kenya ' . wp_date( 'Y' ) . ': Live Price List | NURA Beauty' );
-			update_post_meta( $id, 'rank_math_description', 'Current wig prices in Kenya: human hair, semi-human and fibre wigs from NURA, updated live from our shop. Same-day Nairobi delivery, M-Pesa and Lipa Mdogo Mdogo.' );
+			update_post_meta( $id, 'rank_math_description', 'Current wig prices in Kenya: human hair, Semi Human and fibre wigs from NURA, updated live from our shop. Same-day Nairobi delivery, M-Pesa and Lipa Mdogo Mdogo.' );
 			update_post_meta( $id, 'rank_math_focus_keyword', 'wig prices in kenya' );
 			$made[] = $id;
 		}
@@ -419,7 +419,7 @@ function nura_hub_price_page() {
 	?>
 	<div class="npg">
 		<section class="npg-intro">
-			<p class="npg-answer"><strong><?php esc_html_e( 'Short answer:', 'nura-beauty' ); ?></strong> <?php echo esc_html( sprintf( __( 'wigs at NURA cost from %1$s to %2$s. Heat-resistant fibre wigs are the most affordable, human-hair blend (semi-human) wigs sit in the middle, and 100%% human hair wigs cost the most, rising with length.', 'nura-beauty' ), nura_hub_ksh( $lo_all ), nura_hub_ksh( $hi_all ) ) ); ?></p>
+			<p class="npg-answer"><strong><?php esc_html_e( 'Short answer:', 'nura-beauty' ); ?></strong> <?php echo esc_html( sprintf( __( 'wigs at NURA cost from %1$s to %2$s. Semi Human wigs are the most affordable and Pure Human wigs cost the most, rising with length.', 'nura-beauty' ), nura_hub_ksh( $lo_all ), nura_hub_ksh( $hi_all ) ) ); ?></p>
 			<p class="npg-updated"><span class="npg-dot" aria-hidden="true"></span><?php echo esc_html( sprintf( __( 'Live from our shop - %1$d wigs - updated %2$s', 'nura-beauty' ), count( $rows ), $today ) ); ?></p>
 		</section>
 
@@ -494,7 +494,7 @@ function nura_hub_price_page() {
 		<section class="npg-why" aria-labelledby="npg-why-h">
 			<h2 id="npg-why-h"><?php esc_html_e( 'What affects the price of a wig?', 'nura-beauty' ); ?></h2>
 			<div class="npg-why__grid">
-				<div><h3><?php esc_html_e( 'Hair type', 'nura-beauty' ); ?></h3><p><?php esc_html_e( 'Human hair costs more than semi-human blend, and blend more than fibre.', 'nura-beauty' ); ?></p></div>
+				<div><h3><?php esc_html_e( 'Hair type', 'nura-beauty' ); ?></h3><p><?php esc_html_e( 'Human hair costs more than Semi Human, and blend more than fibre.', 'nura-beauty' ); ?></p></div>
 				<div><h3><?php esc_html_e( 'Length', 'nura-beauty' ); ?></h3><p><?php esc_html_e( 'Longer wigs use more hair. A 20-22 inch human hair unit costs about twice a 12-14 inch one.', 'nura-beauty' ); ?></p></div>
 				<div><h3><?php esc_html_e( 'Lace and construction', 'nura-beauty' ); ?></h3><p><?php esc_html_e( 'Lace front and 13x4 frontal units cost more than 4x4 closure or headband wigs.', 'nura-beauty' ); ?></p></div>
 			</div>
@@ -519,7 +519,7 @@ function nura_hub_price_page() {
 			<?php if ( $lmm || $guide ) : ?>
 				<p class="npg-cta__more">
 					<?php if ( $lmm ) : ?><a href="<?php echo esc_url( get_permalink( $lmm ) ); ?>"><?php esc_html_e( 'How Lipa Mdogo Mdogo works', 'nura-beauty' ); ?></a><?php endif; ?>
-					<?php if ( $guide ) : ?><a href="<?php echo esc_url( get_permalink( $guide ) ); ?>"><?php esc_html_e( 'Human hair vs semi-human vs fibre', 'nura-beauty' ); ?></a><?php endif; ?>
+					<?php if ( $guide ) : ?><a href="<?php echo esc_url( get_permalink( $guide ) ); ?>"><?php esc_html_e( 'Human hair vs Semi Human vs fibre', 'nura-beauty' ); ?></a><?php endif; ?>
 				</p>
 			<?php endif; ?>
 		</section>
@@ -531,8 +531,8 @@ function nura_hub_price_page() {
 /** FAQs for the price page (visible + FAQPage schema). */
 function nura_hub_price_faqs( $lo, $hi ) {
 	return array(
-		array( __( 'How much is a wig in Kenya?', 'nura-beauty' ), sprintf( __( 'At NURA, wigs cost from %1$s to %2$s. Fibre wigs are the most affordable, semi-human blends are mid-priced, and 100%% human hair wigs cost the most.', 'nura-beauty' ), nura_hub_ksh( $lo ), nura_hub_ksh( $hi ) ) ),
-		array( __( 'What is the cheapest wig at NURA?', 'nura-beauty' ), __( 'Heat-resistant fibre wigs, especially headband and 4x4 closure styles, are our most affordable options. The list above is sorted from lowest price.', 'nura-beauty' ) ),
+		array( __( 'How much is a wig in Kenya?', 'nura-beauty' ), sprintf( __( 'At NURA, wigs cost from %1$s to %2$s. Semi Human wigs are the most affordable and Pure Human wigs cost the most.', 'nura-beauty' ), nura_hub_ksh( $lo ), nura_hub_ksh( $hi ) ) ),
+		array( __( 'What is the cheapest wig at NURA?', 'nura-beauty' ), __( 'Semi Human wigs, especially headband and closure styles, are our most affordable options. The list above is sorted from lowest price.', 'nura-beauty' ) ),
 		array( __( 'Can I pay for a wig in instalments?', 'nura-beauty' ), __( 'Yes. With Lipa Mdogo Mdogo you pay a 50% deposit today and the balance within 1 or 2 weeks; the wig is released once fully paid.', 'nura-beauty' ) ),
 		array( __( 'Does the price include delivery?', 'nura-beauty' ), __( 'Delivery is added at checkout: same day in Nairobi before 5pm (rider from KSh 300, free in Nairobi over KSh 10,000) and same-day dispatch countrywide by shuttle or courier.', 'nura-beauty' ) ),
 	);
@@ -652,7 +652,7 @@ var s=w.querySelector('[data-npg-q]');if(s){s.addEventListener('input',function(
 /** Guide slug => short label. Only published guides are ever linked. */
 function nura_hub_guides() {
 	return array(
-		'human-hair-vs-semi-human-vs-fibre-wigs-kenya' => __( 'Human hair vs semi-human vs fibre', 'nura-beauty' ),
+		'human-hair-vs-semi-human-vs-fibre-wigs-kenya' => __( 'Human hair vs Semi Human vs fibre', 'nura-beauty' ),
 		'how-long-does-a-wig-last'                     => __( 'How long does a wig last?', 'nura-beauty' ),
 		'frontal-vs-closure-wig'                       => __( 'Frontal vs closure wig', 'nura-beauty' ),
 		'headband-wig-vs-lace-front-wig'               => __( 'Headband vs lace front wig', 'nura-beauty' ),

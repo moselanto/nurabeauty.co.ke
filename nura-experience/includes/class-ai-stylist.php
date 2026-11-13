@@ -76,7 +76,7 @@ class NURAX_AI_Stylist {
 				<div class="nurax-stylist__quick" data-stylist-quick>
 					<button type="button" class="nurax-chip-book" data-booking><?php esc_html_e( 'Book consultation', 'nura-experience' ); ?></button>
 					<button type="button" data-q="<?php esc_attr_e( 'Show me wigs under KES 5,000', 'nura-experience' ); ?>"><?php esc_html_e( 'Under KSh 5K', 'nura-experience' ); ?></button>
-					<button type="button" data-q="<?php esc_attr_e( 'Show me 100% human hair wigs', 'nura-experience' ); ?>"><?php esc_html_e( 'Human hair', 'nura-experience' ); ?></button>
+					<button type="button" data-q="<?php esc_attr_e( 'Show me Pure Human wigs', 'nura-experience' ); ?>"><?php esc_html_e( 'Human hair', 'nura-experience' ); ?></button>
 					<button type="button" data-q="<?php esc_attr_e( 'I need a wig for my wedding', 'nura-experience' ); ?>"><?php esc_html_e( 'Bridal', 'nura-experience' ); ?></button>
 					<button type="button" data-q="<?php esc_attr_e( 'Which wig suits a beginner? I want glueless', 'nura-experience' ); ?>"><?php esc_html_e( 'Beginner / glueless', 'nura-experience' ); ?></button>
 					<button type="button" data-q="<?php esc_attr_e( 'Where can I get a wig installed in Nairobi?', 'nura-experience' ); ?>"><?php esc_html_e( 'Installation', 'nura-experience' ); ?></button>
@@ -468,7 +468,7 @@ class NURAX_AI_Stylist {
 		$cat    = $this->catalog_snippet();
 		$custom = NURAX_Settings::get( 'stylist_prompt', '' );
 		$base   = "You are the NURA Stylist, a warm, expert personal wig concierge for {$brand}, a premium wig boutique in Nairobi, Kenya. "
-			. "The catalog includes 100% human hair, human-hair blend and heat-resistant fibre wigs; always state a unit's hair type exactly as its name says and never call a blend or fibre unit human hair. "
+			. "The catalog includes Pure Human, Semi Human and luxury fibre wigs; always state a unit's hair type exactly as its name says and never call a blend or fibre unit human hair. "
 			. "Help customers choose the right wig by face shape, occasion, texture, length, lace type and budget (prices are in Kenyan Shillings, KES). "
 			. "Be concise, friendly and practical - reply in 2 to 4 short sentences. Recommend specific units from the catalog below by name when relevant, and suggest booking a free consultation or chatting on WhatsApp for fittings and orders. "
 			. "Mention same-day Nairobi delivery and M-Pesa or card payment when relevant; pay on delivery (cash or M-Pesa) is available within Nairobi CBD only; all other deliveries are paid before dispatch. Only discuss NURA, wigs, hair care, orders and delivery. Never invent prices or products that are not in the catalog; if unsure, offer a free consultation.\n\nCATALOG:\n{$cat}";
@@ -679,7 +679,7 @@ class NURAX_AI_Stylist {
 		}
 
 		if ( false !== strpos( $t, 'human' ) ) {
-			$slug = $this->term_slug( 'pa_hair-type', array( '100% Human Hair', 'Human Hair' ) );
+			$slug = $this->term_slug( 'pa_hair-type', array( 'Pure Human', 'Human Hair' ) );
 			if ( $slug ) {
 				$sig['tax']['pa_hair-type'] = $slug;
 			}

@@ -6,7 +6,7 @@ Last updated: 14 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 | Component | Version | Notes |
 |---|---|---|
 | Theme `nura-beauty/` (parent) | **1.135.0** | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
-| Plugin `nura-experience/` | **1.110.2** | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
+| Plugin `nura-experience/` | **1.111.0** | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
 
 ## How a release is done (the working method)
 1. Edit in the repo, run `php -l` on every changed file.
@@ -25,6 +25,7 @@ Last updated: 14 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 | `inc/nura-audit-fixes-2026.php` | `nura_svc_2026_done` | All service prices on pages/posts and Rank Math meta |
 
 ## Business rules (do not break)
+- **Stock (owner, 14 Nov 2026): nothing goes out of stock by itself.** The shop keeps samples to see the trend; suppliers are on standby, so customers can order any quantity even when 1-2 are in the shop. Only staff 'Stop selling' on NURA Desk > Stock shows an item as Out of stock (plugin 1.111.0).
 - Real reviews, prices, clients and photos only. Never invent anything.
 - Delivery wording: same-day Nairobi delivery; **same-day dispatch countrywide** (never "1-3 days").
 - Hair types (owner, 13 Nov 2026): **Pure Human** = 100% human hair. **Semi Human** = human hair mixed with good-quality fibre; low heat is fine. **Human Blend** = Bob Wavy only, its own label, no extra definition; low heat is fine. **Luxury Fibre Bone Straight Frontal** (274) and **4x4 Luxury Bone Straight Closure Wig** (251) state no hair type. The product-to-type map is `nura_ht_map()` in `inc/nura-hair-types-2026.php`. Semi Human is now the cheapest tier; do not write "fibre is the cheapest".

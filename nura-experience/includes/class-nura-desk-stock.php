@@ -30,6 +30,7 @@ class NURAX_Desk_Stock {
 	const LOC   = '_nura_stock_loc';   // Per-place split on the stock-managing product/variation: array( place key => qty ).
 	const PERM  = 'stock';             // NURAX_Staff permission: change stock.
 	const COSTS = 'nurax_stock_costs_loaded';
+	const STOP  = '_nura_stop_selling'; // 1.111.0: set by staff on the Stock tab = the only way an item shows Out of stock.
 
 	/** Reasons offered on the change form. key => array( label, direction ). */
 	public static function reasons() {
@@ -59,6 +60,8 @@ class NURAX_Desk_Stock {
 			'order'      => 'Website / till order',
 			'other'      => 'Product edit or other',
 			'cost'       => 'Buying price set',
+			'stop'       => 'Stopped selling (Out of stock)',
+			'resume'     => 'Selling again',
 		);
 	}
 
@@ -71,7 +74,7 @@ class NURAX_Desk_Stock {
 		// After NURAX_Desk::menu() (priority 56) so the NURA Desk parent exists; earlier priorities
 		// register the page under the wrong hook (403 on admin.php?page=nurax-stock, menu link to /wp-admin/nurax-stock).
 		add_action( 'admin_menu', array( $this, 'menu' ), 57 );
-		foreach ( array( 'adjust', 'move', 'count', 'export', 'costs' ) as $a ) {
+		foreach ( array( 'adjust', 'move', 'count', 'export', 'costs', 'stop' ) as $a ) {
 			add_action( 'admin_post_nurax_stock_' . $a, array( __CLASS__, 'do_' . $a ) );
 		}
 		// Generic history of every WooCommerce stock change (orders, product edits, plans, imports).
@@ -88,6 +91,15 @@ class NURAX_Desk_Stock {
 		add_action( 'woocommerce_payment_complete', array( __CLASS__, 'order_ctx_id' ), 1 );
 		add_action( 'woocommerce_order_status_changed', array( __CLASS__, 'order_ctx_clear' ), 999 );
 		add_action( 'woocommerce_payment_complete', array( __CLASS__, 'order_ctx_clear' ), 999 );
+		// 1.111.0 owner rule: nothing goes out of stock by itself. Stock held is samples; suppliers are on
+		// standby, so a wig stays buyable at 0 (WooCommerce backorder, shown as In stock) until staff press
+		// 'Stop selling' on the Stock tab. Desk setting 'stock_never_oos' (default on) switches this off.
+		foreach ( array( 'woocommerce_product_get_backorders', 'woocommerce_product_variation_get_backorders' ) as $hk ) {
+			add_filter( $hk, array( __CLASS__, 'f_backorders' ), 20, 2 );
+		}
+		foreach ( array( 'woocommerce_product_get_stock_status', 'woocommerce_product_variation_get_stock_status' ) as $hk ) {
+			add_filter( $hk, array( __CLASS__, 'f_stock_status' ), 20, 2 );
+		}
 		// WhatsApp orders.
 		add_action( 'nurax_wa_order_saved', array( __CLASS__, 'wa_saved' ), 20, 2 );
 		add_action( 'added_post_meta', array( __CLASS__, 'wa_meta' ), 20, 4 );
@@ -157,6 +169,50 @@ class NURAX_Desk_Stock {
   KEY status (status)
 ) $c;" );
 		update_option( self::DBOPT, self::DBV, false );
+	}
+
+	/* ------------------------------------------------------------------ */
+	/* Never out of stock unless staff say so (1.111.0)                    */
+	/* ------------------------------------------------------------------ */
+
+	public static function never_oos() {
+		$s = NURAX_Desk::settings();
+		return ! isset( $s['stock_never_oos'] ) || (int) $s['stock_never_oos'];
+	}
+
+	public static function stopped( $p ) {
+		return $p instanceof WC_Product && (int) $p->get_meta( self::STOP );
+	}
+
+	/** Tracked items keep selling at 0 (backorder) unless stopped by staff. */
+	public static function f_backorders( $v, $p ) {
+		if ( ! self::never_oos() || ! ( $p instanceof WC_Product ) || ! $p->get_manage_stock( 'edit' ) ) {
+			return $v;
+		}
+		return self::stopped( $p ) ? 'no' : 'yes';
+	}
+
+	/** Shoppers, Google and feeds see In stock instead of 'on backorder'; 'Stop selling' shows Out of stock. */
+	public static function f_stock_status( $v, $p ) {
+		if ( ! self::never_oos() || ! ( $p instanceof WC_Product ) ) {
+			return $v;
+		}
+		if ( self::stopped( $p ) ) {
+			return 'outofstock';
+		}
+		return 'onbackorder' === $v ? 'instock' : $v;
+	}
+
+	/** Re-save so WooCommerce stores the right stock status after a stop / sell-again change. */
+	private static function resave( $p ) {
+		$p = wc_get_product( $p->get_id() );
+		if ( $p ) {
+			$p->set_stock_status( self::stopped( $p ) ? 'outofstock' : ( (int) $p->get_stock_quantity( 'edit' ) > 0 ? 'instock' : 'onbackorder' ) );
+			$p->save();
+			if ( $p->is_type( 'variation' ) && $p->get_parent_id() ) {
+				WC_Product_Variable::sync( $p->get_parent_id() );
+			}
+		}
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -310,7 +366,7 @@ class NURAX_Desk_Stock {
 					'res'     => $plan + $wa,
 					'shelf'   => $avail + $plan + $wa,
 					'low'     => $low,
-					'state'   => $avail <= 0 ? 'out' : ( $avail <= $low ? 'low' : 'in' ),
+					'state'   => self::stopped( $it ) ? 'stop' : ( $avail <= 0 ? ( self::never_oos() ? 'order' : 'out' ) : ( $avail <= $low ? 'low' : 'in' ) ),
 					'cost'    => (string) $it->get_meta( '_nura_cost' ),
 					'split'   => self::split( $k ),
 					'last'    => isset( $last[ $k ] ) ? $last[ $k ] : '',
@@ -612,6 +668,8 @@ class NURAX_Desk_Stock {
 			'moved'   => array( 'success', 'Pieces moved. The total did not change.' ),
 			'counted' => array( 'success', 'Stock-take saved. Only the lines that changed were updated.' ),
 			'costs'   => array( 'success', 'Buying prices saved.' ),
+			'stopped' => array( 'success', 'Stopped. The website now shows this item as Out of stock.' ),
+			'resumed' => array( 'success', 'On sale again. The website shows it as In stock.' ),
 			'reason'  => array( 'error', 'Please choose a reason. Every stock change needs one.' ),
 			'qty'     => array( 'error', 'Please enter a valid number of pieces.' ),
 			'short'   => array( 'error', 'There are not enough pieces at that place to move.' ),
@@ -652,7 +710,7 @@ class NURAX_Desk_Stock {
 		echo '<form class="ns-f" method="get"><input type="hidden" name="page" value="' . esc_attr( self::PAGE ) . '"><input type="hidden" name="tab" value="' . esc_attr( $tab ) . '">';
 		echo '<label>Search<input type="search" name="q" value="' . esc_attr( self::get( 'q' ) ) . '" placeholder="Wig, colour or code"></label>';
 		echo '<label>Show<select name="state">';
-		foreach ( array( '' => 'Everything', 'in' => 'In stock', 'low' => 'Running low', 'out' => 'Out of stock', 'held' => 'Has reserved pieces' ) as $k => $l ) {
+		foreach ( array( '' => 'Everything', 'in' => 'In stock', 'low' => 'Running low', 'order' => 'Order from supplier', 'stop' => 'Stopped (out of stock)', 'held' => 'Has reserved pieces' ) as $k => $l ) {
 			echo '<option value="' . esc_attr( $k ) . '"' . selected( self::get( 'state' ), $k, false ) . '>' . esc_html( $l ) . '</option>';
 		}
 		echo '</select></label><label>Place<select name="place"><option value="">All places</option>';
@@ -665,7 +723,7 @@ class NURAX_Desk_Stock {
 	private static function screen_list() {
 		$rows   = self::filtered_rows();
 		$places = self::places();
-		$tot    = array( 'shelf' => 0, 'res' => 0, 'avail' => 0, 'in' => 0, 'out' => 0, 'low' => 0 );
+		$tot    = array( 'shelf' => 0, 'res' => 0, 'avail' => 0, 'in' => 0, 'out' => 0, 'low' => 0, 'order' => 0, 'stop' => 0 );
 		foreach ( $rows as $r ) {
 			$tot['shelf'] += $r['shelf'];
 			$tot['res']   += $r['res'];
@@ -676,7 +734,8 @@ class NURAX_Desk_Stock {
 		echo NURAX_Desk::kpi( 'On shelf', (int) $tot['shelf'], 'pieces in the shop', 'ink' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo NURAX_Desk::kpi( 'Reserved', (int) $tot['res'], 'payment plans + unpaid WhatsApp orders', 'gold' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo NURAX_Desk::kpi( 'Available', (int) $tot['avail'], 'what the website can sell', 'green' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo NURAX_Desk::kpi( 'Running low / out', (int) $tot['low'] . ' / ' . (int) $tot['out'], 'items', $tot['out'] ? 'red' : 'amber' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo NURAX_Desk::kpi( 'To order from supplier', (int) ( $tot['order'] + $tot['out'] ), 'items at 0 - still on sale', $tot['order'] + $tot['out'] ? 'amber' : '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo NURAX_Desk::kpi( 'Stopped (out of stock)', (int) $tot['stop'], 'set by staff', $tot['stop'] ? 'red' : '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</div>';
 		self::filter_form( 'list' );
 		if ( ! $rows ) {
@@ -684,7 +743,7 @@ class NURAX_Desk_Stock {
 			return;
 		}
 		$can = self::can_change();
-		$st  = array( 'in' => array( 'ns-in', 'In stock' ), 'low' => array( 'ns-low', 'Running low' ), 'out' => array( 'ns-out', 'Out of stock' ) );
+		$st  = array( 'in' => array( 'ns-in', 'In stock' ), 'low' => array( 'ns-low', 'Running low' ), 'order' => array( 'ns-low', 'Order from supplier (still on sale)' ), 'out' => array( 'ns-out', 'Out of stock' ), 'stop' => array( 'ns-out', 'Out of stock (stopped by staff)' ) );
 		echo '<table class="ns-t"><thead><tr><th>Wig / product</th><th>Colour</th><th>Code</th><th class="n">On shelf</th><th class="n">Reserved</th><th class="n">Available</th><th>Where</th><th>Status</th><th>Last change</th>' . ( $can ? '<th>Change</th>' : '' ) . '</tr></thead><tbody>';
 		foreach ( $rows as $r ) {
 			$where = array();
@@ -703,7 +762,7 @@ class NURAX_Desk_Stock {
 			echo '</tr>';
 		}
 		echo '</tbody><tfoot><tr><td colspan="3">Total (' . count( $rows ) . ' items)</td><td class="n">' . (int) $tot['shelf'] . '</td><td class="n">' . (int) $tot['res'] . '</td><td class="n">' . (int) $tot['avail'] . '</td><td colspan="' . ( $can ? 4 : 3 ) . '"></td></tr></tfoot></table>';
-		echo '<p class="ns-mini">On shelf = Available + Reserved. Reserved pieces are held for payment plans and unpaid WhatsApp orders, so the website cannot sell them twice. Name your stock places in Desk settings.</p>';
+		echo '<p class="ns-mini">On shelf = Available + Reserved. Reserved pieces are held for payment plans and unpaid WhatsApp orders. ' . ( self::never_oos() ? 'Nothing goes out of stock by itself: at 0 a wig stays on sale (order it from the supplier) and Available can go below 0. Only "Stop selling" shows it as Out of stock.' : 'Items at 0 show Out of stock on the website.' ) . ' Name your stock places in Desk settings.</p>';
 	}
 
 	private static function change_form( $r, $places ) {
@@ -727,6 +786,9 @@ class NURAX_Desk_Stock {
 			$h .= '<form method="post" action="' . $post . '">' . wp_nonce_field( 'nurax_stock_move', '_wpnonce', true, false ) . '<input type="hidden" name="action" value="nurax_stock_move"><input type="hidden" name="pid" value="' . (int) $r['id'] . '">';
 			$h .= '<strong>Move between places</strong><label>From<select name="from">' . $pl . '</select></label><label>To<select name="to">' . $pl . '</select></label><label>Pieces<input type="number" name="qty" min="1" step="1" required></label><label>Note<input type="text" name="note" maxlength="200"></label><button class="nd-btn nd-btn--ghost nd-btn--sm" type="submit">Move</button></form>';
 		}
+		$stop = (int) get_post_meta( (int) $r['id'], self::STOP, true );
+		$h   .= '<form method="post" action="' . $post . '">' . wp_nonce_field( 'nurax_stock_stop', '_wpnonce', true, false ) . '<input type="hidden" name="action" value="nurax_stock_stop"><input type="hidden" name="pid" value="' . (int) $r['id'] . '"><input type="hidden" name="stop" value="' . ( $stop ? 0 : 1 ) . '">';
+		$h   .= '<strong>' . ( $stop ? 'Sell again' : 'Stop selling (show Out of stock)' ) . '</strong><label>Reason<input type="text" name="note" maxlength="200" required></label><button class="nd-btn ' . ( $stop ? 'nd-btn--primary' : 'nd-btn--danger-ghost' ) . ' nd-btn--sm" type="submit">' . ( $stop ? 'Sell again' : 'Stop selling' ) . '</button></form>';
 		return $h . '</details>';
 	}
 
@@ -914,6 +976,28 @@ class NURAX_Desk_Stock {
 		$q = (int) $p->get_stock_quantity( 'edit' );
 		self::log( $id, 0, $q, $q, 'move', array( 'from' => $places[ $from ], 'to' => $places[ $to ], 'note' => $qty . ' pc' . ( ! empty( $in['note'] ) ? ' - ' . sanitize_text_field( $in['note'] ) : '' ) ) );
 		self::back( 'moved' );
+	}
+
+	public static function do_stop() {
+		self::guard_change( 'nurax_stock_stop' );
+		$in   = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$p    = self::managed( isset( $in['pid'] ) ? absint( $in['pid'] ) : 0 );
+		$note = isset( $in['note'] ) ? sanitize_text_field( $in['note'] ) : '';
+		if ( ! $p ) {
+			self::back( 'item' );
+		}
+		if ( '' === $note ) {
+			self::back( 'reason' );
+		}
+		$stop = ! empty( $in['stop'] );
+		$stop ? update_post_meta( $p->get_id(), self::STOP, 1 ) : delete_post_meta( $p->get_id(), self::STOP );
+		self::resave( $p );
+		$q = (int) $p->get_stock_quantity( 'edit' );
+		self::log( $p->get_id(), 0, $q, $q, $stop ? 'stop' : 'resume', array( 'note' => $note ) );
+		if ( class_exists( 'NURAX_Staff' ) ) {
+			NURAX_Staff::log( 'stock', ( $stop ? 'Stopped selling: ' : 'Selling again: ' ) . self::item_name( $p ) . ' - ' . $note, array( 'object' => 'product', 'object_id' => $p->get_id() ) );
+		}
+		self::back( $stop ? 'stopped' : 'resumed' );
 	}
 
 	public static function do_count() {

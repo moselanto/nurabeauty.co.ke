@@ -13,7 +13,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 <br>
 
 [![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.135.0-0E0E0E?style=for-the-badge)](nura-beauty)
-[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.110.2-C9A24B?style=for-the-badge)](nura-experience)
+[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.111.0-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -63,7 +63,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 | --- | --- | --- |
 | `nura-beauty/` | 1.135.0 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
-| `nura-experience/` | 1.110.2 | Plugin |
+| `nura-experience/` | 1.111.0 | Plugin |
 
 ## Features
 
@@ -169,6 +169,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| - | 1.111.0 | Nothing goes out of stock by itself: at 0 a wig stays on sale (suppliers on standby) and customers can order any quantity; staff can Stop selling an item from the Stock tab |
 | - | 1.110.2 | Stock History names the order when a cancelled order puts stock back; Opening buying prices finds the 4x4 closure colour C199J |
 | - | 1.110.1 | Fix: NURA Desk > Stock page opens (was 'page not found' / not allowed) |
 | - | 1.110.0 | NURA Desk > Stock: on shelf / reserved / available per wig and colour, stock places, stock changes with reasons, stock-take, history and downloads; WhatsApp orders hold stock until paid or cancelled |

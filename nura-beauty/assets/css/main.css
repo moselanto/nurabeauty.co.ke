@@ -2066,3 +2066,14 @@ html body ul.products li.product[hidden],html body .woocommerce ul.products li.p
 .nura-slide--owner .nura-hero-kw{font-size:.62rem}
 .nura-slider-dots{bottom:26px}
 }
+
+/* 1.143.0 phones: whole slide (photo, headline, buttons) fits on the first screen - no scrolling to reach Shop Wigs */
+@media(max-width:768px){
+.nura-slide__media,.nura-slide--owner .nura-slide__media{height:clamp(170px,56vw,240px)}
+.nura-slide__inner{padding-top:2px;padding-bottom:40px;min-height:200px}
+.nura-slide__inner .nura-eyebrow{margin-bottom:.35rem;font-size:.62rem;letter-spacing:.14em}
+.nura-slide__inner .nura-hero-h{font-size:clamp(1.45rem,6.4vw,1.8rem);line-height:1.1;margin-bottom:0}
+.nura-hero__cta{margin-top:.9rem;gap:.6rem;flex-wrap:nowrap}
+.nura-hero__cta .nura-btn{flex:1 1 0;min-height:44px;padding:.75rem .5rem;font-size:.72rem;justify-content:center;text-align:center}
+.nura-slider-dots{bottom:10px}
+}

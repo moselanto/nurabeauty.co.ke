@@ -80,6 +80,14 @@ class NURAX_Desk_Stock {
 		add_action( 'woocommerce_product_set_stock', array( __CLASS__, 'after_set' ) );
 		add_action( 'woocommerce_variation_set_stock', array( __CLASS__, 'after_set' ) );
 		add_filter( 'woocommerce_order_item_quantity', array( __CLASS__, 'order_ctx' ), 99, 3 );
+		// 1.110.2: name the order on stock put back by WooCommerce (cancelled / pending / refunded) and on
+		// payment-complete reductions. Set before WooCommerce's own stock handlers (priority 10), cleared after.
+		foreach ( array( 'pending', 'failed', 'on-hold', 'processing', 'completed', 'refunded', 'cancelled' ) as $st ) {
+			add_action( 'woocommerce_order_status_' . $st, array( __CLASS__, 'order_ctx_id' ), 1 );
+		}
+		add_action( 'woocommerce_payment_complete', array( __CLASS__, 'order_ctx_id' ), 1 );
+		add_action( 'woocommerce_order_status_changed', array( __CLASS__, 'order_ctx_clear' ), 999 );
+		add_action( 'woocommerce_payment_complete', array( __CLASS__, 'order_ctx_clear' ), 999 );
 		// WhatsApp orders.
 		add_action( 'nurax_wa_order_saved', array( __CLASS__, 'wa_saved' ), 20, 2 );
 		add_action( 'added_post_meta', array( __CLASS__, 'wa_meta' ), 20, 4 );
@@ -235,6 +243,17 @@ class NURAX_Desk_Stock {
 		return $out;
 	}
 
+	/** Order id from a WooCommerce order status / payment hook. */
+	public static function order_ctx_id( $order_id ) {
+		if ( $order_id ) {
+			self::$ctx = (int) $order_id;
+		}
+	}
+
+	public static function order_ctx_clear() {
+		self::$ctx = 0;
+	}
+
 	public static function reserved_for( $id ) {
 		$r = self::reserved();
 		return isset( $r[ $id ] ) ? array_sum( $r[ $id ] ) : 0;
@@ -367,7 +386,7 @@ class NURAX_Desk_Stock {
 			return;
 		}
 		$delta = null === $before ? 0 : (int) $after - (int) $before;
-		self::log( $id, $delta, $before, $after, self::$ctx ? 'order' : 'other', array( 'ref' => self::$ctx ? '#' . self::$ctx : '' ) );
+		self::log( $id, $delta, $before, $after, self::$ctx ? 'order' : 'other', array( 'ref' => self::$ctx ? '#' . self::$ctx : '', 'note' => self::$ctx && $delta > 0 ? 'Stock put back from order #' . self::$ctx : '' ) );
 		self::rebalance( $id, (int) $after + self::reserved_for( $id ) );
 	}
 
@@ -501,7 +520,7 @@ class NURAX_Desk_Stock {
 	public static function opening_costs() {
 		return array(
 			array( 364, 'Loose Wave Frontal', array( 'black', 'burgundy', '33', 'red wine', '30' ), '1934.88' ),
-			array( 243, '4x4 Loose Wave Closure', array( 'black', 'c33', '33', 'c1 99j', '99j' ), '1606.78' ),
+			array( 243, '4x4 Loose Wave Closure', array( 'black', 'c33', '33', 'c1 99j', 'c199j', '99j' ), '1606.78' ),
 			array( 274, 'Bone Straight High Fibre', array( 'black', '613', 'dark piano', 'piano dark' ), '2488.59' ),
 			array( 377, 'Body Wave', array( 'black', '613', 'piano', 'piano dark', 'dark piano' ), '2456.55' ),
 		);
@@ -523,8 +542,11 @@ class NURAX_Desk_Stock {
 				continue;
 			}
 			foreach ( $v->get_variation_attributes( false ) as $val ) {
-				$t = strtolower( trim( str_replace( '-', ' ', (string) $val ) ) );
-				if ( in_array( $t, $colours, true ) ) {
+				// Compare without spaces or hyphens, so 'C199J', 'c1-99j' and 'C1 99J' all match.
+				$t = preg_replace( '/[\s\-]+/', '', strtolower( (string) $val ) );
+				if ( in_array( $t, array_map( function ( $c ) {
+					return preg_replace( '/[\s\-]+/', '', $c );
+				}, $colours ), true ) ) {
 					$out[] = $v;
 					break;
 				}

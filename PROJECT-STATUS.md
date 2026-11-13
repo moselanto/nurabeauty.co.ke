@@ -6,7 +6,7 @@ Last updated: 14 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 | Component | Version | Notes |
 |---|---|---|
 | Theme `nura-beauty/` (parent) | **1.135.0** | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
-| Plugin `nura-experience/` | **1.110.1** | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; menu fix 1.110.1)**. |
+| Plugin `nura-experience/` | **1.110.2** | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
 
 ## How a release is done (the working method)
 1. Edit in the repo, run `php -l` on every changed file.
@@ -55,7 +55,7 @@ Last updated: 14 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 5. Business decisions: Apple Business Connect (certificate still shows old Imenti House address), Bing Places, paid directories, missing colour photos for some options, two-factor login for admin accounts.
 
 ## Next for the developer/agent
-- Stock (14 Nov): tracking on for 9 colours only (22 pieces: LWF Black 5, Burgundy 2, 33 4, Red Wine 2, 30 1; 4x4 closure C199J 2, Black 2, C33 2; Bone Straight Black 2); everything else stays 'In stock' untracked. Opening buying prices loaded. Test order #2361 cancelled. Next release: log order-cancel restores with the order ref; add 'c199j' to the buying-price loader. Owner to name stock places (Desk settings); the 6 unmatched stock lines (Bob Amanda, Empress, Wonderful Frontal, 2x2 Negatron, LWF 2/30) stay off the website until the owner decides. Further stock work is planned in moselanto/NURA_STOCKS (PRD.md, HANDOVER.md).
+- Stock (14 Nov): tracking on for 9 colours only (22 pieces: LWF Black 5, Burgundy 2, 33 4, Red Wine 2, 30 1; 4x4 closure C199J 2, Black 2, C33 2; Bone Straight Black 2); everything else stays 'In stock' untracked. Opening buying prices loaded. Test order #2361 cancelled. Both known gaps fixed in 1.110.2 (test order #2363). Waiting on owner: stock place names and which items are where; selling prices for Bob Amanda, 2x2 Negatron, LWF 2/30 (then create products, track stock, load v4.1 costs); the 6 unmatched stock lines (Bob Amanda, Empress, Wonderful Frontal, 2x2 Negatron, LWF 2/30) stay off the website until the owner decides. Further stock work is planned in moselanto/NURA_STOCKS (PRD.md, HANDOVER.md).
 0. Google Business Profile: re-check the services panel after 14 Nov. Confirm the "pending review" notice is gone and nothing is rejected. Also check whether a Services menu now shows publicly on Search/Maps; if one shows, confirm the 8 prices match `nura_services()`.
 1. Merchant Center (parked by owner until website work is done): check the return policy was approved; consider richer descriptions for the 110 entries Google flagged; review the 5 products Google found on the site (avoid duplicates).
 2. Long SEO titles: many product titles are 80-120 characters (Google shows about 60). Shorten the template in `class-nura-desk-catalogue.php::seo_meta()` and the stored `rank_math_title` values.

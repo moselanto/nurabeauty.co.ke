@@ -100,6 +100,12 @@ class NURAX_Desk_Stock {
 		foreach ( array( 'woocommerce_product_get_stock_status', 'woocommerce_product_variation_get_stock_status' ) as $hk ) {
 			add_filter( $hk, array( __CLASS__, 'f_stock_status' ), 20, 2 );
 		}
+		// 1.111.1: no 'N in stock' text for shoppers (stock is samples, more on order) - only Out of stock shows.
+		add_filter( 'woocommerce_get_stock_html', array( __CLASS__, 'f_stock_html' ), 20, 2 );
+		// 1.111.1: a stopped item is stored as Out of stock (admin screens, shop filters, lookup table),
+		// even with pieces left. Runs after WooCommerce recomputes the status in validate_props().
+		add_action( 'woocommerce_before_product_object_save', array( __CLASS__, 'keep_stopped' ), 20 );
+		add_action( 'woocommerce_before_product_variation_object_save', array( __CLASS__, 'keep_stopped' ), 20 );
 		// WhatsApp orders.
 		add_action( 'nurax_wa_order_saved', array( __CLASS__, 'wa_saved' ), 20, 2 );
 		add_action( 'added_post_meta', array( __CLASS__, 'wa_meta' ), 20, 4 );
@@ -201,6 +207,23 @@ class NURAX_Desk_Stock {
 			return 'outofstock';
 		}
 		return 'onbackorder' === $v ? 'instock' : $v;
+	}
+
+	/** Hide the stock count line for shoppers; keep 'Out of stock' when staff stopped the item. */
+	public static function f_stock_html( $html, $p = null ) {
+		if ( ! self::never_oos() || is_admin() && ! wp_doing_ajax() ) {
+			return $html;
+		}
+		if ( $p instanceof WC_Product && ! $p->is_in_stock() ) {
+			return $html;
+		}
+		return '';
+	}
+
+	public static function keep_stopped( $p ) {
+		if ( self::never_oos() && $p instanceof WC_Product && $p->get_manage_stock( 'edit' ) && self::stopped( $p ) ) {
+			$p->set_stock_status( 'outofstock' );
+		}
 	}
 
 	/** Re-save so WooCommerce stores the right stock status after a stop / sell-again change. */

@@ -1,12 +1,12 @@
 # NURA Beauty - project status and next steps
 
-Last updated: 13 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOVER.md` (version table, release rows, session log) and `README.md`.
+Last updated: 14 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOVER.md` (version table, release rows, session log) and `README.md`.
 
 ## Live versions
 | Component | Version | Notes |
 |---|---|---|
 | Theme `nura-beauty/` (parent) | **1.135.0** | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
-| Plugin `nura-experience/` | **1.109.4** | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks. |
+| Plugin `nura-experience/` | **1.110.0** | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0)**. |
 
 ## How a release is done (the working method)
 1. Edit in the repo, run `php -l` on every changed file.
@@ -32,7 +32,8 @@ Last updated: 13 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 - Care products returns: unopened, original packaging, within 48 hours; opened care products can't be returned (hygiene).
 - Product slugs never change on renames (Rank Math follows titles). Old supplier names live in `nura_pai_alt_names()` (schema alternateName, llms.txt).
 
-## Done (11-13 Nov 2026)
+## Done (11-14 Nov 2026)
+- **NURA Desk > Stock (plugin 1.110.0, 14 Nov):** On shelf / Reserved / Available per wig and colour, owner-named stock places, stock changes with a required reason, stock-take, moves, full history, CSV downloads; WhatsApp orders reserve when placed, come off the shelf when paid, go back when cancelled. Owner installed and tested a website order, a till sale and a WhatsApp order. Stock plan, opening stock register (v4.1, making cost KES 85,375) and data: moselanto/NURA_STOCKS.
 - Care product photos and short descriptions (9 products); glue remover rename; short titles without ml (12 products).
 - Lace Tint is a variable product with 3 shades.
 - Checkout: "Pay on delivery (cash or M-Pesa)", "Studio pickup (free)", totals no longer go blank while delivery recalculates (1.129.2).
@@ -54,6 +55,7 @@ Last updated: 13 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 5. Business decisions: Apple Business Connect (certificate still shows old Imenti House address), Bing Places, paid directories, missing colour photos for some options, two-factor login for admin accounts.
 
 ## Next for the developer/agent
+- Stock: owner to name stock places (Desk settings) and press Stock > Opening buying prices; the 6 unmatched stock lines (Bob Amanda, Empress, Wonderful Frontal, 2x2 Negatron, LWF 2/30) stay off the website until the owner decides. Further stock work is planned in moselanto/NURA_STOCKS (PRD.md, HANDOVER.md).
 0. Google Business Profile: re-check the services panel after 14 Nov. Confirm the "pending review" notice is gone and nothing is rejected. Also check whether a Services menu now shows publicly on Search/Maps; if one shows, confirm the 8 prices match `nura_services()`.
 1. Merchant Center (parked by owner until website work is done): check the return policy was approved; consider richer descriptions for the 110 entries Google flagged; review the 5 products Google found on the site (avoid duplicates).
 2. Long SEO titles: many product titles are 80-120 characters (Google shows about 60). Shorten the template in `class-nura-desk-catalogue.php::seo_meta()` and the stored `rank_math_title` values.

@@ -271,6 +271,7 @@ class NURAX_Desk {
 			'sub_coupon'    => 0,
 			'sub_min'       => 0,
 			'sub_image'     => '',
+			'stock_places'  => 'Studio',
 		) + NURAX_Desk_Remind::template_defaults();
 	}
 
@@ -546,6 +547,7 @@ class NURAX_Desk {
 		$tabs = array(
 			self::MENU    => 'Overview',
 			self::P_POS   => 'Point of sale',
+			NURAX_Desk_Stock::PAGE => 'Stock',
 			NURAX_Desk_Source::PAGE => 'Sourced sales',
 			NURAX_Desk_Accounts::PAGE => 'Accounts',
 			self::P_ORDERS => 'WhatsApp orders',
@@ -627,7 +629,7 @@ class NURAX_Desk {
 
 	public function assets( $hook ) {
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! in_array( $page, array( self::MENU, self::P_POS, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_MKT, self::P_SOC, self::P_SET, 'nurax-team', NURAX_Desk_Source::PAGE, NURAX_Desk_Accounts::PAGE, NURAX_Desk_Catalogue::PAGE ), true ) ) {
+		if ( ! in_array( $page, array( self::MENU, self::P_POS, self::P_ORDERS, self::P_PLANS, self::P_APPTS, self::P_REM, self::P_MKT, self::P_SOC, self::P_SET, 'nurax-team', NURAX_Desk_Source::PAGE, NURAX_Desk_Stock::PAGE, NURAX_Desk_Accounts::PAGE, NURAX_Desk_Catalogue::PAGE ), true ) ) {
 			return;
 		}
 		wp_enqueue_style( 'nurax-desk', NURAX_URL . 'assets/css/nura-desk.css', array(), NURAX_VERSION );
@@ -834,6 +836,10 @@ class NURAX_Desk {
 		}
 		echo '</div></section>';
 
+		echo '<section class="nd-card"><header class="nd-card__h"><h2>Stock places</h2></header><div class="nd-fields">';
+		echo '<label class="nd-field nd-field--wide"><span class="nd-label">Where you keep stock</span><textarea name="stock_places" rows="4">' . esc_textarea( $s['stock_places'] ) . '</textarea><small>One place per line, e.g. Studio, Store room. The first place is where new and unplaced pieces go. Used on the Stock tab.</small></label>';
+		echo '</div></section>';
+
 		echo '<section class="nd-card"><header class="nd-card__h"><h2>Daily summary e-mail</h2></header><div class="nd-fields">';
 		self::field_check( 'digest', 'Send me a summary every morning', $s['digest'], 'Today\'s and tomorrow\'s appointments, overdue plans and payments due today.' );
 		self::field_text( 'digest_to', 'Send to', $s['digest_to'], 'Leave empty to use ' . get_option( 'admin_email' ), 'email' );
@@ -937,6 +943,7 @@ class NURAX_Desk {
 		$out['invoice_logo']   = isset( $in['invoice_logo'] ) ? esc_url_raw( trim( $in['invoice_logo'] ) ) : '';
 		$out['invoice_note']   = isset( $in['invoice_note'] ) ? mb_substr( sanitize_textarea_field( $in['invoice_note'] ), 0, 400 ) : '';
 		$out['mkt_soft_optin'] = empty( $in['mkt_soft_optin'] ) ? 0 : 1;
+		$out['stock_places']   = isset( $in['stock_places'] ) ? mb_substr( sanitize_textarea_field( $in['stock_places'] ), 0, 600 ) : $d['stock_places'];
 		if ( current_user_can( 'manage_options' ) ) {
 			$out['staff_export'] = empty( $in['staff_export'] ) ? 0 : 1;
 			$out['cart_days']    = isset( $in['cart_days'] ) ? min( 365, max( 7, absint( $in['cart_days'] ) ) ) : 30;

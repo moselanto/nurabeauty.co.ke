@@ -34,6 +34,7 @@ class NURAX_Staff {
 			'mark_paid'      => 1,
 			'refunds'        => 0,
 			'wc_settings'    => 0,
+			'stock'          => 1,
 		);
 	}
 
@@ -48,6 +49,7 @@ class NURAX_Staff {
 			'marketing'      => array( 'Use Marketing', 'Create and send e-mail and WhatsApp campaigns, see the audience.' ),
 			'social'         => array( 'Use Social', 'Social catalogue feeds and post kits.' ),
 			'wc_settings'    => array( 'Open WooCommerce settings', 'Payments, shipping, tax and store settings.' ),
+			'stock'          => array( 'Change stock', 'Receive, adjust, count and move stock on the Stock tab (a reason is always required and every change is logged).' ),
 		);
 	}
 
@@ -486,7 +488,7 @@ class NURAX_Staff {
 	}
 
 	public static function areas() {
-		return array( 'sale' => 'Sales', 'payment' => 'Payments', 'plan' => 'Payment plans', 'appointment' => 'Appointments', 'order' => 'Orders', 'product' => 'Products & prices', 'refund' => 'Refunds', 'coupon' => 'Coupons', 'contact' => 'Contacts', 'marketing' => 'Marketing', 'delete' => 'Deletions', 'blocked' => 'Blocked attempts', 'settings' => 'Settings', 'security' => 'Security', 'export' => 'Downloads', 'login' => 'Sign-ins' );
+		return array( 'sale' => 'Sales', 'payment' => 'Payments', 'plan' => 'Payment plans', 'appointment' => 'Appointments', 'order' => 'Orders', 'product' => 'Products & prices', 'stock' => 'Stock', 'refund' => 'Refunds', 'coupon' => 'Coupons', 'contact' => 'Contacts', 'marketing' => 'Marketing', 'delete' => 'Deletions', 'blocked' => 'Blocked attempts', 'settings' => 'Settings', 'security' => 'Security', 'export' => 'Downloads', 'login' => 'Sign-ins' );
 	}
 
 	public static function export_rows( $type ) {
@@ -719,6 +721,7 @@ class NURAX_Staff {
 		$grp = array(
 			'Sales & money'      => array( 'view_all_sales', 'see_totals', 'mark_paid', 'edit_price', 'refunds' ),
 			'Tools & pages'      => array( 'reminders', 'marketing', 'social', 'wc_settings' ),
+			'Stock'              => array( 'stock' ),
 		);
 		$lab = self::labels();
 		echo '<div class="nt-perms"><form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="nt-perms__main"><input type="hidden" name="action" value="nurax_team_perms">';

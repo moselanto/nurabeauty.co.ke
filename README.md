@@ -13,7 +13,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 <br>
 
 [![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.135.0-0E0E0E?style=for-the-badge)](nura-beauty)
-[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.109.4-C9A24B?style=for-the-badge)](nura-experience)
+[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.110.0-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -63,7 +63,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 | --- | --- | --- |
 | `nura-beauty/` | 1.135.0 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
-| `nura-experience/` | 1.109.4 | Plugin |
+| `nura-experience/` | 1.110.0 | Plugin |
 
 ## Features
 
@@ -169,6 +169,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| - | 1.110.0 | NURA Desk > Stock: on shelf / reserved / available per wig and colour, stock places, stock changes with reasons, stock-take, history and downloads; WhatsApp orders hold stock until paid or cancelled |
 | 1.127.0 | - | UX pass: sticky buy bar follows the chosen colour and adds to bag; Lipa Mdogo Mdogo card line shows deposit + weeks; free-delivery line names the threshold; booking explains studio vs video/WhatsApp; Wig Finder copy matches its questions; empty cart has Shop wigs / wig care / Find my wig; filter results announced to screen readers |
 | 1.126.0 | 1.109.4 | AI visibility for every product, now and future: real supplier brand (Luodais, Ghost Bond, CSCR ...) in schema, Brands terms and social feeds; full description in Product schema; own questions for wig care / beauty / tools (wig questions no longer shown on them); every product with brand, price and summary in /llms.txt |
 | - | 1.108.1 | WhatsApp order pop-up: phone footer button no longer cut off at the right edge |

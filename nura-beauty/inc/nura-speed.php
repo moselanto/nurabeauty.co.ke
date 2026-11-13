@@ -31,7 +31,7 @@ add_action( 'wp_head', function () {
 	if ( ! nura_speed_on() || ! is_front_page() || ! defined( 'NURA_URI' ) ) {
 		return;
 	}
-	echo '<link rel="preload" as="image" href="' . esc_url( NURA_URI . 'assets/images/hero.webp' ) . '" fetchpriority="high">' . "\n";
+	echo '<link rel="preload" as="image" href="' . esc_url( NURA_URI . 'assets/images/hero-owner.webp' ) . '" fetchpriority="high">' . "\n";
 }, 1 );
 
 /* 2. Contact Form 7 only where a CF7 form is used. */

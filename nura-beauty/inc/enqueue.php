@@ -89,7 +89,7 @@ function nura_preload_lcp() {
 	}
 	$hero = function_exists( 'nura_opt' ) ? nura_opt( 'nura_hero_image' ) : '';
 	if ( empty( $hero ) ) {
-		$hero = NURA_URI . 'assets/images/hero.webp';
+		$hero = NURA_URI . 'assets/images/hero-owner.webp'; // 1.137.0: owner slide is first.
 	}
 	printf( '<link rel="preload" as="image" href="%s" fetchpriority="high" />' . "\n", esc_url( $hero ) );
 }

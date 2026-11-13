@@ -118,18 +118,18 @@ $wigs_url = nura_home_cat_url( 'wigs' );
  * actions - Shop Wigs and Find Your Wig - so the hero stays single-minded.
  */
 $slides = array(
-	array(
-		'img'     => NURA_URI . 'assets/images/hero.webp',
-		'eyebrow' => __( 'Premium Wigs • Beauty • Care • Confidence', 'nura-beauty' ),
-		'title'   => __( 'Wear Your Crown', 'nura-beauty' ),
-		'sub'     => __( 'Discover premium wigs and beauty essentials curated for the modern woman.', 'nura-beauty' ),
-	),
-	array( // 1.136.0: the owner, from the NURA branding banners (owner request 14 Nov 2026).
+	array( // Owner slide (1.136.0), first since 1.137.0 (owner request 14 Nov 2026); preloaded as the LCP image.
 		'img'     => NURA_URI . 'assets/images/hero-owner.webp',
 		'class'   => 'nura-slide--owner',
 		'eyebrow' => __( 'NURA Beauty • Wig Shop & Installation Studio', 'nura-beauty' ),
 		'title'   => __( 'The House of Radiant Confidence', 'nura-beauty' ),
 		'sub'     => __( 'Wigs, installation and care from our studio at Stanbank House, Nairobi CBD.', 'nura-beauty' ),
+	),
+	array(
+		'img'     => NURA_URI . 'assets/images/hero.webp',
+		'eyebrow' => __( 'Premium Wigs • Beauty • Care • Confidence', 'nura-beauty' ),
+		'title'   => __( 'Wear Your Crown', 'nura-beauty' ),
+		'sub'     => __( 'Discover premium wigs and beauty essentials curated for the modern woman.', 'nura-beauty' ),
 	),
 	array(
 		'img'     => NURA_URI . 'assets/images/hero-2.webp',

@@ -12,7 +12,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.138.0-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.139.0-0E0E0E?style=for-the-badge)](nura-beauty)
 [![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.111.1-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
@@ -61,7 +61,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.138.0 | Parent theme |
+| `nura-beauty/` | 1.139.0 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
 | `nura-experience/` | 1.111.1 | Plugin |
 
@@ -169,6 +169,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.139.0 | - | Larger gold slider arrows at the sides on wide screens; owner's face clear of the text on phones |
 | 1.138.0 | - | Owner slide is now slide 1; every hero image keeps faces in view; phones show the picture on top and the text below |
 | 1.136.0 | - | Homepage slide 2: the owner's photo in the NURA black-and-gold banner style, 'The House of Radiant Confidence' |
 | - | 1.111.1 | Product pages no longer show 'N in stock' (just price and Add to bag); an item stopped by staff shows Out of stock in wp-admin and shop filters too |

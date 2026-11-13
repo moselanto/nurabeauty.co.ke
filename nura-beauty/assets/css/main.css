@@ -2032,3 +2032,17 @@ html body ul.products li.product[hidden],html body .woocommerce ul.products li.p
 .nura-slide__media::after{background:linear-gradient(180deg,rgba(14,14,14,0) 0%,rgba(14,14,14,.08) 34%,rgba(14,14,14,.78) 60%,rgba(14,14,14,.94) 100%)}
 .nura-slide__inner .nura-hero-h{font-size:clamp(1.7rem,7.4vw,2.1rem);line-height:1.12}
 }
+
+/* 1.139.0 slider arrows: larger gold-ringed buttons; on wide screens they sit at the left/right edges, mid-height */
+.nura-slider-nav{width:48px;height:48px;border:1px solid rgba(201,162,75,.7);background:rgba(14,14,14,.5);color:#e9cf8f;font-family:Georgia,"Times New Roman",serif;font-size:1.9rem;line-height:1;padding:0 0 4px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.nura-slider-nav:hover,.nura-slider-nav:focus-visible{background:var(--nura-gold);border-color:var(--nura-gold);color:var(--nura-ink)}
+.nura-slider-nav--prev{left:calc(50% - 96px)}
+.nura-slider-nav--next{left:calc(50% + 48px)}
+@media(min-width:1200px){
+.nura-slider-nav{top:50%;bottom:auto;transform:translateY(-50%);width:56px;height:56px;font-size:2.2rem;opacity:.85}
+.nura-slider-nav:hover,.nura-slider-nav:focus-visible{opacity:1;transform:translateY(-50%) scale(1.06)}
+.nura-slider-nav--prev{left:28px;right:auto}
+.nura-slider-nav--next{left:auto;right:28px}
+}
+/* 1.139.0 phones: owner photo sits higher so the whole face clears the heading */
+@media(max-width:768px){.nura-slide--owner .nura-slide__media{background-position:86% -70px}}

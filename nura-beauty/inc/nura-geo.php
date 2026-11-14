@@ -55,7 +55,7 @@ function nura_geo_llms( $full = false ) {
 	$o[] = '- Payment: M-Pesa, Visa and Mastercard (via Paystack), M-Pesa Buy Goods Till 1679269 for WhatsApp orders, bank transfer. Pay on delivery (cash or M-Pesa) within Nairobi CBD only; all other deliveries are paid in full, delivery fee included, before dispatch; customers collecting from the studio may pay in person. Countrywide delivery by shuttle/bus parcel, G4S, Wells Fargo or another courier; fee depends on location and the courier chosen.';
 	$o[] = '- Lipa Mdogo Mdogo (pay in instalments): 50% deposit, balance within 1 or 2 weeks, wig released when fully paid.';
 	$o[] = '- Returns: ' . nura_fact( 'returns_text' ) . ' Returns are accepted at the shop or by courier.';
-	$o[] = '- Services: wig consultation, fitting, installation, revamp, styling and bridal units at the studio (morning appointments, deposit secures a slot); free video and WhatsApp consultations.';
+	$o[] = '- Services: wig consultation, fitting, installation, revamp, styling and bridal units at the studio (appointments Monday to Saturday from 6:00am, before 8:00am +KSh 1,000; 50% deposit, minimum KSh 500, secures the slot); free video and WhatsApp consultations.';
 	$o[] = '- Every product states its hair type (Pure Human, Semi Human or luxury fibre) so shoppers know exactly what they are buying.';
 	$o[] = '';
 

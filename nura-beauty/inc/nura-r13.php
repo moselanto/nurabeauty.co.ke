@@ -129,3 +129,12 @@ function start(){var boxes=[].slice.call(d.querySelectorAll("[data-nura-lazysec]
 if(d.readyState==="loading"){d.addEventListener("DOMContentLoaded",start);}else{start();}})(document,window);</script>
 	<?php
 }, 30 );
+
+/* 1.158.1: desktop shop layout shift - the "Ask NURA Stylist" chip row grew from 55 to 66 px when the
+ * full stylesheet arrived, pushing the (now shorter, fully visible) 12-wig grid down (CLS 0.33). Reserve it. */
+add_action( 'wp_head', function () {
+	if ( ! nura_r13_on() || ! function_exists( 'is_shop' ) || ! ( is_shop() || is_product_taxonomy() || is_search() ) ) {
+		return;
+	}
+	echo '<style id="nura-r13-cls">@media(min-width:861px){.nura-shop-results .nura-ask-row,.nura-ask-row{min-height:66px;align-content:flex-start}}</style>' . "\n";
+}, 4 );

@@ -2,6 +2,24 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 21:45 EAT (Ray) - live PageSpeed Insights + Google Ads budget
+
+### Live PageSpeed Insights (pagespeed.web.dev, 14 Nov, theme 1.161.0)
+| Page | Mobile | Desktop | Sandbox phone today | Sandbox desktop today |
+|---|---|---|---|---|
+| /product/loose-wave-wig/ | **97** (FCP 1.1 s, LCP 2.1 s, TBT 0 ms, CLS 0.095) | **100** (LCP 0.3 s, CLS 0.011) | 91-95 | 99 |
+| /shop/ | **100** (FCP/LCP 1.1 s, TBT 0, CLS 0) | **100** (LCP 0.3 s) | 95-97 | 97-99 |
+| /hd-lace-vs-transparent-lace/ | **99** (FCP/LCP 0.9 s, TBT 0, SI 3.0 s) | **100** (LCP 0.3 s, CLS 0.036) | 98 | 99 |
+- Field data (real users / Core Web Vitals): "No Data" for all three on both devices (not enough Chrome traffic yet).
+- Google's live test scores higher than the sandbox Lighthouse (their test machine is faster); treat the sandbox as the stricter check.
+- Watch: product mobile CLS 0.095 is just under the 0.1 "good" limit.
+- Reports: product https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-loose-wave-wig/ryvdskbnla ; shop https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-shop/05h4zr0ov3 ; guide https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-hd-lace-vs-transparent-lace/1ckmqbb7h3
+
+### Google Ads (account 742-305-6156, currency KES, East Africa Time)
+- Owner budget: USD 5-10; **per day or per month still not confirmed** (owner's message on 14 Nov left the choice blank).
+- Billing not set up (no payment method). No campaigns. Conversion action: "[216e] Google for WooCommerce purchase action" (Primary). GA4 linked to Ads on 14 Nov.
+- Next: owner adds billing (Ads > Billing > Kenya > card), confirms per day/month; Ray builds a paused Search campaign (Nairobi, wigs/installation keywords) for owner review before any spend.
+
 ## UPDATE 14 Nov 2026 21:35 EAT (Ray) - QA, customer flows and speed rounds R9-R16 (theme 1.154.0 -> 1.161.0, plugin 1.113.2)
 
 ### Live now

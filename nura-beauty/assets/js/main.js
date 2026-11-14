@@ -876,12 +876,17 @@ r(function(){[].slice.call(d.querySelectorAll("[data-nura-tabs]")).forEach(funct
 	if(tabs.length<2){return;}
 	var sec=w.closest("section"),more=sec?sec.querySelector("[data-nura-tabs-viewall]"):null;
 	/* 1.125.2: hidden panels arrive as <template data-nura-panel>; add each one to the page the first time its tab is used. */
-	function load(p){if(!p||p.getAttribute("data-loaded")){return;}var tp=p.querySelector("template[data-nura-panel]");if(!tp){return;}p.setAttribute("data-loaded","1");
-		p.appendChild(d.importNode(tp.content,true));tp.parentNode.removeChild(tp);
+	function done(p){
 		[].forEach.call(p.querySelectorAll("img[data-src]:not(.nura-loop-2nd)"),function(im){var s=im.getAttribute("src")||"";if(!s||s.indexOf("data:")===0){im.src=im.getAttribute("data-src");var ss=im.getAttribute("data-srcset");if(ss){im.srcset=ss;}}});
 		if(window.nuraShuffle){window.nuraShuffle(p);}
 		try{d.dispatchEvent(new CustomEvent("nura:panel-loaded",{detail:{panel:p}}));}catch(err){}
 		if(window.jQuery){window.jQuery(d.body).trigger("nura_panel_loaded",[p]);}}
+	/* 1.156.0: hidden panels can also be fetched from the server the first time their tab is used. */
+	function load(p){if(!p||p.getAttribute("data-loaded")){return;}var src=p.querySelector("[data-nura-panel-src]");
+		if(src){p.setAttribute("data-loaded","1");p.setAttribute("aria-busy","true");fetch(src.getAttribute("data-nura-panel-src"),{credentials:"same-origin"}).then(function(r){return r.ok?r.text():"";}).then(function(h){if(h){src.insertAdjacentHTML("beforebegin",h);}src.parentNode.removeChild(src);p.removeAttribute("aria-busy");done(p);}).catch(function(){p.removeAttribute("data-loaded");p.removeAttribute("aria-busy");});return;}
+		var tp=p.querySelector("template[data-nura-panel]");if(!tp){return;}p.setAttribute("data-loaded","1");
+		p.appendChild(d.importNode(tp.content,true));tp.parentNode.removeChild(tp);done(p);return;
+	}
 	function sel(i){load(panels[i]);tabs.forEach(function(t,j){var on=i===j;t.setAttribute("aria-selected",on?"true":"false");t.tabIndex=on?0:-1;t.classList.toggle("is-active",on);if(panels[j]){panels[j].hidden=!on;}});
 		if(more&&tabs[i].getAttribute("data-viewall")){more.href=tabs[i].getAttribute("data-viewall");}}
 	tabs.forEach(function(t,i){

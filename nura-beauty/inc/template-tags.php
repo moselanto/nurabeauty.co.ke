@@ -450,6 +450,16 @@ if ( function_exists( 'nura_home_product_tabs' ) === false ) {
 		if ( empty( $tabs ) ) {
 			return;
 		}
+		if ( ! empty( $GLOBALS['nura_home_panel_only'] ) ) {
+			foreach ( $tabs as $i => $t ) {
+				if ( $GLOBALS['nura_home_panel_only'] === $t['key'] ) {
+					echo '<div data-nura-shuffle data-show="' . esc_attr( $limit ) . '"' . ( 'new' === $t['key'] ? ' data-keep-order' : '' ) . '>';
+					nura_home_product_grid( $t['ids'] );
+					echo '</div>';
+				}
+			}
+			return;
+		}
 		echo '<div class="nura-ptabs" data-nura-tabs>';
 		if ( count( $tabs ) > 1 ) {
 			echo '<div class="nura-ptabs__list" role="tablist" aria-label="' . esc_attr__( 'Product collections', 'nura-beauty' ) . '">';
@@ -475,6 +485,21 @@ if ( function_exists( 'nura_home_product_tabs' ) === false ) {
 			// 1.125.2: hidden panels ship inside <template> so the raw page lists each
 			// product card once; main.js adds a panel the first time its tab is opened.
 			$lazy = $i > 0 && apply_filters( 'nura_home_tabs_lazy', true );
+			$only = isset( $GLOBALS['nura_home_panel_only'] ) ? (string) $GLOBALS['nura_home_panel_only'] : '';
+			if ( '' !== $only ) {
+				// 1.156.0: panel endpoint - print just this tab's grid.
+				if ( $only === $t['key'] ) {
+					echo '<div data-nura-shuffle data-show="' . esc_attr( $limit ) . '"' . ( 'new' === $t['key'] ? ' data-keep-order' : '' ) . '>';
+					nura_home_product_grid( $t['ids'] );
+					echo '</div>';
+				}
+				continue;
+			}
+			if ( $lazy && apply_filters( 'nura_home_tabs_fetch', true ) ) {
+				// 1.156.0: hidden tabs are fetched only when opened (keeps ~86 KB of cards out of the homepage).
+				echo '<div data-nura-panel-src="' . esc_url( add_query_arg( array( 'nura_home_panel' => $t['key'], 'v' => NURA_VERSION ), home_url( '/' ) ) ) . '"></div></div>';
+				continue;
+			}
 			if ( $lazy ) {
 				echo '<template data-nura-panel>';
 			}

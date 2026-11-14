@@ -43,7 +43,7 @@ add_action( 'woocommerce_single_product_summary', function () {
 	}
 	$h = nura_pdp_cutoff_hour();
 	$t = ( $h > 12 ? ( $h - 12 ) . ' PM' : $h . ' AM' );
-	echo '<div class="nura-eta" data-nura-eta="' . (int) $h . '"><span class="nura-eta__dot" aria-hidden="true"></span><span class="nura-eta__t">' . esc_html( sprintf( 'Same-day delivery in Nairobi when you order before %s (Mon-Sat). Same-day dispatch countrywide.', $t ) ) . '</span></div>';
+	echo '<div class="nura-eta" data-nura-eta="' . (int) $h . '"><span class="nura-eta__dot" aria-hidden="true"></span><span class="nura-eta__w"><span class="nura-eta__s" aria-hidden="true">Order within 12 h 59 min for <b>same-day delivery in Nairobi</b>. Same-day dispatch countrywide.</span><span class="nura-eta__s" aria-hidden="true">Order now - delivered in Nairobi <b>on Saturday</b>. Same-day dispatch countrywide.</span><span class="nura-eta__t">' . esc_html( sprintf( 'Same-day delivery in Nairobi when you order before %s (Mon-Sat). Same-day dispatch countrywide.', $t ) ) . '</span></span></div>';
 }, 11 );
 
 /* 2. Payment row under the add-to-bag button. */

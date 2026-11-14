@@ -77,3 +77,14 @@ add_action( 'wp_footer', function () {
 		. "setTimeout(function(){[].forEach.call(d.querySelectorAll('.woocommerce-product-gallery'),function(g){if(g.querySelector('.flex-control-nav')||!g.querySelector('.woocommerce-product-gallery__image:nth-child(2)')){ready(g);}});},6000);}"
 		. "if(d.readyState==='loading'){d.addEventListener('DOMContentLoaded',bind);}else{bind();}})(window,document);</script>\n";
 }, 100 );
+
+/* 1.161.4: delivery line keeps one height from first paint. The countdown script
+   rewrites .nura-eta__t after load; hidden copies of the longest texts share the
+   same grid cell, so the box is already as tall as any text it can show and the
+   short description + Specifications box below never move. */
+add_action( 'wp_head', function () {
+	if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+		return;
+	}
+	echo '<style id="nura-r16-eta">.nura-eta__w{display:grid;flex:1 1 auto;min-width:0}.nura-eta__w>span{grid-area:1/1}.nura-eta__s{visibility:hidden;pointer-events:none;user-select:none}.woocommerce-product-details__short-description{overflow-anchor:none}</style>' . "\n";
+}, 3 );

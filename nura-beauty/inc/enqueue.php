@@ -84,7 +84,7 @@ add_action( 'admin_enqueue_scripts', 'nura_admin_assets' );
  * Preload the LCP hero image on the front page (improves Largest Contentful Paint).
  */
 function nura_preload_lcp() {
-	if ( ! is_front_page() ) {
+	if ( ! is_front_page() || ( function_exists( 'nura_speed_on' ) && nura_speed_on() ) ) { // 1.146.0: nura-speed.php preloads the right size per screen.
 		return;
 	}
 	$hero = function_exists( 'nura_opt' ) ? nura_opt( 'nura_hero_image' ) : '';

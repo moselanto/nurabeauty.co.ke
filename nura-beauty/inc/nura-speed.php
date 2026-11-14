@@ -31,7 +31,8 @@ add_action( 'wp_head', function () {
 	if ( ! nura_speed_on() || ! is_front_page() || ! defined( 'NURA_URI' ) ) {
 		return;
 	}
-	echo '<link rel="preload" as="image" href="' . esc_url( NURA_URI . 'assets/images/hero-owner.webp' ) . '" fetchpriority="high">' . "\n";
+	echo '<link rel="preload" as="image" href="' . esc_url( NURA_URI . 'assets/images/hero-owner-m.webp' ) . '" media="(max-width: 768px)" fetchpriority="high">' . "\n"; // 1.146.0: 800 px phone version (10 KB).
+	echo '<link rel="preload" as="image" href="' . esc_url( NURA_URI . 'assets/images/hero-owner.webp' ) . '" media="(min-width: 769px)" fetchpriority="high">' . "\n";
 }, 1 );
 
 /* 2. Contact Form 7 only where a CF7 form is used. */
@@ -118,6 +119,9 @@ add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment,
 		$attr['loading']       = 'lazy';
 		$attr['fetchpriority'] = 'low';
 	}
+	// 1.146.0: from the 5th card on, the picture waits until it is near the screen (main.js swaps data-src).
+	// Same files and quality; a blank placeholder with the same shape keeps the layout still.
+	$nlz = $seen > 4 && apply_filters( 'nura_js_lazy_cards', true ) && ! is_feed() && ! empty( $attr['src'] );
 	$attr['decoding'] = 'async';
 	if ( ! empty( $attr['srcset'] ) ) {
 		// Cards are 2 per row on phones, 3 on tablets, 4-5 on desktop.
@@ -133,6 +137,22 @@ add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment,
 		if ( $keep ) {
 			$attr['srcset'] = implode( ', ', $keep );
 		}
+	}
+	if ( $nlz ) {
+		$w = isset( $attr['width'] ) ? (int) $attr['width'] : 0;
+		$h = isset( $attr['height'] ) ? (int) $attr['height'] : 0;
+		if ( ! $w || ! $h ) {
+			$meta = wp_get_attachment_image_src( $attachment->ID, $size );
+			$w    = $meta ? (int) $meta[1] : 1;
+			$h    = $meta ? (int) $meta[2] : 1;
+		}
+		$attr['data-src'] = $attr['src'];
+		$attr['src']      = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 ' . max( 1, $w ) . ' ' . max( 1, $h ) . '%27/%3E';
+		if ( ! empty( $attr['srcset'] ) ) {
+			$attr['data-srcset'] = $attr['srcset'];
+			unset( $attr['srcset'] );
+		}
+		$attr['class'] = trim( ( isset( $attr['class'] ) ? $attr['class'] : '' ) . ' nura-lz' );
 	}
 	return $attr;
 }, 30, 3 );
@@ -298,7 +318,7 @@ add_action( 'wp_head', function () {
 	if ( ! nura_speed_on() || ! apply_filters( 'nura_delay_tags', true ) ) {
 		return;
 	}
-	echo "<script>(function(){var d=0;function go(){if(d)return;d=1;var seen={};document.querySelectorAll('script[data-nura-src]').forEach(function(o){var u=o.getAttribute('data-nura-src'),k=u.replace(/&amp;/g,'&');if(seen[k])return;seen[k]=1;var s=document.createElement('script');s.async=1;s.src=u;document.head.appendChild(s);});}['pointerdown','keydown','scroll','touchstart'].forEach(function(e){addEventListener(e,go,{once:true,passive:true});});addEventListener('load',function(){setTimeout(go," . (int) apply_filters( 'nura_delay_tags_timeout', 3500 ) . ");});})();</script>\n";
+	echo "<script>(function(){var d=0;function go(){if(d)return;d=1;var seen={};document.querySelectorAll('script[data-nura-src]').forEach(function(o){var u=o.getAttribute('data-nura-src'),k=u.replace(/&amp;/g,'&');if(seen[k])return;seen[k]=1;var s=document.createElement('script');s.async=1;s.src=u;document.head.appendChild(s);});}['pointerdown','keydown','touchstart','wheel'].forEach(function(e){addEventListener(e,go,{once:true,passive:true});});addEventListener('load',function(){addEventListener('scroll',go,{once:true,passive:true});setTimeout(go," . (int) apply_filters( 'nura_delay_tags_timeout', 3500 ) . ");});})();</script>\n";
 }, 0 );
 
 /* 14. WooCommerce/WordPress helper scripts out of the <head> (they were render-blocking). */

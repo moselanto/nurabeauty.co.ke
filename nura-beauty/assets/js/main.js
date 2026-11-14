@@ -960,7 +960,7 @@ f.addEventListener("submit",function(e){e.preventDefault();err.hidden=true;
 
 /* ===== NURA v1.40.0 - speed: lazy backgrounds, late hero slides, hover photos on demand ===== */
 (function(d,w){
-	function setBg(el){var u=el.getAttribute("data-bg")||el.getAttribute("data-hero-bg");if(u){el.style.backgroundImage="url('"+u+"')";el.removeAttribute("data-bg");el.removeAttribute("data-hero-bg");}}
+	function setBg(el){var m=el.getAttribute("data-hero-bg-m");var u=(m&&window.matchMedia&&matchMedia("(max-width:768px)").matches)?m:(el.getAttribute("data-bg")||el.getAttribute("data-hero-bg"));if(m){el.removeAttribute("data-hero-bg-m");}if(u){el.style.backgroundImage="url('"+u+"')";el.removeAttribute("data-bg");el.removeAttribute("data-hero-bg");}}
 	function run(){
 		var els=[].slice.call(d.querySelectorAll("[data-bg]"));
 		if("IntersectionObserver" in w){var io=new IntersectionObserver(function(en){en.forEach(function(e){if(e.isIntersecting){setBg(e.target);io.unobserve(e.target);}});},{rootMargin:"300px 0px"});els.forEach(function(el){io.observe(el);});}
@@ -1028,3 +1028,16 @@ f.addEventListener("submit",function(e){e.preventDefault();err.hidden=true;
 	window.nuraShuffle=function(root){(root||d).querySelectorAll("[data-nura-shuffle]").forEach(shuffleBox);};
 	window.nuraShuffle(d);
 })(document);
+
+
+/* v1.146.0 Below-the-fold product pictures load when they come near the screen (browsers otherwise fetch ~2500 px ahead on slow connections). */
+(function(w,d){
+	function swap(i){var s=i.getAttribute("data-srcset"),u=i.getAttribute("data-src");if(s){i.setAttribute("srcset",s);i.removeAttribute("data-srcset");}if(u){i.setAttribute("src",u);i.removeAttribute("data-src");}i.classList.remove("nura-lz");}
+	function all(){return d.querySelectorAll("img.nura-lz");}
+	if(!("IntersectionObserver" in w)){[].forEach.call(all(),swap);return;}
+	var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);swap(e.target);}});},{rootMargin:"400px 300px"});
+	function watch(){[].forEach.call(all(),function(i){if(!i.__nlz){i.__nlz=1;io.observe(i);}});}
+	watch();
+	if(w.MutationObserver){new MutationObserver(function(){watch();}).observe(d.documentElement,{childList:true,subtree:true});}
+	w.addEventListener("beforeprint",function(){[].forEach.call(all(),swap);});
+})(window,document);

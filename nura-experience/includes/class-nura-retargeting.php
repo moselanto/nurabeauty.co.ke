@@ -145,9 +145,11 @@ final class NURAX_Retargeting {
 		$ads   = $s['google_ads_id'];
 
 		// 1.73.3 speed: tracking libraries load after the visitor's first tap/scroll or 3.5 s.
+		// 1.111.2: the 3.5 s wait starts when the page has finished loading and scrolling only counts after that
+		// (an automatic scroll during loading was starting the 180 KB Meta script while the page was still loading).
 		// Calls made earlier are queued (fbq queue / dataLayer), so no event is lost.
 		if ( '' !== $pixel || '' !== $ga4 || '' !== $ads ) {
-			echo "<script>window.nuraLater=function(u){var q=window.__nuraQ=window.__nuraQ||[];q.push(u);if(window.__nuraGo){window.__nuraGo();return;}if(q.length>1)return;function go(){if(window.__nuraDone)return;window.__nuraDone=1;window.__nuraGo=function(){(window.__nuraQ||[]).splice(0).forEach(function(s){var e=document.createElement('script');e.async=1;e.src=s;document.head.appendChild(e);});};window.__nuraGo();}['pointerdown','keydown','scroll','touchstart'].forEach(function(ev){addEventListener(ev,go,{once:true,passive:true});});setTimeout(go,3500);};</script>\n";
+			echo "<script>window.nuraLater=function(u){var q=window.__nuraQ=window.__nuraQ||[];q.push(u);if(window.__nuraGo){window.__nuraGo();return;}if(q.length>1)return;function go(){if(window.__nuraDone)return;window.__nuraDone=1;window.__nuraGo=function(){(window.__nuraQ||[]).splice(0).forEach(function(s){var e=document.createElement('script');e.async=1;e.src=s;document.head.appendChild(e);});};window.__nuraGo();}['pointerdown','keydown','touchstart','wheel'].forEach(function(ev){addEventListener(ev,go,{once:true,passive:true});});function aft(){addEventListener('scroll',go,{once:true,passive:true});setTimeout(go,3500);}if(document.readyState==='complete'){aft();}else{addEventListener('load',aft);}};</script>\n";
 		}
 		if ( '' !== $pixel ) {
 			$pid = esc_js( $pixel );

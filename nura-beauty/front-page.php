@@ -153,7 +153,8 @@ $slides = array(
 			<?php $nura_total = count( $slides ); ?>
 			<?php foreach ( $slides as $i => $s ) : ?>
 				<div class="nura-slide<?php echo 0 === $i ? ' is-active' : ''; ?><?php echo ! empty( $s['class'] ) ? ' ' . esc_attr( $s['class'] ) : ''; ?>" role="group" aria-roledescription="<?php esc_attr_e( 'slide', 'nura-beauty' ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: 1: current slide number, 2: total slides. */ __( '%1$d of %2$d', 'nura-beauty' ), $i + 1, $nura_total ) ); ?>">
-					<?php if ( 0 === $i ) : ?><div class="nura-slide__media" style="background-image:url('<?php echo esc_url( $s['img'] ); ?>')" aria-hidden="true"></div><?php else : ?><div class="nura-slide__media" data-hero-bg="<?php echo esc_url( $s['img'] ); ?>" aria-hidden="true"></div><?php endif; ?>
+					<?php $nura_m = str_replace( '.webp', '-m.webp', $s['img'] ); // 1.146.0: 800 px phone version. ?>
+					<?php if ( 0 === $i ) : ?><div class="nura-slide__media nura-slide__media--lcp" style="background-image:url('<?php echo esc_url( $s['img'] ); ?>')" aria-hidden="true"></div><style>@media(max-width:768px){.nura-slide__media--lcp{background-image:url('<?php echo esc_url( $nura_m ); ?>')!important}}</style><?php else : ?><div class="nura-slide__media" data-hero-bg="<?php echo esc_url( $s['img'] ); ?>" data-hero-bg-m="<?php echo esc_url( $nura_m ); ?>" aria-hidden="true"></div><?php endif; ?>
 					<div class="nura-container nura-slide__inner">
 						<?php if ( 0 === $i ) : // One keyword H1 for the page; slide titles are H2 with the same look. ?>
 						<h1 class="nura-eyebrow nura-hero-kw"><?php esc_html_e( 'Wigs in Kenya - Human Hair, Lace Front & Glueless Wigs', 'nura-beauty' ); ?></h1>

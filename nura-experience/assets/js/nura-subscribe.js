@@ -1,4 +1,4 @@
-/* NURA "Join The House" - slim slide-in bar, pop-up on request + footer form (NURA Experience 1.79.2: closing it hides everything for 24 hours; 1.82.5: pop-up content in an inert template until tapped; 1.82.6: "0" settings fix). */
+/* NURA "Join The House" (1.112.1: tapping the bar opens the pop-up) - slim slide-in bar, pop-up on request + footer form (NURA Experience 1.79.2: closing it hides everything for 24 hours; 1.82.5: pop-up content in an inert template until tapped; 1.82.6: "0" settings fix). */
 (function () {
 'use strict';
 function nuraHouseInit() {
@@ -175,21 +175,9 @@ function nuraHouseInit() {
 	}
 	if (bar) {
 		bar.querySelector('[data-nhs-barclose]').addEventListener('click', function () { hideBar(true); });
-		var bf = bar.querySelector('[data-nhs-barform]'), bm = bar.querySelector('[data-nhs-barmsg]');
-		bf.addEventListener('submit', function (e) {
-			e.preventDefault(); bm.hidden = true; bm.classList.remove('is-err');
-			var v = bf.email.value.trim();
-			if (!validEmail(v)) { bm.textContent = 'Please enter a valid e-mail address.'; bm.classList.add('is-err'); bm.hidden = false; bf.email.focus(); return; }
-			var bb = bf.querySelector('button'); bb.disabled = true;
-			post({ email: v, website: bf.website.value }).then(function (r) {
-				bb.disabled = false;
-				if (!r || !r.success) { bm.textContent = (r && r.data && r.data.message) || 'Please try again.'; bm.classList.add('is-err'); bm.hidden = false; return; }
-				setC(KEY, 'sub', 365); track('bar');
-				bm.textContent = (r.data && r.data.code) ? 'Welcome to the house! Your code: ' + r.data.code + ' (also in your inbox).' : 'Welcome to the house! Check your inbox.';
-				bf.hidden = true; bm.hidden = false;
-				setTimeout(function () { hideBar(false); }, 9000);
-			}).catch(function () { bb.disabled = false; bm.textContent = 'Network problem. Please try again.'; bm.classList.add('is-err'); bm.hidden = false; });
-		});
+		// 1.112.1: tapping the bar opens the Join The House pop-up (handled by the [data-nhs-open] listeners); the bar slides away.
+		var cta = bar.querySelector('[data-nhs-barcta]');
+		if (cta) { cta.addEventListener('click', function (ev) { if (ev.isTrusted) { window.__nhsGo = 1; hideBar(false); } }); }
 	}
 
 	if (state()) { return; }

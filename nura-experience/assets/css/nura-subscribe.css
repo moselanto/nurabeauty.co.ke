@@ -177,3 +177,13 @@ html.nhs-lock{overflow:hidden}
 	html.nhs-bar-on .nurax-stylist{bottom:96px}
 }
 @media (prefers-reduced-motion:reduce){.nhs-bar{transition:none}}
+
+/* 1.112.1: the bar is one tap target that opens the pop-up */
+.nhs-bar{grid-template-areas:"cta x";align-items:center}
+.nhs-bar__cta{grid-area:cta;display:flex;align-items:center;gap:12px;min-width:0;width:100%;margin:0;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.nhs-bar__cta .nhs-bar__txt{flex:1;min-width:0;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.nhs-bar__go{flex:none;height:38px;display:inline-flex;align-items:center;padding:0 16px;border-radius:8px;background:#C9A24B;color:#0E0E0E;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.nhs-bar__cta:hover .nhs-bar__go,.nhs-bar__cta:focus-visible .nhs-bar__go{background:#E4C983}
+.nhs-bar__cta:focus-visible{outline:2px solid #E4C983;outline-offset:4px;border-radius:8px}
+.nhs-bar__x{align-self:center}
+@media (max-width:600px){.nhs-bar__cta{gap:8px}.nhs-bar__go{height:34px;padding:0 10px;font-size:10.5px}}

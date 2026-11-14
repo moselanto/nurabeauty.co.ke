@@ -156,7 +156,7 @@ class NURAX_Desk_Appts {
 		$cut  = self::cutoff();
 		while ( $t && $end && $t <= $end && count( $out ) < 100 ) {
 			if ( gmdate( 'H:i', $t ) >= $cut ) {
-				break; // Morning-only bookings.
+				break; // Optional cut-off (23:59 = none).
 			}
 			$out[] = gmdate( 'H:i', $t );
 			$t    += $step;
@@ -190,8 +190,39 @@ class NURAX_Desk_Appts {
 		return $out;
 	}
 
-	/** Deposit to secure a slot (0 when deposits are off: no M-Pesa details). */
-	public static function deposit_for( $service, $type = 'studio' ) {
+	/** 1.113.0: studio bookings before this time pay the early-booking fee. */
+	public static function early_before() {
+		$s = NURAX_Desk::settings();
+		return isset( $s['appt_early_before'] ) && preg_match( '/^\d{2}:\d{2}$/', (string) $s['appt_early_before'] ) ? $s['appt_early_before'] : '08:00';
+	}
+
+	public static function early_fee() {
+		$s = NURAX_Desk::settings();
+		return max( 0, (int) ( isset( $s['appt_early_fee'] ) ? $s['appt_early_fee'] : 1000 ) );
+	}
+
+	/** Early-booking fee for a studio time ('' time = none). */
+	public static function early_fee_for( $type, $time ) {
+		return ( 'studio' === $type && preg_match( '/^\d{2}:\d{2}$/', (string) $time ) && $time < self::early_before() ) ? self::early_fee() : 0;
+	}
+
+	/** Every time on the booking form (first to last slot). */
+	public static function all_times() {
+		$s    = NURAX_Desk::settings();
+		$out  = array();
+		$step = max( 10, (int) $s['appt_step'] ) * 60;
+		$t    = strtotime( '2000-01-01 ' . $s['appt_open'] );
+		$end  = strtotime( '2000-01-01 ' . $s['appt_close'] );
+		$cut  = self::cutoff();
+		while ( $t && $end && $t <= $end && count( $out ) < 100 && gmdate( 'H:i', $t ) < $cut ) {
+			$out[] = gmdate( 'H:i', $t );
+			$t    += $step;
+		}
+		return $out;
+	}
+
+	/** Deposit to secure a slot (0 when deposits are off: no M-Pesa details). 1.113.0: plus the early fee for a time before 8:00. */
+	public static function deposit_for( $service, $type = 'studio', $time = '' ) {
 		$s = NURAX_Desk::settings();
 		if ( 'studio' !== $type || '' === trim( (string) $s['mpesa_details'] ) ) {
 			return 0;
@@ -200,7 +231,7 @@ class NURAX_Desk_Appts {
 		$min = max( 0, (int) ( isset( $s['appt_dep_min'] ) ? $s['appt_dep_min'] : 500 ) );
 		$p   = self::prices();
 		$p   = isset( $p[ $service ] ) ? $p[ $service ] : 0;
-		return (int) max( $min, ceil( $p * $pct / 100 ) );
+		return (int) max( $min, ceil( $p * $pct / 100 ) ) + self::early_fee_for( $type, $time );
 	}
 
 	public static function terms_list() {
@@ -212,16 +243,17 @@ class NURAX_Desk_Appts {
 		$g   = self::grace();
 		$pct = (int) ( isset( $s['appt_dep_pct'] ) ? $s['appt_dep_pct'] : 50 );
 		$min = (int) ( isset( $s['appt_dep_min'] ) ? $s['appt_dep_min'] : 500 );
-		$cut = NURAX_Desk::time_label( self::cutoff() );
+		$eb  = NURAX_Desk::time_label( self::early_before() );
+		$ef  = self::early_fee();
+		// 1.113.0 policy (owner, 14 Nov 2026).
 		return array(
-			'Studio appointments are available in the morning only, with the last booking before ' . $cut . '. Afternoons are for walk-in clients.',
-			'A deposit of ' . $pct . '% of the service price' . ( $min > 0 ? ' (minimum KSh ' . number_format( $min ) . ')' : '' ) . ' secures a studio slot. Video and WhatsApp consultations need no deposit. Your booking is confirmed only once we have verified your M-Pesa payment. An unverified booking is released after ' . self::hold_hours() . ' hours.',
-			'Your deposit is deducted from your final bill. For a free consultation, it is credited to the service you take when you attend. The deposit is non-refundable if you do not attend your booked appointment.',
-			'Please arrive on time. If you arrive early, we will attend to you at your booked time. A client already being served will not be interrupted.',
-			'We hold your slot for ' . $g . ' minutes after your booked time. After that the slot is released and you will be served as a walk-in when the next stylist is free. This may not be on the same day.',
-			'Walk-in clients are served only in free time between booked appointments. A booked client who arrives on time is always served first.',
+			'Studio appointments can be booked any time the shop is open.' . ( $ef > 0 ? ' Early appointments before ' . $eb . ' have an extra charge of KSh ' . number_format( $ef ) . ', paid in advance with the deposit.' : '' ),
+			'A deposit of ' . $pct . '% of the service price' . ( $min > 0 ? ' (minimum KSh ' . number_format( $min ) . ')' : '' ) . ' is paid in advance to secure a studio slot. Video and WhatsApp consultations need no deposit. Your booking is confirmed only once we have verified your M-Pesa payment. An unverified booking is released after ' . self::hold_hours() . ' hours.',
+			'Your deposit is deducted from your final bill. For a free consultation, it is credited to the service you take when you attend.',
+			'Please arrive on time. If you arrive late and another client is already being attended to, you will wait until she is finished. The deposit is non-refundable.',
+			'If you do not turn up for your appointment, the deposit' . ( $ef > 0 ? ' and any early-booking fee are' : ' is' ) . ' non-refundable.',
+			'If you arrive early, we will attend to you at your booked time. A client already being served will not be interrupted.',
 			'To reschedule, let us know at least 24 hours before your appointment. Your deposit moves to the new date once.',
-			'If you cancel with less than 24 hours notice, or do not come, the deposit is not refunded.',
 			'By booking, you agree to these terms.',
 		);
 	}
@@ -428,7 +460,7 @@ class NURAX_Desk_Appts {
 			'',
 			'Ref: ' . $a->ref,
 			( ! empty( $a->deposit ) && (float) $a->deposit > 0 ? ( 'verified' === $a->deposit_status ? 'Deposit of ' . NURAX_Desk::money( $a->deposit ) . ' received, thank you. It comes off your final bill.' : 'Please pay the ' . NURAX_Desk::money( $a->deposit ) . ' deposit to ' . NURAX_Desk::settings()['mpesa_details'] . ' to keep this slot.' ) : '' ),
-			'Please arrive on time. We hold your slot for ' . self::grace() . ' minutes. After that it goes to the next client and you are served as a walk-in.',
+			'Please arrive on time. If you are late and another client is already being attended to, you will wait until she is finished. The deposit is non-refundable if you are late or do not turn up.',
 			'Need to change the time? Reply at least 24 hours before. We look forward to seeing you.',
 		) );
 	}

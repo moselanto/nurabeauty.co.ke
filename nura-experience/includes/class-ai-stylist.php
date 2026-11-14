@@ -347,9 +347,9 @@ class NURAX_AI_Stylist {
 				return new WP_Error( 'nurax_dupe', __( 'You already have a booking on that day. Message us on WhatsApp to change it.', 'nura-experience' ), array( 'status' => 409 ) );
 			}
 			if ( $time >= NURAX_Desk_Appts::cutoff() ) {
-				return new WP_Error( 'nurax_morning', sprintf( __( 'Studio bookings are mornings only, before %s. Please choose an earlier time, or walk in during the afternoon.', 'nura-experience' ), NURAX_Desk::time_label( NURAX_Desk_Appts::cutoff() ) ), array( 'status' => 409 ) );
+				return new WP_Error( 'nurax_morning', __( 'Please choose one of the times in the list.', 'nura-experience' ), array( 'status' => 409 ) );
 			}
-			$deposit = NURAX_Desk_Appts::deposit_for( $service, $type );
+			$deposit = NURAX_Desk_Appts::deposit_for( $service, $type, $time ); // 1.113.0: includes the early-booking fee before 8:00.
 			// 1.95.0: deposit paid through the M-Pesa prompt (Paystack), verified on the server.
 			$stk_ref = sanitize_text_field( (string) $req->get_param( 'stk_ref' ) );
 			$bk_ref  = strtoupper( sanitize_text_field( (string) $req->get_param( 'bk_ref' ) ) );

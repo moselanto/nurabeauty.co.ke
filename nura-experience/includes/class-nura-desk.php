@@ -233,11 +233,13 @@ class NURAX_Desk {
 			'cust_email'    => 0,
 			'appt_capacity' => 2,
 			'appt_days'     => '1,2,3,4,5,6',
-			'appt_open'     => '09:00',
-			'appt_close'    => '11:30',
+			'appt_open'     => '06:00',
+			'appt_close'    => '18:30',
 			'appt_step'     => 30,
 			'appt_duration' => 60,
-			'appt_cutoff'   => '12:00',
+			'appt_cutoff'   => '23:59',
+			'appt_early_before' => '08:00', // 1.113.0: bookings before this time pay the early fee.
+			'appt_early_fee'    => 1000,
 			'appt_dep_pct'  => 50,
 			'appt_dep_min'  => 500,
 			'appt_grace'    => 15,
@@ -279,6 +281,20 @@ class NURAX_Desk {
 	public static function settings() {
 		$o = get_option( self::OPT, array() );
 		$o = is_array( $o ) ? $o : array();
+		// 1.113.0 booking policy (owner, 14 Nov 2026): book any time the shop is open, early bookings before 8:00 am
+		// pay KSh 1,000 extra, 50% deposit (minimum KSh 500). Applied once to saved settings.
+		if ( '2026-11-anytime' !== get_option( 'nurax_appt_policy' ) ) {
+			$o['appt_open']         = '06:00';
+			$o['appt_close']        = '18:30';
+			$o['appt_cutoff']       = '23:59';
+			$o['appt_early_before'] = '08:00';
+			$o['appt_early_fee']    = 1000;
+			$o['appt_dep_pct']      = 50;
+			$o['appt_dep_min']      = 500;
+			$o['appt_terms']        = ''; // use the built-in terms that follow the new policy.
+			update_option( self::OPT, $o );
+			update_option( 'nurax_appt_policy', '2026-11-anytime', true );
+		}
 		// 1.71.0 policy: Lipa Mdogo Mdogo is 50% deposit, 2 weeks maximum. Applied once to saved settings.
 		if ( '2w50' !== get_option( 'nurax_lmm_policy' ) ) {
 			$o['lmm_deposit'] = max( 50, isset( $o['lmm_deposit'] ) ? (int) $o['lmm_deposit'] : 50 );
@@ -776,7 +792,9 @@ class NURAX_Desk {
 		self::field_num( 'appt_step', 'Minutes between slots', $s['appt_step'], '' );
 		self::field_num( 'appt_duration', 'Default appointment length (minutes)', $s['appt_duration'], '' );
 		self::field_num( 'appt_capacity', 'Clients per time slot', $s['appt_capacity'], 'When a time is full the website asks the client to choose another time.' );
-		self::field_text( 'appt_cutoff', 'Bookings only before', $s['appt_cutoff'], 'Morning-only studio: no booking slot at or after this time (default 12:00 noon). Afternoons are for walk-ins.', 'time' );
+		self::field_text( 'appt_cutoff', 'Bookings only before', $s['appt_cutoff'], 'No booking slot at or after this time. 23:59 = bookings any time the shop is open (owner policy, Nov 2026).', 'time' );
+		self::field_text( 'appt_early_before', 'Early booking before', $s['appt_early_before'], 'Studio bookings before this time pay the early-booking fee (default 08:00).', 'time' );
+		self::field_num( 'appt_early_fee', 'Early booking fee (KSh)', $s['appt_early_fee'], 'Paid in advance with the deposit, non-refundable. Set 0 for no fee.' );
 		self::field_num( 'appt_dep_pct', 'Booking deposit (% of service price)', $s['appt_dep_pct'], 'Clients pay this by M-Pesa to secure the slot. It is deducted from the final bill.' );
 		self::field_num( 'appt_dep_min', 'Minimum booking deposit (KSh)', $s['appt_dep_min'], 'Used when a service has no price below, or 50% comes to less than this. Set 0 for no minimum.' );
 		self::field_text( 'appt_prices', 'Service prices (KSh)', $s['appt_prices'], 'Used to work out the deposit, e.g. fitting=2000, installation=3500, revamp=1500, bridal=10000. Services: consultation, fitting, installation, revamp, bridal.' );
@@ -896,7 +914,7 @@ class NURAX_Desk {
 		$in  = wp_unslash( $_POST ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$d   = self::defaults();
 		$out = array();
-		foreach ( array( 'lmm_min', 'lmm_deposit', 'lmm_grace', 'appt_capacity', 'appt_step', 'appt_duration', 'appt_dep_pct', 'appt_dep_min', 'appt_grace', 'appt_hold' ) as $k ) {
+		foreach ( array( 'lmm_min', 'lmm_deposit', 'lmm_grace', 'appt_capacity', 'appt_step', 'appt_duration', 'appt_dep_pct', 'appt_dep_min', 'appt_grace', 'appt_hold', 'appt_early_fee' ) as $k ) {
 			$out[ $k ] = isset( $in[ $k ] ) ? absint( $in[ $k ] ) : $d[ $k ];
 		}
 		$out['lmm_deposit']   = min( 100, $out['lmm_deposit'] );
@@ -930,6 +948,7 @@ class NURAX_Desk {
 		$out['appt_dep_pct'] = min( 100, $out['appt_dep_pct'] );
 		$out['appt_grace']   = min( 120, $out['appt_grace'] );
 		$out['appt_hold']    = min( 48, max( 1, $out['appt_hold'] ) );
+		$out['appt_early_before'] = isset( $in['appt_early_before'] ) && preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $in['appt_early_before'] ) ? $in['appt_early_before'] : $d['appt_early_before'];
 		$out['appt_cutoff']  = isset( $in['appt_cutoff'] ) && preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $in['appt_cutoff'] ) ? $in['appt_cutoff'] : $d['appt_cutoff'];
 		$out['appt_prices']  = isset( $in['appt_prices'] ) ? mb_substr( sanitize_text_field( $in['appt_prices'] ), 0, 500 ) : $d['appt_prices'];
 		$out['appt_terms']   = isset( $in['appt_terms'] ) ? mb_substr( sanitize_textarea_field( $in['appt_terms'] ), 0, 4000 ) : '';

@@ -143,13 +143,11 @@ class NURAX_Desk_Sub {
 		</div>
 		<button type="button" class="nhs-tab" data-nhs-tab hidden><span class="nhs-tab__dot" aria-hidden="true"></span><?php echo esc_html( $coupon > 0 ? sprintf( __( 'Get %s off', 'nura-experience' ), NURAX_Desk::money( $coupon ) ) : __( 'Join The House', 'nura-experience' ) ); ?></button>
 		<div class="nhs-bar" data-nhs-bar role="region" aria-label="<?php esc_attr_e( 'Join The House', 'nura-experience' ); ?>" hidden>
-			<p class="nhs-bar__txt"><strong><?php echo esc_html( $s['sub_title'] ); ?></strong> <span><?php echo esc_html( $coupon > 0 ? sprintf( __( '%s off your first wig, plus new drops first.', 'nura-experience' ), NURAX_Desk::money( $coupon ) ) : __( 'New drops, restocks and members-only offers first.', 'nura-experience' ) ); ?></span></p>
-			<form class="nhs-bar__form" data-nhs-barform novalidate>
-				<input type="email" name="email" autocomplete="email" inputmode="email" placeholder="<?php esc_attr_e( 'Your e-mail', 'nura-experience' ); ?>" aria-label="<?php esc_attr_e( 'E-mail address', 'nura-experience' ); ?>" required>
-				<input type="text" name="website" class="nhs__hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-				<button type="submit"><?php echo esc_html( $coupon > 0 ? __( 'Get code', 'nura-experience' ) : __( 'Join', 'nura-experience' ) ); ?></button>
-			</form>
-			<p class="nhs-bar__msg" data-nhs-barmsg role="status" hidden></p>
+			<?php // 1.112.1: the whole bar is one button that opens the Join The House pop-up (owner, 14 Nov 2026) - no inline e-mail form. ?>
+			<button type="button" class="nhs-bar__cta" data-nhs-open data-nhs-barcta>
+				<span class="nhs-bar__txt"><strong><?php echo esc_html( $s['sub_title'] ); ?></strong> <span><?php echo esc_html( $coupon > 0 ? sprintf( __( '%s off your first wig, plus new drops first.', 'nura-experience' ), NURAX_Desk::money( $coupon ) ) : __( 'New drops, restocks and members-only offers first.', 'nura-experience' ) ); ?></span></span>
+				<span class="nhs-bar__go"><?php echo esc_html( $coupon > 0 ? __( 'Get my code', 'nura-experience' ) : __( 'Join The House', 'nura-experience' ) ); ?></span>
+			</button>
 			<button type="button" class="nhs-bar__x" data-nhs-barclose aria-label="<?php esc_attr_e( 'Close', 'nura-experience' ); ?>"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
 		</div>
 		<?php

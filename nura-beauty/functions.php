@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.157.0' );
+define( 'NURA_VERSION', '1.158.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -111,6 +111,7 @@ nura_require( 'nura-r9' ); // 1.154.0: QA fixes (clean sitemap, direct guide lin
 nura_require( 'nura-r10' ); // 1.155.0: tracking tags and helper scripts on first interaction only (owner approved).
 nura_require( 'nura-r11' ); // 1.156.0: hidden homepage tabs fetched on open.
 nura_require( 'nura-r12' ); // 1.157.0: block styling only where blocks are used; leaner product cards.
+nura_require( 'nura-r13' ); // 1.158.0: shop 12 per page + load on scroll; product sections below the fold load on scroll.
 
 /**
  * Contact page design (v1.45.0): use page-contact.php for the contact page

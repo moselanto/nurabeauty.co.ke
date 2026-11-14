@@ -136,5 +136,5 @@ add_action( 'wp_head', function () {
 	if ( ! nura_r13_on() || ! function_exists( 'is_shop' ) || ! ( is_shop() || is_product_taxonomy() || is_search() ) ) {
 		return;
 	}
-	echo '<style id="nura-r13-cls">@media(min-width:861px){.nura-shop-results .nura-ask-row,.nura-ask-row{min-height:69px;align-content:flex-start}}</style>' . "\n";
+	echo '<style id="nura-r13-cls">@media(min-width:861px){.nura-shop-results .nura-ask-row,.nura-ask-row{min-height:69px;align-content:flex-start;margin-top:14px!important;margin-bottom:14px!important}}</style>' . "\n";
 }, 4 );

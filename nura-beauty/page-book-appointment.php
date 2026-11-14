@@ -120,7 +120,7 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 							<label><input type="radio" name="type" value="video"><span><?php esc_html_e( 'Video call', 'nura-beauty' ); ?></span></label>
 							<label><input type="radio" name="type" value="whatsapp"><span><?php esc_html_e( 'WhatsApp', 'nura-beauty' ); ?></span></label>
 						</div>
-						<p class="nura-bk__typehint"><?php esc_html_e( 'Studio visit: morning slots (9:00 to 11:30 am), secured with a small deposit that comes off your bill. Video call or WhatsApp: free, no deposit. Afternoons are for walk-ins.', 'nura-beauty' ); ?></p>
+						<p class="nura-bk__typehint"><?php esc_html_e( 'Studio visit: any time the shop is open, secured with a 50% deposit (minimum KSh 500) that comes off your bill. Before 8:00 am: KSh 1,000 extra, paid in advance. Video call or WhatsApp: free, no deposit.', 'nura-beauty' ); ?></p>
 					</div>
 					<div class="nura-bk__row">
 						<div class="nura-bk__f">
@@ -131,9 +131,9 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 							<label for="nb-time"><?php esc_html_e( 'Time', 'nura-beauty' ); ?></label>
 							<select id="nb-time" name="time" required>
 								<option value=""><?php esc_html_e( 'Choose', 'nura-beauty' ); ?></option>
-								<?php $nb_cut = class_exists( 'NURAX_Desk_Appts' ) ? NURAX_Desk_Appts::cutoff() : '12:00'; for ( $h = 8; $h <= 11; $h++ ) : foreach ( array( '00', '30' ) as $m ) : $v = sprintf( '%02d:%s', $h, $m ); if ( $v < '09:00' || $v >= $nb_cut ) { continue; } ?>
-									<option value="<?php echo esc_attr( $v ); ?>"><?php echo esc_html( date_i18n( 'g:i a', strtotime( '2000-01-01 ' . $v ) ) ); ?></option>
-								<?php endforeach; endfor; ?>
+								<?php $nb_times = class_exists( 'NURAX_Desk_Appts' ) && method_exists( 'NURAX_Desk_Appts', 'all_times' ) ? NURAX_Desk_Appts::all_times() : array(); $nb_eb = class_exists( 'NURAX_Desk_Appts' ) && method_exists( 'NURAX_Desk_Appts', 'early_before' ) ? NURAX_Desk_Appts::early_before() : '08:00'; $nb_ef = class_exists( 'NURAX_Desk_Appts' ) && method_exists( 'NURAX_Desk_Appts', 'early_fee' ) ? NURAX_Desk_Appts::early_fee() : 0; foreach ( $nb_times as $v ) : ?>
+									<option value="<?php echo esc_attr( $v ); ?>"><?php echo esc_html( date_i18n( 'g:i a', strtotime( '2000-01-01 ' . $v ) ) . ( $nb_ef > 0 && $v < $nb_eb ? ' (early, +KSh ' . number_format( $nb_ef ) . ')' : '' ) ); ?></option>
+								<?php endforeach; ?>
 							</select>
 						</div>
 					</div>
@@ -152,10 +152,10 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 					}
 					$nb_has_dep = $nb_deps && max( $nb_deps ) > 0;
 					?>
-					<p class="nura-bk__morning"><?php esc_html_e( 'Studio bookings are mornings only. Afternoons are for walk-ins.', 'nura-beauty' ); ?></p>
+					<p class="nura-bk__morning"><?php esc_html_e( 'Late and the stylist is with another client? You wait until she is finished. The deposit is non-refundable if you are late or do not turn up.', 'nura-beauty' ); ?></p>
 					<?php if ( $nb_has_dep ) : ?>
 					<?php $nb_stk = class_exists( 'NURAX_WA_Order' ) && method_exists( 'NURAX_WA_Order', 'stk_enabled' ) && NURAX_WA_Order::stk_enabled(); ?>
-					<div class="nura-bk__dep" data-deps="<?php echo esc_attr( wp_json_encode( $nb_deps ) ); ?>"<?php echo $nb_stk ? ' data-stk="' . esc_url( admin_url( 'admin-ajax.php' ) ) . '"' : ''; ?>>
+					<div class="nura-bk__dep" data-deps="<?php echo esc_attr( wp_json_encode( $nb_deps ) ); ?>" data-early-before="<?php echo esc_attr( isset( $nb_eb ) ? $nb_eb : '08:00' ); ?>" data-early-fee="<?php echo esc_attr( isset( $nb_ef ) ? (int) $nb_ef : 0 ); ?>"<?php echo $nb_stk ? ' data-stk="' . esc_url( admin_url( 'admin-ajax.php' ) ) . '"' : ''; ?>>
 						<p class="nura-bk__dep-h"><?php esc_html_e( 'Secure your slot with a deposit of', 'nura-beauty' ); ?> <strong data-dep-amt></strong></p>
 						<?php if ( $nb_stk ) : ?>
 						<div class="nura-bk__stk">

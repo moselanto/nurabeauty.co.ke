@@ -1396,7 +1396,8 @@ class NURAX_WA_Order {
 		if ( ! preg_match( '/^BK-\d{6}-[A-Z0-9]{4}$/', $ref ) ) {
 			wp_send_json_error( array( 'message' => 'ref' ), 400 );
 		}
-		$deposit = (int) NURAX_Desk_Appts::deposit_for( $service, $type );
+		$bk_time = isset( $in['time'] ) && preg_match( '/^\d{2}:\d{2}$/', (string) $in['time'] ) ? (string) $in['time'] : '';
+		$deposit = (int) NURAX_Desk_Appts::deposit_for( $service, $type, $bk_time ); // 1.113.0: early fee included.
 		if ( $deposit <= 0 ) {
 			wp_send_json_error( array( 'message' => __( 'No deposit is needed for this booking.', 'nura-experience' ) ), 400 );
 		}

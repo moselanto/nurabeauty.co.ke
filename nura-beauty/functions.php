@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.160.0' );
+define( 'NURA_VERSION', '1.161.0' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -114,6 +114,7 @@ nura_require( 'nura-r12' ); // 1.157.0: block styling only where blocks are used
 nura_require( 'nura-r13' ); // 1.158.0: shop 12 per page + load on scroll; product sections below the fold load on scroll.
 nura_require( 'nura-r14' ); // 1.159.0: shop chip styles in head; compact swatches and specs on product pages.
 nura_require( 'nura-r15' ); // 1.160.0: product price/guide-links shift fix; shared WhatsApp icon in cards; offscreen cards not laid out.
+nura_require( 'nura-r16' ); // 1.161.0: product page on phones - sticky bar after load, lower panels/tabs/footer drawn when scrolled near.
 
 /**
  * Contact page design (v1.45.0): use page-contact.php for the contact page

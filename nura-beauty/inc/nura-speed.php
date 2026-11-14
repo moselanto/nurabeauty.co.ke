@@ -493,6 +493,11 @@ add_filter( 'style_loader_tag', function ( $tag, $handle, $href ) {
 	if ( in_array( $handle, (array) apply_filters( 'nura_critical_keep_blocking', array() ), true ) ) {
 		return $tag;
 	}
+	// 1.146.1: already non-blocking (section 10 prints media="print" + onload) - leave it alone. Adding a second
+	// onload made the browser keep media="print", so e.g. the WhatsApp order pop-up CSS never applied.
+	if ( false !== strpos( $tag, 'onload=' ) ) {
+		return $tag;
+	}
 	$async = preg_replace( "/rel=(['\"])stylesheet\\1/", 'rel="preload" as="style" onload="this.onload=null;this.rel=\'stylesheet\'"', $tag, 1 );
 	return $async . '<noscript>' . trim( $tag ) . "</noscript>\n";
 }, 40, 3 );

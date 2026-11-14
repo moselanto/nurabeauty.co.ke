@@ -2,6 +2,13 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 22:15 EAT (Ray) - product page phone layout shift fixed (theme 1.161.1)
+
+- Cause (PageSpeed Insights "Layout shift culprits", phone): `div.pswp__top-bar` scored 0.095. The WooCommerce PhotoSwipe lightbox markup (`div.pswp`) sits in the footer and its stylesheet loads without blocking the first paint, so for a moment the closed lightbox toolbar was laid out in the page, then removed.
+- Fix (`inc/nura-r16.php`, 1.161.1): head CSS `.pswp{display:none}.pswp.pswp--open{display:block}` on product pages (the same rule PhotoSwipe's own CSS applies), so the closed lightbox never takes space. Lightbox still opens normally.
+- Live PageSpeed Insights after fix (/product/loose-wave-wig/, 22:09): **Mobile 96, CLS 0** (was 0.095), LCP 2.7 s, TBT 0 ms. **Desktop 100, CLS 0.024** (specs section 0.022, Ask NURA Stylist button 0.002). Reports: https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-loose-wave-wig/69y4hdlu9w
+- PSI still flags product photos as "Unsized image element" although they carry width/height (572x1024); they cause no measured shift. Montserrat web font is listed on desktop, no score.
+
 ## UPDATE 14 Nov 2026 21:45 EAT (Ray) - live PageSpeed Insights + Google Ads budget
 
 ### Live PageSpeed Insights (pagespeed.web.dev, 14 Nov, theme 1.161.0)

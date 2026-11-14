@@ -2,6 +2,41 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 21:35 EAT (Ray) - QA, customer flows and speed rounds R9-R16 (theme 1.154.0 -> 1.161.0, plugin 1.113.2)
+
+### Live now
+- Theme **1.161.0**, plugin **1.113.2**. Every release was committed to main before upload; Purge All after each.
+
+### QA / fixes
+- 1.154.0 (R9, `inc/nura-r9.php`): sitemap drops cart/checkout/my-account/delivery/virtual-try-on; 4 guide links pointed at redirected products now go direct; phone tables scroll inside their box; bundle-bar button wraps; header guards `nura_announcement_bar()`.
+- Plugin 1.113.1/1.113.2: Payment plans "Due this week" counts only active plans; activity-log heading "Activity log (latest N)".
+- Shop filters: WooCommerce > Settings > Products > Advanced > "Enable table usage" (attribute lookup table) switched OFF because the table was stale (Pure Human showed 1 of 6). Filters now match their counts.
+- Pixie Water Curl (13x4 Frontal) set to Pure Human everywhere; title "Pixie Water Curl Human Hair Wig (13x4 Frontal)".
+- Customer flows tested on phone (390 px) and desktop (1366 px), 14 Nov: add to bag (shop + product), cart drawer, cart, block checkout (fields, Paystack + bank transfer, 4 delivery rates), booking form (8 services, 26 slots, early fee label, deposit fields), WhatsApp order form, search, filters - all pass, no JS errors. No real orders/bookings/STK were created.
+
+### Speed releases
+- 1.155.0/1.155.1 (R10, `inc/nura-r10.php`, owner approved): Meta Pixel, Google tag/Ads and helper scripts load on first tap/scroll/key/mouse move only (no timer). Meta queue stub on every page so both inline Pixel snippets wait.
+- 1.156.0 (R11): homepage Best Sellers / Under KSh 5,000 tabs fetched from `/?nura_home_panel=<key>` on first open (home HTML 465 -> 376 KB).
+- 1.157.0 (R12): Kadence/WordPress block CSS removed from pages without block markup; product card tag/category classes dropped.
+- 1.158.0/1.158.1 (R13): shop/category/search 12 per page + load-on-scroll (page links kept; "Show more wigs" fallback); product below-the-fold sections (complete the look, related/upsells, shopper questions, wig-terms box) in `<template>` until scrolled near; reviews use content-visibility.
+- 1.159.0-1.159.2 (R14): product page shows 6 colour swatches ("+N more colours") and 5 spec rows ("Show all N specifications"); shop "Ask NURA Stylist" chip styles and row size/margins (69 px, 14 px) in `<head>` - fixed the desktop shop layout jump.
+- **1.160.0 (R15, `inc/nura-r15.php`)**: product desktop layout jump fixed - price line keeps its final height (line-height 1.7, min-height 41 px) from first paint; "Before you buy" guide links in the summary are no longer deferred and the lazy-section placeholder height was removed. Cards: one shared CSS-mask WhatsApp icon (`.nwo-ico--m`) replaces the 574-byte SVG in every card (shop HTML 260 -> 254 KB). Lower shop cards (5th+ on phones, 9th+ on desktop) use content-visibility so they are only drawn when scrolled near.
+- 1.161.0 (R16, `inc/nura-r16.php`): product page on phones - sticky add-to-bag bar hidden until load + idle (or first scroll/tap); why-buy, payment, delivery-promise, trust panels, description tabs and footer drawn only when scrolled near. Sticky bar add-to-bag verified working.
+- Off switches: `nura_r10_on`, `nura_home_tabs_fetch`, `nura_r12_on`, `nura_r13_on` (or `?nura_r13_off=1`), `nura_r14_on`, `nura_r15_on`, `nura_r16_on`.
+
+### PageSpeed (Lighthouse in sandbox; phone = slow 4G, 390 px; scores vary +/-5 per run)
+| Page | Phone start of 14 Nov | Phone now | Desktop start | Desktop now |
+|---|---|---|---|---|
+| Home | 62-77 | 79-84 (R12/R11) | 94 | 100 |
+| Shop | 69-74 | 95, 96, 97 (R15, TBT 0-50 ms) | 97 | 97-99 |
+| Product | 80-81 | 91, 92, 95 (R16, TBT 110-190 ms) | 99 (95 with jump) | 99 (R16), 100 (R15) |
+| Guide | 75-88 | 98 | failed | 99 |
+
+### Open
+- Homepage phone still ~80 (owner asked to leave homepage as is for now).
+- Booking hours: early appointments by booking only (owner confirmed); slots 06:00-18:30, shop 9:00-19:30.
+- Bing Places waiting for postal PIN; Apple Business Connect needs an Apple Account; Google Ads has no billing yet (budget USD 5-10 per day vs per month not confirmed).
+
 ## UPDATE 14 Nov 2026 17:35 EAT (Ray) - R8 answer pages, llms facts, reviews, listings (theme 1.153.0)
 
 - New `inc/nura-r8.php` (uses the R4 answer-page renderer, FAQPage schema, llms listing): /water-curl-wig-price-kenya/ (live prices from the water curl products, now KSh 2,500-3,500) and /types-of-wigs-and-prices-kenya/. Created once via admin_init (option `nura_r8_pages`), sent to IndexNow.

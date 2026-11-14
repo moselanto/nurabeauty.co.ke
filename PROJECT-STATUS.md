@@ -5,8 +5,8 @@ Last updated: 14 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 ## Live versions
 | Component | Version | Notes |
 |---|---|---|
-| Theme `nura-beauty/` (parent) | **1.149.0** (live since 14 Nov) | Owner slide first; hero fixed for desktop and phone (14 Nov). | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
-| Plugin `nura-experience/` | **1.112.1** (live since 14 Nov) | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
+| Theme `nura-beauty/` (parent) | **1.151.0** (live since 14 Nov) | Owner slide first; hero fixed for desktop and phone (14 Nov). | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
+| Plugin `nura-experience/` | **1.113.0** (live since 14 Nov) | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
 
 ## How a release is done (the working method)
 1. Edit in the repo, run `php -l` on every changed file.
@@ -27,6 +27,7 @@ Last updated: 14 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 ## Business rules (do not break)
 - **Stock (owner, 14 Nov 2026): nothing goes out of stock by itself.** The shop keeps samples to see the trend; suppliers are on standby, so customers can order any quantity even when 1-2 are in the shop. Only staff 'Stop selling' on NURA Desk > Stock shows an item as Out of stock (plugin 1.111.0). Shoppers never see 'N in stock' text (1.111.1).
 - Real reviews, prices, clients and photos only. Never invent anything.
+- **Bookings (owner, 14 Nov 2026):** any time the shop is open; before 8:00 am +KSh 1,000 paid in advance; 50% deposit (min KSh 500); late and someone is being served = wait, deposit non-refundable; no-show = non-refundable.
 - Delivery wording: same-day Nairobi delivery; **same-day dispatch countrywide** (never "1-3 days").
 - Hair types (owner, 13 Nov 2026): **Pure Human** = 100% human hair. **Semi Human** = human hair mixed with good-quality fibre; low heat is fine. **Human Blend** = Bob Wavy only, its own label, no extra definition; low heat is fine. **Luxury Fibre Bone Straight Frontal** (274) and **4x4 Luxury Bone Straight Closure Wig** (251) state no hair type. The product-to-type map is `nura_ht_map()` in `inc/nura-hair-types-2026.php`. Semi Human is now the cheapest tier; do not write "fibre is the cheapest".
 - Categories: `human-hair-wigs` = Pure Human Wigs, `human-hair-blend-wigs` = Semi Human Wigs, `human-blend-wigs` = Human Blend Wigs (Bob Wavy), High Fibre = only 274. Slugs never change.

@@ -2,6 +2,17 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 12:55 EAT (Ray) - R6 clean-up, speed, merchant fields, booking policy
+
+- **Live:** theme **1.151.0**, plugin **1.113.0** (all committed to main before install, Purge All after each).
+- **404s (32):** removed products bubbles-full-frontal-wig -> curly wigs, rich-short-wavy-wig -> bob-wavy-wig (plus the existing map); paged archives that no longer exist (/shop/page/3/, /product-tag/x/page/N/) 301 to page 1; the literal robots-pattern URLs (/*, /wp-content/*, /wp-*.php ...) 301 to home; /index.php// URLs already 301 to the clean path. All 32 checked with curl as Googlebot: every one now 301s to a live page. Code: `inc/nura-r6.php` + `nura_removed_product_redirects`.
+- **5xx (17):** every URL was a /shop/ filter combination (3-6 filters) crawled in bursts and timing out; each returns 200 in under 1 s now. Fix: filter/sort/price parameters disallowed in robots.txt for every crawler (were only blocked for AI bots).
+- **Merchant listings:** every Offer now has `validFrom` (scheduled sale start, otherwise the product's WooCommerce publish date - real data). yaki-headband-wig already outputs hasMerchantReturnPolicy, shippingDetails and brand; Google's warning was from a 19 Sep crawl.
+- **Search Console validation started 14 Nov:** 404 (32 pending), merchant validFrom / return policy / shipping / identifier; 5xx validation already running since 2 Nov (no restart offered).
+- **Speed:** Google tag (GT-), Google Ads (AW-) and Meta pixel now load on first tap/scroll/key or the fallback timeout on all non-checkout pages (perf stage 3; inline config still queues). CLS fixes: shop archives lock the header row and results-bar floats in first paint; product pages clear the tabs/related below the floated gallery in first paint + header row lock (product desktop CLS was 0.92 in tests before this release; the gallery height-lock script also stays).
+- **Lighthouse 1.150.4 (sandbox):** desktop home 94, shop 97, product 99 (guide run failed - rerun); mobile (slow 4G) home 77 (previously failed), shop 74, product 81, guide 75; LCP 2.1-3.6 s, TBT 430-900 ms. Desktop 95+ met on shop/product; home 94 (CLS 0.059). Mobile pages render in under 4 s but TTI is 4.3-5.3 s - remaining work: jQuery/WooCommerce scripts and main-thread JS on mobile.
+- **Booking policy (owner, 14 Nov):** bookings any time the shop is open (slots 06:00-18:30, every 30 min), studio bookings **before 08:00 pay KSh 1,000 extra in advance** (added to the deposit), deposit 50% of the service (minimum KSh 500), late and another client is being served = wait, deposit non-refundable; no-show = deposit (and early fee) non-refundable. New settings: `appt_early_before`, `appt_early_fee` (NURA Desk > Settings), one-time migration guarded by option `nurax_appt_policy`. Booking page, terms, AI stylist and M-Pesa prompt updated; verified live (06:00-07:30 options show "early, +KSh 1,000").
+
 ## UPDATE 14 Nov 2026 12:20 EAT (Ray) - SEO R5 start + Google/Bing audit
 
 - **Theme 1.149.0 live** (commit 93e40cc, Purge All): `inc/nura-seo-r5.php` - product titles over 65 chars become "Name - KSh price | NURA Beauty Kenya"; repeated words removed from titles/descriptions ("Luxury Fibre Luxury Fibre"); category descriptions say "Shop 1 style at KSh 4,500". Verified live with curl. Off switch: `add_filter( 'nura_seo_r5', '__return_false' )`.
@@ -91,6 +102,7 @@ The install was blocked: the browser tool ran out of Town credits mid-session. N
 
 | Date | Agent | What happened | Pending after this session |
 | --- | --- | --- | --- |
+| 14 Nov 2026 (12:55) | Town assistant (Ray) | R6: 404->301, 5xx filter crawl stopped, validFrom, tags on interaction, CLS fixes (theme 1.150.0-1.150.4); GSC validations started; booking policy (plugin 1.113.0, theme 1.151.0). | Mobile TBT/TTI; check GSC validations in ~2 weeks; shop hours assumption 06:00-18:30 to confirm with owner. |
 | 14 Nov 2026 (12:20) | Town assistant (Ray) | Theme 1.149.0 SEO R5 snippets installed + verified; full Search Console / GA4 / Bing / GBP audit recorded above. | 404/5xx clean-up, merchant fields, reviews, GBP panel (owner), product content. |
 | 14 Nov 2026 (12:10) | Town assistant (Ray) | Plugin 1.112.1 (newsletter bar opens pop-up) committed + installed + verified at 390 px; phone WhatsApp checks 15/15; Lighthouse desktop/mobile; Book of Accounts checks read (all balanced). | /shop/ desktop CLS + mobile TBT; owner capital vouchers; buying prices; SEO/AEO/GEO + Google/Bing stack programme. |
 | 14 Nov 2026 (05:15) | Town assistant (Ray) | Installed theme 1.148.0 + plugin 1.111.3, newsletter delay 4 s, Purge All, desktop checks (see UPDATE above). Built, committed and installed **plugin 1.112.0 Book of Accounts** + Sold-with-payment-details + WhatsApp sales in revenue. | Newsletter bar to open the pop-up; phone checks; PSI; owner to mark real orders Sold with M-Pesa codes and record expenses/capital so the books are complete. |

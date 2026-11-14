@@ -12,8 +12,8 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.149.0-0E0E0E?style=for-the-badge)](nura-beauty)
-[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.112.1-C9A24B?style=for-the-badge)](nura-experience)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.151.0-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.113.0-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -61,9 +61,9 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.149.0 | Parent theme |
+| `nura-beauty/` | 1.151.0 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
-| `nura-experience/` | 1.112.1 | Plugin |
+| `nura-experience/` | 1.113.0 | Plugin |
 
 ## Features
 
@@ -169,6 +169,8 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.151.0 | 1.113.0 | Bookings any time the shop is open, before 8:00 +KSh 1,000, 50% deposit (min 500) non-refundable if late/no-show |
+| 1.150.0-1.150.4 | - | R6: 404 redirects, filter URLs out of robots (5xx), Offer validFrom, Google/Meta tags on interaction, shop + product CLS fixes |
 | 1.149.0 | - | SEO R5: short product titles, de-duplicated snippets, singular category counts |
 | - | 1.112.1 | Newsletter bar: one tap opens the Join The House pop-up (no inline e-mail form) |
 | - | 1.112.0 | **Book of Accounts** Excel: double-entry journal, profit or loss, financial position, cash flows, trial balance, chart of accounts, sales register, unpaid orders and notes - all live formulas with balance checks; Accounts > Sold records method, M-Pesa code and date paid; paid WhatsApp orders count as sales |

@@ -2,6 +2,14 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 05:15 EAT (Ray)
+
+- Live now: theme **1.148.0**, plugin **1.112.0** (1.111.3 installed first, then 1.112.0). NURA Desk newsletter delay set 12 -> 4 s. LiteSpeed Purge All.
+- Checks done (desktop, logged out): Order on WhatsApp pop-up OK on all 14 category pages and Human Hair Bob (redirects to /product/human-hair-bob-wig/); product pictures load on home and /shop/; Shop/About/Help menus open on hover.
+- **Open bug:** the newsletter bar appears but contains an inline e-mail form; tapping it does not open the Join The House pop-up (footer "Get your welcome offer" button does). Decide: make the bar a button that opens the pop-up.
+- Not done: phone (390 px) checks, console check for "busy is not defined", CLS, slow-4G timings and PSI (Google PSI API daily quota exhausted from the build sandbox).
+- **Plugin 1.112.0 - Book of Accounts:** see PROJECT-STATUS.md "Done". Workbook formulas verified in the sandbox: trial balance, financial position and cash flow checks all balance on test data.
+
 ## NEXT AI AGENT - START HERE (written 14 Nov 2026 04:35 EAT by Ray)
 
 **Where things stand:** the code on `main` is ahead of the live site.
@@ -66,6 +74,7 @@ The install was blocked: the browser tool ran out of Town credits mid-session. N
 
 | Date | Agent | What happened | Pending after this session |
 | --- | --- | --- | --- |
+| 14 Nov 2026 (05:15) | Town assistant (Ray) | Installed theme 1.148.0 + plugin 1.111.3, newsletter delay 4 s, Purge All, desktop checks (see UPDATE above). Built, committed and installed **plugin 1.112.0 Book of Accounts** + Sold-with-payment-details + WhatsApp sales in revenue. | Newsletter bar to open the pop-up; phone checks; PSI; owner to mark real orders Sold with M-Pesa codes and record expenses/capital so the books are complete. |
 | 14 Nov 2026 (04:30) | Town assistant (Ray) | Theme 1.147.0 + 1.147.1 installed live (fonts trimmed, smaller card images, WebP rebuilt). PSI mobile 82 -> 87 (LCP 5.0 -> 2.4 s) but desktop 99 -> 77 (CLS 0.47). Found the desktop CLS cause (mega-menu panels open before CSS) and the newsletter bar bug (busy() out of scope); fixes + script trimming in theme 1.148.0 / plugin 1.111.3, committed but NOT installed - Town credits ran out mid-session. Desktop 'Order on WhatsApp' checked on all 14 categories + Human Hair Bob: all OK. | Install theme 1.148.0 + plugin 1.111.3 (Replace current), set NURA Desk newsletter delay 12 -> 4 s, Purge All; recheck WhatsApp pop-up, product pictures, newsletter bar (phone + desktop, 2nd page view, screenshots); re-measure 4 pages slow 4G; PSI mobile + desktop (target desktop 95+); update this file. |
 | 14 Nov 2026 (03:50) | Town assistant (Ray) | WhatsApp order pop-up bug fixed in **theme 1.146.1**, installed, Purge All, verified (section 2). Owner also asked (same message): all four pages fully loaded under 5 s on slow 4G, and the four PageSpeed fixes (WooCommerce/jQuery only where needed, smaller 2-column card images, LiteSpeed browser-cache lifetimes, trim/drop Cormorant + Jost) with before/after mobile PSI - NOT started yet. Baseline: PSI mobile 82 (03:40), full load 5.9-8.8 s. | Do the speed items above; PSI before = 82. |
 | 14 Nov 2026 (03:45) | Town assistant (Ray) | **Theme 1.146.0 + plugin 1.111.2** (phone hero images, near-screen product pictures, Meta pixel after load). Installed, Purge All, pages/pictures checked, measured, PSI run (section 2). | Next for PSI mobile LCP (5.0 s in Lighthouse): longer browser-cache lifetime for theme/plugin files (LiteSpeed > Browser cache or .htaccess Expires), drop jQuery/WooCommerce scripts on pages that do not need them, subset or drop Cormorant/Jost fonts, smaller card images for 2-column phone grid. |

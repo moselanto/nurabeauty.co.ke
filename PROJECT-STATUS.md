@@ -5,8 +5,8 @@ Last updated: 14 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 ## Live versions
 | Component | Version | Notes |
 |---|---|---|
-| Theme `nura-beauty/` (parent) | **1.148.0** in repo (live 1.147.1 - install pending) | Owner slide first; hero fixed for desktop and phone (14 Nov). | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
-| Plugin `nura-experience/` | **1.111.3** in repo (live 1.111.2 - install pending) | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
+| Theme `nura-beauty/` (parent) | **1.148.0** (live since 14 Nov) | Owner slide first; hero fixed for desktop and phone (14 Nov). | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
+| Plugin `nura-experience/` | **1.112.0** (live since 14 Nov) | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
 
 ## How a release is done (the working method)
 1. Edit in the repo, run `php -l` on every changed file.
@@ -34,6 +34,8 @@ Last updated: 14 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 - Product slugs never change on renames (Rank Math follows titles). Old supplier names live in `nura_pai_alt_names()` (schema alternateName, llms.txt).
 
 ## Done (11-14 Nov 2026)
+- **Book of Accounts (plugin 1.112.0, 14 Nov):** NURA Desk > Accounts > "Book of accounts" downloads a double-entry workbook: Cover (period dates drive every formula), Profit or loss (IAS 1, comparative), Financial position (balance check), Cash flows (IAS 7 direct, agreed to cash), Trial balance, General journal (manual rows picked up automatically), Chart of accounts, Sales register, Unpaid orders, Notes. Code: `includes/class-nura-xlsx-book.php`, `NURAX_Desk_Accounts::book_data()`. "Sold - record payment" asks method, M-Pesa/bank code (duplicate codes refused) and date paid (`_nura_paid_method`, `_nura_paid_ref`, `_nura_paid_on`). Paid WhatsApp orders not billed through the till now count as WhatsApp sales.
+- Theme 1.148.0 + plugin 1.111.3 installed 14 Nov, NURA Desk newsletter delay 12 -> 4 s, Purge All. Desktop logged-out: WhatsApp pop-up OK on all 14 categories + Human Hair Bob, product pictures load, menus open. Newsletter bar shows an inline e-mail form and does not open the Join The House pop-up (footer button does) - to fix. Phone checks and PSI not yet re-run (PSI API daily quota hit).
 - **NURA Desk > Stock (plugin 1.110.0, 14 Nov):** On shelf / Reserved / Available per wig and colour, owner-named stock places, stock changes with a required reason, stock-take, moves, full history, CSV downloads; WhatsApp orders reserve when placed, come off the shelf when paid, go back when cancelled. Owner installed and tested a website order, a till sale and a WhatsApp order. Stock plan, opening stock register (v4.1, making cost KES 85,375) and data: moselanto/NURA_STOCKS.
 - Care product photos and short descriptions (9 products); glue remover rename; short titles without ml (12 products).
 - Lace Tint is a variable product with 3 shades.

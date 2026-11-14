@@ -963,3 +963,10 @@ a.nt-who:hover{color:#a07a24}
 .na-acts--row form{margin:0}
 .na-acts--row .nd-btn--sm{padding:2px 8px;font-size:11px;min-height:24px}
 @media (max-width:700px){.na-ln{grid-template-columns:1fr}.na-ln__d,.na-ln__a{grid-column:1/-1}.na-acts--row{opacity:1}}
+/* 1.112.0 Accounts: Sold - record payment */
+.na-paid{display:inline-block;position:relative;margin-left:4px}
+.na-paid>summary{list-style:none;cursor:pointer}
+.na-paid>summary::-webkit-details-marker{display:none}
+.na-paid__f{position:absolute;right:0;top:calc(100% + 6px);z-index:20;display:grid;gap:8px;min-width:240px;padding:12px;background:#fff;border:1px solid #e3dccd;border-radius:10px;box-shadow:0 10px 30px rgba(14,14,14,.12);text-align:left;white-space:normal}
+.na-paid__f label{display:grid;gap:3px;font-size:12px;color:#6f6a62}
+.na-paid__f input,.na-paid__f select{width:100%}

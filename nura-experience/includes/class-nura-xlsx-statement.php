@@ -173,6 +173,7 @@ class NURAX_Xlsx_Statement {
 			'rev'   => array( 'Revenue', array(
 				array( 'Website sales', (float) $s['online'], '2' ),
 				array( 'In-shop sales (point of sale)', (float) $s['pos'], '2' ),
+				array( 'WhatsApp orders (paid)', (float) ( isset( $s['whatsapp'] ) ? $s['whatsapp'] : 0 ), '2' ),
 				array( 'Delivery charged to customers', (float) $s['shipping'], '2' ),
 				array( 'Other operating income', (float) $r['other_income'], '2' ),
 				array( 'Less: refunds and returns', -(float) $s['refunds'], '2' ),

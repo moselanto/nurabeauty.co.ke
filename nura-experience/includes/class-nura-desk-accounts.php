@@ -489,6 +489,38 @@ class NURAX_Desk_Accounts {
 		$o  = $id && function_exists( 'wc_get_order' ) ? wc_get_order( $id ) : null;
 		$lb = array( 'paid' => 'Sold - paid', 'pending' => 'Not paid yet (pending)', 'test' => 'Test order (not a sale)', 'auto' => 'Automatic (from order status)' );
 		if ( $o && isset( $lb[ $to ] ) ) {
+			$extra = '';
+			if ( 'paid' === $to ) {
+				// 1.112.0: record how and when the money came in, so the sale posts to the right cash account and date in the Book of Accounts.
+				$meth = isset( $_POST['method'] ) ? sanitize_key( wp_unslash( $_POST['method'] ) ) : 'mpesa';
+				$meth = isset( self::methods()[ $meth ] ) ? $meth : 'mpesa';
+				$ref  = isset( $_POST['ref'] ) ? mb_substr( strtoupper( preg_replace( '/[^A-Za-z0-9\- ]/', '', sanitize_text_field( wp_unslash( $_POST['ref'] ) ) ) ), 0, 40 ) : '';
+				$on   = isset( $_POST['paid_on'] ) ? NURAX_Desk::valid_date( sanitize_text_field( wp_unslash( $_POST['paid_on'] ) ) ) : '';
+				$on   = $on ? $on : current_time( 'Y-m-d' );
+				if ( '' !== $ref && method_exists( 'NURAX_Desk', 'ref_used' ) ) {
+					$used = NURAX_Desk::ref_used( $ref, $o->get_id() );
+					if ( '' !== $used ) {
+						if ( class_exists( 'NURAX_Staff' ) && method_exists( 'NURAX_Staff', 'log' ) ) {
+							NURAX_Staff::log( 'blocked', 'Blocked: payment code ' . $ref . ' already used on ' . $used . ' (order #' . $o->get_order_number() . ' not marked as sold)', array( 'level' => 'warn' ) );
+						}
+						self::back( array( 'nd_msg' => 'refused', 'tab' => 'overview', 'nd_err' => 'Payment code ' . $ref . ' is already used on ' . $used . '. Check the code with the customer.' ) );
+					}
+				}
+				$o->update_meta_data( '_nura_paid_method', $meth );
+				$o->update_meta_data( '_nura_paid_ref', $ref );
+				$o->update_meta_data( '_nura_paid_on', $on );
+				if ( '' !== $ref && ! $o->get_transaction_id() ) {
+					$o->set_transaction_id( $ref );
+				}
+				if ( ! $o->get_date_paid() ) {
+					$o->set_date_paid( strtotime( $on . ' 12:00:00' ) );
+				}
+				$extra = ' (' . self::methods()[ $meth ] . ( $ref ? ' ' . $ref : '' ) . ', paid ' . $on . ')';
+			} else {
+				$o->delete_meta_data( '_nura_paid_method' );
+				$o->delete_meta_data( '_nura_paid_ref' );
+				$o->delete_meta_data( '_nura_paid_on' );
+			}
 			if ( 'auto' === $to ) {
 				$o->delete_meta_data( '_nura_sale' );
 			} else {
@@ -496,10 +528,10 @@ class NURAX_Desk_Accounts {
 			}
 			$o->save();
 			$u = wp_get_current_user();
-			$o->add_order_note( 'Accounts: marked as ' . $lb[ $to ] . ' by ' . ( $u && $u->ID ? $u->display_name : 'owner' ) . '.' );
+			$o->add_order_note( 'Accounts: marked as ' . $lb[ $to ] . $extra . ' by ' . ( $u && $u->ID ? $u->display_name : 'owner' ) . '.' );
 			self::bust();
 			if ( class_exists( 'NURAX_Staff' ) && method_exists( 'NURAX_Staff', 'log' ) ) {
-				NURAX_Staff::log( 'accounts', 'Order #' . $o->get_order_number() . ' marked as ' . $lb[ $to ] );
+				NURAX_Staff::log( 'accounts', 'Order #' . $o->get_order_number() . ' marked as ' . $lb[ $to ] . $extra );
 			}
 		}
 		self::back( array( 'nd_msg' => 'saved', 'tab' => 'overview' ) );
@@ -525,6 +557,9 @@ class NURAX_Desk_Accounts {
 			}
 		}
 		echo '<section class="nd-card na-orders"><header class="nd-card__h"><h2>Orders: sold or not paid yet</h2></header>';
+		if ( isset( $_GET['nd_err'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			echo '<div class="na-alert">' . esc_html( sanitize_text_field( wp_unslash( $_GET['nd_err'] ) ) ) . '</div>'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
 		echo '<p class="na-muted">Only paid orders count as sales. Mark each order: <strong>Sold</strong> when the money is received, <strong>Not paid</strong> while you wait (e.g. a WhatsApp or cash-on-delivery customer), <strong>Test</strong> for your own test orders.</p>';
 		if ( ! $s['list'] ) {
 			echo '<p class="nd-empty">No website or till orders in this period.</p>';
@@ -537,6 +572,18 @@ class NURAX_Desk_Accounts {
 				echo '<td>' . NURAX_Desk::badge( $tag[ $o['state'] ][0], $tag[ $o['state'] ][1] ) . ( $o['set'] ? '' : '<small class="na-muted">automatic</small>' ) . '</td><td class="na-acts">'; // phpcs:ignore WordPress.Security.EscapeOutput
 				foreach ( array( 'paid' => 'Sold', 'pending' => 'Not paid', 'test' => 'Test' ) as $to => $lab ) {
 					if ( $to === $o['state'] ) {
+						continue;
+					}
+					if ( 'paid' === $to ) {
+						// 1.112.0: Sold asks how and when the customer paid (posts to the right cash account in the Book of Accounts).
+						echo '<details class="na-paid"><summary class="nd-btn nd-btn--primary nd-btn--sm">Sold - record payment</summary><form method="post" class="na-paid__f" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+						wp_nonce_field( 'nurax_acc_sale' );
+						echo '<input type="hidden" name="action" value="nurax_acc_sale"><input type="hidden" name="order_id" value="' . (int) $o['id'] . '"><input type="hidden" name="to" value="paid">' . $hid; // phpcs:ignore WordPress.Security.EscapeOutput
+						echo '<label>Paid by <select name="method">';
+						foreach ( self::methods() as $mk => $ml ) {
+							echo '<option value="' . esc_attr( $mk ) . '">' . esc_html( $ml ) . '</option>';
+						}
+						echo '</select></label><label>M-Pesa / bank code <input type="text" name="ref" maxlength="40" placeholder="e.g. SKL4ABC123" autocomplete="off"></label><label>Date paid <input type="date" name="paid_on" value="' . esc_attr( current_time( 'Y-m-d' ) ) . '" max="' . esc_attr( current_time( 'Y-m-d' ) ) . '"></label><button class="nd-btn nd-btn--primary nd-btn--sm">Save as sold</button></form></details>';
 						continue;
 					}
 					echo '<form method="post" class="nd-inline" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
@@ -555,12 +602,12 @@ class NURAX_Desk_Accounts {
 	}
 
 	public static function sales( $from, $to ) {
-		$key = 'nurax_acc_v3_' . md5( $from . $to . '|' . (int) get_option( 'nurax_acc_gen', 0 ) );
+		$key = 'nurax_acc_v4_' . md5( $from . $to . '|' . (int) get_option( 'nurax_acc_gen', 0 ) );
 		$hit = get_transient( $key );
 		if ( is_array( $hit ) ) {
 			return $hit;
 		}
-		$out = array( 'online' => 0.0, 'pos' => 0.0, 'shipping' => 0.0, 'refunds' => 0.0, 'orders' => 0, 'cost' => 0.0, 'units' => 0, 'missing' => 0, 'missing_rev' => 0.0, 'products' => array(), 'list' => array(), 'awaiting' => 0.0, 'awaiting_n' => 0, 'tests' => 0 );
+		$out = array( 'online' => 0.0, 'pos' => 0.0, 'whatsapp' => 0.0, 'wa_orders' => 0, 'shipping' => 0.0, 'refunds' => 0.0, 'orders' => 0, 'cost' => 0.0, 'units' => 0, 'missing' => 0, 'missing_rev' => 0.0, 'products' => array(), 'list' => array(), 'awaiting' => 0.0, 'awaiting_n' => 0, 'tests' => 0 );
 		if ( function_exists( 'wc_get_orders' ) ) {
 			$ids = wc_get_orders( array(
 				'type'         => 'shop_order',
@@ -632,6 +679,32 @@ class NURAX_Desk_Accounts {
 						}
 					}
 					unset( $row );
+				}
+			}
+		}
+		// 1.112.0: WhatsApp orders marked paid (and not billed through the till, which is already a website/till order).
+		foreach ( self::wa_list( $to ) as $w ) {
+			if ( ! $w['paid'] || $w['paid_on'] < $from || $w['paid_on'] > $to ) {
+				continue;
+			}
+			$out['whatsapp'] += $w['total'];
+			$out['wa_orders']++;
+			$out['orders']++;
+			foreach ( $w['items'] as $it ) {
+				$k = $it['id'] ? (int) $it['id'] : 'x' . md5( $it['name'] );
+				if ( ! isset( $out['products'][ $k ] ) ) {
+					$out['products'][ $k ] = array( 'name' => $it['name'], 'id' => (int) $it['id'], 'qty' => 0, 'rev' => 0.0, 'cost' => 0.0, 'missing' => 0, 'sourced' => 0 );
+				}
+				$out['products'][ $k ]['qty'] += $it['qty'];
+				$out['products'][ $k ]['rev'] += $it['line'];
+				$out['units']                 += $it['qty'];
+				if ( null === $it['unit'] ) {
+					$out['products'][ $k ]['missing'] += $it['qty'];
+					$out['missing']                   += $it['qty'];
+					$out['missing_rev']               += $it['line'];
+				} else {
+					$out['products'][ $k ]['cost'] += $it['unit'] * $it['qty'];
+					$out['cost']                   += $it['unit'] * $it['qty'];
 				}
 			}
 		}
@@ -719,7 +792,7 @@ class NURAX_Desk_Accounts {
 		}
 		$r = array( 'sales' => $s, 'by' => $by, 'advance' => $adv );
 		$r['other_income'] = $sum( 'income' );
-		$r['revenue']      = $s['online'] + $s['pos'] + $s['shipping'] + $r['other_income'] - $s['refunds'];
+		$r['revenue']      = $s['online'] + $s['pos'] + $s['whatsapp'] + $s['shipping'] + $r['other_income'] - $s['refunds'];
 		$r['cogs_items']   = $s['cost'];
 		$r['cogs_extra']   = $sum( 'cogs' );
 		$r['cogs']         = $r['cogs_items'] + $r['cogs_extra'];
@@ -736,6 +809,361 @@ class NURAX_Desk_Accounts {
 		$r['spent']        = $r['stock'] + $r['cogs_extra'] + ( $r['opex'] - ( isset( $by['rent_advance'] ) ? $by['rent_advance'] : 0 ) ) + $r['setup'] + $r['asset'] + $r['prepaid_paid'];
 		return $r;
 	}
+
+	/* ------------------------------------------------------------ book of accounts (1.112.0) */
+
+	/** Payment method key -> cash account code. */
+	public static function cash_code( $m ) {
+		$map = array( 'cash' => 1010, 'mpesa' => 1020, 'bank' => 1030, 'card' => 1040, 'other' => 1010 );
+		return isset( $map[ $m ] ) ? $map[ $m ] : 1020;
+	}
+
+	/** How a WooCommerce order was paid (owner's mark first, then the gateway). */
+	public static function order_method( $o ) {
+		$m = (string) $o->get_meta( '_nura_paid_method', true );
+		if ( isset( self::methods()[ $m ] ) ) {
+			return $m;
+		}
+		$g = (string) $o->get_payment_method();
+		if ( 0 === strpos( $g, 'nura_pos_' ) ) {
+			$k = substr( $g, 9 );
+			return isset( self::methods()[ $k ] ) ? $k : 'mpesa';
+		}
+		if ( false !== strpos( $g, 'paystack' ) || false !== strpos( $g, 'card' ) || false !== strpos( $g, 'stripe' ) ) {
+			return 'card';
+		}
+		if ( 'bacs' === $g ) {
+			return 'bank';
+		}
+		if ( 'cod' === $g ) {
+			return 'cash';
+		}
+		return 'mpesa';
+	}
+
+	/** Date the money came in for a paid order (Y-m-d). */
+	public static function paid_on( $o ) {
+		$d = (string) $o->get_meta( '_nura_paid_on', true );
+		if ( NURAX_Desk::valid_date( $d ) ) {
+			return $d;
+		}
+		if ( $o->get_date_paid() ) {
+			return $o->get_date_paid()->date( 'Y-m-d' );
+		}
+		if ( $o->get_date_completed() ) {
+			return $o->get_date_completed()->date( 'Y-m-d' );
+		}
+		return $o->get_date_created() ? $o->get_date_created()->date( 'Y-m-d' ) : current_time( 'Y-m-d' );
+	}
+
+	/**
+	 * WhatsApp orders up to $to that were NOT billed through the till (a till bill is already a
+	 * WooCommerce order, so it is never counted twice). Cancelled orders are left out.
+	 */
+	public static function wa_list( $to ) {
+		static $cache = array();
+		if ( isset( $cache[ $to ] ) ) {
+			return $cache[ $to ];
+		}
+		$out = array();
+		if ( ! class_exists( 'NURAX_Desk_Orders' ) ) {
+			return $out;
+		}
+		$billed = array();
+		if ( function_exists( 'wc_get_orders' ) ) {
+			foreach ( (array) wc_get_orders( array( 'limit' => -1, 'return' => 'objects', 'meta_query' => array( array( 'key' => '_nura_wa_order', 'compare' => 'EXISTS' ) ) ) ) as $wo ) { // phpcs:ignore WordPress.DB.SlowDBQuery
+				$billed[ (int) $wo->get_meta( '_nura_wa_order' ) ] = true;
+			}
+		}
+		$ids = get_posts( array( 'post_type' => NURAX_Desk_Orders::CPT, 'post_status' => 'private', 'numberposts' => -1, 'fields' => 'ids', 'orderby' => 'date', 'order' => 'ASC' ) );
+		foreach ( $ids as $pid ) {
+			if ( isset( $billed[ $pid ] ) || 'cancelled' === NURAX_Desk_Orders::status( $pid ) ) {
+				continue;
+			}
+			$d       = NURAX_Desk_Orders::data( $pid );
+			$ordered = get_the_date( 'Y-m-d', $pid );
+			if ( $ordered > $to ) {
+				continue;
+			}
+			$paid = NURAX_Desk_Orders::is_paid( $pid );
+			$pat  = substr( (string) get_post_meta( $pid, '_nwo_paid_at', true ), 0, 10 );
+			$pay  = strtolower( (string) $d['payment'] );
+			$meth = false !== strpos( $pay, 'paystack' ) || false !== strpos( $pay, 'card' ) ? 'card' : ( false !== strpos( $pay, 'cash' ) ? 'cash' : ( false !== strpos( $pay, 'bank' ) ? 'bank' : 'mpesa' ) );
+			$ref  = (string) get_post_meta( $pid, '_nwo_pay_ref', true );
+			$items = array();
+			foreach ( (array) $d['items'] as $it ) {
+				$items[] = array(
+					'id'   => isset( $it['id'] ) ? (int) $it['id'] : 0,
+					'name' => isset( $it['name'] ) ? (string) $it['name'] : 'Item',
+					'qty'  => isset( $it['qty'] ) ? max( 1, (int) $it['qty'] ) : 1,
+					'line' => isset( $it['line'] ) ? (float) $it['line'] : 0.0,
+					'unit' => ! empty( $it['id'] ) ? self::current_cost( (int) $it['id'] ) : null,
+				);
+			}
+			$out[] = array(
+				'id'      => $pid,
+				'no'      => $d['ref'] ? $d['ref'] : 'WA-' . $pid,
+				'ordered' => $ordered,
+				'paid'    => $paid,
+				'paid_on' => $paid ? ( NURAX_Desk::valid_date( $pat ) ? $pat : $ordered ) : '',
+				'name'    => (string) $d['name'],
+				'total'   => (float) $d['total'],
+				'method'  => $meth,
+				'ref'     => $ref ? $ref : (string) $d['mpesa_code'],
+				'status'  => NURAX_Desk_Orders::statuses()[ NURAX_Desk_Orders::status( $pid ) ],
+				'items'   => $items,
+			);
+		}
+		$cache[ $to ] = $out;
+		return $out;
+	}
+
+	/** Chart of accounts: code => [ name, class ]. Expense codes follow the categories. */
+	public static function book_accounts() {
+		$a = array(
+			1010 => array( 'Cash on hand', 'asset' ),
+			1020 => array( 'M-Pesa till', 'asset' ),
+			1030 => array( 'Bank account', 'asset' ),
+			1040 => array( 'Paystack (card and online M-Pesa)', 'asset' ),
+			1100 => array( 'Inventory - wigs, hair and products', 'asset' ),
+			1200 => array( 'Rent paid in advance', 'asset' ),
+			1300 => array( 'Refundable deposits', 'asset' ),
+			1500 => array( 'Furniture and equipment (at cost)', 'asset' ),
+			2000 => array( 'Amounts owed and customer deposits', 'liability' ),
+			3000 => array( 'Owner capital', 'equity' ),
+			3100 => array( 'Owner drawings', 'equity' ),
+			4000 => array( 'Website sales', 'income' ),
+			4010 => array( 'In-shop sales (till)', 'income' ),
+			4020 => array( 'WhatsApp sales', 'income' ),
+			4100 => array( 'Delivery charged to customers', 'income' ),
+			4200 => array( 'Other operating income', 'income' ),
+			4900 => array( 'Less: refunds and returns', 'contra' ),
+			5000 => array( 'Cost of goods sold (buying price of items sold)', 'cos' ),
+			6900 => array( 'Rent (released from rent paid in advance)', 'opex' ),
+		);
+		$map = array();
+		$n   = array( 'cogs' => 5100, 'opex' => 6000, 'setup' => 7000 );
+		foreach ( self::categories() as $k => $c ) {
+			if ( isset( $n[ $c[1] ] ) ) {
+				$code = $n[ $c[1] ];
+				$n[ $c[1] ] += 10;
+				$a[ $code ]  = array( $c[0], 'cogs' === $c[1] ? 'cos' : $c[1] );
+				$map[ $k ]   = $code;
+			}
+		}
+		ksort( $a );
+		return array( $a, $map );
+	}
+
+	/** Everything the Book of Accounts workbook needs, from the start of the books to $to. */
+	public static function book_data( $from, $to, $label, $pf, $pt, $plabel ) {
+		list( $acc, $catcode ) = self::book_accounts();
+		$cats    = self::categories();
+		$methods = self::methods();
+		$journal = array();
+		$sales   = array();
+		$unpaid  = array();
+		$missing = 0;
+		$seq     = 0;
+		$post    = function ( $date, $ref, $src, $desc, $lines ) use ( &$journal, &$seq ) {
+			foreach ( $lines as $l ) {
+				if ( round( (float) $l[1], 2 ) == 0 && round( (float) $l[2], 2 ) == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons
+					continue;
+				}
+				$journal[] = array( 'date' => $date, 'ref' => $ref, 'src' => $src, 'desc' => $desc, 'code' => (int) $l[0], 'dr' => round( (float) $l[1], 2 ), 'cr' => round( (float) $l[2], 2 ), 'cf' => isset( $l[3] ) ? $l[3] : '', 'seq' => $seq++ );
+			}
+		};
+		$RC = 'Receipts from customers';
+
+		/* Website and till orders. */
+		if ( function_exists( 'wc_get_orders' ) ) {
+			$ids = wc_get_orders( array(
+				'type'         => 'shop_order',
+				'status'       => array( 'wc-processing', 'wc-completed', 'wc-pending', 'wc-on-hold' ),
+				'date_created' => '<=' . strtotime( $to . ' 23:59:59' ),
+				'limit'        => -1,
+				'return'       => 'ids',
+			) );
+			foreach ( (array) $ids as $id ) {
+				$o = wc_get_order( $id );
+				if ( ! $o ) {
+					continue;
+				}
+				$state = self::sale_state( $o );
+				$pos   = 'nura_pos' === $o->get_created_via();
+				$no    = '#' . $o->get_order_number();
+				$name  = trim( $o->get_billing_first_name() . ' ' . $o->get_billing_last_name() );
+				if ( 'test' === $state ) {
+					continue;
+				}
+				if ( 'paid' !== $state ) {
+					$unpaid[] = array( 'date' => $o->get_date_created() ? $o->get_date_created()->date( 'Y-m-d' ) : $to, 'no' => $no, 'channel' => $pos ? 'In-shop till' : 'Website', 'name' => $name, 'status' => function_exists( 'wc_get_order_status_name' ) ? wc_get_order_status_name( $o->get_status() ) : $o->get_status(), 'total' => (float) $o->get_total() );
+					continue;
+				}
+				$date = self::paid_on( $o );
+				if ( $date > $to ) {
+					continue;
+				}
+				$m     = self::order_method( $o );
+				$cash  = self::cash_code( $m );
+				$ship  = (float) $o->get_shipping_total() + (float) $o->get_shipping_tax();
+				$total = (float) $o->get_total();
+				$goods = $total - $ship;
+				$ref   = (string) ( $o->get_meta( '_nura_paid_ref' ) ? $o->get_meta( '_nura_paid_ref' ) : ( $o->get_meta( '_nura_pay_ref' ) ? $o->get_meta( '_nura_pay_ref' ) : $o->get_transaction_id() ) );
+				$post( $date, $no, $pos ? 'Till sale' : 'Website order', 'Sale to ' . ( $name ? $name : 'customer' ) . ( $ref ? ' - ' . $ref : '' ), array(
+					array( $cash, $total, 0, $RC ),
+					array( $pos ? 4010 : 4000, 0, $goods ),
+					array( 4100, 0, $ship ),
+				) );
+				$refund = (float) $o->get_total_refunded();
+				if ( $refund > 0 ) {
+					$post( $date, $no, 'Refund', 'Refund on order ' . $no, array( array( 4900, $refund, 0 ), array( $cash, 0, $refund, 'Refunds paid to customers' ) ) );
+				}
+				$cost = 0.0;
+				$miss = false;
+				foreach ( $o->get_items( 'line_item' ) as $iid => $it ) {
+					$qty = (int) $it->get_quantity() + (int) $o->get_qty_refunded_for_item( $iid );
+					if ( $qty <= 0 ) {
+						continue;
+					}
+					$src = $it->get_meta( '_nura_sourced', true );
+					if ( is_array( $src ) && ! empty( $src['cost'] ) ) {
+						$unit = (float) $src['cost'];
+					} elseif ( '' !== (string) $it->get_meta( '_nura_cost', true ) ) {
+						$unit = (float) $it->get_meta( '_nura_cost', true );
+					} else {
+						$unit = self::current_cost( $it->get_product_id(), $it->get_variation_id() );
+					}
+					if ( null === $unit ) {
+						$miss = true;
+						$missing += $qty;
+					} else {
+						$cost += $unit * $qty;
+					}
+				}
+				$post( $date, $no, 'Cost of sale', 'Buying price of items sold on ' . $no, array( array( 5000, $cost, 0 ), array( 1100, 0, $cost ) ) );
+				$sales[] = array( 'date' => $date, 'no' => $no, 'channel' => $pos ? 'In-shop till' : 'Website', 'name' => $name, 'method' => $methods[ $m ], 'ref' => $ref, 'goods' => $goods, 'ship' => $ship, 'refund' => $refund, 'cost' => $miss && 0.0 === $cost ? null : $cost );
+			}
+		}
+
+		/* WhatsApp orders. */
+		foreach ( self::wa_list( $to ) as $w ) {
+			if ( ! $w['paid'] ) {
+				$unpaid[] = array( 'date' => $w['ordered'], 'no' => $w['no'], 'channel' => 'WhatsApp', 'name' => $w['name'], 'status' => $w['status'], 'total' => $w['total'] );
+				continue;
+			}
+			if ( $w['paid_on'] > $to ) {
+				continue;
+			}
+			$post( $w['paid_on'], $w['no'], 'WhatsApp order', 'Sale to ' . ( $w['name'] ? $w['name'] : 'customer' ) . ( $w['ref'] ? ' - ' . $w['ref'] : '' ), array(
+				array( self::cash_code( $w['method'] ), $w['total'], 0, $RC ),
+				array( 4020, 0, $w['total'] ),
+			) );
+			$cost = 0.0;
+			$miss = false;
+			foreach ( $w['items'] as $it ) {
+				if ( null === $it['unit'] ) {
+					$miss = true;
+					$missing += $it['qty'];
+				} else {
+					$cost += $it['unit'] * $it['qty'];
+				}
+			}
+			$post( $w['paid_on'], $w['no'], 'Cost of sale', 'Buying price of items sold on ' . $w['no'], array( array( 5000, $cost, 0 ), array( 1100, 0, $cost ) ) );
+			$sales[] = array( 'date' => $w['paid_on'], 'no' => $w['no'], 'channel' => 'WhatsApp', 'name' => $w['name'], 'method' => $methods[ $w['method'] ], 'ref' => $w['ref'], 'goods' => $w['total'], 'ship' => 0, 'refund' => 0, 'cost' => $miss && 0.0 === $cost ? null : $cost );
+		}
+
+		/* Vouchers from Expenses & income. */
+		$unset = 0;
+		foreach ( array_reverse( self::entries( '2000-01-01', $to ) ) as $e ) {
+			$amt  = (float) $e->amount;
+			$cash = self::cash_code( $e->method );
+			$ref  = $e->txn ? $e->txn : ( $e->ref ? $e->ref : 'E' . $e->id );
+			$desc = trim( $e->description . ( $e->payee ? ' - ' . $e->payee : '' ) . ( $e->ref && $e->txn ? ' (' . $e->ref . ')' : '' ) );
+			$desc = '' !== $desc ? $desc : ( isset( $cats[ $e->category ] ) ? $cats[ $e->category ][0] : $e->category );
+			$g    = self::group_of( $e->category );
+			$src  = 'Voucher';
+			switch ( $g ) {
+				case 'stock':
+					$lines = array( array( 1100, $amt, 0 ), array( $cash, 0, $amt, 'Paid to suppliers for stock and cost of sales' ) );
+					break;
+				case 'cogs':
+					$lines = array( array( $catcode[ $e->category ], $amt, 0 ), array( $cash, 0, $amt, 'Paid to suppliers for stock and cost of sales' ) );
+					break;
+				case 'setup':
+					$lines = array( array( $catcode[ $e->category ], $amt, 0 ), array( $cash, 0, $amt, 'Set-up costs paid' ) );
+					break;
+				case 'income':
+					$lines = array( array( $cash, $amt, 0, 'Other income received' ), array( 4200, 0, $amt ) );
+					break;
+				case 'prepaid':
+					$lines = array( array( 1200, $amt, 0 ), array( $cash, 0, $amt, 'Rent paid in advance' ) );
+					$n     = max( 1, (int) $e->cover_months );
+					if ( empty( $e->cover_from ) || '0000-00-00' === $e->cover_from ) {
+						$unset++;
+					} else {
+						for ( $k = 0; $k < $n; $k++ ) {
+							$md = gmdate( 'Y-m-01', strtotime( '+' . $k . ' months', strtotime( gmdate( 'Y-m-01', strtotime( $e->cover_from ) ) ) ) );
+							if ( $md <= $to ) {
+								$post( $md, $ref, 'Prepayment', 'Rent for ' . gmdate( 'M Y', strtotime( $md ) ) . ' released from rent paid in advance', array( array( 6900, $amt / $n, 0 ), array( 1200, 0, $amt / $n ) ) );
+							}
+						}
+					}
+					break;
+				case 'asset':
+					$isdep = 'deposit' === $e->category;
+					$lines = array( array( $isdep ? 1300 : 1500, $amt, 0 ), array( $cash, 0, $amt, $isdep ? 'Refundable deposits paid' : 'Furniture and equipment bought' ) );
+					break;
+				case 'owner':
+					$lines = 'capital' === $e->category
+						? array( array( $cash, $amt, 0, 'Owner capital introduced' ), array( 3000, 0, $amt ) )
+						: array( array( 3100, $amt, 0 ), array( $cash, 0, $amt, 'Owner drawings' ) );
+					break;
+				default:
+					$code  = isset( $catcode[ $e->category ] ) ? $catcode[ $e->category ] : ( isset( $catcode['other'] ) ? $catcode['other'] : 6000 );
+					$lines = array( array( $code, $amt, 0 ), array( $cash, 0, $amt, 'Operating expenses paid' ) );
+			}
+			$post( $e->entry_date, $ref, $src, $desc, $lines );
+		}
+
+		usort( $journal, function ( $a, $b ) {
+			return array( $a['date'], $a['seq'] ) <=> array( $b['date'], $b['seq'] );
+		} );
+		usort( $sales, function ( $a, $b ) {
+			return strcmp( $a['date'], $b['date'] );
+		} );
+		usort( $unpaid, function ( $a, $b ) {
+			return strcmp( $a['date'], $b['date'] );
+		} );
+		$notes = array();
+		$chk   = array();
+		if ( $missing ) {
+			$chk[] = $missing . ' item(s) sold have no buying price, so their cost is missing and profit looks higher than it is. Add buying prices on the products (NURA Desk > Accounts > Profit by product).';
+		}
+		if ( $unset ) {
+			$chk[] = $unset . ' rent-paid-in-advance voucher(s) have no months set, so none of it has become rent yet. Open the voucher and set the months it covers.';
+		}
+		if ( $unpaid ) {
+			$chk[] = count( $unpaid ) . ' order(s) are waiting for payment (see Unpaid orders). Mark each one Sold when paid, or Test / cancelled if it was not a real sale.';
+		}
+		$notes[] = array( '10. Records to check', $chk ? implode( "\n", $chk ) : 'Nothing to check - every record is complete.' );
+		$biz = class_exists( 'NURAX_Desk_POS' ) ? NURAX_Desk_POS::biz() : array( 'name' => 'NURA Beauty', 'web' => 'nurabeauty.co.ke', 'phone' => '+254 714 994 898', 'email' => 'care@nurabeauty.co.ke', 'pin' => '', 'addr' => '' );
+		return array(
+			'biz'      => $biz,
+			'accounts' => $acc,
+			'journal'  => $journal,
+			'sales'    => $sales,
+			'unpaid'   => $unpaid,
+			'notes'    => $notes,
+			'from'     => '2000-01-01' === $from ? ( $journal ? $journal[0]['date'] : current_time( 'Y-m-d' ) ) : $from,
+			'to'       => '2099-12-31' === $to ? current_time( 'Y-m-d' ) : $to,
+			'pfrom'    => $pf,
+			'pto'      => $pt,
+			'label'    => $label,
+			'plabel'   => $plabel,
+		);
+	}
+
 
 	/* ------------------------------------------------------------ handlers */
 
@@ -997,6 +1425,7 @@ class NURAX_Desk_Accounts {
 		};
 		$add( 'Revenue', 'Website sales', $s['online'] );
 		$add( 'Revenue', 'In-shop sales (Point of sale)', $s['pos'] );
+		$add( 'Revenue', 'WhatsApp orders (paid)', $s['whatsapp'] );
 		$add( 'Revenue', 'Delivery charged to customers', $s['shipping'] );
 		$add( 'Revenue', 'Other income', $r['other_income'] );
 		$add( 'Revenue', 'Less: refunds', -$s['refunds'] );
@@ -1042,7 +1471,18 @@ class NURAX_Desk_Accounts {
 		$sheet = isset( $_GET['sheet'] ) ? sanitize_key( wp_unslash( $_GET['sheet'] ) ) : 'pnl';
 		$fmt   = isset( $_GET['fmt'] ) ? sanitize_key( wp_unslash( $_GET['fmt'] ) ) : 'xlsx';
 		// phpcs:enable
-		$sheet = in_array( $sheet, array( 'pnl', 'entries', 'products' ), true ) ? $sheet : 'pnl';
+		$sheet = in_array( $sheet, array( 'pnl', 'entries', 'products', 'book' ), true ) ? $sheet : 'pnl';
+		// 1.112.0: complete double-entry Book of Accounts workbook.
+		if ( 'book' === $sheet ) {
+			if ( class_exists( 'NURAX_Vault' ) && method_exists( 'NURAX_Vault', 'log' ) ) {
+				NURAX_Vault::log( 'Report downloaded', 'Accounts - Book of Accounts (XLSX, ' . $label . ')' );
+			}
+			list( $pf, $pt, $plabel ) = self::prior_period( $from, $to );
+			if ( class_exists( 'NURAX_Xlsx_Book' ) && NURAX_Xlsx_Book::send( self::book_data( $from, $to, $label, $pf, $pt, $plabel ) ) ) {
+				exit;
+			}
+			wp_die( esc_html__( 'The Excel workbook could not be built on this server (ZipArchive is missing).', 'nura-experience' ) );
+		}
 		$rows  = self::export_rows( $sheet, $from, $to );
 		if ( class_exists( 'NURAX_Vault' ) && method_exists( 'NURAX_Vault', 'log' ) ) {
 			NURAX_Vault::log( 'Report downloaded', 'Accounts - ' . $sheet . ' (' . strtoupper( $fmt ) . ', ' . $label . ')' );
@@ -1140,6 +1580,7 @@ class NURAX_Desk_Accounts {
 		$sheet_for = 'entries' === $tab ? 'entries' : ( 'products' === $tab ? 'products' : 'pnl' );
 		$act  = NURAX_Desk::btn( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => 'entries', 'edit' => 'new' ) ) ), '+ Record payment or income', 'nd-btn--primary' )
 			. '<a class="nd-btn nd-btn--xl" href="' . esc_url( $dl( $sheet_for, 'xlsx' ) ) . '" title="Branded Excel report: NURA black and gold header, logo, KSh formats, print-ready"><span class="nd-xl-ic" aria-hidden="true">X</span>Excel report</a>'
+			. '<a class="nd-btn nd-btn--xl" href="' . esc_url( $dl( 'book', 'xlsx' ) ) . '" title="Complete double-entry book: profit or loss, financial position, cash flows, trial balance, journal, sales register, unpaid orders and notes - all live formulas"><span class="nd-xl-ic" aria-hidden="true">X</span>Book of accounts</a>'
 			. '<a class="nd-btn nd-btn--ghost nd-btn--csv" href="' . esc_url( $dl( $sheet_for, 'csv' ) ) . '" title="Plain data file for accountants and other software (CSV cannot hold colours or a logo)">CSV data</a>';
 		NURAX_Desk::header( self::PAGE, 'Accounts', $act );
 

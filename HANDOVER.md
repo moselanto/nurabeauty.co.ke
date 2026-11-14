@@ -2,6 +2,30 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 22:40 EAT (Ray) - Pixie gallery shift fixed (theme 1.161.3) + PSI on 765x1024-photo products
+
+- Cause (measured, phone, 4x CPU): when the WooCommerce gallery slider starts, `.flex-viewport` is briefly as tall as all photos stacked (~5,000 px) with the thumbnail strip (`ol.flex-control-thumbs`) at its bottom; it then collapses to one photo and the strip jumps up into view (PSI CLS 0.104).
+- Fix 1.161.3 (`inc/nura-r16.php`): `.flex-viewport` gets the main photo's own aspect-ratio (from attachment metadata, e.g. 765/1024) with `height:auto!important` from first paint; the thumbnail strip stays `visibility:hidden` (space kept) until `wc-product-gallery-after-init` + 450 ms (fallback 6 s), class `nura-gal-ready`. The 1.161.2 thumbnail placeholder stays.
+- Pixie Water Curl live PSI after fix: **Mobile 96, CLS 0** (was 85-88, 0.104); **Desktop 100, CLS 0.005**. https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-pixie-water-curl-wig/wyc4q63spg
+- Live PSI, 14 Nov 22:29-22:39 (mobile score / CLS, desktop score / CLS):
+  | Product | Mobile | Desktop |
+  |---|---|---|
+  | 4-by-4-loose-wave-wig | 88 / 0 | 99 / **0.076** |
+  | human-hair-bob-wig | 97 / 0 | 100 / 0.029 |
+  | pixie-water-curl-human-hair | 95 / 0 | 100 / 0.014 |
+  | bob-wig | 91 / 0 | 100 / 0.001 |
+  | semi-human-closure-wig | 91 / 0 | 100 / 0.004 |
+  | 4by4-straight-closure-wig | 94 / 0 | 100 / 0.001 |
+  | latisha-dupe-headband-wig | 96 / 0 | 100 / 0.008 |
+  | 2x2-straight-hair-closure | 93 / 0 | 100 / 0.001 |
+  | minky-closure-wig | 94 / 0 | 100 / 0.002 |
+  | black-jerry-curl-wig | 91 / 0 | 100 / 0.019 |
+  | 2x2-minky-hair-closure (798x1024) | 95 / 0 | 100 / 0.004 |
+  | sdd-bob-wig (611x1024) | 94 / 0 | 100 / 0.004 |
+  Earlier today: loose-wave-wig 96/0, 100/0.004; 12-inches-wig 97/0, 100/0.001; yaki-headband-wig 90/0, 100/0.007.
+- **Open:** 4-by-4-loose-wave-wig desktop CLS 0.076, culprit `section.nura-specsec.nura-specsec--compact` (0.074) - the Specifications box in the product summary moves on desktop (same pattern as the 0.022 seen once on Loose Wave). Not reproduced in the sandbox; next step is to lock the height of the summary blocks above it (delivery line, short description) from first paint.
+- Not yet tested in PSI: the 572x1024-photo wigs (bone-straight, bob-wavy, kinky-headband, latisha-dupe-wig, latisha-sensational-headband, luxury-bodywave, naturalista, 4by4-latisha-dupe, watercurl-headband) and the 13 care products (1024x1024).
+
 ## UPDATE 14 Nov 2026 22:25 EAT (Ray) - product layout shifts across products (theme 1.161.2)
 
 - Loose Wave desktop: the 0.022 Specifications-section shift from the earlier PSI run no longer appears. Live PSI 22:21: **Mobile 96, CLS 0**; **Desktop 100, CLS 0.004** (only the Ask NURA Stylist button, 0.002 x2). The section moved because the price line grew after first paint; the R15 price-height fix plus 1.161.2 removed it. Could not reproduce the 0.022 in the sandbox after 1.161.1.

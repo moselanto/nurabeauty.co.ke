@@ -17,7 +17,7 @@ add_action( 'wp_head', function () {
 	if ( ! apply_filters( 'nura_r16_on', true ) || is_admin() || ! function_exists( 'is_product' ) || ! is_product() ) {
 		return;
 	}
-	echo '<style id="nura-r16">@media(max-width:860px){html:not(.nura-ready) .nura-sticky-atc{display:none!important}'
+	echo '<style id="nura-r16">html:not(.nura-ready) .nura-sticky-atc{display:none!important}@media(max-width:860px){'
 		. '.single-product .nura-why-buy,.single-product .nura-payrow,.single-product .nura-promise,.single-product .nura-trust{content-visibility:auto;contain-intrinsic-size:auto 120px}'
 		. '.single-product .woocommerce-tabs{content-visibility:auto;contain-intrinsic-size:auto 700px}'
 		. '.single-product footer.site-footer,.single-product #colophon{content-visibility:auto;contain-intrinsic-size:auto 1200px}}</style>' . "\n";
@@ -33,4 +33,15 @@ add_action( 'wp_head', function () {
 		return;
 	}
 	echo '<style id="nura-r16-pswp">.pswp{display:none}.pswp.pswp--open{display:block}</style>' . "\n";
+}, 3 );
+
+/* 1.161.2: product galleries with 2+ photos - the thumbnail strip (ol.flex-control-thumbs) is only added when the
+ * gallery script starts, which pushed everything below it down on phones (PageSpeed CLS 0.104 on Pixie Water Curl).
+ * Reserve the strip's space (one row of 4 square thumbnails = width/4; two rows for 5-8 photos) until it exists. */
+add_action( 'wp_head', function () {
+	if ( ! apply_filters( 'nura_r16_on', true ) || is_admin() || ! function_exists( 'is_product' ) || ! is_product() ) {
+		return;
+	}
+	echo '<style id="nura-r16-thumbs">.woocommerce-product-gallery:has(.woocommerce-product-gallery__image:nth-child(2)):not(:has(.flex-control-nav))::after{content:"";display:block;aspect-ratio:4/1}'
+		. '.woocommerce-product-gallery:has(.woocommerce-product-gallery__image:nth-child(5)):not(:has(.flex-control-nav))::after{aspect-ratio:2/1}</style>' . "\n";
 }, 3 );

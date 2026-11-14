@@ -133,6 +133,13 @@ add_action( 'wp_head', function () {
 	if ( ! nura_r6_on( 'cls' ) ) {
 		return;
 	}
+	// 1.150.2: product gallery - while the WooCommerce slider starts, the photos were stacked (gallery
+	// briefly 36,000 px tall), pushing the tabs down and back (CLS 0.9 on desktop product pages).
+	// Only the first photo shows until the slider is ready, and slides float from the start.
+	if ( function_exists( 'is_product' ) && is_product() ) {
+		echo '<style id="nura-r6-gallery">.woocommerce-product-gallery:not(:has(.flex-viewport)) .woocommerce-product-gallery__wrapper>.woocommerce-product-gallery__image:nth-child(n+2){display:none}.woocommerce-product-gallery .flex-viewport{overflow:hidden}.woocommerce-product-gallery .flex-viewport .woocommerce-product-gallery__image{float:left}</style>' . "\n";
+		return;
+	}
 	// 1.150.1: the header row lock only on shop / category / tag archives (on product pages it caused a 0.77 shift).
 	if ( ! ( function_exists( 'is_shop' ) && ( is_shop() || is_product_taxonomy() ) ) ) {
 		return;

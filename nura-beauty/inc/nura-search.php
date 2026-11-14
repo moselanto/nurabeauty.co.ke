@@ -259,3 +259,133 @@ function nura_render_search_overlay() {
 	<?php
 }
 add_action( 'wp_footer', 'nura_render_search_overlay' );
+
+
+/* -------------------------------------------------------------------------- */
+/* v1.144.0 Instant search: a small product index (JSON file in uploads) that   */
+/* the browser loads once in the background, so suggestions appear on every    */
+/* keystroke without waiting for the server. Rebuilt whenever a product,       */
+/* price, stock, category or attribute changes. Falls back to the AJAX search. */
+/* -------------------------------------------------------------------------- */
+
+/** Index file path and URL. */
+function nura_search_index_loc() {
+	$u = wp_upload_dir( null, false );
+	return array(
+		trailingslashit( $u['basedir'] ) . 'nura/search-index.json',
+		set_url_scheme( trailingslashit( $u['baseurl'] ) . 'nura/search-index.json' ),
+	);
+}
+
+/** Build the index: every published, searchable product with name, link, price, small photo and search words. */
+function nura_search_index_build() {
+	if ( ! function_exists( 'wc_get_product' ) ) {
+		return false;
+	}
+	$ids = get_posts( array(
+		'post_type'      => 'product',
+		'post_status'    => 'publish',
+		'posts_per_page' => 2000,
+		'fields'         => 'ids',
+		'no_found_rows'  => true,
+		'orderby'        => 'menu_order title',
+		'order'          => 'ASC',
+		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery
+			array(
+				'taxonomy' => 'product_visibility',
+				'field'    => 'slug',
+				'terms'    => array( 'exclude-from-search' ),
+				'operator' => 'NOT IN',
+			),
+		),
+	) );
+	$rows = array();
+	foreach ( $ids as $id ) {
+		$p = wc_get_product( $id );
+		if ( ! $p ) {
+			continue;
+		}
+		$words = array();
+		foreach ( array( 'product_cat', 'product_tag', 'product_brand' ) as $tax ) {
+			if ( taxonomy_exists( $tax ) ) {
+				$t = wc_get_product_terms( $id, $tax, array( 'fields' => 'names' ) );
+				$words = array_merge( $words, is_array( $t ) ? $t : array() );
+			}
+		}
+		foreach ( $p->get_attributes() as $att ) {
+			if ( ! is_object( $att ) ) {
+				continue;
+			}
+			if ( $att->is_taxonomy() ) {
+				$t = wc_get_product_terms( $id, $att->get_name(), array( 'fields' => 'names' ) );
+				$words = array_merge( $words, is_array( $t ) ? $t : array() );
+			} else {
+				$words = array_merge( $words, (array) $att->get_options() );
+			}
+		}
+		$img    = get_the_post_thumbnail_url( $id, 'woocommerce_gallery_thumbnail' );
+		$rows[] = array(
+			't' => wp_strip_all_tags( html_entity_decode( $p->get_name(), ENT_QUOTES, 'UTF-8' ) ),
+			'u' => get_permalink( $id ),
+			'p' => $p->get_price_html(),
+			'i' => $img ? $img : '',
+			's' => (string) $p->get_sku(),
+			'k' => wp_strip_all_tags( html_entity_decode( implode( ' ', array_unique( array_map( 'strval', $words ) ) ), ENT_QUOTES, 'UTF-8' ) ),
+			'o' => $p->is_in_stock() ? 1 : 0,
+			'n' => (int) $p->get_total_sales(),
+		);
+	}
+	list( $path ) = nura_search_index_loc();
+	if ( ! wp_mkdir_p( dirname( $path ) ) ) {
+		return false;
+	}
+	$v    = time();
+	$json = wp_json_encode( array( 'v' => $v, 'items' => $rows ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+	if ( false === $json || false === file_put_contents( $path, $json, LOCK_EX ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions
+		return false;
+	}
+	update_option( 'nura_search_index_v', $v, true );
+	delete_option( 'nura_search_index_dirty' );
+	return true;
+}
+
+/** Mark the index out of date; it is rebuilt once at the end of the request. */
+function nura_search_index_dirty() {
+	if ( ! get_option( 'nura_search_index_dirty' ) ) {
+		update_option( 'nura_search_index_dirty', 1, true );
+	}
+}
+foreach ( array( 'woocommerce_new_product', 'woocommerce_update_product', 'woocommerce_save_product_variation', 'woocommerce_product_set_stock', 'woocommerce_variation_set_stock', 'woocommerce_product_set_stock_status', 'woocommerce_variation_set_stock_status', 'edited_product_cat', 'edited_product_tag' ) as $nura_hk ) {
+	add_action( $nura_hk, 'nura_search_index_dirty' );
+}
+add_action( 'transition_post_status', function ( $new, $old, $post ) {
+	if ( $post && 'product' === $post->post_type && $new !== $old ) {
+		nura_search_index_dirty();
+	}
+}, 10, 3 );
+add_action( 'deleted_post', function ( $id ) {
+	if ( 'product' === get_post_type( $id ) ) {
+		nura_search_index_dirty();
+	}
+} );
+add_action( 'shutdown', function () {
+	if ( get_option( 'nura_search_index_dirty' ) ) {
+		nura_search_index_build();
+	}
+} );
+
+/** Tell the page where the index is (built on the first visit if missing). */
+add_action( 'wp_head', function () {
+	if ( is_admin() || ! apply_filters( 'nura_instant_search', true ) ) {
+		return;
+	}
+	list( $path, $url ) = nura_search_index_loc();
+	if ( ! file_exists( $path ) ) {
+		nura_search_index_dirty();
+	}
+	$v = (int) get_option( 'nura_search_index_v', 0 );
+	if ( ! $v ) {
+		return;
+	}
+	echo '<script>window.NURA_SIDX=' . wp_json_encode( add_query_arg( 'v', $v, $url ) ) . ';</script>' . "\n";
+}, 3 );

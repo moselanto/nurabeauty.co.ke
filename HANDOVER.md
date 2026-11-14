@@ -2,6 +2,15 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 16:15 EAT (Ray) - R7 mobile JS, hero photo, GSC check
+
+- **Live:** theme **1.152.1**, plugin 1.113.0 (committed to main before install; Purge All done).
+- **1.152.0 (`inc/nura-r7.php`):** on all non-checkout pages these scripts now load on first tap/key/scroll/mouse move (or about 7 s after load, in idle time), with their inline settings kept in order: sourcebuster + order attribution, Join The House pop-up, comment-reply, option pickers (variations/underscore/wp-util) except on product pages, and on guides/plain pages with no product cards the WooCommerce add-to-cart/blockUI/cookie/woocommerce.js. A script is never delayed if a non-delayed script depends on it. Checked live with no JS errors; scripts load after interaction and the attribution cookie is set. Off: `nura_r7_lazy_js` filter or `?nura_r7_off=1`.
+- **1.152.1:** homepage slide 1 (`assets/images/hero-owner.webp` + `-m`) rebuilt from the owner's original portrait in NURA BRANDING.pdf (the old one had a distorted right eye).
+- **Lighthouse after 1.152.0 (sandbox, mobile slow 4G / desktop):** home 62 (TBT 1,400 ms, TTI 5.0 s) / 93; shop 71 (700 ms, 4.4 s) / 98; product 81 (520 ms, 3.3 s) / 99; guide 88 (250 ms, 4.3 s) / 98 (desktop guide rerun now works). Home and shop mobile TBT is dominated by the Meta pixel + Google tag fallback load and by style/layout of the large home DOM (135 KB inline CSS, 90 KB templates), not by site JS; run-to-run noise is large.
+- **Search Console (checked 14 Nov 16:00):** all six validations still "Started", no failures: 404 (32 pending), 5xx (17 pending, since 2 Nov), validFrom (6), return policy (1), shipping (1), global identifier (1). Re-checked live: all 32 404 URLs now 301 to 200 pages; the 6 products output validFrom, return policy, shipping and sku; filter URLs are disallowed in robots.txt. Re-check in about 2 weeks.
+- **Booking hours:** not changed. Owner's message had "[fill in]"; the Google Maps listing says Mon-Sat 9:00 am-7:30 pm, Sunday closed. That conflicts with the before-8:00 early fee, so this needs the owner's confirmation.
+
 ## UPDATE 14 Nov 2026 12:55 EAT (Ray) - R6 clean-up, speed, merchant fields, booking policy
 
 - **Live:** theme **1.151.0**, plugin **1.113.0** (all committed to main before install, Purge All after each).

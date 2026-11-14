@@ -137,7 +137,8 @@ add_action( 'wp_head', function () {
 	// briefly 36,000 px tall), pushing the tabs down and back (CLS 0.9 on desktop product pages).
 	// Only the first photo shows until the slider is ready, and slides float from the start.
 	if ( function_exists( 'is_product' ) && is_product() ) {
-		echo '<style id="nura-r6-gallery">.woocommerce-product-gallery:not(:has(.flex-viewport)) .woocommerce-product-gallery__wrapper>.woocommerce-product-gallery__image:nth-child(n+2){display:none}.woocommerce-product-gallery .flex-viewport{overflow:hidden}.woocommerce-product-gallery .flex-viewport .woocommerce-product-gallery__image{float:left}</style>' . "\n";
+		// Lock the gallery to its first-paint height until the WooCommerce slider has finished (or 4 s), so nothing below it jumps.
+		echo '<script id="nura-r6-gallery">(function(){function lock(){var g=document.querySelector(".woocommerce-product-gallery");if(!g||g.dataset.nuraLock)return;g.dataset.nuraLock=1;var h=g.getBoundingClientRect().height;if(h<50)return;g.style.height=h+"px";g.style.overflow="hidden";var done=0;function free(){if(done)return;done=1;requestAnimationFrame(function(){g.style.height="";g.style.overflow="";});}if(window.jQuery){jQuery(g).on("wc-product-gallery-after-init",function(){setTimeout(free,300);});}setTimeout(free,4000);}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",lock);}else{lock();}})();</script>' . "\n";
 		return;
 	}
 	// 1.150.1: the header row lock only on shop / category / tag archives (on product pages it caused a 0.77 shift).

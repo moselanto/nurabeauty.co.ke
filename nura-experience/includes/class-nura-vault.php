@@ -399,7 +399,7 @@ class NURAX_Vault {
 
 		/* Audit log. */
 		$log = get_option( self::AUDIT, array() );
-		echo '<details class="nd-sec__more" open><summary>Activity log (last 30 of ' . count( (array) $log ) . ')</summary>';
+		echo '<details class="nd-sec__more" open><summary>Activity log (latest ' . min( 30, count( (array) $log ) ) . ')</summary>';
 		if ( ! $log ) {
 			echo '<p class="nd-mut">No activity yet. Every report download and data-protection change is recorded here with who, when and from which IP.</p>';
 		} else {

@@ -23,3 +23,14 @@ add_action( 'wp_head', function () {
 		. '.single-product footer.site-footer,.single-product #colophon{content-visibility:auto;contain-intrinsic-size:auto 1200px}}</style>' . "\n";
 	echo "<script id=\"nura-r16-js\">(function(w,d){function go(){(w.requestIdleCallback||function(f){setTimeout(f,200);})(function(){d.documentElement.classList.add('nura-ready');},{timeout:3000});}if(d.readyState==='complete'){go();}else{w.addEventListener('load',go);}['scroll','touchstart','pointerdown'].forEach(function(e){w.addEventListener(e,function(){d.documentElement.classList.add('nura-ready');},{once:true,passive:true});});})(window,document);</script>\n";
 }, 6 );
+
+/* 1.161.1: PageSpeed (phone) layout shift 0.095 on product pages came from the PhotoSwipe lightbox markup
+ * (div.pswp / .pswp__top-bar) in the footer: its stylesheet loads without blocking the first paint, so for a
+ * moment the closed lightbox toolbar was laid out in the page and then removed. Keep it hidden from the
+ * first paint until the lightbox is actually opened (same rule PhotoSwipe's own CSS applies). */
+add_action( 'wp_head', function () {
+	if ( ! apply_filters( 'nura_r16_on', true ) || is_admin() || ! function_exists( 'is_product' ) || ! is_product() ) {
+		return;
+	}
+	echo '<style id="nura-r16-pswp">.pswp{display:none}.pswp.pswp--open{display:block}</style>' . "\n";
+}, 3 );

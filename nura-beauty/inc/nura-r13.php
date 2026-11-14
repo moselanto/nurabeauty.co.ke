@@ -97,7 +97,6 @@ add_action( 'template_redirect', function () {
 			return $html;
 		}
 		$patterns = (array) apply_filters( 'nura_r13_lazy_sections', array(
-			'#<nav class="nura-hub-links nura-hub-links--pdp"[^>]*>#',
 			'#<section class="nura-complete"[^>]*>#',
 			'#<section class="nura-pq"[^>]*>#',
 			'#<section class="nura-enc-box"[^>]*>#',
@@ -117,7 +116,7 @@ add_action( 'wp_footer', function () {
 		return;
 	}
 	?>
-<style id="nura-r13-pdp">.nura-lazysec{min-height:240px}.nura-lazysec.is-in{min-height:0}#reviews,.woocommerce-Tabs-panel--reviews{content-visibility:auto;contain-intrinsic-size:auto 900px}</style>
+<style id="nura-r13-pdp">#reviews,.woocommerce-Tabs-panel--reviews{content-visibility:auto;contain-intrinsic-size:auto 900px}</style>
 <script id="nura-r13-pdp-js">(function(d,w){function show(box){if(box.classList.contains("is-in")){return;}var t=box.querySelector("template");if(!t){return;}box.classList.add("is-in");box.appendChild(d.importNode(t.content,true));t.parentNode.removeChild(t);
  [].forEach.call(box.querySelectorAll("img[data-src]:not(.nura-loop-2nd)"),function(im){var s=im.getAttribute("src")||"";if(!s||s.indexOf("data:")===0){im.src=im.getAttribute("data-src");var ss=im.getAttribute("data-srcset");if(ss){im.srcset=ss;}}});
  try{d.dispatchEvent(new CustomEvent("nura:panel-loaded",{detail:{panel:box}}));}catch(e){}if(w.jQuery){w.jQuery(d.body).trigger("nura_panel_loaded",[box]);}}

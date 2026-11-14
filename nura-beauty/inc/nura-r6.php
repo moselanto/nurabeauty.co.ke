@@ -137,6 +137,9 @@ add_action( 'wp_head', function () {
 	// briefly 36,000 px tall), pushing the tabs down and back (CLS 0.9 on desktop product pages).
 	// Only the first photo shows until the slider is ready, and slides float from the start.
 	if ( function_exists( 'is_product' ) && is_product() ) {
+		// 1.150.4: the real cause - before woocommerce.css arrived the tabs did not clear the floated gallery/summary
+		// and sat at the top, then jumped ~2,500 px down (CLS 0.92). Clear them in the first paint, and lock the header row.
+		echo '<style id="nura-r6-cls">div.product .woocommerce-tabs,div.product .related,div.product .upsells{clear:both}@media(min-width:861px){html body .nura-header-inner{grid-template-rows:54px auto}}</style>' . "\n";
 		// Lock the gallery to its first-paint height until the WooCommerce slider has finished (or 4 s), so nothing below it jumps.
 		echo '<script id="nura-r6-gallery">(function(){function lock(){var g=document.querySelector(".woocommerce-product-gallery");if(!g||g.dataset.nuraLock)return;g.dataset.nuraLock=1;var h=g.getBoundingClientRect().height;if(h<50)return;g.style.height=h+"px";g.style.overflow="hidden";var done=0;function free(){if(done)return;done=1;requestAnimationFrame(function(){g.style.height="";g.style.overflow="";});}if(window.jQuery){jQuery(g).on("wc-product-gallery-after-init",function(){setTimeout(free,300);});}setTimeout(free,4000);}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",lock);}else{lock();}})();</script>' . "\n";
 		return;

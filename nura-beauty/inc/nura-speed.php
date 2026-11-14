@@ -125,7 +125,7 @@ add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment,
 	$attr['decoding'] = 'async';
 	if ( ! empty( $attr['srcset'] ) ) {
 		// Cards are 2 per row on phones, 3 on tablets, 4-5 on desktop.
-		$attr['sizes'] = '(max-width: 600px) 50vw, (max-width: 1024px) 33vw, 400px'; // 1.129.2: desktop cards are ~310-340px; 400px makes laptops/Macs (1.25x-2x screens) pick the 600/768 file instead of a stretched 300/440 one.
+		$attr['sizes'] = '(max-width: 600px) calc(50vw - 24px), (max-width: 1024px) 33vw, 400px'; // 1.147.0: real 2-column card width on phones, so the new 360 px WebP is picked. // 1.129.2: desktop cards are ~310-340px; 400px makes laptops/Macs (1.25x-2x screens) pick the 600/768 file instead of a stretched 300/440 one.
 		// 1.69.1: drop candidates wider than 800px so a phone never downloads the 600 KB original.
 		$keep = array();
 		foreach ( explode( ',', (string) $attr['srcset'] ) as $cand ) {
@@ -139,23 +139,42 @@ add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment,
 		}
 	}
 	if ( $nlz ) {
-		$w = isset( $attr['width'] ) ? (int) $attr['width'] : 0;
-		$h = isset( $attr['height'] ) ? (int) $attr['height'] : 0;
-		if ( ! $w || ! $h ) {
-			$meta = wp_get_attachment_image_src( $attachment->ID, $size );
-			$w    = $meta ? (int) $meta[1] : 1;
-			$h    = $meta ? (int) $meta[2] : 1;
-		}
-		$attr['data-src'] = $attr['src'];
-		$attr['src']      = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 ' . max( 1, $w ) . ' ' . max( 1, $h ) . '%27/%3E';
-		if ( ! empty( $attr['srcset'] ) ) {
-			$attr['data-srcset'] = $attr['srcset'];
-			unset( $attr['srcset'] );
-		}
-		$attr['class'] = trim( ( isset( $attr['class'] ) ? $attr['class'] : '' ) . ' nura-lz' );
+		$attr['data-nura-nlz'] = '1'; // converted at priority 50, after nura-webp.php sets the WebP src/srcset.
 	}
 	return $attr;
 }, 30, 3 );
+
+/* 5b. 1.147.0: runs after nura-webp.php (priority 40): phone-width sizes for cards and the near-screen
+ *     loading from the 5th card on (1.146.0 converted too early, so WebP cards still loaded at once). */
+add_filter( 'wp_get_attachment_image_attributes', function ( $attr, $attachment, $size ) {
+	$class = isset( $attr['class'] ) ? (string) $attr['class'] : '';
+	if ( ! empty( $attr['srcset'] ) && ( false !== strpos( $class, 'attachment-nura_card' ) || false !== strpos( $class, 'attachment-woocommerce_thumbnail' ) ) ) {
+		$attr['sizes'] = '(max-width: 600px) calc(50vw - 24px), (max-width: 1024px) 33vw, 400px';
+	}
+	if ( empty( $attr['data-nura-nlz'] ) ) {
+		return $attr;
+	}
+	unset( $attr['data-nura-nlz'] );
+	if ( empty( $attr['src'] ) || 0 === strpos( (string) $attr['src'], 'data:' ) ) {
+		return $attr;
+	}
+	$w = isset( $attr['width'] ) ? (int) $attr['width'] : 0;
+	$h = isset( $attr['height'] ) ? (int) $attr['height'] : 0;
+	if ( ( ! $w || ! $h ) && $attachment ) {
+		$meta = wp_get_attachment_image_src( $attachment->ID, $size );
+		$w    = $meta ? (int) $meta[1] : 1;
+		$h    = $meta ? (int) $meta[2] : 1;
+	}
+	$attr['data-src'] = $attr['src'];
+	$attr['src']      = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 ' . max( 1, $w ) . ' ' . max( 1, $h ) . '%27/%3E';
+	if ( ! empty( $attr['srcset'] ) ) {
+		$attr['data-srcset'] = $attr['srcset'];
+		unset( $attr['srcset'] );
+	}
+	$attr['class'] = trim( $class . ' nura-lz' );
+	return $attr;
+}, 50, 3 );
+
 
 /* 6. Skip WooCommerce's cart-refresh request when the visitor's cart is empty. */
 add_action( 'wp_enqueue_scripts', function () {
@@ -405,15 +424,15 @@ add_action( 'wp_head', function () {
 	}
 	$faces = array(
 		array( 'Playfair Display', 'playfair', 'normal', '400 900' ),
-		array( 'Cormorant Garamond', 'cormorant', 'normal', '300 700' ),
-		array( 'Cormorant Garamond', 'cormorant-italic', 'italic', '300 700' ),
 		array( 'Montserrat', 'montserrat', 'normal', '100 900' ),
-		array( 'Jost', 'jost', 'normal', '100 900' ),
 	);
+	// 1.147.0: Cormorant Garamond and Jost dropped (owner: trim fonts for speed) - the editorial serif uses
+	// Playfair Display and the UI/buttons use Montserrat, both already loaded. Saves ~100 KB per visit.
 	$css = '';
 	foreach ( $faces as $f ) {
-		$css .= "@font-face{font-family:'" . $f[0] . "';font-style:" . $f[2] . ';font-weight:' . $f[3] . ';font-display:swap;src:url(' . esc_url( $u . $f[1] . '.woff2' ) . ") format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}";
+		$css .= "@font-face{font-family:'" . $f[0] . "';font-style:" . $f[2] . ';font-weight:' . $f[3] . ';font-display:optional;src:url(' . esc_url( $u . $f[1] . '.woff2' ) . ") format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}";
 	}
+	$css .= ':root{--font-editorial:"Playfair Display",Georgia,"Times New Roman",serif!important;--font-ui:"Montserrat","Helvetica Neue",Arial,sans-serif!important;--nura-font-ui:"Montserrat","Helvetica Neue",Arial,sans-serif!important}';
 	echo '<style id="nura-local-fonts">' . $css . "</style>\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from fixed values and esc_url().
 }, 2 );
 add_filter( 'wp_resource_hints', function ( $urls, $type ) {
@@ -501,3 +520,52 @@ add_filter( 'style_loader_tag', function ( $tag, $handle, $href ) {
 	$async = preg_replace( "/rel=(['\"])stylesheet\\1/", 'rel="preload" as="style" onload="this.onload=null;this.rel=\'stylesheet\'"', $tag, 1 );
 	return $async . '<noscript>' . trim( $tag ) . "</noscript>\n";
 }, 40, 3 );
+
+/* 20. v1.148.0 Desktop layout jump (CLS 0.47): until the main stylesheet arrives the desktop menu's
+ * drop-down panels were laid out open, so the menu was ~430 px tall for a moment and then collapsed,
+ * pushing the whole page. Keep them closed from the very first paint (the open state in main.min.css
+ * is more specific, so menus still open normally). */
+add_action( 'wp_head', function () {
+	if ( ! nura_speed_on() ) {
+		return;
+	}
+	echo '<style id="nura-cls">@media(min-width:861px){.nura-nav .sub-menu,.nura-nav .nura-mega__panel{position:absolute;opacity:0;visibility:hidden}}</style>' . "\n";
+}, 1 );
+
+/* 21. v1.148.0 Only load the WooCommerce option-picker scripts (variations, underscore, wp-util) on pages
+ * that actually show products: single product pages, or any page where a product card was printed
+ * (cards carry Quick View, which needs them). Guides, blog posts and plain pages skip ~30 KB of script.
+ * Site Kit's Contact Form 7 / WPForms event helpers load only where those forms can exist.
+ * Off: add_filter( 'nura_trim_wc_scripts', '__return_false' ). */
+$GLOBALS['nura_cards_printed'] = false;
+add_action( 'woocommerce_before_shop_loop_item', function () {
+	$GLOBALS['nura_cards_printed'] = true;
+} );
+add_action( 'wp_footer', function () {
+	if ( ! nura_speed_on() || ! apply_filters( 'nura_trim_wc_scripts', true ) || ( function_exists( 'nura_perf_protected' ) && nura_perf_protected() ) ) {
+		return;
+	}
+	$shop = function_exists( 'is_woocommerce' ) && ( is_woocommerce() || is_product() );
+	if ( ! $shop && ! is_front_page() && empty( $GLOBALS['nura_cards_printed'] ) ) {
+		wp_dequeue_script( 'wc-add-to-cart-variation' );
+		$ws = wp_scripts();
+		foreach ( array( 'wp-util', 'underscore' ) as $h ) {
+			$needed = false;
+			foreach ( (array) $ws->queue as $q ) {
+				if ( $q !== $h && isset( $ws->registered[ $q ] ) && in_array( $h, (array) $ws->registered[ $q ]->deps, true ) ) {
+					$needed = true;
+					break;
+				}
+			}
+			if ( ! $needed ) {
+				wp_dequeue_script( $h );
+			}
+		}
+	}
+	if ( ! wp_script_is( 'contact-form-7', 'enqueued' ) ) {
+		wp_dequeue_script( 'googlesitekit-events-provider-contact-form-7' );
+	}
+	if ( ! defined( 'WPFORMS_VERSION' ) ) {
+		wp_dequeue_script( 'googlesitekit-events-provider-wpforms' );
+	}
+}, 1 );

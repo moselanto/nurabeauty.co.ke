@@ -59,6 +59,8 @@ function nuraHouseInit() {
 
 	/* ---------- Pop-up ---------- */
 	var box = d.querySelector('[data-nhs]'), tab = d.querySelector('[data-nhs-tab]'), bar = d.querySelector('[data-nhs-bar]');
+	// 1.111.3: busy() moved out of nuraPopup() - the slim bar (showBar) calls it, and inside the pop-up it was out of reach, so the bar threw "busy is not defined" and never appeared.
+	function busy() { return !!d.querySelector('.nwo.is-open, .nura-plan.is-open') || d.documentElement.classList.contains('nwo-lock') || d.documentElement.classList.contains('nura-plan-open'); }
 	function hideAll() { if (box) { box.hidden = true; } if (tab) { tab.hidden = true; } if (bar) { bar.hidden = true; d.documentElement.classList.remove('nhs-bar-on'); } }
 	if (!box || !C.popup) { return; }
 	// 1.82.5: the pop-up content ships inside an inert <template>. Nothing in it (photo, text) exists on
@@ -80,7 +82,6 @@ function nuraHouseInit() {
 	var card = box.querySelector('.nhs__card'), opened = false, lastFocus = null;
 
 	function step(n) { Array.prototype.forEach.call(box.querySelectorAll('[data-nhs-step]'), function (s) { s.classList.toggle('is-on', s.getAttribute('data-nhs-step') === String(n)); }); }
-	function busy() { return !!d.querySelector('.nwo.is-open, .nura-plan.is-open') || d.documentElement.classList.contains('nwo-lock') || d.documentElement.classList.contains('nura-plan-open'); }
 	function open(force) {
 		// 1.82.3: never open without a real visitor gesture (tap/click/key) - stops it showing by itself
 		// and being measured by PageSpeed as the largest image. Preview links still work.

@@ -12,8 +12,8 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.146.1-0E0E0E?style=for-the-badge)](nura-beauty)
-[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.111.2-C9A24B?style=for-the-badge)](nura-experience)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.148.0-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.111.3-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-21759B?logo=wordpress&logoColor=white)
@@ -61,9 +61,9 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.146.1 | Parent theme |
+| `nura-beauty/` | 1.148.0 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
-| `nura-experience/` | 1.111.2 | Plugin |
+| `nura-experience/` | 1.111.3 | Plugin |
 
 ## Features
 
@@ -169,6 +169,8 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.148.0 | 1.111.3 | Desktop menu no longer jumps while loading; fewer shop scripts on guide and blog pages; newsletter bar shows again (install pending) |
+| 1.147.0 / 1.147.1 | - | Two fonts dropped, smaller phone product pictures, WebP 360 px |
 | 1.146.1 | - | Fix: Order on WhatsApp opens the styled pop-up again on category and product pages |
 | 1.146.0 | 1.111.2 | Phone-sized hero photos (homepage photo 1.2 s on slow 4G), product pictures load as you scroll, Meta pixel waits for the page to finish |
 | 1.145.1 | - | Pages appear in under a second on slow 4G (critical CSS inline, all stylesheets non-blocking, lighter logo); search keeps results while a word is being typed |

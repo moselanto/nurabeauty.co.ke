@@ -27,7 +27,7 @@ function nura_webp_on() {
 }
 
 function nura_webp_widths() {
-	return (array) apply_filters( 'nura_webp_widths', array( 480, 640, 828, 1024 ) );
+	return (array) apply_filters( 'nura_webp_widths', array( 360, 480, 640, 828, 1024 ) ); // 1.147.0: 360 px for the 2-column phone grid.
 }
 
 /** 1.130.0: file-name suffix; bump to rebuild every WebP (s2 = sharpened, quality 86). */

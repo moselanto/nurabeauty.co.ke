@@ -31,8 +31,8 @@ add_action( 'wp_head', function () {
 	if ( ! nura_speed_on() || ! is_front_page() || ! defined( 'NURA_URI' ) ) {
 		return;
 	}
-	echo '<link rel="preload" as="image" href="' . esc_url( NURA_URI . 'assets/images/hero-owner-m.webp' ) . '" media="(max-width: 768px)" fetchpriority="high">' . "\n"; // 1.146.0: 800 px phone version (10 KB).
-	echo '<link rel="preload" as="image" href="' . esc_url( NURA_URI . 'assets/images/hero-owner.webp' ) . '" media="(min-width: 769px)" fetchpriority="high">' . "\n";
+	echo '<link rel="preload" as="image" href="' . esc_url( NURA_URI . 'assets/images/hero-owner-m.webp?v=' . NURA_VERSION ) . '" media="(max-width: 768px)" fetchpriority="high">' . "\n"; // 1.146.0: 800 px phone version (10 KB).
+	echo '<link rel="preload" as="image" href="' . esc_url( NURA_URI . 'assets/images/hero-owner.webp?v=' . NURA_VERSION ) . '" media="(min-width: 769px)" fetchpriority="high">' . "\n";
 }, 1 );
 
 /* 2. Contact Form 7 only where a CF7 form is used. */

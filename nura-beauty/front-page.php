@@ -119,7 +119,7 @@ $wigs_url = nura_home_cat_url( 'wigs' );
  */
 $slides = array(
 	array( // Owner slide (1.136.0), first since 1.137.0 (owner request 14 Nov 2026); preloaded as the LCP image.
-		'img'     => NURA_URI . 'assets/images/hero-owner.webp',
+		'img'     => NURA_URI . 'assets/images/hero-owner.webp?v=' . NURA_VERSION,
 		'class'   => 'nura-slide--owner',
 		'eyebrow' => __( 'NURA Beauty • Wig Shop & Installation Studio', 'nura-beauty' ),
 		'title'   => __( 'The House of Radiant Confidence', 'nura-beauty' ),

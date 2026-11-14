@@ -2,6 +2,16 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 12:20 EAT (Ray) - SEO R5 start + Google/Bing audit
+
+- **Theme 1.149.0 live** (commit 93e40cc, Purge All): `inc/nura-seo-r5.php` - product titles over 65 chars become "Name - KSh price | NURA Beauty Kenya"; repeated words removed from titles/descriptions ("Luxury Fibre Luxury Fibre"); category descriptions say "Shop 1 style at KSh 4,500". Verified live with curl. Off switch: `add_filter( 'nura_seo_r5', '__return_false' )`.
+- P0 from the owner's SEO plan (wig-care in wig price tables / buying guide): **not present live** on /wig-prices-kenya/ or /best-wigs-in-kenya-buying-guide/ on 14 Nov.
+- **Search Console:** all 6 sitemaps Success (132 URLs). Indexed 132; not indexed 2,551 (noindex 2,111 - filters, expected; robots 253; crawled-not-indexed 52; redirect 38; **404 32 (validation failed); 5xx 17**; canonical alternate 24; discovered-not-indexed 22). HTTPS OK. CWV: not enough field data. Product snippets 18 valid, Merchant listings 68 valid, Breadcrumbs 56 valid; warnings: no aggregateRating/review (needs real reviews), validFrom missing on 6, return/shipping/GTIN missing on 1.
+- **GA4:** property NURA Beauty 559103735, stream 16134594591, **G-FK5L7NBCZ4**, data flowing (158 users 7-13 Nov), Search Console already linked (2 Nov).
+- **Bing Webmaster:** site present (signed in with Google), sitemap_index.xml Success, 127 URLs, 0 errors. Recommendations: more quality backlinks; 1 filtered shop URL noindex (expected).
+- **Business Profile:** 1 location, verified. Profile/services panel blocked by Google automated-query check - owner to check the services panel on phone.
+- **Next (SEO R5 plan):** export and fix the 32 404s + 17 5xx URLs (301 or restore); add validFrom/shipping/return to the few merchant items; real review collection (Ask for reviews) for aggregateRating; GBP posts/photos/Q&A weekly; product-level content per the owner's plan; /shop/ CLS and mobile TBT.
+
 ## UPDATE 14 Nov 2026 12:10 EAT (Ray) - release checks finished
 
 - **Plugin 1.112.1 live** (commits 349e514 + 66e3809): the newsletter bar is one tap target ("Join The House" / "Get my code") that opens the Join The House pop-up; no inline e-mail form. Verified in a fresh headless Chrome at 390x844 (sandbox, LD_LIBRARY_PATH to extracted libatk/libatspi/libxdamage debs): bar appears on the 2nd page view after ~4 s, has no e-mail box, tap opens the pop-up. **No console/page errors ("busy is not defined" gone).**
@@ -81,6 +91,7 @@ The install was blocked: the browser tool ran out of Town credits mid-session. N
 
 | Date | Agent | What happened | Pending after this session |
 | --- | --- | --- | --- |
+| 14 Nov 2026 (12:20) | Town assistant (Ray) | Theme 1.149.0 SEO R5 snippets installed + verified; full Search Console / GA4 / Bing / GBP audit recorded above. | 404/5xx clean-up, merchant fields, reviews, GBP panel (owner), product content. |
 | 14 Nov 2026 (12:10) | Town assistant (Ray) | Plugin 1.112.1 (newsletter bar opens pop-up) committed + installed + verified at 390 px; phone WhatsApp checks 15/15; Lighthouse desktop/mobile; Book of Accounts checks read (all balanced). | /shop/ desktop CLS + mobile TBT; owner capital vouchers; buying prices; SEO/AEO/GEO + Google/Bing stack programme. |
 | 14 Nov 2026 (05:15) | Town assistant (Ray) | Installed theme 1.148.0 + plugin 1.111.3, newsletter delay 4 s, Purge All, desktop checks (see UPDATE above). Built, committed and installed **plugin 1.112.0 Book of Accounts** + Sold-with-payment-details + WhatsApp sales in revenue. | Newsletter bar to open the pop-up; phone checks; PSI; owner to mark real orders Sold with M-Pesa codes and record expenses/capital so the books are complete. |
 | 14 Nov 2026 (04:30) | Town assistant (Ray) | Theme 1.147.0 + 1.147.1 installed live (fonts trimmed, smaller card images, WebP rebuilt). PSI mobile 82 -> 87 (LCP 5.0 -> 2.4 s) but desktop 99 -> 77 (CLS 0.47). Found the desktop CLS cause (mega-menu panels open before CSS) and the newsletter bar bug (busy() out of scope); fixes + script trimming in theme 1.148.0 / plugin 1.111.3, committed but NOT installed - Town credits ran out mid-session. Desktop 'Order on WhatsApp' checked on all 14 categories + Human Hair Bob: all OK. | Install theme 1.148.0 + plugin 1.111.3 (Replace current), set NURA Desk newsletter delay 12 -> 4 s, Purge All; recheck WhatsApp pop-up, product pictures, newsletter bar (phone + desktop, 2nd page view, screenshots); re-measure 4 pages slow 4G; PSI mobile + desktop (target desktop 95+); update this file. |

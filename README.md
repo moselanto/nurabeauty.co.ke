@@ -12,7 +12,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.148.0-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.149.0-0E0E0E?style=for-the-badge)](nura-beauty)
 [![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.112.1-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
@@ -61,7 +61,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.148.0 | Parent theme |
+| `nura-beauty/` | 1.149.0 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
 | `nura-experience/` | 1.112.1 | Plugin |
 
@@ -169,6 +169,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.149.0 | - | SEO R5: short product titles, de-duplicated snippets, singular category counts |
 | - | 1.112.1 | Newsletter bar: one tap opens the Join The House pop-up (no inline e-mail form) |
 | - | 1.112.0 | **Book of Accounts** Excel: double-entry journal, profit or loss, financial position, cash flows, trial balance, chart of accounts, sales register, unpaid orders and notes - all live formulas with balance checks; Accounts > Sold records method, M-Pesa code and date paid; paid WhatsApp orders count as sales |
 | 1.148.0 | 1.111.3 | Desktop menu no longer jumps while loading; fewer shop scripts on guide and blog pages; newsletter bar shows again (live 14 Nov) |

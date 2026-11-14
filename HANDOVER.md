@@ -2,6 +2,38 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 23:55 EAT (Ray) - 4x4 Loose Wave desktop shift fixed (theme 1.161.4) + PSI on every remaining product
+
+- Cause: the countdown script (`#nura-eta-js`, inc/nura-pdp-convert.php) rewrites the delivery line `.nura-eta__t` after load ("Order within X h Y min..." before 5 PM, "Order now - delivered ... tomorrow" after). The new text can wrap to a different number of lines than the server text, so the delivery box changes height and pushes the short description and the Specifications box (`section.nura-specsec--compact`, 0.074) down/up on desktop.
+- Fix 1.161.4 (commit 149b7a7): the delivery line is now a one-cell grid `.nura-eta__w` holding two hidden copies (`.nura-eta__s`, aria-hidden) of the longest texts the script can show, plus the real text. The box is as tall as any possible text from first paint, so the script's rewrite changes nothing below it. Head CSS `#nura-r16-eta` in inc/nura-r16.php. Nothing else changes the short description (no script touches it; body fonts are font-display optional), so it is locked by the same fix.
+- 4x4 Loose Wave live PSI after fix (23:30): **Desktop 100, CLS 0.003** (was 0.076); Mobile 93, CLS 0. https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-4-by-4-loose-wave-wig/s540yynugd
+- Live PSI 23:32-23:53, all remaining products (mobile score / CLS, desktop score / CLS):
+  | Product | Mobile | Desktop |
+  |---|---|---|
+  | bone-straight-wig | 96 / 0 | 100 / 0 |
+  | bob-wavy-wig | 100 / 0 | 100 / 0.004 |
+  | kinky-headband-wig | 96 / 0 | 100 / 0.006 |
+  | latisha-dupe-wig | 95 / 0 | 100 / 0 |
+  | latisha-sensational-headband-wig | 95 / 0 | 100 / 0.007 |
+  | luxury-bodywave-wig | 95 / 0 | 100 / 0.025 |
+  | naturalista-wig | 95 / 0 | 100 / 0.004 |
+  | 4by4-latisha-dupe-wig | 95 / 0 | 100 / 0.003 |
+  | watercurl-headband-wig | 94 / 0 | 100 / 0.003 |
+  | cscr-professional-lace-melting-spray | 94 / 0 | 100 / 0.041 |
+  | luodais-human-hair-wig-and-weave-repair-serum | 92 / 0 | 100 / 0.038 |
+  | nylon-bristle-detangling-hair-brush | 95 / 0.001 | 100 / 0.043 |
+  | astylsst-texture-setting-spray-400-ml... | 96 / 0.017 | 100 / 0.048 |
+  | asstylist-hair-gel-for-laying-edges... | 97 / 0.001 | 100 / 0 |
+  | astylsst-elastic-and-fluffing-hair-mousse | 97 / 0.001 | 100 / 0.007 |
+  | cscr-lace-tint-spray-...-medium-brown | 97 / 0 | 100 / **0.059** |
+  | ghost-bond-bonding-glue-remover... | 96 / 0.017 | 100 / 0.021 |
+  | ghost-bond-xl-wig-fixing-glue-white-38-ml | 98 / 0 | 100 / 0.012 |
+  | ikt-hair-wax-stick-strong-hold-styling-wax | 95 / 0.017 | 100 / 0.024 |
+  | luodais-curl-keeper-smooth-shine-conditioner | 97 / 0.017 | 100 / 0 |
+  | luodais-classic-curl-keeper-and-repair-serum | 98 / 0.001 | 100 / 0.021 |
+  All 37 products in the product sitemap have now been tested (25 wigs/closures, 12 care products; earlier note said 13 care products, the sitemap has 12).
+- **Watch:** cscr-lace-tint-spray desktop CLS 0.059 (under 0.1). Culprits: `div.single_variation_wrap` (0.033 + 0.012) and `div.nura-payrow` (0.015) - the add-to-bag area grows when WooCommerce fills the variation block after load; the care products in general sit at 0.02-0.05 on desktop for the same reason. Possible next fix: reserve the height of `.single_variation_wrap` / `.woocommerce-variation` from first paint on variable products.
+
 ## UPDATE 14 Nov 2026 22:40 EAT (Ray) - Pixie gallery shift fixed (theme 1.161.3) + PSI on 765x1024-photo products
 
 - Cause (measured, phone, 4x CPU): when the WooCommerce gallery slider starts, `.flex-viewport` is briefly as tall as all photos stacked (~5,000 px) with the thumbnail strip (`ol.flex-control-thumbs`) at its bottom; it then collapses to one photo and the strip jumps up into view (PSI CLS 0.104).

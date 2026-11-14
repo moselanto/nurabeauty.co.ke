@@ -15,7 +15,7 @@
 <?php wp_body_open(); ?>
 <a class="skip-link screen-reader-text" href="#primary"><?php esc_html_e( 'Skip to content', 'nura-beauty' ); ?></a>
 
-<?php nura_announcement_bar(); ?>
+<?php if ( function_exists( 'nura_announcement_bar' ) ) { nura_announcement_bar(); } ?>
 
 <header class="site-header" id="site-header">
 	<div class="nura-container nura-header-inner">

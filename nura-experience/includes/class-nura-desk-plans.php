@@ -663,7 +663,7 @@ class NURAX_Desk_Plans {
 			if ( 'overdue' === $m['health'] ) {
 				$tabs[] = 'overdue';
 			}
-			if ( $m['next'] && $m['next']['due'] <= $in7 ) {
+			if ( $m['next'] && $m['next']['due'] <= $in7 && in_array( $m['health'], array( 'on_track', 'due_soon', 'overdue' ), true ) ) { // 1.113.1: only plans in progress.
 				$tabs[] = 'due_week';
 			}
 			if ( in_array( $m['health'], array( 'completed', 'released', 'cancelled' ), true ) ) {

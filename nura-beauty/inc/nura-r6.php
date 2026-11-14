@@ -133,6 +133,10 @@ add_action( 'wp_head', function () {
 	if ( ! nura_r6_on( 'cls' ) ) {
 		return;
 	}
-	echo '<style id="nura-r6-cls">@media(min-width:861px){html body .nura-header-inner{grid-template-rows:54px auto}html body .nura-header-inner .nura-logo-wrap{line-height:0;align-self:center}}'
+	// 1.150.1: the header row lock only on shop / category / tag archives (on product pages it caused a 0.77 shift).
+	if ( ! ( function_exists( 'is_shop' ) && ( is_shop() || is_product_taxonomy() ) ) ) {
+		return;
+	}
+	echo '<style id="nura-r6-cls">@media(min-width:861px){html body.archive .nura-header-inner{grid-template-rows:54px auto}html body.archive .nura-header-inner .nura-logo-wrap{line-height:0;align-self:center}}'
 		. '.nura-shop-results .woocommerce-result-count{float:left;margin:0 20px 0 0;line-height:40px}.nura-shop-results .woocommerce-ordering{float:right;margin:0 0 1em}</style>' . "\n";
 }, 3 );

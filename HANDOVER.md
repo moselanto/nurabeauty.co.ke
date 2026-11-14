@@ -2,6 +2,15 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 17:35 EAT (Ray) - R8 answer pages, llms facts, reviews, listings (theme 1.153.0)
+
+- New `inc/nura-r8.php` (uses the R4 answer-page renderer, FAQPage schema, llms listing): /water-curl-wig-price-kenya/ (live prices from the water curl products, now KSh 2,500-3,500) and /types-of-wigs-and-prices-kenya/. Created once via admin_init (option `nura_r8_pages`), sent to IndexNow.
+- /llms.txt now lists every studio service with its price, the booking rules (from 6:00am, before 8:00am +KSh 1,000, 50% deposit min KSh 500, non-refundable for no-shows) and the review link; the old "morning appointments" wording is fixed in `inc/nura-geo.php`.
+- Reviews: /review/ already redirects to the Google review form; review-request email already goes 5 days after a completed order (`inc/nura-autofix.php`) plus plugin review asks. Printable QR card saved in Content Library (NURA Beauty / NURA review QR card.png).
+- Google Business Profile: owner reply posted to the only review; owner added a "Book" post linking to /book-appointment/ (live). Services and prices are published.
+- Bing Webmaster: verified, sitemap OK, IndexNow active. Bing Places listing exists, "verification in progress" waiting for a postal PIN. Apple Business Connect needs an Apple Account (owner to sign in).
+- GA4: add_to_cart and begin_checkout are key events, event retention 14 months, linked to Google Ads 742-305-6156. Google Ads: no billing yet, so no campaigns; owner budget "USD 5-10" (per day or per month not yet confirmed).
+
 ## UPDATE 14 Nov 2026 16:35 EAT (Ray) - slide 1 eye fix (1.152.2)
 
 - The cut-out portrait inside NURA BRANDING.pdf clips the outer corner of the owner's left eye (viewer's right), so 1.152.1 still showed a cut eye. 1.152.2 rebuilds `hero-owner.webp` / `-m.webp` from the rendered PDF page, so the full eye and lashes show, the same as in the PDF.

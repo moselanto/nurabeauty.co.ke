@@ -12,7 +12,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.144.0-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.145.1-0E0E0E?style=for-the-badge)](nura-beauty)
 [![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.111.1-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
@@ -61,7 +61,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.144.0 | Parent theme |
+| `nura-beauty/` | 1.145.1 | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
 | `nura-experience/` | 1.111.1 | Plugin |
 
@@ -169,6 +169,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.145.1 | - | Pages appear in under a second on slow 4G (critical CSS inline, all stylesheets non-blocking, lighter logo); search keeps results while a word is being typed |
 | 1.144.0 | - | Instant search: products appear on every keystroke (typo-tolerant, colours/textures included) from a small product list loaded in the background |
 | 1.143.0 | - | Phones: whole slide, including Shop Wigs / Find Your Wig, fits on the first screen |
 | 1.142.0 | - | Phones: slider shows the photo on top and the text below; booking M-Pesa number box readable with the button underneath |

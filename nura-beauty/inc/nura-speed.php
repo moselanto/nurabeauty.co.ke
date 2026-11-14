@@ -378,8 +378,11 @@ add_action( 'wp_head', function () {
 	}
 	$u = NURA_URI . 'assets/fonts/';
 	// Preload the two fonts visible on the first screen (body text and headings).
-	echo '<link rel="preload" href="' . esc_url( $u . 'montserrat.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
-	echo '<link rel="preload" href="' . esc_url( $u . 'playfair.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
+	// 1.145.1: not on the homepage - there the hero photo is the largest paint and the fonts were taking its bandwidth (text shows at once in the fallback font and swaps).
+	if ( ! ( is_front_page() && function_exists( 'nura_critical_key' ) && nura_critical_key() ) ) {
+		echo '<link rel="preload" href="' . esc_url( $u . 'montserrat.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
+		echo '<link rel="preload" href="' . esc_url( $u . 'playfair.woff2' ) . '" as="font" type="font/woff2" crossorigin>' . "\n";
+	}
 	$faces = array(
 		array( 'Playfair Display', 'playfair', 'normal', '400 900' ),
 		array( 'Cormorant Garamond', 'cormorant', 'normal', '300 700' ),
@@ -423,3 +426,53 @@ add_filter( 'script_loader_src', function ( $src ) {
 	}
 	return $src;
 }, 20 );
+
+
+/* 18. v1.145.0 Critical CSS: the styles needed for the first screen of each page type are printed inline in
+ *     <head> (assets/css/critical/{home,shop,product,page}.css, extracted from the live pages at 390 px and
+ *     1440 px), and every stylesheet then loads without blocking the first paint. Cart, checkout, account
+ *     and logged-in views keep normal blocking CSS. Regenerate the files after big design changes
+ *     (HANDOVER: "critical CSS"). Off: add_filter( 'nura_critical_css', '__return_false' ). */
+function nura_critical_key() {
+	static $k = null;
+	if ( null !== $k ) {
+		return $k;
+	}
+	$k = '';
+	if ( ! nura_speed_on() || is_admin() || is_user_logged_in() || is_customize_preview() || ! apply_filters( 'nura_critical_css', true ) ) {
+		return $k;
+	}
+	if ( function_exists( 'is_checkout' ) && ( is_checkout() || is_cart() || is_account_page() ) ) {
+		return $k;
+	}
+	if ( is_front_page() ) {
+		$k = 'home';
+	} elseif ( function_exists( 'is_product' ) && is_product() ) {
+		$k = 'product';
+	} elseif ( ( function_exists( 'is_shop' ) && ( is_shop() || is_product_taxonomy() ) ) || is_search() ) {
+		$k = 'shop';
+	} elseif ( is_singular() || is_home() || is_archive() || is_404() ) {
+		$k = 'page';
+	}
+	if ( $k && ! is_readable( NURA_DIR . 'assets/css/critical/' . $k . '.css' ) ) {
+		$k = '';
+	}
+	return $k;
+}
+add_action( 'wp_head', function () {
+	$k = nura_critical_key();
+	if ( ! $k ) {
+		return;
+	}
+	echo '<style id="nura-critical">' . file_get_contents( NURA_DIR . 'assets/css/critical/' . $k . '.css' ) . "</style>\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions -- static theme file.
+}, 2 );
+add_filter( 'style_loader_tag', function ( $tag, $handle, $href ) {
+	if ( ! nura_critical_key() || false === strpos( $tag, "rel='stylesheet'" ) && false === strpos( $tag, 'rel="stylesheet"' ) ) {
+		return $tag;
+	}
+	if ( in_array( $handle, (array) apply_filters( 'nura_critical_keep_blocking', array() ), true ) ) {
+		return $tag;
+	}
+	$async = preg_replace( "/rel=(['\"])stylesheet\\1/", 'rel="preload" as="style" onload="this.onload=null;this.rel=\'stylesheet\'"', $tag, 1 );
+	return $async . '<noscript>' . trim( $tag ) . "</noscript>\n";
+}, 40, 3 );

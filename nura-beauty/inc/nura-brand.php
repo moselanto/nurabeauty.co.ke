@@ -38,7 +38,7 @@ function nura_brand_url( $key ) {
 function nura_brand_logo_html( $class = 'nura-brand-logo', $priority = true ) {
 	$f   = nura_brand_files();
 	$alt = esc_attr( (string) apply_filters( 'nura_brand_name', get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : 'NURA Beauty' ) );
-	return '<a class="custom-logo-link ' . esc_attr( $class ) . '" href="' . esc_url( home_url( '/' ) ) . '" rel="home" aria-label="' . $alt . '"><picture><source type="image/webp" srcset="' . esc_url( nura_brand_url( 'logo' ) ) . ' 320w" media="(min-width: 861px)"><img class="custom-logo" src="' . esc_url( nura_brand_url( 'png' ) ) . '" srcset="' . esc_url( nura_brand_url( 'png' ) ) . ' 320w, ' . esc_url( nura_brand_url( 'large' ) ) . ' 1200w" sizes="(max-width: 860px) 170px, 200px" alt="' . $alt . '" width="' . (int) $f['logo'][1] . '" height="' . (int) $f['logo'][2] . '" decoding="async"' . ( $priority ? ' fetchpriority="high"' : ' loading="lazy"' ) . '></picture></a>';
+	return '<a class="custom-logo-link ' . esc_attr( $class ) . '" href="' . esc_url( home_url( '/' ) ) . '" rel="home" aria-label="' . $alt . '"><picture><source type="image/webp" srcset="' . esc_url( nura_brand_url( 'logo' ) ) . ' 320w" sizes="(max-width: 860px) 170px, 200px"><img class="custom-logo" src="' . esc_url( nura_brand_url( 'png' ) ) . '" alt="' . $alt . '" width="' . (int) $f['logo'][1] . '" height="' . (int) $f['logo'][2] . '" decoding="async"' . ( $priority ? ' fetchpriority="high"' : ' loading="lazy"' ) . '></picture></a>';
 }
 
 function nura_brand_on() {

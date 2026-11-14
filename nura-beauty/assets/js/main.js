@@ -465,7 +465,8 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form||form.hasAttr
 		lastQ=q;
 		if(timer){clearTimeout(timer);}
 		var loc=window.nuraIdx&&nuraIdx.find(q,6);
-		if(loc){render({query:q,products:loc,suggestions:[],viewAllUrl:"/?post_type=product&s="+encodeURIComponent(q)});}
+		var keep=loc&&!loc.length&&results.querySelector(".nura-sresult__item")&&!/\s$/.test(input.value);
+		if(loc&&!keep){render({query:q,products:loc,suggestions:[],viewAllUrl:"/?post_type=product&s="+encodeURIComponent(q)});}
 		if(q.length<2){if(!loc){results.innerHTML="";}return;}
 		timer=setTimeout(function(){run(q);},loc?350:220);
 	});
@@ -798,7 +799,7 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form||form.hasAttr
 	if(!form){return;}
 	var input=form.querySelector(".nura-hsearch__input");
 	var drop=form.querySelector(".nura-hsearch__drop");
-	var timer=null, last="", active=-1, ctrl=null;
+	var timer=null, last="", active=-1, ctrl=null, nf=null;
 	var wa=(window.NURA&&NURA.whatsapp)?NURA.whatsapp:"https://wa.me/254714994898";
 	function esc(t){var e=d.createElement("div");e.textContent=t==null?"":String(t);return e.innerHTML.replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
 	function hide(){drop.hidden=true;active=-1;input.setAttribute("aria-expanded","false");}
@@ -821,7 +822,12 @@ r(function(){var form=d.querySelector("[data-nura-book]");if(!form||form.hasAttr
 		if(q===last){show();return;}
 		last=q;
 		var loc=window.nuraIdx&&nuraIdx.find(q,6);
-		if(loc){render(q,{products:loc});return;}
+		if(loc){
+			clearTimeout(nf);
+			/* 1.145.0: while a word is still being typed (no space yet), a miss keeps the last results on screen; "No products" only shows once typing pauses. */
+			if(!loc.length&&items().length&&!/\s$/.test(input.value)){nf=setTimeout(function(){if(input.value.trim()===q){render(q,{products:[]});}},900);return;}
+			render(q,{products:loc});return;
+		}
 		if(q.length<2){hide();return;}
 		if(!(window.NURA&&NURA.ajaxUrl)){return;}
 		if(ctrl&&ctrl.abort){ctrl.abort();}

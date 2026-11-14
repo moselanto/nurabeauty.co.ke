@@ -2,6 +2,11 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 16:35 EAT (Ray) - slide 1 eye fix (1.152.2)
+
+- The cut-out portrait inside NURA BRANDING.pdf clips the outer corner of the owner's left eye (viewer's right), so 1.152.1 still showed a cut eye. 1.152.2 rebuilds `hero-owner.webp` / `-m.webp` from the rendered PDF page, so the full eye and lashes show, the same as in the PDF.
+- Hero image URLs (front-page slide, preloads, enqueue) now end in `?v=NURA_VERSION`, so browsers and the CDN fetch the new photo after every theme update.
+
 ## UPDATE 14 Nov 2026 16:15 EAT (Ray) - R7 mobile JS, hero photo, GSC check
 
 - **Live:** theme **1.152.1**, plugin 1.113.0 (committed to main before install; Purge All done).

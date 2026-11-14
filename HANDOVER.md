@@ -2,6 +2,19 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 22:25 EAT (Ray) - product layout shifts across products (theme 1.161.2)
+
+- Loose Wave desktop: the 0.022 Specifications-section shift from the earlier PSI run no longer appears. Live PSI 22:21: **Mobile 96, CLS 0**; **Desktop 100, CLS 0.004** (only the Ask NURA Stylist button, 0.002 x2). The section moved because the price line grew after first paint; the R15 price-height fix plus 1.161.2 removed it. Could not reproduce the 0.022 in the sandbox after 1.161.1.
+- 1.161.2 (`inc/nura-r16.php`): sticky add-to-bag bar waits for page load on desktop too (was phones only; PSI desktop 0.005 from the bar); CSS placeholder for the gallery thumbnail strip before the slider starts.
+- Other products, live PSI (14 Nov):
+  | Product | Mobile | Mobile CLS | Desktop | Desktop CLS |
+  |---|---|---|---|---|
+  | 12 Inches Wig | 97 | 0 | 100 | 0.001 |
+  | Yaki Headband | 90 | 0 | 100 | 0.007 |
+  | Pixie Water Curl | 85-88 | **0.104 (over limit)** | 100 | 0.007-0.009 |
+- **Open:** Pixie Water Curl phone CLS 0.104, culprit `ol.flex-control-nav.flex-control-thumbs` (gallery thumbnail strip). The 1.161.2 placeholder did not change it, so the strip probably moves after it is added (the slider sets the photo frame height once the photo loads; Pixie photos are 765x1024, Loose Wave 572x1024). Next step: fix the slider frame (.flex-viewport) to the photo's proportions from the first paint. The PhotoSwipe fix (1.161.1) shows no shifts on any product tested.
+- Google Ads: on hold at the owner's request (14 Nov).
+
 ## UPDATE 14 Nov 2026 22:15 EAT (Ray) - product page phone layout shift fixed (theme 1.161.1)
 
 - Cause (PageSpeed Insights "Layout shift culprits", phone): `div.pswp__top-bar` scored 0.095. The WooCommerce PhotoSwipe lightbox markup (`div.pswp`) sits in the footer and its stylesheet loads without blocking the first paint, so for a moment the closed lightbox toolbar was laid out in the page, then removed.

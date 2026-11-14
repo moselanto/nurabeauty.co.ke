@@ -6,7 +6,7 @@ Last updated: 14 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 | Component | Version | Notes |
 |---|---|---|
 | Theme `nura-beauty/` (parent) | **1.148.0** (live since 14 Nov) | Owner slide first; hero fixed for desktop and phone (14 Nov). | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
-| Plugin `nura-experience/` | **1.112.0** (live since 14 Nov) | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
+| Plugin `nura-experience/` | **1.112.1** (live since 14 Nov) | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
 
 ## How a release is done (the working method)
 1. Edit in the repo, run `php -l` on every changed file.

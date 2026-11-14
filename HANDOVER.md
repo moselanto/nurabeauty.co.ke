@@ -2,6 +2,13 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 14 Nov 2026 12:10 EAT (Ray) - release checks finished
+
+- **Plugin 1.112.1 live** (commits 349e514 + 66e3809): the newsletter bar is one tap target ("Join The House" / "Get my code") that opens the Join The House pop-up; no inline e-mail form. Verified in a fresh headless Chrome at 390x844 (sandbox, LD_LIBRARY_PATH to extracted libatk/libatspi/libxdamage debs): bar appears on the 2nd page view after ~4 s, has no e-mail box, tap opens the pop-up. **No console/page errors ("busy is not defined" gone).**
+- Phone 390 px, logged out: Order on WhatsApp opens the styled pop-up on all 14 category pages and /product/human-hair-bob-wig/ (PDP button needs a real tap; a sticky element can intercept synthetic taps in tests).
+- Lighthouse 12 from the sandbox (PSI API quota was exhausted). Desktop: home 98, shop 93 (CLS 0.091), product 98, guide 99. Mobile (simulated slow 4G, 390 px, sandbox CPU): shop 63 (TBT 2.4 s), product 73 (LCP 3.2 s), guide 55 (LCP 5.2 s, TBT 1.35 s); home run failed (NO_NAVSTART). Target desktop 95+ met except /shop/; mobile main-thread JS (TBT) is the remaining speed work. Re-run on PSI when quota resets for comparable numbers.
+- **Book of Accounts (live download, 1-14 Nov):** trial balance balances (debits = credits = KSh 182,245); financial position balances; cash flow agrees to cash. P&L: revenue KSh 7,850 (one paid website order 7,500 + delivery 350), cost of sales 0 (sold item has no buying price), operating expenses 27,600, set-up 98,995, loss 118,745. M-Pesa till shows -172,395 and bank -2,000 because owner money put in is not recorded yet - owner to record "Owner capital in" vouchers.
+
 ## UPDATE 14 Nov 2026 05:15 EAT (Ray)
 
 - Live now: theme **1.148.0**, plugin **1.112.0** (1.111.3 installed first, then 1.112.0). NURA Desk newsletter delay set 12 -> 4 s. LiteSpeed Purge All.
@@ -74,6 +81,7 @@ The install was blocked: the browser tool ran out of Town credits mid-session. N
 
 | Date | Agent | What happened | Pending after this session |
 | --- | --- | --- | --- |
+| 14 Nov 2026 (12:10) | Town assistant (Ray) | Plugin 1.112.1 (newsletter bar opens pop-up) committed + installed + verified at 390 px; phone WhatsApp checks 15/15; Lighthouse desktop/mobile; Book of Accounts checks read (all balanced). | /shop/ desktop CLS + mobile TBT; owner capital vouchers; buying prices; SEO/AEO/GEO + Google/Bing stack programme. |
 | 14 Nov 2026 (05:15) | Town assistant (Ray) | Installed theme 1.148.0 + plugin 1.111.3, newsletter delay 4 s, Purge All, desktop checks (see UPDATE above). Built, committed and installed **plugin 1.112.0 Book of Accounts** + Sold-with-payment-details + WhatsApp sales in revenue. | Newsletter bar to open the pop-up; phone checks; PSI; owner to mark real orders Sold with M-Pesa codes and record expenses/capital so the books are complete. |
 | 14 Nov 2026 (04:30) | Town assistant (Ray) | Theme 1.147.0 + 1.147.1 installed live (fonts trimmed, smaller card images, WebP rebuilt). PSI mobile 82 -> 87 (LCP 5.0 -> 2.4 s) but desktop 99 -> 77 (CLS 0.47). Found the desktop CLS cause (mega-menu panels open before CSS) and the newsletter bar bug (busy() out of scope); fixes + script trimming in theme 1.148.0 / plugin 1.111.3, committed but NOT installed - Town credits ran out mid-session. Desktop 'Order on WhatsApp' checked on all 14 categories + Human Hair Bob: all OK. | Install theme 1.148.0 + plugin 1.111.3 (Replace current), set NURA Desk newsletter delay 12 -> 4 s, Purge All; recheck WhatsApp pop-up, product pictures, newsletter bar (phone + desktop, 2nd page view, screenshots); re-measure 4 pages slow 4G; PSI mobile + desktop (target desktop 95+); update this file. |
 | 14 Nov 2026 (03:50) | Town assistant (Ray) | WhatsApp order pop-up bug fixed in **theme 1.146.1**, installed, Purge All, verified (section 2). Owner also asked (same message): all four pages fully loaded under 5 s on slow 4G, and the four PageSpeed fixes (WooCommerce/jQuery only where needed, smaller 2-column card images, LiteSpeed browser-cache lifetimes, trim/drop Cormorant + Jost) with before/after mobile PSI - NOT started yet. Baseline: PSI mobile 82 (03:40), full load 5.9-8.8 s. | Do the speed items above; PSI before = 82. |

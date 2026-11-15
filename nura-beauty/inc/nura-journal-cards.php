@@ -15,7 +15,7 @@ function nura_card_fallback_id( $post ) {
 	if ( ! $post ) {
 		return 0;
 	}
-	$key = 'nura_cardimg_' . $post->ID . '_' . md5( $post->post_modified_gmt );
+	$key = 'nura_cardimg2_' . $post->ID . '_' . md5( $post->post_modified_gmt );
 	$hit = get_transient( $key );
 	if ( false !== $hit ) {
 		return (int) $hit;
@@ -31,6 +31,18 @@ function nura_card_fallback_id( $post ) {
 			$id  = (int) attachment_url_to_postid( $url );
 			if ( ! $id ) {
 				$id = (int) attachment_url_to_postid( $s[1] );
+			}
+		}
+	}
+	// 1b. The in-post photo is a product picture: use that product's main photo (full size).
+	if ( ! $id && preg_match_all( '#/product/([a-z0-9-]+)/?["\'\?\#]#i', $content, $pm ) ) {
+		foreach ( array_unique( $pm[1] ) as $pslug ) {
+			$prod = get_page_by_path( $pslug, OBJECT, 'product' );
+			if ( $prod && 'publish' === $prod->post_status ) {
+				$id = (int) get_post_thumbnail_id( $prod );
+				if ( $id ) {
+					break;
+				}
 			}
 		}
 	}
@@ -86,6 +98,9 @@ function nura_card_media( $post = null, $size = 'nura-portrait' ) {
 		$id = nura_card_fallback_id( $post );
 		if ( $id ) {
 			return wp_get_attachment_image( $id, $size, false, array( 'alt' => $alt, 'loading' => 'lazy', 'decoding' => 'async' ) );
+		}
+		if ( preg_match( '/<img[^>]+src=["\']([^"\']+)["\']/i', (string) $post->post_content, $rs ) ) {
+			return '<img src="' . esc_url( $rs[1] ) . '" width="600" height="800" alt="' . esc_attr( $alt ) . '" loading="lazy" decoding="async">';
 		}
 		// 3. Standard NURA photo (alternates between two so a page of them does not look repeated).
 		$files = array( 'look-bob.webp', 'look-curls.webp' );

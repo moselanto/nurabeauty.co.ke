@@ -130,7 +130,7 @@
 
 <!-- Mobile drawer -->
 <div class="nura-overlay" data-nura-overlay></div>
-<aside class="nura-drawer" data-nura-drawer-panel aria-hidden="true">
+<aside class="nura-drawer" data-nura-drawer-panel aria-hidden="true" inert>
 	<div class="nura-drawer__head">
 		<?php if ( function_exists( 'nura_brand_on' ) && nura_brand_on() ) { echo nura_brand_logo_html( 'nura-logo nura-drawer__logo', false ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ } else { ?><a class="nura-logo nura-drawer__logo" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php echo esc_html( nura_opt( 'nura_brand_name' ) ); ?></a><?php } ?>
 		<button class="nura-drawer__close" type="button" data-nura-drawer aria-label="<?php esc_attr_e( 'Close menu', 'nura-beauty' ); ?>"><span aria-hidden="true">&times;</span></button>

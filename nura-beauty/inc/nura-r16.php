@@ -140,3 +140,24 @@ add_action( 'wp_head', function () {
 	}
 	echo '<style id="nura-r16-gal2">.woocommerce div.product div.images.woocommerce-product-gallery>.woocommerce-product-gallery__wrapper>.woocommerce-product-gallery__image:nth-child(n+2){display:none}</style>' . "\n";
 }, 3 );
+
+/* 1.161.7 (a): buy box on variable products has its final size from first paint (desktop CLS).
+   Measured on the Detangling Brush: the colour pills (.nura-pill, min-height 42px), the quantity box and the
+   Add to bag button (52px) are sized by deferred stylesheets (woocommerce.css / main.css). At first paint the
+   pills were 21px and the buttons 21-27px, so the options table grew 50 -> 94px and the button row 117 -> 124px,
+   pushing .single_variation_wrap, .nura-payrow and .nura-promise down (PSI 0.014). The label cell also widened
+   79 -> 134px when main.js appended ": Pink", squeezing the pills; on desktop the label column now has a fixed width. */
+add_action( 'wp_head', function () {
+	if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+		return;
+	}
+	echo '<style id="nura-r16-buybox">.summary form.cart .variations td,.summary form.cart .variations th{padding:.35rem 0}.summary .nura-swatches{flex-wrap:wrap;gap:.5rem;margin:.15rem 0 .4rem}.summary .nura-swatch,.summary .nura-pill{box-sizing:border-box;font-family:var(--font-ui);background:#fff;border:1px solid var(--nura-line,#e5ddd0);border-radius:2px;line-height:normal}.summary .nura-pill{padding:.6em 1.1em;font-size:.8rem;letter-spacing:.06em;min-height:42px}.summary .nura-swatch{display:inline-flex;align-items:center;gap:.5rem;padding:.4em .8em .4em .45em;font-size:.8rem;min-height:42px}.summary .nura-swatch__dot{width:20px;height:20px;border-radius:50%;flex:none}.summary .woocommerce-variation-add-to-cart,.summary form.cart:not(.variations_form){display:flex;flex-wrap:wrap;align-items:stretch;gap:.6rem}.summary form.cart .quantity{flex:none;margin:0}.summary form.cart .quantity input.qty{box-sizing:border-box;width:72px;height:52px;min-height:52px;font-size:16px}.summary form.cart .single_add_to_cart_button{flex:1 1 180px;min-height:52px;margin:0;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:.55rem;font-size:.85rem;letter-spacing:.14em;text-transform:uppercase}@media(min-width:861px){.summary table.variations{table-layout:fixed;width:100%}.summary table.variations th.label{width:10.5rem;text-align:left}}</style>' . "\n";
+}, 3 );
+
+/* 1.161.7 (b): Lighthouse "Agentic Browsing" / accessibility tree: the closed mobile menu
+   (aside.nura-drawer, aria-hidden="true") contained focusable links and buttons ("ARIA hidden element must not be
+   focusable or contain focusable elements"). The drawer is now also inert while closed (attribute in header.php),
+   and this script keeps inert in step with aria-hidden whenever main.js opens or closes the drawer. */
+add_action( 'wp_footer', function () {
+	echo "<script id=\"nura-r16-drawer-inert\">(function(d){var a=d.querySelector('[data-nura-drawer-panel]');if(!a)return;function s(){if(a.getAttribute('aria-hidden')==='false'){a.removeAttribute('inert');}else{a.setAttribute('inert','');}}s();try{new MutationObserver(s).observe(a,{attributes:true,attributeFilter:['aria-hidden']});}catch(e){}})(document);</script>\n";
+}, 99 );

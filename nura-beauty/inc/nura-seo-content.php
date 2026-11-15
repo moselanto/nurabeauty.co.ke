@@ -30,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function nura_category_intro_defaults() {
 	return array(
-		'wigs'            => __( 'Shop premium wigs in Kenya at NURA — human hair, Semi Humans and quality synthetic units in lace front, closure, glueless and headband styles. Every wig is quality-checked, with same-day delivery in Nairobi, countrywide shipping and payment by M-Pesa or card.', 'nura-beauty' ),
+		'wigs'            => __( 'Looking for wigs in Kenya? NURA is a wig shop at Stanbank House in Nairobi CBD, delivering across Kenya. Choose 100% human hair, Semi Human and luxury fibre wigs in lace front, closure, glueless and headband styles, each clearly labelled by hair type, from KSh 1,800. Same-day delivery in Nairobi on orders before 5pm, countrywide shipping, and payment by M-Pesa or card.', 'nura-beauty' ),
 		'human-hair-wigs' => __( 'Discover 100% human-hair wigs at NURA Kenya — natural movement, heat-friendly styling and a flawless hairline. Perfect for everyday elegance, work and special occasions, with expert fitting and countrywide delivery.', 'nura-beauty' ),
 		'lace-front-wigs' => __( 'HD and transparent lace front wigs for an invisible, melt-into-skin hairline. Hand-finished for a natural parting and photograph-ready finish, with fitting and styling available in Nairobi.', 'nura-beauty' ),
 		'closure-wigs'    => __( '4x4, 5x5 and 6x6 closure wigs that give a natural crown with easy, protective installation — a versatile, everyday-friendly choice, quality-checked and ready to wear.', 'nura-beauty' ),

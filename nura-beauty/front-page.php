@@ -512,6 +512,8 @@ $slides = array(
 		</div>
 	</section>
 
+	<?php if ( function_exists( 'nura_home_visit_section' ) ) { nura_home_visit_section(); } ?>
+
 	<?php if ( function_exists( 'nura_home_seo_section' ) ) { nura_home_seo_section(); } ?>
 
 	<!-- NURA STYLIST (final conversion CTA) -->

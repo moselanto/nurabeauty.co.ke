@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.161.16' );
+define( 'NURA_VERSION', '1.161.17' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -116,6 +116,7 @@ nura_require( 'nura-r14' ); // 1.159.0: shop chip styles in head; compact swatch
 nura_require( 'nura-r15' ); // 1.160.0: product price/guide-links shift fix; shared WhatsApp icon in cards; offscreen cards not laid out.
 nura_require( 'nura-r16' ); // 1.161.0: product page on phones - sticky bar after load, lower panels/tabs/footer drawn when scrolled near.
 nura_require( 'nura-journal-cards' ); // 1.161.12: journal cards get a photo when a post has no featured image.
+nura_require( 'nura-r17-local' ); // 1.161.17: studio as a wig shop (schema + homepage section), Wigs category price guide/title/meta.
 
 /**
  * Contact page design (v1.45.0): use page-contact.php for the contact page

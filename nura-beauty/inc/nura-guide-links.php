@@ -85,6 +85,13 @@ add_action( 'wp_head', function () {
 	.nura-guidelink a{color:#0e0e0e;text-decoration:none;font-size:.92rem;line-height:1.45}
 	.nura-guidelink a strong{font-weight:600;text-decoration:underline;text-decoration-color:rgba(201,162,75,.7);text-underline-offset:3px}
 	.nura-guidelink a:hover,.nura-guidelink a:hover strong{color:#7a5a12}
+	/* 1.161.11: intro + quick-facts sized from first paint (were only in the late stylesheets, so the guide box jumped ~0.09-0.13 CLS on mobile). */
+	.nura-cat-intro{margin:0 auto clamp(20px,3vw,38px);max-width:840px;text-align:center}
+	.nura-cat-intro__inner{font-family:var(--font-editorial,'Playfair Display',Georgia,serif);font-size:clamp(1.02rem,1.5vw,1.2rem);line-height:1.6;color:#4a4a4a}
+	.nura-cat-intro__inner p{margin:0 0 .7em}
+	.nura-cat-intro__inner p:last-child{margin-bottom:0}
+	.nura-cat-facts{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:14px 0 6px;padding:0}
+	.nura-cat-facts li{font-size:13px;line-height:1.2;padding:7px 12px;border:1px solid rgba(0,0,0,.12);border-radius:999px;background:#fff;color:inherit}
 	</style>
 	<?php
 }, 34 );

@@ -101,3 +101,42 @@ add_action( 'wp_head', function () {
 	}
 	echo '<style id="nura-r16-atc">.summary .nwo-pdp{flex:1 1 100%;width:100%;margin:.65rem 0 0;clear:both}.summary .nwo-btn--pdp{display:flex;align-items:center;justify-content:center;gap:.55rem;width:100%;box-sizing:border-box;min-height:52px;padding:.75rem 1.2rem;font-size:.82rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;line-height:1.2;border-radius:6px;text-decoration:none}.summary .nwo-btn--pdp .nwo-ico{flex:none}.summary form.variations_form .nura-swatches{display:flex}.summary form.variations_form td.value:has(.nura-swatches) select{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}</style>' . "\n";
 }, 3 );
+
+/* 1.161.6 (a): gallery images carry an explicit CSS aspect-ratio.
+   Chrome treats an <img> as "unsized" (DevTools/PSI "Unsized image element") unless its computed style has
+   both width and height fixed/percent, or a plain aspect-ratio (type "ratio") plus one of them. The width/height
+   attributes only give "aspect-ratio: auto W/H", and the theme's width:100%;height:auto drops the height, so
+   every gallery image was flagged even though it never changed size. An inline aspect-ratio from the
+   attributes makes it count as sized; layout is unchanged. */
+add_filter( 'woocommerce_single_product_image_thumbnail_html', function ( $html ) {
+	if ( ! is_string( $html ) || false === stripos( $html, '<img' ) ) {
+		return $html;
+	}
+	return preg_replace_callback( '/<img\b[^>]*>/i', function ( $m ) {
+		$tag = $m[0];
+		if ( ! preg_match( '/\swidth="(\d+)"/i', $tag, $w ) || ! preg_match( '/\sheight="(\d+)"/i', $tag, $h ) || ! (int) $w[1] || ! (int) $h[1] ) {
+			return $tag;
+		}
+		if ( false !== stripos( $tag, 'aspect-ratio' ) ) {
+			return $tag;
+		}
+		$ar = 'aspect-ratio:' . (int) $w[1] . '/' . (int) $h[1];
+		if ( preg_match( '/\sstyle="([^"]*)"/i', $tag ) ) {
+			return preg_replace( '/\sstyle="([^"]*)"/i', ' style="$1;' . $ar . '"', $tag, 1 );
+		}
+		return preg_replace( '/^<img\b/i', '<img style="' . $ar . '"', $tag, 1 );
+	}, $html );
+}, 40 );
+
+/* 1.161.6 (b): phones - before the slider starts, only the first photo shows.
+   WooCommerce's own rule (.woocommerce div.product div.images .woocommerce-product-gallery__image:nth-child(n+2)
+   {display:inline-block;width:25%}) out-ranked the theme's hide rule, so photo 2+ showed as a thumbnail row under
+   the main photo AND the 1.161.2 strip placeholder (::after) reserved a second row. When the slider started the
+   extra row vanished and the product summary jumped up (~100 px, CLS 0.017 on 1:1-photo care products).
+   This rule has higher specificity and only matches the pre-slider markup (wrapper still a direct child). */
+add_action( 'wp_head', function () {
+	if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+		return;
+	}
+	echo '<style id="nura-r16-gal2">.woocommerce div.product div.images.woocommerce-product-gallery>.woocommerce-product-gallery__wrapper>.woocommerce-product-gallery__image:nth-child(n+2){display:none}</style>' . "\n";
+}, 3 );

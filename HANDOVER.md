@@ -2,6 +2,28 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 15 Nov 2026 12:50 EAT (Ray) - mobile homepage CLS + Agentic Browsing 2/3 fixed (theme 1.161.9)
+
+- **Report from the user:** homepage mobile PSI at 12:27 (https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke/x1obn0hmgf) showed Performance 84, TBT 290 ms, CLS 0.147. Agentic Browsing was 2/3 because its "Cumulative Layout Shift" audit fails above 0.1 (the accessibility-tree audit already passed after 1.161.8). The culprit was `div.nura-container` in "Shop wigs & beauty" (0.143), with the product-card image (`img.attachment-nura_card`) labelled "Unsized image element". The spike is intermittent: the same page tested 0-0.007 in other runs.
+- **Causes found:**
+  1. The card photos' 3:4 box (`aspect-ratio:3/4;object-fit:cover;width:100%`, and 1:1 in the care rail) lived only in the deferred theme woocommerce.css. On a slow load the cards painted at the photo's own 440 px size, then shrank when the CSS arrived. This explains the unsized label and the big jump in slow runs.
+  2. The hero slider took the height of the active slide only (slides measured 471, 487 and 490 px on a 412 px phone). Every automatic slide change (6.5 s) moved the trust bar and the shop section by up to 20 px, which was measured in the sandbox.
+- **Fix 1.161.9 (commit 4cfc73e):** head CSS `#nura-r16-home` (front end, all pages):
+  - card photo sizing (3:4 cover; 1:1 contain in `.nura-care-rail`), the same rules as the stylesheet, now applied from first paint;
+  - `.nura-slides{display:grid}` with every slide in the same cell (`grid-area:1/1; position:relative`), so the slider is always as tall as the tallest slide.
+  Sandbox check with the CSS injected and woocommerce.css delayed 4 s plus forced slide changes: slide shifts gone, total 0.0065 (was 0.0114).
+- **Live PSI after deploy + purge (15 Nov 12:43-12:47), Mobile:**
+  | Page | Performance | TBT | CLS | Agentic | Desktop perf / CLS |
+  |---|---|---|---|---|---|
+  | Homepage run 1 | 96 | 100 ms | 0 | 3/3 | 98 / 0.034 |
+  | Homepage run 2 | 96 | 100 ms | 0 | 3/3 | 98 / 0.034 |
+  | Homepage run 3 | 99 | 0 ms | 0.007 | 3/3 | 100 / 0.034 |
+  | Shop | 100 | 0 ms | 0 | 3/3 | 100 / 0.023 |
+  | nylon-bristle-detangling-hair-brush | 95 | 0 ms | 0.001 | 3/3 | 100 / 0 |
+  Reports: https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke/87d7uisymf , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke/1aegbltvpv , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke/4ib7w3koj3 , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-shop/lgah9cz0g6 , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-nylon-bristle-detangling-hair-brush/j1j8ztfcsf
+  Homepage runs 1 and 2 show the same capture minute and identical metrics in PSI, so they may be one capture.
+- **Remaining:** the 0.007 hero heading (`h2.nura-hero-h`) in one run; a slow-run TBT of ~290 ms seen once (3 long tasks of 1st-party inline script, 56/115/267 ms). Hosting panel IP check is still pending (no real credentials received).
+
 ## UPDATE 15 Nov 2026 12:25 EAT (Ray) - buy box sized from first paint (1.161.7) + Agentic Browsing 3/3 (1.161.7-1.161.8)
 
 - **Brush desktop CLS cause (measured, 1350 px, 4x CPU):** the colour pills (`.nura-pill`, min-height 42px), the quantity box and Add to bag (52px) are sized by deferred stylesheets (woocommerce.css / main.css). At first paint the pills were 21px and the buttons 21-27px. The options table then grew 50 -> 94px and the button row 117 -> 124px, pushing `.single_variation_wrap`, `.nura-payrow` and `.nura-promise` down. The label cell also widened 79 -> 134px when main.js appended ": Pink", squeezing the pills.

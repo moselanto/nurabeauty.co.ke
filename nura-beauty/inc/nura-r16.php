@@ -162,3 +162,17 @@ add_action( 'wp_head', function () {
 add_action( 'wp_footer', function () {
 	echo "<script id=\"nura-r16-drawer-inert\">(function(d){[].forEach.call(d.querySelectorAll('[data-nura-drawer-panel],[data-nura-cartdrawer]'),function(a){function s(){if(a.getAttribute('aria-hidden')==='false'){a.removeAttribute('inert');}else{a.setAttribute('inert','');}}s();try{new MutationObserver(s).observe(a,{attributes:true,attributeFilter:['aria-hidden']});}catch(e){}});})(document);</script>\n";
 }, 99 );
+
+/* 1.161.9: mobile homepage CLS (PSI run 0.147, culprit the "Shop wigs & beauty" container + product-card
+   images flagged "Unsized image element"; it failed Lighthouse's Agentic Browsing CLS audit -> 2/3).
+   (a) Card photos get their 3:4 box (1:1 in the care rail) from the head. That rule lived only in the deferred
+       woocommerce.css, so on a slow load the cards painted at the photo's own 440 px size first, then shrank.
+   (b) The hero slider is a one-cell grid holding all slides, so it is always as tall as its tallest slide.
+       Before, only the active slide took space and the slides were 471-490 px tall, so every automatic slide
+       change (6.5 s) moved the trust bar and the shop section by up to 20 px. */
+add_action( 'wp_head', function () {
+	if ( is_admin() ) {
+		return;
+	}
+	echo '<style id="nura-r16-home">.woocommerce ul.products li.product a img,.woocommerce ul.products li.product img{aspect-ratio:3/4;object-fit:cover;width:100%;height:auto}html body .nura-care-rail ul.products li.product img{width:100%!important;aspect-ratio:1/1;object-fit:contain}.nura-slides{display:grid}.nura-slides>.nura-slide{grid-area:1/1;position:relative!important;inset:auto}</style>' . "\n";
+}, 3 );

@@ -2,6 +2,20 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 15 Nov 2026 12:25 EAT (Ray) - buy box sized from first paint (1.161.7) + Agentic Browsing 3/3 (1.161.7-1.161.8)
+
+- **Brush desktop CLS cause (measured, 1350 px, 4x CPU):** the colour pills (`.nura-pill`, min-height 42px), the quantity box and Add to bag (52px) are sized by deferred stylesheets (woocommerce.css / main.css). At first paint the pills were 21px and the buttons 21-27px. The options table then grew 50 -> 94px and the button row 117 -> 124px, pushing `.single_variation_wrap`, `.nura-payrow` and `.nura-promise` down. The label cell also widened 79 -> 134px when main.js appended ": Pink", squeezing the pills.
+- **Fix 1.161.7 (commit 981c605):** head CSS `#nura-r16-buybox` (product pages) carries the pill/swatch sizes, the variations cell padding, and the buy-box flex, quantity and Add to bag sizes. On desktop (>=861px) the options table is `table-layout:fixed` with a 10.5rem label column.
+- **Agentic Browsing (Lighthouse 13.6, PSI) was 2/3 on mobile:** "Accessibility tree is not well-formed - ARIA hidden element must not be focusable or contain focusable elements". The culprits were the closed mobile menu `aside.nura-drawer` (fixed in 1.161.7) and then the closed cart drawer `aside.nura-cartdrawer` (fixed in 1.161.8, commit 1c62616). Both asides now carry `inert` in the markup (header.php, inc/woocommerce-support.php). The footer script `#nura-r16-drawer-inert` keeps `inert` in step with `aria-hidden` when main.js opens or closes them, so the drawers still open normally.
+- **Live PSI after 1.161.7 / 1.161.8 (15 Nov 12:14-12:21):**
+  | Page | Mobile (score / CLS / Agentic) | Desktop (score / CLS / Agentic) |
+  |---|---|---|
+  | nylon-bristle-detangling-hair-brush | 94 / 0 / **3/3** | 100 / 0.001 / 3/3 (CLS was 0.016) |
+  | cscr-lace-tint-spray-...-medium-brown (1.161.7) | 97 / 0 / 2/3 (cart drawer, fixed in 1.161.8) | 100 / 0.001 / 3/3 |
+  | homepage | 92 / 0.007 / **3/3** | 100 / 0.046 / 3/3 |
+  Reports: https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-nylon-bristle-detangling-hair-brush/lwuk6yt2sq , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke/30u29qiaxz , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-cscr-lace-tint-spray-quick-drying-natural-look-medium-brown/wgvqhwr1jj
+- **Open:** homepage desktop CLS 0.046 on `main#primary`, with the product-card images (`img.attachment-nura_card`) labelled "Unsized image element". The aspect-ratio fix from 1.161.6 covers only the product gallery, not cards. Hosting panel IP check is still pending: the login message had a placeholder instead of the actual link and credentials.
+
 ## UPDATE 15 Nov 2026 12:05 EAT (Ray) - "Unsized image" label + phone summary jump fixed (theme 1.161.6); IP block check
 
 - **Unsized image cause:** Chrome flags an <img> as unsized (trace event LayoutImageUnsized -> PSI "Unsized image element") unless its computed style has both width and height fixed/percent, or a plain `aspect-ratio: W/H` plus one of them (blink LayoutImage::IsUnsizedImage). The width/height attributes only produce `aspect-ratio: auto W/H`, and the theme's `width:100%;height:auto` removes the height, so every gallery photo was labelled even though it never resized. The label had no score of its own.

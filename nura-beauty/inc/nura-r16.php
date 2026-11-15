@@ -176,3 +176,19 @@ add_action( 'wp_head', function () {
 	}
 	echo '<style id="nura-r16-home">.woocommerce ul.products li.product a img,.woocommerce ul.products li.product img{aspect-ratio:3/4;object-fit:cover;width:100%;height:auto}html body .nura-care-rail ul.products li.product img{width:100%!important;aspect-ratio:1/1;object-fit:contain}.nura-slides{display:grid}.nura-slides>.nura-slide{grid-area:1/1;position:relative!important;inset:auto}</style>' . "\n";
 }, 3 );
+
+/* 1.161.10: less layout work on load (mobile TBT). A trace (Moto G class, 4x CPU) showed the homepage long
+   tasks are Layout / style recalc of ~1,900 DOM nodes, not inline scripts (every inline script is under 1.5 KB;
+   forced reflows from them were 3-8 ms). The browser now skips laying out content nobody can see yet:
+   the closed menu and cart drawers, the footer until it nears the screen, and on the homepage the "Wig care"
+   section and product cards from the third onward (all below the first screen on phones). */
+add_action( 'wp_head', function () {
+	if ( is_admin() ) {
+		return;
+	}
+	$css = '.nura-drawer:not(.is-open),.nura-cartdrawer:not(.is-open){content-visibility:hidden}.site-footer{content-visibility:auto;contain-intrinsic-size:auto 930px}';
+	if ( is_front_page() ) {
+		$css .= '#wig-care{content-visibility:auto;contain-intrinsic-size:auto 700px}.nura-shop-now .nura-ppanel ul.products>li.product:nth-child(n+3){content-visibility:auto;contain-intrinsic-size:auto 400px}';
+	}
+	echo '<style id="nura-r16-cv">' . $css . '</style>' . "\n";
+}, 3 );

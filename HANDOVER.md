@@ -2,6 +2,23 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 15 Nov 2026 13:30 EAT (Ray) - mobile blocking time: layout, not inline scripts (theme 1.161.10) + 7-page mobile PSI
+
+- **Finding:** the homepage long tasks the user saw (56/115/267 ms, attributed to the page URL) are not inline scripts. Every inline script on the homepage is under 1.5 KB, and their forced reflows were 3-8 ms. A Chrome trace (412 px, 4x CPU) shows the long tasks are Layout and style recalc of ~1,900 DOM nodes: 322 ms on first layout, 231 ms when the deferred stylesheets apply, and 102 ms after scripts. jQuery evaluation is 61 ms. NURA Desk, the AI stylist and the wig finder scripts were not touched.
+- **Fix 1.161.10 (commit 975acfb, inc/nura-r16.php `#nura-r16-cv`):** `content-visibility` skips layout of content nobody can see yet. It applies to the closed menu and cart drawers (`:not(.is-open)` -> hidden) and the footer (auto, 930px placeholder) on all pages. On the homepage only, it also applies to `#wig-care` and the shop-section product cards from the 3rd onward (auto). Sandbox, 3 runs each: total Layout 744-856 ms -> 563-727 ms; summed blocking 830-947 -> 537-728 ms.
+- **Checked after deploy:** the burger menu opens with all links; the footer shows; the cart drawer opens with its contents (checked at normal browser size; the phone-size check was blocked by the Customizer preview).
+- **Live mobile PSI after deploy + purge (15 Nov 13:20-13:27):**
+  | Page | Perf | TBT | CLS | Agentic |
+  |---|---|---|---|---|
+  | Homepage run 1 | 97 | 80 ms | 0 | 3/3 |
+  | Homepage run 2 | 97 | 0 ms | 0 | 3/3 |
+  | pixie-water-curl-wig | 95 | 0 ms | 0 | 3/3 |
+  | bob-wig | 98 | 60 ms | 0 | 3/3 |
+  | luxury-bodywave-wig | 95 | 0 ms | 0 | 3/3 |
+  | product-category/wigs | 98 | 0 ms | **0.09** | 3/3 |
+  | product-category/wigs/bob-wigs | 100 | 0 ms | 0 | 3/3 |
+- **Watch:** the wigs category scored 0.09 on `aside.nura-guidelink` ("Not sure which to choose? Read the guide..."). This is under 0.1 but close, and a run above 0.1 would fail Agentic Browsing again. The Bob Wig page had one 176 ms long task.
+
 ## UPDATE 15 Nov 2026 12:50 EAT (Ray) - mobile homepage CLS + Agentic Browsing 2/3 fixed (theme 1.161.9)
 
 - **Report from the user:** homepage mobile PSI at 12:27 (https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke/x1obn0hmgf) showed Performance 84, TBT 290 ms, CLS 0.147. Agentic Browsing was 2/3 because its "Cumulative Layout Shift" audit fails above 0.1 (the accessibility-tree audit already passed after 1.161.8). The culprit was `div.nura-container` in "Shop wigs & beauty" (0.143), with the product-card image (`img.attachment-nura_card`) labelled "Unsized image element". The spike is intermittent: the same page tested 0-0.007 in other runs.

@@ -2,6 +2,23 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 15 Nov 2026 11:10 EAT (Ray) - add-to-bag area shift on variable products fixed (theme 1.161.5)
+
+- Cause (measured on CSCR Lace Tint, desktop, 4x CPU): two late changes in the add-to-bag area.
+  1. The "Order on WhatsApp" button (`.nwo-pdp` / `.nwo-btn--pdp`) is styled by the plugin's nura-wa-order.css, which loads deferred. Unstyled it sits inline next to Add to bag (row 52 px); once styled it becomes a full-width 52 px block below (row 124 px), pushing `.nura-payrow` and `.nura-promise` down.
+  2. The shade pills (`.nura-swatches`) are `display:none` until main.js adds `.nura-var-enhanced`, so the options table grows 43 -> 94 px and pushes `.single_variation_wrap` and `.nura-payrow` down.
+  `.single_variation` itself stays empty on these products (all shades same price), so it needed no reserved space.
+- Fix 1.161.5 (commit fefa58d): head CSS `#nura-r16-atc` (inc/nura-r16.php, product pages only) applies the WhatsApp button's layout rules and the pill/select swap (pills shown, select visually hidden via `:has(.nura-swatches)`) before any script or deferred CSS loads.
+- Live PSI after deploy + purge (15 Nov 11:06-11:09):
+  | Product | Mobile (score / CLS) | Desktop (score / CLS) | Desktop CLS before |
+  |---|---|---|---|
+  | cscr-lace-tint-spray-...-medium-brown | 96 / 0.017 | 100 / **0.017** | 0.059 |
+  | astylsst-texture-setting-spray-400-ml... | 91 / 0.017 | 100 / **0.004** | 0.048 |
+  | nylon-bristle-detangling-hair-brush | 96 / 0.001 | 100 / **0.012** | 0.043 |
+  Reports: https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-cscr-lace-tint-spray-quick-drying-natural-look-medium-brown/0odhahi2hb , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-astylsst-texture-setting-spray-400-ml-hair-styling-spray-for-hold-and-shine/nb3khi30qi , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-nylon-bristle-detangling-hair-brush/56bbu8nrey
+- Remaining small items (all well under 0.1): Lace Tint desktop still lists the form (0.008), WhatsApp button (0.005) and options cell (0.005); phone care pages show 0.017 on `div.summary` (same value seen before this fix on several care products).
+- Note: on 15 Nov morning the sandbox could not connect to nurabeauty.co.ke (SSL connect error, likely the host/firewall blocking the sandbox IP after heavy testing); the site itself was up for the browser and PageSpeed.
+
 ## UPDATE 14 Nov 2026 23:55 EAT (Ray) - 4x4 Loose Wave desktop shift fixed (theme 1.161.4) + PSI on every remaining product
 
 - Cause: the countdown script (`#nura-eta-js`, inc/nura-pdp-convert.php) rewrites the delivery line `.nura-eta__t` after load ("Order within X h Y min..." before 5 PM, "Order now - delivered ... tomorrow" after). The new text can wrap to a different number of lines than the server text, so the delivery box changes height and pushes the short description and the Specifications box (`section.nura-specsec--compact`, 0.074) down/up on desktop.

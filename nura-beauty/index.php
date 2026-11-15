@@ -19,7 +19,7 @@ get_header();
 				<?php while ( have_posts() ) : the_post(); ?>
 					<article <?php post_class( 'nura-card' ); ?>>
 						<a href="<?php the_permalink(); ?>" class="nura-card__media">
-							<?php if ( has_post_thumbnail() ) { the_post_thumbnail( 'nura-portrait' ); } ?>
+							<?php echo nura_card_media(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 						</a>
 						<div class="nura-card__body">
 							<h3 class="nura-card__title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>

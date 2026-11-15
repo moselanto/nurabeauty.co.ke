@@ -157,7 +157,8 @@ add_action( 'wp_head', function () {
 /* 1.161.7 (b): Lighthouse "Agentic Browsing" / accessibility tree: the closed mobile menu
    (aside.nura-drawer, aria-hidden="true") contained focusable links and buttons ("ARIA hidden element must not be
    focusable or contain focusable elements"). The drawer is now also inert while closed (attribute in header.php),
-   and this script keeps inert in step with aria-hidden whenever main.js opens or closes the drawer. */
+   and this script keeps inert in step with aria-hidden whenever main.js opens or closes the drawer.
+   1.161.8: the cart drawer (aside.nura-cartdrawer) gets the same treatment. */
 add_action( 'wp_footer', function () {
-	echo "<script id=\"nura-r16-drawer-inert\">(function(d){var a=d.querySelector('[data-nura-drawer-panel]');if(!a)return;function s(){if(a.getAttribute('aria-hidden')==='false'){a.removeAttribute('inert');}else{a.setAttribute('inert','');}}s();try{new MutationObserver(s).observe(a,{attributes:true,attributeFilter:['aria-hidden']});}catch(e){}})(document);</script>\n";
+	echo "<script id=\"nura-r16-drawer-inert\">(function(d){[].forEach.call(d.querySelectorAll('[data-nura-drawer-panel],[data-nura-cartdrawer]'),function(a){function s(){if(a.getAttribute('aria-hidden')==='false'){a.removeAttribute('inert');}else{a.setAttribute('inert','');}}s();try{new MutationObserver(s).observe(a,{attributes:true,attributeFilter:['aria-hidden']});}catch(e){}});})(document);</script>\n";
 }, 99 );

@@ -422,7 +422,7 @@ function nura_cart_drawer() {
 	}
 	?>
 	<div class="nura-cart-overlay" data-nura-cart-overlay></div>
-	<aside class="nura-cartdrawer" data-nura-cartdrawer aria-hidden="true" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Shopping cart', 'nura-beauty' ); ?>">
+	<aside class="nura-cartdrawer" data-nura-cartdrawer aria-hidden="true" inert role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Shopping cart', 'nura-beauty' ); ?>">
 		<div class="nura-cartdrawer__head">
 			<span class="nura-cartdrawer__title"><?php esc_html_e( 'Your Cart', 'nura-beauty' ); ?></span>
 			<button type="button" class="nura-cartdrawer__close" data-nura-cart-close aria-label="<?php esc_attr_e( 'Close cart', 'nura-beauty' ); ?>">&times;</button>

@@ -2,6 +2,22 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 15 Nov 2026 12:05 EAT (Ray) - "Unsized image" label + phone summary jump fixed (theme 1.161.6); IP block check
+
+- **Unsized image cause:** Chrome flags an <img> as unsized (trace event LayoutImageUnsized -> PSI "Unsized image element") unless its computed style has both width and height fixed/percent, or a plain `aspect-ratio: W/H` plus one of them (blink LayoutImage::IsUnsizedImage). The width/height attributes only produce `aspect-ratio: auto W/H`, and the theme's `width:100%;height:auto` removes the height, so every gallery photo was labelled even though it never resized. The label had no score of its own.
+- **Unsized fix (1.161.6, commit dbef388, inc/nura-r16.php):** filter `woocommerce_single_product_image_thumbnail_html` (priority 40, after the WebP swap) adds an inline `style="aspect-ratio:W/H"` built from each gallery image's width/height attributes. Layout is unchanged.
+- **Phone summary jump cause (measured, 412 px, 4x CPU):** before the slider starts, WooCommerce's rule `.woocommerce div.product div.images .woocommerce-product-gallery__image:nth-child(n+2){display:inline-block;width:25%}` beat the theme's hide rule. Photo 2 showed as a thumbnail row under the main photo, and the 1.161.2 strip placeholder (::after, 4:1) reserved a second row: gallery 572 px. When the slider started the gallery became 470 px and `div.summary` jumped up 102 px (CLS 0.017 on 1:1-photo care products).
+- **Phone fix (1.161.6):** head CSS `#nura-r16-gal2` hides photo 2+ with higher specificity, only while the wrapper is still a direct child of the gallery (before the slider). Checked in the sandbox with the CSS injected: gallery 470 px from first paint, no summary shift.
+- **Live PSI after deploy + purge (15 Nov 11:58-12:01):**
+  | Product | Mobile (score / CLS) | Desktop (score / CLS) | Unsized-image label |
+  |---|---|---|---|
+  | cscr-lace-tint-spray-...-medium-brown | 97 / **0** (was 0.017) | 100 / 0.004 | gone |
+  | astylsst-texture-setting-spray-400-ml... | 97 / **0** (was 0.017) | 100 / 0.037 | gone |
+  | nylon-bristle-detangling-hair-brush | 95 / 0.001 | 100 / 0.016 | gone |
+  Reports: https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-cscr-lace-tint-spray-quick-drying-natural-look-medium-brown/blcymzkqk3 , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-astylsst-texture-setting-spray-400-ml-hair-styling-spray-for-hold-and-shine/bek9qkmjtd , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-nylon-bristle-detangling-hair-brush/fdi174r332
+- **Open, small:** Texture Spray desktop 0.036 on `div.nura-promise` ("Order within 5h 0m..."). It is the promise box's own countdown text being rewritten after load, the same pattern as the delivery line fixed in 1.161.4. The same sizer fix would apply. Brush desktop 0.014 on `.single_variation_wrap`.
+- **IP block check:** the sandbox connects again (HTTP 200, sandbox IP 136.69.193.223). In WordPress there is no security/firewall plugin with an IP list (no Wordfence, Solid Security, AIOS, Sucuri, Limit Login Attempts; active: Two Factor, WP CLI Login Command Server, LiteSpeed Cache 7.9.3). LiteSpeed shows no deny list, `.htaccess` has no deny rules, Cloudflare is not configured, and QUIC.cloud is bypassed. The hosting panel (cPanel IP Blocker / Imunify360 / ModSecurity / CSF) was not checked because no host login is available. Nothing was unblocked. Most likely a temporary server-level rate limit that has since expired.
+
 ## UPDATE 15 Nov 2026 11:10 EAT (Ray) - add-to-bag area shift on variable products fixed (theme 1.161.5)
 
 - Cause (measured on CSCR Lace Tint, desktop, 4x CPU): two late changes in the add-to-bag area.

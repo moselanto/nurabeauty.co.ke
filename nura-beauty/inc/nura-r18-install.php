@@ -1,0 +1,17 @@
+<?php
+/**
+ * 1.161.18 Installation page polish: price-menu services list on phones, step
+ * timeline, card FAQ, pill "Book this" links. CSS only, in the head (no layout
+ * shift, no extra request), loaded only on the Installation page.
+ *
+ * @package NURA_Beauty
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+add_action( 'wp_head', function () {
+	if ( ! ( is_page( 'installation' ) || is_page_template( 'page-installation.php' ) ) ) {
+		return;
+	}
+	echo '<style id="nura-r18-install">.nura-in-page .nura-in-hero h1{letter-spacing:-.01em}.nura-in-page .nura-in-head h2{letter-spacing:-.01em}.nura-in-page .nura-in-head .nura-eyebrow{display:inline-flex;align-items:center;gap:.6rem}.nura-in-page .nura-in-head .nura-eyebrow::before{content:"";width:28px;height:1px;background:var(--nura-gold,#c9a24b)}.nura-in-page .nura-in-svc__go{display:inline-flex;align-items:center;gap:.35rem;align-self:flex-start;padding:8px 14px;border:1px solid rgba(14,14,14,.15);border-radius:999px;min-height:40px}.nura-in-page .nura-in-svc__go:hover{border-color:var(--nura-gold,#c9a24b);background:#faf6f0}.nura-in-page .nura-in-faq__list details{background:#fff;border:1px solid rgba(14,14,14,.08);border-radius:14px;padding:16px 18px;margin-bottom:10px}.nura-in-page .nura-in-faq__list summary{align-items:center;min-height:28px}.nura-in-page .nura-in-faq__list summary::after{flex:0 0 28px;height:28px;border-radius:50%;border:1px solid rgba(201,162,75,.5);display:flex;align-items:center;justify-content:center;font-size:1rem}@media (max-width:700px){.nura-in-page .nura-in-section{padding-block:40px}.nura-in-page .nura-in-services{grid-template-columns:1fr;gap:0;border:1px solid rgba(14,14,14,.1);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 10px 30px rgba(14,14,14,.05)}.nura-in-page .nura-in-svc{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:4px;align-items:center;padding:16px 18px;border:0;border-top:1px solid rgba(14,14,14,.08);border-radius:0;box-shadow:none;transition:none}.nura-in-page .nura-in-svc:first-child{border-top:0}.nura-in-page .nura-in-svc:hover{transform:none;box-shadow:none}.nura-in-page .nura-in-svc h3{grid-column:1;grid-row:1;font-size:1.05rem}.nura-in-page .nura-in-svc__price{grid-column:2;grid-row:1;text-align:right;white-space:nowrap;font-size:.98rem}.nura-in-page .nura-in-svc__d{grid-column:1;grid-row:2;font-size:.86rem}.nura-in-page .nura-in-svc__go{grid-column:2;grid-row:2;justify-self:end;align-self:center;margin:0;padding:6px 12px;min-height:36px;font-size:.78rem}.nura-in-page .nura-in-steps{gap:0;grid-template-columns:1fr}.nura-in-page .nura-in-steps li{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:14px;row-gap:2px;padding:0 0 22px;background:none;border:0;border-radius:0;position:relative}.nura-in-page .nura-in-steps li::before{content:"";position:absolute;left:21px;top:46px;bottom:2px;width:2px;background:rgba(201,162,75,.35)}.nura-in-page .nura-in-steps li:last-child{padding-bottom:0}.nura-in-page .nura-in-steps li:last-child::before{display:none}.nura-in-page .nura-in-steps__n{grid-row:1/span 2;width:44px;height:44px;border-radius:50%;background:var(--nura-ink,#0e0e0e);color:var(--nura-gold-soft,#e6c97f);display:flex;align-items:center;justify-content:center;font-family:var(--font-ui);font-size:.95rem;font-weight:600}.nura-in-page .nura-in-steps strong{grid-column:2;padding-top:10px}.nura-in-page .nura-in-steps li>span:last-child{grid-column:2}.nura-in-page .nura-in-hero__cta{gap:10px}}</style>' . "\n";
+}, 36 );

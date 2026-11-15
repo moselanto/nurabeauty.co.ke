@@ -15,13 +15,16 @@ function nura_card_fallback_id( $post ) {
 	if ( ! $post ) {
 		return 0;
 	}
-	$key = 'nura_cardimg2_' . $post->ID . '_' . md5( $post->post_modified_gmt );
+	$key = 'nura_cardimg3_' . $post->ID . '_' . md5( $post->post_modified_gmt );
 	$hit = get_transient( $key );
 	if ( false !== $hit ) {
 		return (int) $hit;
 	}
 	$id      = 0;
+	// Render shortcodes/blocks: product pictures in posts come from shortcodes, not raw <img> tags.
 	$content = (string) $post->post_content;
+	$content = do_shortcode( function_exists( 'do_blocks' ) ? do_blocks( $content ) : $content );
+	$GLOBALS['nura_cardimg_src'][ $post->ID ] = preg_match( '/<img[^>]+src=["\']([^"\']+)["\']/i', $content, $rs0 ) ? $rs0[1] : '';
 	// 1. First photo inside the post.
 	if ( preg_match( '/<img[^>]+>/i', $content, $m ) ) {
 		if ( preg_match( '/wp-image-(\d+)/', $m[0], $c ) ) {
@@ -99,8 +102,9 @@ function nura_card_media( $post = null, $size = 'nura-portrait' ) {
 		if ( $id ) {
 			return wp_get_attachment_image( $id, $size, false, array( 'alt' => $alt, 'loading' => 'lazy', 'decoding' => 'async' ) );
 		}
-		if ( preg_match( '/<img[^>]+src=["\']([^"\']+)["\']/i', (string) $post->post_content, $rs ) ) {
-			return '<img src="' . esc_url( $rs[1] ) . '" width="600" height="800" alt="' . esc_attr( $alt ) . '" loading="lazy" decoding="async">';
+		$src = isset( $GLOBALS['nura_cardimg_src'][ $post->ID ] ) ? $GLOBALS['nura_cardimg_src'][ $post->ID ] : '';
+		if ( $src ) {
+			return '<img src="' . esc_url( $src ) . '" width="600" height="800" alt="' . esc_attr( $alt ) . '" loading="lazy" decoding="async">';
 		}
 		// 3. Standard NURA photo (alternates between two so a page of them does not look repeated).
 		$files = array( 'look-bob.webp', 'look-curls.webp' );

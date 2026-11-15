@@ -88,3 +88,16 @@ add_action( 'wp_head', function () {
 	}
 	echo '<style id="nura-r16-eta">.nura-eta__w{display:grid;flex:1 1 auto;min-width:0}.nura-eta__w>span{grid-area:1/1}.nura-eta__s{visibility:hidden;pointer-events:none;user-select:none}.woocommerce-product-details__short-description{overflow-anchor:none}</style>' . "\n";
 }, 3 );
+
+/* 1.161.5: add-to-bag area keeps its final height from first paint (desktop CLS on variable products).
+   Measured on CSCR Lace Tint: (1) the "Order on WhatsApp" button is styled by nura-wa-order.css, which loads
+   deferred; unstyled it sits inline (row 52 px), styled it is a full-width 52 px block below (row 124 px), so the
+   pay row and promise box jump. (2) the shade pills are display:none until main.js adds .nura-var-enhanced, so
+   the options table grows 43 -> 94 px and pushes .single_variation_wrap and .nura-payrow down.
+   Fix: the button's layout rules and the pill/select swap are applied in the head, before any script runs. */
+add_action( 'wp_head', function () {
+	if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+		return;
+	}
+	echo '<style id="nura-r16-atc">.summary .nwo-pdp{flex:1 1 100%;width:100%;margin:.65rem 0 0;clear:both}.summary .nwo-btn--pdp{display:flex;align-items:center;justify-content:center;gap:.55rem;width:100%;box-sizing:border-box;min-height:52px;padding:.75rem 1.2rem;font-size:.82rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;line-height:1.2;border-radius:6px;text-decoration:none}.summary .nwo-btn--pdp .nwo-ico{flex:none}.summary form.variations_form .nura-swatches{display:flex}.summary form.variations_form td.value:has(.nura-swatches) select{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}</style>' . "\n";
+}, 3 );

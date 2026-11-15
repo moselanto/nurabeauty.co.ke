@@ -2,6 +2,21 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 15 Nov 2026 17:30 EAT (Ray) - category guide-box jump + Bob Wig long task (theme 1.161.11)
+
+- **Guide box jump (Wigs category, CLS 0.09 in PSI, 0.126 in sandbox):** the guide box (`aside.nura-guidelink`) was not moving by itself. Two things above it changed size when the late stylesheets arrived. The category intro (`.nura-cat-intro`) started in Montserrat with a 17.6px gap below and became Playfair with tighter lines. The quick facts (`.nura-cat-facts`) started as a bulleted list 163px tall and became a 111px pill row. Fix: those rules are now also in the head style `#nura-guidelink-css` (inc/nura-guide-links.php), which loads on every category page and on /shop/. Sandbox: Wigs 0.126 -> 0.022; Human Hair Wigs 0 -> 0.
+- **Bob Wig 176 ms long task:** this came from the inline footer script in inc/nura-shop-mobile.php. Its `over()` function checks whether the chat (AI stylist) button covers a product or the buy button, and runs `getBoundingClientRect` plus `elementsFromPoint`. Its call at about 800 ms forced a full layout early: 206 ms in the trace, 106 ms of it layout. Fix: every call now goes through `soon()`, which waits for idle time, then the next frame, then `setTimeout 0`, so it runs after the browser's own layout. The 800 ms call was removed; the check now runs 1.2 s after load, at 3.5 s, after scroll and on resize. The button logic is unchanged. NURA Desk, the stylist and the wig finder were not touched.
+- **Commit:** cf76cfb. Deployed; child theme still active; Purge All done.
+- **Checks after deploy:** wp-admin at desktop size, with the live cart: the cart drawer opened with 3 lines and subtotal KSh 7,400; nothing was changed. On a 390px iPhone-emulated live page (Puppeteer, fresh session so the cart was empty): the cart drawer opens (`is-open`, `inert` cleared, content-visibility visible) and shows "Your Cart / No products in the cart". The AI stylist opens (`nurax-stylist is-open`, greeting shown).
+- **Live mobile PSI (15 Nov 17:25-17:29):**
+  | Page | Perf | TBT | CLS | Agentic | Long tasks |
+  |---|---|---|---|---|---|
+  | product-category/wigs run 1 | 100 | 0 ms | 0 | 3/3 | none |
+  | product-category/wigs run 2 | 100 | 0 ms | 0 | 3/3 | none |
+  | product/bob-wig run 1 | 97 | 0 ms | 0 | 3/3 | none |
+  | product/bob-wig run 2 | 95 | 0 ms | 0 | 3/3 | none |
+  The only layout shift culprits listed are 0.000 rows: the header cart icon, and once the delivery note paragraph.
+
 ## UPDATE 15 Nov 2026 13:30 EAT (Ray) - mobile blocking time: layout, not inline scripts (theme 1.161.10) + 7-page mobile PSI
 
 - **Finding:** the homepage long tasks the user saw (56/115/267 ms, attributed to the page URL) are not inline scripts. Every inline script on the homepage is under 1.5 KB, and their forced reflows were 3-8 ms. A Chrome trace (412 px, 4x CPU) shows the long tasks are Layout and style recalc of ~1,900 DOM nodes: 322 ms on first layout, 231 ms when the deferred stylesheets apply, and 102 ms after scripts. jQuery evaluation is 61 ms. NURA Desk, the AI stylist and the wig finder scripts were not touched.

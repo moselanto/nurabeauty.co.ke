@@ -2,6 +2,23 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 17 Nov 2026 00:35 EAT (Ray) - test orders closed out; webhook signing secret still NOT stored
+
+- **NURA-261116-UZRG (#2445, moses njeru, KSh 3,850): marked Test** on 17 Nov at the owner's request. It is now in the Test tab and left out of the unpaid list and the accounts.
+- **#2450 (KSh 5,300, owner's own test, abandoned card attempt): no change needed.** WooCommerce had already moved it to **Cancelled** at 23:05 on 16 Nov ("Unpaid order cancelled - time limit reached"). Web orders have no Test action, so it was left as is. It is not counted in NURA Desk Accounts and not in the web unpaid list (0 orders, KSh 0).
+- **Unpaid WhatsApp orders: 5, KSh 27,000 (goods only; KSh 27,950 with quoted delivery).**
+  - Sylvia Njenga NURA-261106-HHB5: 2,100
+  - Mellie NURA-261026-N4KJ: 5,200
+  - Felicity Muthoni NURA-261022-JV4Y: 3,150
+  - Peter NURA-261015-98GN: 15,000
+  - Naveen NURA-261006-7L9W: 2,500
+  - The owner earlier confirmed none of these is paid. November revenue stays **KSh 7,850** (one paid order, #2272).
+- **Paystack Live Webhook Signing Secret: still blank (no masked dots), checked 00:30 on 17 Nov after the owner said a whsec_ value was saved.** The readiness line still reads "Live mode: Using a secret key: Paystack recommends switching to a restricted key".
+  - Nothing was changed.
+  - The save did not stick. The likely cause is the plugin rejecting the value with the red "must start with whsec_" error, for example if it was pasted with a leading space or the secret key was copied by mistake. The cause could also be LiteSpeed or the browser serving a cached settings page.
+  - Next step: owner re-pastes the full whsec_ value, clicks Save changes, reads any red notice at the top, then reloads the page. Webhooks still work because Paystack signs with the secret key.
+- Pending items 7 and 8 from the 16 Nov close-out are **done**. Items 1-6 are unchanged.
+
 ## UPDATE 16 Nov 2026 22:50 EAT (Ray) - SESSION CLOSE-OUT: what was done on 16 Nov and what is pending for the next agent
 
 **Live versions now:** plugin **nura-experience 1.115.0** (main 0d6c118), theme **1.161.21**, Paystack WooCommerce Payment Gateway **5.9.0** (updated from 5.8.6 on 16 Nov). Every release below was committed to main first, installed via Upload > Replace current, then LiteSpeed Purge All.

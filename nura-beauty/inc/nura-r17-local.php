@@ -211,7 +211,7 @@ add_action( 'wp_head', function () {
 	}
 	echo '<style id="nura-r17-css">';
 	if ( $home ) {
-		echo '.nura-visit__card{max-width:880px;margin:0 auto;padding:clamp(22px,4vw,44px);border:1px solid rgba(201,162,75,.45);border-radius:18px;background:linear-gradient(180deg,#fbf7ef 0%,#f6efe2 100%);box-shadow:0 10px 30px rgba(122,90,18,.08);text-align:center}'
+		echo '.nura-visit__card{max-width:none;width:100%;margin:0;padding:clamp(22px,4vw,44px);border:1px solid rgba(201,162,75,.45);border-radius:18px;background:linear-gradient(180deg,#fbf7ef 0%,#f6efe2 100%);box-shadow:0 10px 30px rgba(122,90,18,.08);text-align:center}'
 			. '.nura-visit h2{margin:.2em 0 .35em}.nura-visit__lede{max-width:640px;margin:0 auto 1em;line-height:1.6}'
 			. '.nura-visit__status{display:inline-flex;align-items:center;gap:8px;margin:0 0 1em;padding:6px 14px;border-radius:999px;background:#fff;border:1px solid rgba(201,162,75,.4);font-size:.9rem;font-weight:600}'
 			. '.nura-visit__dot{width:9px;height:9px;border-radius:50%;background:#c9a24b}.nura-visit__status.is-open .nura-visit__dot{background:#1f9d55;box-shadow:0 0 0 4px rgba(31,157,85,.15)}.nura-visit__status.is-open{color:#17663a}.nura-visit__status.is-closed .nura-visit__dot{background:#b54848}'
@@ -222,7 +222,10 @@ add_action( 'wp_head', function () {
 			. '.nura-visit__facts dt{font-weight:600;color:#7a5a12}.nura-visit__facts dd{margin:0}.nura-visit__hint{color:#777;font-size:.88em}'
 			. '.nura-visit__cta{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:0}'
 			. '.nura-visit__maps{margin:1em 0 0;font-size:.9rem}.nura-visit__maps a{color:#7a5a12;text-decoration:underline;text-underline-offset:3px}'
-			. '@media(max-width:560px){.nura-visit__facts div{grid-template-columns:1fr;gap:2px}.nura-visit__cta .nura-btn{flex:1 1 100%;text-align:center}}';
+			. '@media(max-width:560px){.nura-visit__facts div{grid-template-columns:1fr;gap:2px}.nura-visit__cta .nura-btn{flex:1 1 100%;text-align:center}}'
+			. '@media(min-width:900px){.nura-visit__card{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:clamp(32px,4vw,64px);align-items:start;text-align:left}'
+			. '.nura-visit__card>*{grid-column:1}.nura-visit__facts{grid-column:2;grid-row:1 / span 7;align-self:center;max-width:none;margin:0;padding:8px 24px}'
+			. '.nura-visit__lede,.nura-visit__chips{max-width:none;margin-left:0;margin-right:0}.nura-visit__chips,.nura-visit__cta{justify-content:flex-start}.nura-visit__status{justify-self:start}}';
 	}
 	if ( $wigs ) {
 		echo '.nura-priceguide{max-width:880px;margin:2.2rem auto 1rem;padding:clamp(18px,3vw,30px);border:1px solid #eadfc6;border-radius:14px;background:#fffdf8}'

@@ -2,6 +2,13 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 17 Nov 2026 02:55 EAT (Ray) - theme 1.161.23: "Visit our Nairobi studio" card uses the full page width
+
+- **Owner request:** the homepage "Wig shop in Nairobi CBD / Visit our Nairobi studio" section must fill the page width like the other sections, not a narrow box.
+- **Change** (`inc/nura-r17-local.php`, homepage head CSS `#nura-r17-css`): `.nura-visit__card` max-width 880px -> none (fills `.nura-container` like the other sections). From 900 px wide the card is a two-column grid: left = eyebrow, heading, open/closed badge, intro, service chips, buttons, Maps link (left-aligned); right = the Address / Opening hours / Plus Code box (vertically centred). Phones and tablets under 900 px keep the stacked, centred layout.
+- Includes theme 1.161.22 (richer studio card, ffac10f), which was committed but not yet installed.
+- Version 1.161.22 -> 1.161.23 (`style.css`, `NURA_VERSION`). `php -l` clean. CSS only, no JS or DB change.
+
 ## UPDATE 17 Nov 2026 02:45 EAT (Ray) - vendor wigs received, 16 Nov purchases recorded, care-product buying prices (data only, no code release)
 
 - **Owner decisions (17 Nov):** the KSh 85,375 wig order (opening stock register v4.1) already had KSh 3,800 in Accounts (PV-0016 Bone straight 3,100; PV-0025 2x2 closure 700), so only the **balance KSh 81,575** was recorded. Today's purchases were paid **Mon 16 Nov by M-Pesa** (no codes given). Foundations, storage buckets and edge/tail brush are **shop use**, not for sale. Vendor names map to the stock book: Body Wave "light piano" = Piano Dark (website "Piano"); "Black Latisha" = Wonderful Frontal (Black); Loose Wave "99J" = Loose Wave Burgundy; Empress "33" = Empress 1/33. Care products are all existing website products under different seller names.

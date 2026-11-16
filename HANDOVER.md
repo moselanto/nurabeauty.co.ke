@@ -12,6 +12,15 @@ Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing
     - **No** - a value is stored but it does not start with whsec_.
   - It reads `woocommerce_paystack_settings['live_webhook_signing_secret']`, never prints the value and never writes anything.
 - Version bumped to 1.115.1 (`Version:` + `NURAX_VERSION`).
+- **Live 17 Nov ~01:05:** installed via Replace current with uploaded (Plugins shows 1.115.1 active), LiteSpeed Purge All done. Front page and checkout load fine; checkout shows Card - Visa / Mastercard (Paystack), M-Pesa (Paystack) and Direct bank transfer.
+- **Result:** the notice reads "NURA Desk check - Live Webhook Signing Secret stored: **No - nothing is stored (the field is empty in the database).**" The input is blank. Live mode line: "Using a secret key: Paystack recommends switching to a restricted key".
+  - So the owner's saves are **not reaching the database**. The display is not the problem.
+  - Next checks:
+    1. Did the owner click the WooCommerce **Save changes** button at the bottom of the Paystack section? Saving in the Paystack dashboard does not count.
+    2. Does any red notice flash after saving?
+    3. Is a security plugin, WAF or Cloudflare rule blocking the POST?
+    4. Is another settings field failing validation and stopping the save?
+  - If needed, the next agent can try the save through the driver with the owner typing the value into the browser hand-off, never through chat.
 - **Paystack payment trace (17 Nov):** the owner said one card payment and one M-Pesa payment were made. The owner's message held placeholders, not real references. A read-only check at about 00:50 found no new WooCommerce orders (19 orders, newest #2450 cancelled) and no successful Paystack Live transactions on 16-17 Nov. Accounts 1-17 Nov: card processing fees KSh 0, total revenue KSh 7,850. Still waiting on the actual receipt references or M-Pesa SMS codes.
 
 ## UPDATE 17 Nov 2026 00:35 EAT (Ray) - test orders closed out; webhook signing secret still NOT stored

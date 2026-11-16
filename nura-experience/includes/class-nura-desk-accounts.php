@@ -549,7 +549,7 @@ class NURAX_Desk_Accounts {
 		if ( class_exists( 'NURAX_Desk_Orders' ) ) {
 			$q = get_posts( array( 'post_type' => NURAX_Desk_Orders::CPT, 'post_status' => 'private', 'numberposts' => 500, 'fields' => 'ids' ) );
 			foreach ( $q as $pid ) {
-				if ( 'cancelled' !== NURAX_Desk_Orders::status( $pid ) && ! NURAX_Desk_Orders::is_paid( $pid ) ) {
+				if ( ! in_array( NURAX_Desk_Orders::status( $pid ), array( 'cancelled', 'test' ), true ) && ! NURAX_Desk_Orders::is_paid( $pid ) ) {
 					$d = NURAX_Desk_Orders::data( $pid );
 					$wa_n++;
 					$wa_v += (float) $d['total'];
@@ -596,7 +596,7 @@ class NURAX_Desk_Accounts {
 			echo '<p class="na-muted">' . esc_html( 'Not paid yet: ' . (int) $s['awaiting_n'] . ' order(s), ' . NURAX_Desk::money( $s['awaiting'] ) . ' (not in sales).' . ( $s['tests'] ? ' Test orders: ' . (int) $s['tests'] . '.' : '' ) ) . '</p>';
 		}
 		if ( $wa_n ) {
-			echo '<p class="na-muted">WhatsApp orders not paid yet: ' . (int) $wa_n . ' (' . esc_html( NURAX_Desk::money( $wa_v ) ) . ') - never counted as sales. <a href="' . esc_url( NURAX_Desk::url( NURAX_Desk::P_ORDERS, array() ) ) . '">Open WhatsApp orders</a> to mark them paid or cancelled.</p>';
+			echo '<p class="na-muted">WhatsApp orders not paid yet: ' . (int) $wa_n . ' (' . esc_html( NURAX_Desk::money( $wa_v ) ) . ') - never counted as sales. <a href="' . esc_url( NURAX_Desk::url( NURAX_Desk::P_ORDERS, array() ) ) . '">Open WhatsApp orders</a> to mark them paid, cancelled or Test.</p>';
 		}
 		echo '</section>';
 	}
@@ -877,7 +877,7 @@ class NURAX_Desk_Accounts {
 		}
 		$ids = get_posts( array( 'post_type' => NURAX_Desk_Orders::CPT, 'post_status' => 'private', 'numberposts' => -1, 'fields' => 'ids', 'orderby' => 'date', 'order' => 'ASC' ) );
 		foreach ( $ids as $pid ) {
-			if ( isset( $billed[ $pid ] ) || 'cancelled' === NURAX_Desk_Orders::status( $pid ) ) {
+			if ( isset( $billed[ $pid ] ) || in_array( NURAX_Desk_Orders::status( $pid ), array( 'cancelled', 'test' ), true ) ) { // 1.113.3: test orders never count.
 				continue;
 			}
 			$d       = NURAX_Desk_Orders::data( $pid );

@@ -187,6 +187,7 @@ class NURAX_WA_Order {
 			'confirmed' => __( 'Confirmed', 'nura-experience' ),
 			'delivered' => __( 'Delivered', 'nura-experience' ),
 			'cancelled' => __( 'Cancelled', 'nura-experience' ),
+			'test'      => __( 'Test', 'nura-experience' ),
 		);
 	}
 

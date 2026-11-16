@@ -2,6 +2,16 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 16 Nov 2026 09:20 EAT (Ray) - plugin 1.113.3: Test status for WhatsApp orders
+
+- **Why:** WhatsApp orders in NURA Desk could only be confirmed, paid, cancelled or deleted, so test orders (Ray Test, moses njeru, Sene wasteservices "Test wig item") sat in "WhatsApp orders not paid yet" with no clean way to exclude them from the accounts.
+- **What changed (plugin only, no DB change):**
+  - `NURAX_Desk_Orders::statuses()` and `NURAX_WA_Order::statuses()` gain `test` => Test (muted badge). Order view: "Mark as test (not a sale)" on New/Confirmed, "Not a test - restore order" on Test. Orders list: quick "Test" button on unpaid New/Confirmed orders. No payment reminder on Test orders; weekly KPI skips them.
+  - `NURAX_Desk_Accounts::wa_list()` and the unpaid WhatsApp count skip `test` like `cancelled`, so Test orders never reach sales, unpaid orders or the Book of Accounts.
+  - `NURAX_Desk_Stock`: marking an order Test releases any held pieces (same as cancel); Test orders do not reserve stock.
+- **Version:** plugin **1.113.2 -> 1.113.3** (`Version:` header and `NURAX_VERSION`). `php -l` clean on all changed files. No JS changed.
+- **Still waiting on the owner:** owner capital entries (amounts, dates, methods, references; at least KSh 174,395), which unpaid orders were paid (with M-Pesa codes), buying prices (starting with Human Hair Bob - Honey Highlighted, #2272), and the months covered by the KSh 44,000 prepaid rent (PV-0002).
+
 ## UPDATE 16 Nov 2026 09:05 EAT (Ray) - 14 Nov open items closed out: phone speed already met, PSI on 4 pages, booking hours waiting on owner
 
 - **Live versions (curl, mobile UA, cache-buster):** theme **1.161.18**, plugin **1.113.2**. Repo `main` has theme **1.161.19** (34a50b7, installation hero + logo aspect-ratio) not yet installed.

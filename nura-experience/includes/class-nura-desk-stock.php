@@ -509,7 +509,7 @@ class NURAX_Desk_Stock {
 		if ( null === $data ) {
 			$data = get_post_meta( $post_id, '_nwo', true );
 		}
-		if ( ! is_array( $data ) || empty( $data['items'] ) || (int) get_post_meta( $post_id, '_nwo_wc_order', true ) || 'cancelled' === get_post_meta( $post_id, '_nwo_status', true ) ) {
+		if ( ! is_array( $data ) || empty( $data['items'] ) || (int) get_post_meta( $post_id, '_nwo_wc_order', true ) || in_array( get_post_meta( $post_id, '_nwo_status', true ), array( 'cancelled', 'test' ), true ) ) {
 			return;
 		}
 		$paid = self::wa_paid( $post_id );
@@ -572,6 +572,8 @@ class NURAX_Desk_Stock {
 		} elseif ( '_nwo_status' === $key ) {
 			if ( 'cancelled' === $value ) {
 				self::wa_release( $post_id, 'Order cancelled' );
+			} elseif ( 'test' === $value ) {
+				self::wa_release( $post_id, 'Marked as test order' );
 			} elseif ( ! (int) get_post_meta( $post_id, '_nwo_wc_order', true ) && get_post_meta( $post_id, '_nwo', true ) ) {
 				self::wa_reserve( $post_id ); // Re-opened after a cancel: hold the pieces again (no-op if already held).
 			}

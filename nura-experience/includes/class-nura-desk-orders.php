@@ -31,6 +31,7 @@ class NURAX_Desk_Orders {
 			'confirmed' => 'Confirmed',
 			'delivered' => 'Delivered',
 			'cancelled' => 'Cancelled',
+			'test'      => 'Test',
 		);
 	}
 
@@ -41,7 +42,7 @@ class NURAX_Desk_Orders {
 
 	/** Badge colour key per status (re-uses the Desk badge palette). */
 	private static function tone( $k ) {
-		$m = array( 'new' => 'request', 'confirmed' => 'confirmed', 'delivered' => 'completed', 'cancelled' => 'cancelled' );
+		$m = array( 'new' => 'request', 'confirmed' => 'confirmed', 'delivered' => 'completed', 'cancelled' => 'cancelled', 'test' => 'muted' );
 		return isset( $m[ $k ] ) ? $m[ $k ] : 'muted';
 	}
 
@@ -101,7 +102,7 @@ class NURAX_Desk_Orders {
 		$since = gmdate( 'Y-m-d H:i:s', strtotime( current_time( 'mysql' ) . ' -7 days' ) );
 		$ids   = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'private' AND post_date >= %s", self::CPT, $since ) );
 		foreach ( (array) $ids as $id ) {
-			if ( 'cancelled' === self::status( $id ) ) {
+			if ( in_array( self::status( $id ), array( 'cancelled', 'test' ), true ) ) {
 				continue;
 			}
 			$d = self::data( $id );
@@ -272,6 +273,10 @@ class NURAX_Desk_Orders {
 			}
 			self::status_btn( $id, 'delivered', 'Delivered', 'nd-ico-btn nd-ico-btn--ok' );
 		}
+		// 1.113.3: test orders are kept but left out of the accounts.
+		if ( in_array( $st, array( 'new', 'confirmed' ), true ) && ! self::is_paid( $id ) ) {
+			self::status_btn( $id, 'test', 'Test', 'nd-ico-btn', 'Mark this as a test order? It will be left out of the accounts.' );
+		}
 		echo '<button type="button" class="nd-ico-btn nd-ico-btn--danger" data-nd-del="order:' . (int) $id . '">Delete</button>';
 	}
 
@@ -329,10 +334,11 @@ class NURAX_Desk_Orders {
 
 		echo '<section class="nd-card nd-noprint"><header class="nd-card__h"><h2>Status</h2></header><div class="nd-stack">';
 		$flow = array(
-			'new'       => array( 'confirmed' => array( 'Confirm order', 'nd-btn--primary', '' ), 'cancelled' => array( 'Cancel order', 'nd-btn--danger-ghost', 'Cancel this order?' ) ),
-			'confirmed' => array( 'delivered' => array( 'Mark delivered / collected', 'nd-btn--primary', '' ), 'cancelled' => array( 'Cancel order', 'nd-btn--danger-ghost', 'Cancel this order?' ) ),
+			'new'       => array( 'confirmed' => array( 'Confirm order', 'nd-btn--primary', '' ), 'cancelled' => array( 'Cancel order', 'nd-btn--danger-ghost', 'Cancel this order?' ), 'test' => array( 'Mark as test (not a sale)', 'nd-btn--ghost', 'Mark this as a test order? It will be left out of the accounts.' ) ),
+			'confirmed' => array( 'delivered' => array( 'Mark delivered / collected', 'nd-btn--primary', '' ), 'cancelled' => array( 'Cancel order', 'nd-btn--danger-ghost', 'Cancel this order?' ), 'test' => array( 'Mark as test (not a sale)', 'nd-btn--ghost', 'Mark this as a test order? It will be left out of the accounts.' ) ),
 			'delivered' => array( 'confirmed' => array( 'Undo - back to confirmed', 'nd-btn--ghost', '' ) ),
 			'cancelled' => array( 'new' => array( 'Restore order', 'nd-btn--ghost', '' ) ),
+			'test'      => array( 'new' => array( 'Not a test - restore order', 'nd-btn--ghost', '' ) ),
 		);
 		foreach ( isset( $flow[ $st ] ) ? $flow[ $st ] : array() as $to => $o ) {
 			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"' . ( $o[2] ? ' data-nd-confirm="' . esc_attr( $o[2] ) . '"' : '' ) . '><input type="hidden" name="action" value="nurax_desk_order_status"><input type="hidden" name="order_id" value="' . (int) $id . '"><input type="hidden" name="to" value="' . esc_attr( $to ) . '">';
@@ -354,7 +360,7 @@ class NURAX_Desk_Orders {
 			echo '<label class="nd-field"><span class="nd-label">M-Pesa code (optional)</span><input type="text" name="ref" maxlength="40" placeholder="e.g. SJK4X2PQ7Z" style="text-transform:uppercase"></label><button type="submit" class="nd-btn nd-btn--primary nd-btn--block">Mark as paid</button>';
 		}
 		echo '</form>';
-		if ( ! $paid && $d['phone'] && 'cancelled' !== $st ) {
+		if ( ! $paid && $d['phone'] && ! in_array( $st, array( 'cancelled', 'test' ), true ) ) {
 			$kind = 'confirmed' === $st ? 'pay' : 'follow';
 			echo '<div style="margin-top:8px">' . NURAX_Desk::btn( NURAX_Desk::wa( $d['phone'], NURAX_Desk_Remind::order_text( $id, $d, $kind ) ), 'pay' === $kind ? 'Send payment reminder' : 'Send follow-up', 'nd-btn--wa nd-btn--block', 'target="_blank" rel="noopener" data-nd-remind="order:' . (int) $id . '"' ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}

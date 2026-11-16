@@ -2,6 +2,34 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 16 Nov 2026 22:50 EAT (Ray) - SESSION CLOSE-OUT: what was done on 16 Nov and what is pending for the next agent
+
+**Live versions now:** plugin **nura-experience 1.115.0** (main 0d6c118), theme **1.161.21**, Paystack WooCommerce Payment Gateway **5.9.0** (updated from 5.8.6 on 16 Nov). Every release below was committed to main first, installed via Upload > Replace current, then LiteSpeed Purge All.
+
+### Done on 16 Nov
+- **1.113.3 / 1.113.4 - Test status for WhatsApp orders.** Test orders are left out of the accounts, the unpaid list and stock holds. In 1.113.4 the Test button no longer has a confirm pop-up (it can be undone with "Not a test - restore order"). Marked as Test: Ray Test #1738; moses njeru #1908, #1788, #1747, #1746, #1185 and #1177; Sene wasteservices #2123. Unpaid WhatsApp orders went from 13 (KSh 58,410) to 5 (KSh 27,000).
+- **Owner confirmed NOT paid (leave Not paid):** Awivest #1777 (KSh 8,800), Sylvia Njenga NURA-261106-HHB5, Mellie NURA-261026-N4KJ, Felicity Muthoni NURA-261022-JV4Y, Peter NURA-261015-98GN, Naveen NURA-261006-7L9W.
+- **1.114.0-1.114.2 - Order alerts (NURA Desk > Order alerts).** Each order sends a WhatsApp alert to 254714994898: Meta Cloud API first, then CallMeBot, then e-mail to care@nurabeauty.co.ke. 1.114.1 added a set-up check line. In 1.114.2 the token and phone number ID can be saved on that page as a fallback (`nurax_wa_fallback`). Template `nura_new_order` / `en` is saved; the owner reports Meta approved it. Set-up guide (Town doc): "NURA Beauty order alerts: Meta WhatsApp Cloud API set-up".
+- **1.115.0 - Paystack split.** Checkout now shows "M-Pesa (Paystack)" (mobile_money, no fee) and "Card - Visa / Mastercard (Paystack)" (gateway `paystack-one`, card only, 2.9% fee rounded to whole shillings). Fee income goes to account 4110 in Accounts. Checked as a logged-out shopper: KSh 350 + 300 delivery = 650 by M-Pesa; by card the fee is KSh 19, total 669. The fee is removed when switching back. Details are in the 21:40 entry.
+- **Book of Accounts (1-16 Nov) baseline:** revenue 7,850, cost of sales 0, running costs 27,600, set-up costs 98,995. M-Pesa is **-172,395** and bank **-2,000**, because no owner capital is recorded.
+
+### Findings at close (16 Nov, read-only)
+- **Paystack Live, 16 Nov:** there is only ONE transaction, 6770712127, ref `2450_1794853793`, KES 5,300, card, **Abandoned** ("The transaction was not completed"), 21:29 EAT. The owner said two real payments (one card, one M-Pesa) were made, but they are **not in Paystack** and not in WooCommerce. The owner's messages held placeholders instead of references.
+- **Order #2450** (KSh 5,300, 2 x 8 Inch Water Curl 4x4 Lace Closure Bob Wig - Black + KSh 300 rider): Pending payment. Customer account #1, "moses munyi", mosemqute@gmail.com (the owner/admin account), Nairobi, Direct/Desktop, IP 197.232.74.194. It was placed just before 1.115.0 went live (old title "MPESA/Debit/Credit Cards"). It is most likely an owner test. **No action taken.** Ask the owner before cancelling it or marking it Test.
+- **Paystack webhook:** the Live URL in the Paystack dashboard is `https://nurabeauty.co.ke/wc-api/Tbz_WC_Paystack_Webhook/` (Legacy, all events), which is correct. Paystack says events are currently signed with the secret key, and **no signing secret has been generated** in the dashboard ("Generate signing secret" button not used).
+- **Why the owner's "Live Webhook Signing Secret" does not save:** in Paystack 5.9.0 the field is `type => password`. A saved value shows as masked dots, so blank means nothing is stored. `validate_live_webhook_signing_secret_field()` only accepts values starting with **`whsec_`**. Anything else adds the error "Live Webhook Signing Secret must start with whsec_." and keeps the old (empty) value. The owner probably pasted a different key, because no whsec_ secret exists yet. Fix: Paystack dashboard > Settings > API Keys & Webhooks > **Generate signing secret** > paste the `whsec_...` value > Save, and check for the red error notice. Readiness line now: "Live mode: Using a secret key: Paystack recommends switching to a restricted key".
+
+### PENDING for the next agent / owner
+1. **Owner capital (blocks real figures):** owner to send each contribution (amount, date, contributor, method, reference). M-Pesa needs at least KSh 172,395 and bank KSh 2,000. Record each as "Owner capital in", download the 1-16 Nov Book of Accounts and confirm the trial balance, financial position and cash flow checks pass and the cash balances are not negative. Never record a balancing entry without real figures.
+2. **Buying prices:** Human Hair Bob - Honey Highlighted (#2272, sold KSh 7,500) first, then the other wigs. Cost of sales is 0 until this is done.
+3. **Prepaid rent PV-0002 (KSh 44,000):** months are not set. The note says it covers the last two lease months once notice is given. Do not assume Nov/Dec.
+4. **Real payment test of 1.115.0:** one small card payment and one M-Pesa payment, then check the order lines (fee only on card), status and NURA Desk Accounts 4110. Owner to confirm with Paystack that passing the card fee to customers is allowed (merchant 2042703).
+5. **Paystack webhook signing secret:** generate `whsec_` in Paystack, then save it in WooCommerce. Optional: switch to a restricted key (rk_live_) as Paystack recommends.
+6. **Order alerts:** Meta token and phone number ID are NOT detected (wp-config and the fallback fields were both blank at 22:10). Owner to save them in the fallback fields and confirm the green "Saved." notice and the "Saved - leave blank to keep" placeholders. Then send ONE test alert (owner pre-approved one). CallMeBot: the owner's message to the bot shows 2 ticks but no key yet; retry once on 17 Nov evening. Until then, alerts go only by e-mail to care@nurabeauty.co.ke (not connected to the Town assistant).
+7. **WhatsApp order NURA-261116-UZRG (#2445):** moses njeru, KSh 3,850, New/Not paid, matches earlier test orders. Ask the owner whether to mark it Test.
+8. **Order #2450:** ask the owner whether it was a test, then cancel it or mark it Test.
+9. Lyz December payment for Kavi-Basin is unrelated to this repo (separate project).
+
 ## UPDATE 16 Nov 2026 21:40 EAT (Ray) - plugin 1.115.0: Paystack M-Pesa / Card split + 2.9% card processing fee
 
 - **Owner decision 16 Nov:** customer pays a 2.9% card fee (one rate for all cards, rounded to whole shillings); M-Pesa through Paystack has no fee. Paystack plugin updated 5.8.6 -> **5.9.0** the same day (no channel setting in its UI). Live Webhook Signing Secret entered by the owner.

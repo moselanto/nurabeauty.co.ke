@@ -2,6 +2,20 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 16 Nov 2026 09:05 EAT (Ray) - 14 Nov open items closed out: phone speed already met, PSI on 4 pages, booking hours waiting on owner
+
+- **Live versions (curl, mobile UA, cache-buster):** theme **1.161.18**, plugin **1.113.2**. Repo `main` has theme **1.161.19** (34a50b7, installation hero + logo aspect-ratio) not yet installed.
+- **Phone speed (reduce jQuery/WooCommerce/theme JS on phones):** skipped - covered by 1.161.9-1.161.18. Mobile TBT is now 0 ms on all four pages (was 430-900 ms in the 1.150.4 Lighthouse run). The 15 Nov trace showed the remaining blocking time was layout of the large DOM, not jQuery (61 ms). Removing jQuery/WooCommerce scripts would risk cart, checkout, My Account and the WhatsApp order pop-up, so no release was made and nothing was installed.
+- **PageSpeed Insights (pagespeed.web.dev, Lighthouse 13.6, 16 Nov; PSI API quota exhausted and sandbox Chrome lacks system libraries):**
+  | Page | Mobile | FCP | LCP | TBT | CLS | SI | Desktop | Desktop LCP | Desktop CLS |
+  |---|---|---|---|---|---|---|---|---|---|
+  | `/` | 99 | 1.1 s | 2.3 s | 0 ms | 0.006 | 1.2 s | 100 | 0.6 s | 0.046 |
+  | `/shop/` | 100 | 1.1 s | 1.1 s | 0 ms | 0 | 1.2 s | 100 | 0.3 s | 0.002 |
+  | `/product/bob-wig/` | 95 | 1.1 s | 2.9 s | 0 ms | 0 | 1.4 s | 100 | 0.5 s | 0.001 |
+  | `/hd-lace-vs-transparent-lace/` (guide) | 96 | 0.9 s | 2.7 s | 0 ms | 0 | 1.0 s | 100 | 0.6 s | 0 |
+  Reports: https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke/rum3efzqgv , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-shop/512eyzm148 , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-product-bob-wig/3e87pbcy03 , https://pagespeed.web.dev/analysis/https-nurabeauty-co-ke-hd-lace-vs-transparent-lace/bc9xchlp7i . The desktop guide test that failed on 14 Nov now runs. Targets met: every page renders well under 5 s on simulated slow 4G (LCP 1.1-2.9 s); desktop 100 on all four. No field (real-user) data yet.
+- **Booking hours:** still the 14 Nov guess (First slot 6:00 am, Last slot 6:30 pm, Early booking before 8:00 am). Asked the owner on 16 Nov for the real hours; the 6 Nov decision on record is Mon-Sat 9:00 am-7:30 pm, Sunday closed. Set them in NURA Desk > Settings once confirmed.
+
 ## UPDATE 15 Nov 2026 17:30 EAT (Ray) - category guide-box jump + Bob Wig long task (theme 1.161.11)
 
 - **Guide box jump (Wigs category, CLS 0.09 in PSI, 0.126 in sandbox):** the guide box (`aside.nura-guidelink`) was not moving by itself. Two things above it changed size when the late stylesheets arrived. The category intro (`.nura-cat-intro`) started in Montserrat with a 17.6px gap below and became Playfair with tighter lines. The quick facts (`.nura-cat-facts`) started as a bulleted list 163px tall and became a 111px pill row. Fix: those rules are now also in the head style `#nura-guidelink-css` (inc/nura-guide-links.php), which loads on every category page and on /shop/. Sandbox: Wigs 0.126 -> 0.022; Human Hair Wigs 0 -> 0.

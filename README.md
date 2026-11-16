@@ -12,7 +12,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.161.11-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.161.19-0E0E0E?style=for-the-badge)](nura-beauty)
 [![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.113.2-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
@@ -61,7 +61,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.161.11 | Parent theme |
+| `nura-beauty/` | 1.161.19 (live: 1.161.18) | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
 | `nura-experience/` | 1.113.2 | Plugin |
 
@@ -169,6 +169,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.161.12-1.161.19 | - | Journal card images, studio/store markup, installation page polish (PSI 16 Nov: mobile 95-100, desktop 100 on home, shop, product, guide) |
 | 1.154.0-1.161.11 | 1.113.1-1.113.2 | QA fixes and speed rounds R9-R16 (see HANDOVER 14 Nov 21:35) |
 | 1.153.0 | - | R8: water curl price + types of wigs answer pages, services and booking rules in llms.txt |
 | 1.152.2 | - | Slide 1 eye restored in full; hero URLs versioned |

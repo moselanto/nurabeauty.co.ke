@@ -1,11 +1,11 @@
 # NURA Beauty - project status and next steps
 
-Last updated: 14 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOVER.md` (version table, release rows, session log) and `README.md`.
+Last updated: 16 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOVER.md` (version table, release rows, session log) and `README.md`.
 
 ## Live versions
 | Component | Version | Notes |
 |---|---|---|
-| Theme `nura-beauty/` (parent) | **1.161.11** (live since 14 Nov) | Owner slide first; hero fixed for desktop and phone (14 Nov). | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
+| Theme `nura-beauty/` (parent) | **1.161.18 live** (checked 16 Nov 09:00 EAT); repo `main` is **1.161.19** (installation hero first-paint + logo aspect-ratio, commit 34a50b7) - **not yet installed** | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
 | Plugin `nura-experience/` | **1.113.2** (live since 14 Nov) | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
 
 ## How a release is done (the working method)
@@ -52,6 +52,7 @@ Last updated: 14 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 - Full-site audit 13 Nov (131 URLs, 47 internal links, 292 images): no PHP errors, no broken images, valid JSON-LD. Fixed old hair words in product SEO titles, leftover product text, 6 links to deleted products (301 redirects + guide links rewritten), 3 missing meta descriptions (1.133.0).
 
 ## Pending - owner input needed
+0. **Booking hours (asked 16 Nov):** NURA Desk > Settings still has First slot 6:00 am, Last slot 6:30 pm, Early booking before 8:00 am - a guess from 14 Nov. Note the 6 Nov owner decision was opening hours Mon-Sat 9:00 am-7:30 pm, Sunday closed (also on GBP). Once the owner confirms, set the three fields in NURA Desk > Settings (no code release needed).
 1. **Checkout totals on a phone**: the "updating..." fix (1.129.2) is not yet confirmed by the owner.
 2. **New wig photos (1200 px or larger)**: softest originals are Human Hair Bob, Bob Wavy, Latisha Sensational Headband, 12 Inch Jerry Curls, Loose Wave Frontal, Luxury Body Wave, Minky Headband. Two care images are only 680 px (Texture Spray `2026/11/2-3.jpg`, Melting Spray `2026/11/cscr-1.jpg`).
 3. **October orders**: most were marked Test, so revenue shows KSh 0; one cash-on-delivery order (#1777, KSh 8,800) and 13 WhatsApp orders (KSh 58,410) are unpaid. Mark real ones as paid in NURA Desk > Accounts; they then appear in Ask for reviews.

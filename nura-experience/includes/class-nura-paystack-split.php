@@ -50,6 +50,42 @@ class NURAX_Paystack_Split {
 		add_action( 'woocommerce_blocks_loaded', array( __CLASS__, 'store_api' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'assets' ), 30 );
 		add_action( 'admin_notices', array( __CLASS__, 'secret_check' ) );
+		// Tell shoppers about the card fee before they pay (classic + block cart/checkout, product page).
+		add_action( 'woocommerce_before_cart_totals', array( __CLASS__, 'fee_notice_echo' ) );
+		add_action( 'woocommerce_review_order_before_payment', array( __CLASS__, 'fee_notice_echo' ) );
+		add_action( 'woocommerce_after_add_to_cart_form', array( __CLASS__, 'fee_notice_echo' ) );
+		add_filter( 'render_block', array( __CLASS__, 'fee_notice_block' ), 20, 2 );
+	}
+
+	/** Shopper-facing wording for the card fee. */
+	public static function fee_notice_html() {
+		if ( ! self::card_on() ) {
+			return '';
+		}
+		return '<div class="nura-card-fee-note" style="margin:10px 0;padding:10px 12px;border:1px solid #e6d3a3;background:#fdf8ec;border-radius:6px;font-size:14px;line-height:1.45;">'
+			. '<strong>For card transactions: 2.9% card processing fee.</strong> '
+			. 'Paying by Visa or Mastercard adds a 2.9% fee to your total, shown at checkout before you pay. M-Pesa has no extra fee.'
+			. '</div>';
+	}
+
+	public static function fee_notice_echo() {
+		static $done = array();
+		$k = current_filter();
+		if ( isset( $done[ $k ] ) ) {
+			return;
+		}
+		$done[ $k ] = true;
+		echo self::fee_notice_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static markup.
+	}
+
+	public static function fee_notice_block( $html, $block ) {
+		if ( is_admin() || empty( $block['blockName'] ) ) {
+			return $html;
+		}
+		if ( in_array( $block['blockName'], array( 'woocommerce/checkout', 'woocommerce/cart' ), true ) ) {
+			return self::fee_notice_html() . $html;
+		}
+		return $html;
 	}
 
 	/**

@@ -2,6 +2,22 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 17 Nov 2026 01:20 EAT (Ray) - plugin 1.116.0: card fee stated on the website; signing-secret save investigation
+
+- **Owner request:** "For Card Transactions 2.9%" must be shown on the website so customers know before they pay.
+- **Change:** in `includes/class-nura-paystack-split.php`, `fee_notice_html()` builds a gold-bordered note:
+  - Text: "**For card transactions: 2.9% card processing fee.** Paying by Visa or Mastercard adds a 2.9% fee to your total, shown at checkout before you pay. M-Pesa has no extra fee."
+  - Classic hooks: `woocommerce_before_cart_totals` (cart), `woocommerce_review_order_before_payment` (checkout) and `woocommerce_after_add_to_cart_form` (product pages).
+  - Block cart and checkout: shown through a `render_block` filter on `woocommerce/cart` and `woocommerce/checkout`.
+  - The note only shows while the card gateway (`paystack-one`) is enabled.
+  - The card gateway description already says "A 2.9% card processing fee is added to your total". The checkout fee line "Card processing fee (2.9%)" (1.115.0) is unchanged.
+- Version bumped to 1.116.0.
+- **Signing-secret save investigation (read-only, 17 Nov):**
+  - **Response headers:** `server: LiteSpeed`, PHP 8.1.34. No `cf-ray` or Sucuri headers, so the site is **not behind Cloudflare**. wp-admin returns `x-litespeed-cache-control: no-cache`, so LiteSpeed does not cache the settings page.
+  - **NURA Experience code:** no handler touches the WooCommerce settings POST or the `woocommerce_paystack_settings` option. The `option_woocommerce_paystack_settings` filter (main_labels) returns early in wp-admin and only relabels the front end.
+  - **Paystack 5.9.0:** uses the standard WC `process_admin_options`. The only rejection is the whsec_ prefix check, which shows a red inline error.
+  - The driver will check installed security plugins and server/WAF notices while the owner enters the secret in the browser hand-off.
+
 ## UPDATE 17 Nov 2026 01:10 EAT (Ray) - plugin 1.115.1: read-only Paystack signing-secret check
 
 - **Why:** the owner has saved a whsec_ Live Webhook Signing Secret in WooCommerce > Settings > Payments > Paystack three times. Each time the field came back blank, with no masked dots and (on 17 Nov) no red error. We need to know whether the value is reaching the database or whether only the display is wrong.

@@ -275,7 +275,7 @@ class NURAX_Desk_Orders {
 		}
 		// 1.113.3: test orders are kept but left out of the accounts.
 		if ( in_array( $st, array( 'new', 'confirmed' ), true ) && ! self::is_paid( $id ) ) {
-			self::status_btn( $id, 'test', 'Test', 'nd-ico-btn', 'Mark this as a test order? It will be left out of the accounts.' );
+			self::status_btn( $id, 'test', 'Test', 'nd-ico-btn' ); // 1.113.4: no pop-up; reversible via 'Not a test - restore order'.
 		}
 		echo '<button type="button" class="nd-ico-btn nd-ico-btn--danger" data-nd-del="order:' . (int) $id . '">Delete</button>';
 	}
@@ -334,8 +334,8 @@ class NURAX_Desk_Orders {
 
 		echo '<section class="nd-card nd-noprint"><header class="nd-card__h"><h2>Status</h2></header><div class="nd-stack">';
 		$flow = array(
-			'new'       => array( 'confirmed' => array( 'Confirm order', 'nd-btn--primary', '' ), 'cancelled' => array( 'Cancel order', 'nd-btn--danger-ghost', 'Cancel this order?' ), 'test' => array( 'Mark as test (not a sale)', 'nd-btn--ghost', 'Mark this as a test order? It will be left out of the accounts.' ) ),
-			'confirmed' => array( 'delivered' => array( 'Mark delivered / collected', 'nd-btn--primary', '' ), 'cancelled' => array( 'Cancel order', 'nd-btn--danger-ghost', 'Cancel this order?' ), 'test' => array( 'Mark as test (not a sale)', 'nd-btn--ghost', 'Mark this as a test order? It will be left out of the accounts.' ) ),
+			'new'       => array( 'confirmed' => array( 'Confirm order', 'nd-btn--primary', '' ), 'cancelled' => array( 'Cancel order', 'nd-btn--danger-ghost', 'Cancel this order?' ), 'test' => array( 'Mark as test (not a sale)', 'nd-btn--ghost', '' ) ),
+			'confirmed' => array( 'delivered' => array( 'Mark delivered / collected', 'nd-btn--primary', '' ), 'cancelled' => array( 'Cancel order', 'nd-btn--danger-ghost', 'Cancel this order?' ), 'test' => array( 'Mark as test (not a sale)', 'nd-btn--ghost', '' ) ),
 			'delivered' => array( 'confirmed' => array( 'Undo - back to confirmed', 'nd-btn--ghost', '' ) ),
 			'cancelled' => array( 'new' => array( 'Restore order', 'nd-btn--ghost', '' ) ),
 			'test'      => array( 'new' => array( 'Not a test - restore order', 'nd-btn--ghost', '' ) ),

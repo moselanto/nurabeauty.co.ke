@@ -2,6 +2,13 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 16 Nov 2026 09:30 EAT (Ray) - plugin 1.113.4: Test button on WhatsApp orders without a confirmation pop-up
+
+- **Why:** in 1.113.3 the "Mark as test (not a sale)" and quick "Test" buttons used `data-nd-confirm` (window.confirm). In the automated browser the dialog stopped the form, so no status was saved. Marking Test is reversible ("Not a test - restore order"), so the pop-up is not needed.
+- **What changed:** `NURAX_Desk_Orders` - the `test` flow entries for New/Confirmed and the list quick button no longer pass a confirm message. Cancel still asks for confirmation. No DB or JS change.
+- **Version:** plugin **1.113.3 -> 1.113.4** (`Version:` header and `NURAX_VERSION`). `php -l` clean.
+- **Owner confirmed 16 Nov:** Awivest #1777, Sylvia Njenga, Mellie, Felicity Muthoni, Peter and Naveen have NOT paid - leave all six Not paid. Owner capital entries still awaited.
+
 ## UPDATE 16 Nov 2026 09:25 EAT (Ray) - theme 1.161.19 installed; booking form check
 
 - **Theme 1.161.19 live:** zip built from 34a50b7 (`nura-beauty/` at zip root), `php -l` (PHP 8.3.13) passed on the changed PHP files (functions.php, inc/nura-r18-install.php), version 1.161.19 in style.css and `NURA_VERSION`. Uploaded with "Replace installed with uploaded" ("Theme updated successfully"), child theme still active, LiteSpeed Purge All done. curl with cache-buster: home and /installation/ load nura-beauty assets `?ver=1.161.19`.

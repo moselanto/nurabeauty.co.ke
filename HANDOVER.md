@@ -2,6 +2,18 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 17 Nov 2026 01:10 EAT (Ray) - plugin 1.115.1: read-only Paystack signing-secret check
+
+- **Why:** the owner has saved a whsec_ Live Webhook Signing Secret in WooCommerce > Settings > Payments > Paystack three times. Each time the field came back blank, with no masked dots and (on 17 Nov) no red error. We need to know whether the value is reaching the database or whether only the display is wrong.
+- **Change:** `includes/class-nura-paystack-split.php` adds `NURAX_Paystack_Split::secret_status()` and `secret_check()`, hooked to `admin_notices`.
+  - Only users with `manage_woocommerce` see it, and only on `wc-settings&tab=checkout&section=paystack` or `section=paystack-one`. It shows one notice: "NURA Desk check - Live Webhook Signing Secret stored:" with one of three answers:
+    - **Yes** - a whsec_ secret is stored.
+    - **No** - nothing is stored (the field is empty in the database).
+    - **No** - a value is stored but it does not start with whsec_.
+  - It reads `woocommerce_paystack_settings['live_webhook_signing_secret']`, never prints the value and never writes anything.
+- Version bumped to 1.115.1 (`Version:` + `NURAX_VERSION`).
+- **Paystack payment trace (17 Nov):** the owner said one card payment and one M-Pesa payment were made. The owner's message held placeholders, not real references. A read-only check at about 00:50 found no new WooCommerce orders (19 orders, newest #2450 cancelled) and no successful Paystack Live transactions on 16-17 Nov. Accounts 1-17 Nov: card processing fees KSh 0, total revenue KSh 7,850. Still waiting on the actual receipt references or M-Pesa SMS codes.
+
 ## UPDATE 17 Nov 2026 00:35 EAT (Ray) - test orders closed out; webhook signing secret still NOT stored
 
 - **NURA-261116-UZRG (#2445, moses njeru, KSh 3,850): marked Test** on 17 Nov at the owner's request. It is now in the Test tab and left out of the unpaid list and the accounts.

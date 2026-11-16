@@ -49,6 +49,43 @@ class NURAX_Paystack_Split {
 		add_action( 'woocommerce_store_api_checkout_update_order_from_request', array( __CLASS__, 'guard_order' ), 50, 2 );
 		add_action( 'woocommerce_blocks_loaded', array( __CLASS__, 'store_api' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'assets' ), 30 );
+		add_action( 'admin_notices', array( __CLASS__, 'secret_check' ) );
+	}
+
+	/**
+	 * Read-only check on WooCommerce > Settings > Payments > Paystack: is a whsec_ Live Webhook
+	 * Signing Secret stored? Shows yes/no only - the value is never printed or changed.
+	 */
+	public static function secret_status() {
+		$o = get_option( 'woocommerce_paystack_settings', array() );
+		$v = is_array( $o ) && isset( $o['live_webhook_signing_secret'] ) ? trim( (string) $o['live_webhook_signing_secret'] ) : '';
+		if ( '' === $v ) {
+			return 'no-empty';
+		}
+		return 0 === strpos( $v, 'whsec_' ) ? 'yes' : 'no-other';
+	}
+
+	public static function secret_check() {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			return;
+		}
+		$page    = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+		$tab     = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : '';
+		$section = isset( $_GET['section'] ) ? sanitize_key( wp_unslash( $_GET['section'] ) ) : '';
+		if ( 'wc-settings' !== $page || 'checkout' !== $tab || ! in_array( $section, array( 'paystack', self::CARD ), true ) ) {
+			return;
+		}
+		$st  = self::secret_status();
+		$msg = array(
+			'yes'      => 'Yes - a whsec_ secret is stored.',
+			'no-empty' => 'No - nothing is stored (the field is empty in the database).',
+			'no-other' => 'No - a value is stored but it does not start with whsec_.',
+		);
+		printf(
+			'<div class="notice %1$s"><p><strong>NURA Desk check - Live Webhook Signing Secret stored:</strong> %2$s <em>(read-only; the value is never shown)</em></p></div>',
+			'yes' === $st ? 'notice-success' : 'notice-warning',
+			esc_html( $msg[ $st ] )
+		);
 	}
 
 	private static function ready() {

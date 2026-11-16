@@ -2,6 +2,19 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 17 Nov 2026 01:45 EAT (Ray) - theme 1.161.22: richer "Visit our Nairobi studio" homepage card
+
+- **Owner's choices:** keep the single card, add all extras, use the Plus Code instead of the repeated street names, and put it live with a screenshot.
+- **Change:** `nura-beauty/inc/nura-r17-local.php`, `nura_home_visit_section()` plus its CSS in the `nura-r17-css` block.
+  - **Live open/closed badge:** the card shows `hours_text` by default. Client-side JS in the Africa/Nairobi timezone (`Intl`) replaces it with "Open now · closes 7:30pm", "Closed now · opens today at 9am", "… opens tomorrow at 9am" or "… opens Monday at 9am". Opening and closing times come from `nura_fact( opens/closes )`. It runs in JS because LiteSpeed caches the homepage for 7 days.
+  - **Service chips:** Try wigs on, Wig fitting, Installation, Wig revamp, Pick up online orders.
+  - **Facts:** Address, Opening hours, and Plus Code (PR8G+554 Nairobi) with a "type it into Google Maps" hint. The duplicated "Landmark" row was removed.
+  - **Buttons:** Get directions (gold), "Chat before you visit" (WhatsApp from `nura_opt( nura_whatsapp )` with a prefilled message), "Call +254 714 994 898" (from `nura_opt( nura_phone )`) and Book a fitting.
+  - "See NURA Beauty on Google Maps" is now a text link under the buttons.
+  - Facts sit in a white panel. On mobile the buttons go full width.
+- **Not changed:** schema and the price guide.
+- Version bumped to 1.161.22 (`style.css` + `NURA_VERSION`).
+
 ## UPDATE 17 Nov 2026 01:35 EAT (Ray) - plugin 1.116.1: TEMPORARY Paystack settings save probe (owner approved)
 
 - **Why:** whsec_ Live Webhook Signing Secret saves never reach the database, even after Purge All and an object-cache flush.

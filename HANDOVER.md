@@ -2,6 +2,16 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 17 Nov 2026 01:25 EAT (Ray) - signing secret still not stored after caches flushed; Pixie redirect already in place
+
+- **Paystack signing secret:** the owner saved the whsec_ value in their own browser and reloaded. The NURA Desk check still says "No - nothing is stored (the field is empty in the database)". The field is blank, and the Live mode line still says "Using a secret key: Paystack recommends switching to a restricted key". LiteSpeed Purge All and a separate Object Cache purge both succeeded; the check was re-run afterwards with the same result, so **stale caching is ruled out**. No red or green notice shows on a fresh load. Nothing else was changed.
+  - **Next steps:**
+    1. Ask the owner for the exact message that appeared immediately after clicking Save changes.
+    2. With approval, add a temporary NURA Desk save probe on `woocommerce_update_options_payment_gateways_paystack`. It records only whether the save request arrived, whether the field was posted and whether its prefix is whsec_, never the value. This shows whether the request reaches WordPress (if not, check the host ModSecurity logs in the hosting panel) or whether Paystack 5.9.0 drops the value.
+- **Trashed product #2009 "Pixie Water Curl Human Hair"** (no SKU or price, last modified 3 Nov, no web orders found):
+  - Rank Math already has an **active 301** from `/product/pixie-water-curl-human-hair/` to `/product/pixie-water-curl-wig/` (live product #396, "Pixie Water Curl Human Hair Wig (13x4 Frontal)", KSh 3,500), created 15 Nov 20:49. The old URL redirects correctly.
+  - This is the best target, so **no change is needed**. The SEO notice can be dismissed. It looks like intentional catalogue consolidation, but the owner should confirm. Nothing was changed.
+
 ## UPDATE 17 Nov 2026 01:20 EAT (Ray) - plugin 1.116.0: card fee stated on the website; signing-secret save investigation
 
 - **Owner request:** "For Card Transactions 2.9%" must be shown on the website so customers know before they pay.

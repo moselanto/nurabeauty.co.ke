@@ -2,6 +2,17 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 16 Nov 2026 10:30 EAT (Ray) - plugin 1.114.0: order alerts to the shop WhatsApp (+254 714 994 898)
+
+- **Why:** the owner wants every order to reach the business WhatsApp. Before this, a WhatsApp pop-up order only reached 0714 994 898 if the customer pressed Send, and website orders only e-mailed.
+- **New module** `includes/class-nura-order-alerts.php` (`NURAX_Order_Alerts`), loaded after the WhatsApp classes. Admin page: **NURA Desk > Order alerts** (`page=nurax-order-alerts`, manage_options).
+  - Triggers: `woocommerce_new_order` (website checkout and, if ticked, till sales `created_via nura_pos`) and `nurax_wa_order_saved` (WhatsApp pop-up leads). Woo orders carrying `_nura_wa_order` are skipped (already alerted as WhatsApp orders). Failed/cancelled/draft orders skipped.
+  - Sending runs in WP-Cron 15 s after the order (checkout never waits). One alert per order (`_nura_alert_sent` meta), one retry after 5 min, then e-mail fallback to the admin e-mail. Last 20 results on the page; "Send a test alert now" button.
+  - Channels in order: **Meta Cloud API** (only when `NURAX_WhatsApp` is configured AND a template name is saved; utility template with 4 body variables: order, customer, items, total) then **CallMeBot** (`https://api.callmebot.com/whatsapp.php`). The business number cannot message itself, so alerts come from the Cloud API number or CallMeBot's number.
+  - CallMeBot key: env `NURAX_CALLMEBOT_KEY`, then wp-config constant, then the password field (AGENTS rule 6). Never output back to the page.
+- **Owner set-up still needed:** from 0714 994 898 send "I allow callmebot to send me messages" to CallMeBot (+34 694 29 84 96), paste the API key in NURA Desk > Order alerts, Save, then "Send a test alert now". Meta later: second number on Cloud API + approved template, then save the template name.
+- **Version:** plugin **1.113.4 -> 1.114.0**. `php -l` clean. No DB or JS change.
+
 ## UPDATE 16 Nov 2026 09:40 EAT (Ray) - theme 1.161.20: booking form closed days + early-fee line
 
 - **Change (commit f95101a):** `page-book-appointment.php` prints NURA Desk open days as `data-open-days` on the form. In `main.js` / `main.min.js`, the hard-coded Sunday check is replaced by `nbSync()`, which blocks any unticked day: it clears the date, disables Time and shows "Closed that day" / "Pick a date first". The "Before 8:00 am: KSh 1,000 extra" sentence now shows only if a slot earlier than "Early booking before" exists. Version 1.161.20 in `style.css` and `NURA_VERSION`. `php -l` (PHP 8.3.13) passed on page-book-appointment.php and functions.php, and `node --check` passed on both JS files.

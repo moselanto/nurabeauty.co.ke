@@ -607,7 +607,7 @@ class NURAX_Desk_Accounts {
 		if ( is_array( $hit ) ) {
 			return $hit;
 		}
-		$out = array( 'online' => 0.0, 'pos' => 0.0, 'whatsapp' => 0.0, 'wa_orders' => 0, 'shipping' => 0.0, 'refunds' => 0.0, 'orders' => 0, 'cost' => 0.0, 'units' => 0, 'missing' => 0, 'missing_rev' => 0.0, 'products' => array(), 'list' => array(), 'awaiting' => 0.0, 'awaiting_n' => 0, 'tests' => 0 );
+		$out = array( 'online' => 0.0, 'pos' => 0.0, 'whatsapp' => 0.0, 'wa_orders' => 0, 'shipping' => 0.0, 'refunds' => 0.0, 'orders' => 0, 'cost' => 0.0, 'units' => 0, 'missing' => 0, 'missing_rev' => 0.0, 'products' => array(), 'list' => array(), 'awaiting' => 0.0, 'awaiting_n' => 0, 'tests' => 0, 'card_fees' => 0.0 );
 		if ( function_exists( 'wc_get_orders' ) ) {
 			$ids = wc_get_orders( array(
 				'type'         => 'shop_order',
@@ -633,6 +633,10 @@ class NURAX_Desk_Accounts {
 					continue; // 1.106.0: only paid orders are sales.
 				}
 				$net = (float) $o->get_total() - (float) $o->get_shipping_total() - (float) $o->get_shipping_tax();
+				// 1.115.0: card processing fee charged to the customer is its own income line (4110).
+				$cfee = class_exists( 'NURAX_Paystack_Split' ) ? NURAX_Paystack_Split::order_fee( $o ) : 0.0;
+				$net -= $cfee;
+				$out['card_fees'] += $cfee;
 				if ( 'nura_pos' === $o->get_created_via() ) {
 					$out['pos'] += $net;
 				} else {
@@ -792,7 +796,7 @@ class NURAX_Desk_Accounts {
 		}
 		$r = array( 'sales' => $s, 'by' => $by, 'advance' => $adv );
 		$r['other_income'] = $sum( 'income' );
-		$r['revenue']      = $s['online'] + $s['pos'] + $s['whatsapp'] + $s['shipping'] + $r['other_income'] - $s['refunds'];
+		$r['revenue']      = $s['online'] + $s['pos'] + $s['whatsapp'] + $s['shipping'] + ( isset( $s['card_fees'] ) ? $s['card_fees'] : 0 ) + $r['other_income'] - $s['refunds'];
 		$r['cogs_items']   = $s['cost'];
 		$r['cogs_extra']   = $sum( 'cogs' );
 		$r['cogs']         = $r['cogs_items'] + $r['cogs_extra'];
@@ -936,6 +940,7 @@ class NURAX_Desk_Accounts {
 			4010 => array( 'In-shop sales (till)', 'income' ),
 			4020 => array( 'WhatsApp sales', 'income' ),
 			4100 => array( 'Delivery charged to customers', 'income' ),
+			4110 => array( 'Card processing fees charged to customers', 'income' ),
 			4200 => array( 'Other operating income', 'income' ),
 			4900 => array( 'Less: refunds and returns', 'contra' ),
 			5000 => array( 'Cost of goods sold (buying price of items sold)', 'cos' ),
@@ -1008,12 +1013,14 @@ class NURAX_Desk_Accounts {
 				$cash  = self::cash_code( $m );
 				$ship  = (float) $o->get_shipping_total() + (float) $o->get_shipping_tax();
 				$total = (float) $o->get_total();
-				$goods = $total - $ship;
+				$cfee  = class_exists( 'NURAX_Paystack_Split' ) ? NURAX_Paystack_Split::order_fee( $o ) : 0.0;
+				$goods = $total - $ship - $cfee;
 				$ref   = (string) ( $o->get_meta( '_nura_paid_ref' ) ? $o->get_meta( '_nura_paid_ref' ) : ( $o->get_meta( '_nura_pay_ref' ) ? $o->get_meta( '_nura_pay_ref' ) : $o->get_transaction_id() ) );
 				$post( $date, $no, $pos ? 'Till sale' : 'Website order', 'Sale to ' . ( $name ? $name : 'customer' ) . ( $ref ? ' - ' . $ref : '' ), array(
 					array( $cash, $total, 0, $RC ),
 					array( $pos ? 4010 : 4000, 0, $goods ),
 					array( 4100, 0, $ship ),
+					array( 4110, 0, $cfee ),
 				) );
 				$refund = (float) $o->get_total_refunded();
 				if ( $refund > 0 ) {
@@ -1427,6 +1434,7 @@ class NURAX_Desk_Accounts {
 		$add( 'Revenue', 'In-shop sales (Point of sale)', $s['pos'] );
 		$add( 'Revenue', 'WhatsApp orders (paid)', $s['whatsapp'] );
 		$add( 'Revenue', 'Delivery charged to customers', $s['shipping'] );
+		$add( 'Revenue', 'Card processing fees charged to customers', isset( $s['card_fees'] ) ? $s['card_fees'] : 0 );
 		$add( 'Revenue', 'Other income', $r['other_income'] );
 		$add( 'Revenue', 'Less: refunds', -$s['refunds'] );
 		$add( 'TOTAL REVENUE', '', $r['revenue'] );
@@ -1735,6 +1743,7 @@ class NURAX_Desk_Accounts {
 		self::crow( 'Website sales', '2', $s['online'], $sp['online'], $rev, '', 'Paid website orders, after discounts' );
 		self::crow( 'In-shop sales (point of sale)', '2', $s['pos'], $sp['pos'], $rev );
 		self::crow( 'Delivery charged to customers', '2', $s['shipping'], $sp['shipping'], $rev );
+		self::crow( 'Card processing fees charged to customers', '2', isset( $s['card_fees'] ) ? $s['card_fees'] : 0, isset( $sp['card_fees'] ) ? $sp['card_fees'] : 0, $rev, '', 'The 2.9% fee added when a customer pays by card' );
 		self::crow( 'Other operating income', '2', $r['other_income'], $rp['other_income'], $rev );
 		self::crow( 'Less: refunds and returns', '2', -$s['refunds'], -$sp['refunds'], $rev );
 		self::crow( 'Total revenue', '', $r['revenue'], $rp['revenue'], $rev, 'na-cs__tot' );

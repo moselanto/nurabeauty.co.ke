@@ -3,7 +3,7 @@
  * Plugin Name:       NURA Experience
  * Plugin URI:        https://nurabeauty.co.ke
  * Description:       NURA's exclusive features: AI Wig Finder, Virtual Try-On, and The NURA Circle luxury client portal (order history, care schedule, warranty certificates, maintenance reminders, loyalty points, VIP membership), plus the NURA catalogue architecture, a catalogue-driven mega menu, mobile bottom navigation, a faceted shop experience and an upgraded product page. Requires WooCommerce.
- * Version:           1.114.2
+ * Version:           1.115.0
  * Author:            NURA - The House of Radiant Confidence
  * License:           GPL-2.0-or-later
  * Text Domain:       nura-experience
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURAX_VERSION', '1.114.2' );
+define( 'NURAX_VERSION', '1.115.0' );
 
 /*
  * Virtual Try-On is switched OFF for the Kenyan market (v1.42.0). The code stays in
@@ -80,6 +80,7 @@ require_once NURAX_DIR . 'includes/class-nura-ai-providers.php';
 require_once NURAX_DIR . 'includes/class-nura-ai.php';
 require_once NURAX_DIR . 'includes/class-nura-whatsapp.php';
 require_once NURAX_DIR . 'includes/class-nura-whatsapp-bot.php';
+require_once NURAX_DIR . 'includes/class-nura-paystack-split.php'; // 1.115.0 Paystack M-Pesa / Card split + 2.9% card fee.
 require_once NURAX_DIR . 'includes/class-nura-order-alerts.php'; // 1.114.0 every new order alerts the shop WhatsApp.
 
 // Growth: marketing consent, abandoned-cart recovery, follow-ups, retargeting.

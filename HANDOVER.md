@@ -2,6 +2,18 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 16 Nov 2026 21:40 EAT (Ray) - plugin 1.115.0: Paystack M-Pesa / Card split + 2.9% card processing fee
+
+- **Owner decision 16 Nov:** customer pays a 2.9% card fee (one rate for all cards, rounded to whole shillings); M-Pesa through Paystack has no fee. Paystack plugin updated 5.8.6 -> **5.9.0** the same day (no channel setting in its UI). Live Webhook Signing Secret entered by the owner.
+- **New module** `includes/class-nura-paystack-split.php` (`NURAX_Paystack_Split`):
+  - Registers the Paystack plugin's own `WC_Gateway_Paystack_One` for KES (the plugin only registers its custom gateways for NGN). Its block integration (`paystack-one.js`) is already registered by the Paystack plugin and activates once the gateway exists. One-time seed (option `nurax_paystack_split_seed` = 1.115.0) writes `woocommerce_paystack-one_settings`: enabled, title "Card - Visa / Mastercard (Paystack)", description with the fee, payment_page copied from main, payment_channels card. Keys come from the main Paystack settings (plugin behaviour).
+  - Channels via the plugin filter `wc_paystack_payment_channels`: `paystack` -> `mobile_money` (M-Pesa), `paystack-one` -> `card` (only while the card gateway is enabled).
+  - Front-end only (`option_woocommerce_paystack_settings`): main gateway shown as "M-Pesa (Paystack)" / "Pay with M-Pesa through Paystack. No extra fee." wp-admin keeps the saved title.
+  - Fee: `woocommerce_cart_calculate_fees` adds "Card processing fee (2.9%)" = round(2.9% x (items after discounts + item tax + shipping + shipping tax)), non-taxable, when the session's chosen method is `paystack-one`. Block checkout syncs the chosen method with `extensionCartUpdate` (namespace `nura-card-fee`, Store API update callback); classic checkout triggers `update_checkout`. `woocommerce_store_api_checkout_update_order_from_request` re-checks the order: card -> exactly one correct fee line; anything else -> fee removed; then `calculate_totals( false )`. Fee lines carry meta `_nura_card_fee`.
+- **Accounts:** `NURAX_Paystack_Split::order_fee()`; website/till sales exclude the fee; new `card_fees` in the sales summary and revenue; new account **4110 Card processing fees charged to customers** (journal line on each paid order); shown in the P&L screen, statement rows and the IAS 1 workbook.
+- **Version:** plugin **1.114.2 -> 1.115.0**. `php -l` clean on all changed files. No DB change. Inline JS only (no .min twin).
+- **To verify live:** checkout shows "M-Pesa (Paystack)" (no fee) and "Card - Visa / Mastercard (Paystack)" (fee line, total updates). Owner to run one small real card payment and one M-Pesa payment, then check the order lines and Accounts. Owner to confirm with Paystack that passing the card fee to customers is allowed on merchant 2042703.
+
 ## UPDATE 16 Nov 2026 21:15 EAT (Ray) - plugin 1.114.2: Meta token / phone number ID settings fallback on Order alerts
 
 - **Why:** after the owner edited `public_html/wp-config.php` and restarted PHP, the Order alerts "Meta set-up check" still showed WHATSAPP_TOKEN and WHATSAPP_PHONE_NUMBER_ID as not detected. Real order NURA-261116-UZRG (16 Nov 14:21) failed WhatsApp twice and fell back to e-mail.

@@ -301,11 +301,15 @@ class NURAX_Order_Alerts {
 		echo '<p>Every new website order, WhatsApp pop-up order' . ( ! empty( $s['till'] ) ? ' and till sale' : '' ) . ' sends a short alert to the shop WhatsApp number, even if the customer never presses Send in WhatsApp.</p>';
 		echo '<p><strong>Channels in use:</strong> Meta Cloud API ' . ( self::meta_ready() ? '<span style="color:#00a32a">ready</span>' : '<span style="color:#996800">not set up</span>' ) . ' &middot; CallMeBot ' . ( '' !== self::cmb_key() ? '<span style="color:#00a32a">key saved</span>' : '<span style="color:#996800">no key</span>' ) . ' &middot; E-mail fallback ' . ( ! empty( $s['email'] ) ? 'on (' . esc_html( get_option( 'admin_email' ) ) . ')' : 'off' ) . '</p>';
 		// 1.114.1: show what the site can see for Meta, never the values.
-		$tok = class_exists( 'NURAX_WhatsApp' ) && '' !== NURAX_WhatsApp::token();
-		$pid = class_exists( 'NURAX_WhatsApp' ) ? NURAX_WhatsApp::phone_id() : '';
-		$yes = '<span style="color:#00a32a">detected</span>';
+		$wa  = class_exists( 'NURAX_WhatsApp' );
+		$pid = $wa ? NURAX_WhatsApp::phone_id() : '';
+		$ts  = $wa && method_exists( 'NURAX_WhatsApp', 'source' ) ? NURAX_WhatsApp::source( 'token' ) : '';
+		$ps  = $wa && method_exists( 'NURAX_WhatsApp', 'source' ) ? NURAX_WhatsApp::source( 'phone_id' ) : '';
+		$yes = function ( $src ) {
+			return '<span style="color:#00a32a">detected</span>' . ( $src ? ' (' . esc_html( $src ) . ')' : '' );
+		};
 		$no  = '<span style="color:#b32d2e">not detected</span>';
-		echo '<p><strong>Meta set-up check:</strong> WhatsApp token (WHATSAPP_TOKEN) ' . ( $tok ? $yes : $no ) . ' &middot; Phone number ID (WHATSAPP_PHONE_NUMBER_ID) ' . ( '' !== $pid ? $yes . ( ctype_digit( $pid ) ? '' : ' <span style="color:#b32d2e">(should be digits only)</span>' ) : $no ) . ' &middot; Template name ' . ( '' !== trim( (string) $s['template'] ) ? $yes : $no ) . '</p>';
+		echo '<p><strong>Meta set-up check:</strong> WhatsApp token (WHATSAPP_TOKEN) ' . ( $ts ? $yes( $ts ) : $no ) . ' &middot; Phone number ID (WHATSAPP_PHONE_NUMBER_ID) ' . ( '' !== $pid ? $yes( $ps ) . ( ctype_digit( $pid ) ? '' : ' <span style="color:#b32d2e">(should be digits only)</span>' ) : $no ) . ' &middot; Template name ' . ( '' !== trim( (string) $s['template'] ) ? $yes( '' ) : $no ) . '</p>';
 		$merr = class_exists( 'NURAX_WhatsApp' ) ? NURAX_WhatsApp::last_error() : '';
 		if ( '' !== $merr ) {
 			echo '<p class="description">Last Meta API error: ' . esc_html( substr( $merr, 0, 300 ) ) . '</p>';
@@ -317,6 +321,11 @@ class NURAX_Order_Alerts {
 		echo '<tr><th><label for="noa-phone">Shop WhatsApp number</label></th><td><input id="noa-phone" type="text" name="phone" class="regular-text" value="' . esc_attr( $s['phone'] ) . '"><p class="description">The number that receives alerts, e.g. 254714994898.</p></td></tr>';
 		echo '<tr><th><label for="noa-key">CallMeBot API key</label></th><td>' . ( $const ? '<em>Set in wp-config.php / server environment.</em>' : '<input id="noa-key" type="password" name="cmb_key" class="regular-text" autocomplete="off" placeholder="' . ( '' !== $s['cmb_key'] ? 'Saved - leave blank to keep' : '' ) . '"><label style="margin-left:8px"><input type="checkbox" name="cmb_clear" value="1"> Remove saved key</label>' ) . '<p class="description">One-time set-up on the shop phone: save +34 694 29 84 96 in contacts as CallMeBot, send it the WhatsApp message <code>I allow callmebot to send me messages</code>, and paste the API key it replies with here.</p></td></tr>';
 		echo '<tr><th><label for="noa-tpl">Meta template name</label></th><td><input id="noa-tpl" type="text" name="template" class="regular-text" value="' . esc_attr( $s['template'] ) . '"> Language <input type="text" name="lang" value="' . esc_attr( $s['lang'] ) . '" style="width:70px"><p class="description">Optional, for the official Meta WhatsApp Cloud API (needs a second number registered with Meta and the token in wp-config). Utility template with 4 body variables: {{1}} order, {{2}} customer, {{3}} items, {{4}} total. When ready, Meta is tried first and CallMeBot becomes the back-up.</p></td></tr>';
+		// 1.114.2: settings fallback for the Meta token and phone number ID (used only when wp-config.php gives nothing).
+		$fb_t = class_exists( 'NURAX_WhatsApp' ) && method_exists( 'NURAX_WhatsApp', 'fallback' ) && '' !== NURAX_WhatsApp::fallback( 'token' );
+		$fb_p = class_exists( 'NURAX_WhatsApp' ) && method_exists( 'NURAX_WhatsApp', 'fallback' ) && '' !== NURAX_WhatsApp::fallback( 'phone_id' );
+		echo '<tr><th><label for="noa-wtok">Meta token (fallback)</label></th><td><input id="noa-wtok" type="password" name="wa_token" class="regular-text" autocomplete="off" placeholder="' . ( $fb_t ? 'Saved - leave blank to keep' : '' ) . '"><label style="margin-left:8px"><input type="checkbox" name="wa_token_clear" value="1"> Remove saved token</label><p class="description">Only used when WHATSAPP_TOKEN is not found in wp-config.php. wp-config.php always wins. The saved value is never shown.</p></td></tr>';
+		echo '<tr><th><label for="noa-wpid">Phone number ID (fallback)</label></th><td><input id="noa-wpid" type="password" name="wa_phone_id" class="regular-text" autocomplete="off" inputmode="numeric" placeholder="' . ( $fb_p ? 'Saved - leave blank to keep' : '' ) . '"><label style="margin-left:8px"><input type="checkbox" name="wa_phone_id_clear" value="1"> Remove saved ID</label><p class="description">Digits only, from WhatsApp &gt; API Setup in the Meta app. Only used when WHATSAPP_PHONE_NUMBER_ID is not found in wp-config.php.</p></td></tr>';
 		echo '<tr><th>Till sales</th><td><label><input type="checkbox" name="till" value="1"' . checked( ! empty( $s['till'] ), true, false ) . '> Also alert for sales made at the NURA Desk till</label></td></tr>';
 		echo '<tr><th>E-mail fallback</th><td><label><input type="checkbox" name="email" value="1"' . checked( ! empty( $s['email'] ), true, false ) . '> E-mail the order to the shop e-mail if WhatsApp fails twice</label></td></tr>';
 		echo '</table>';
@@ -358,6 +367,22 @@ class NURAX_Order_Alerts {
 			$s['cmb_key'] = $key;
 		}
 		update_option( self::OPTION, $s, false );
+		// 1.114.2: Meta token / phone number ID fallback (separate option, not autoloaded).
+		$fb  = get_option( 'nurax_wa_fallback', array() );
+		$fb  = is_array( $fb ) ? $fb : array();
+		$tok = isset( $_POST['wa_token'] ) ? substr( preg_replace( '/[^A-Za-z0-9_\-\.]/', '', (string) wp_unslash( $_POST['wa_token'] ) ), 0, 600 ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- allow-listed above.
+		$pid = isset( $_POST['wa_phone_id'] ) ? substr( preg_replace( '/\D/', '', sanitize_text_field( wp_unslash( $_POST['wa_phone_id'] ) ) ), 0, 30 ) : '';
+		if ( ! empty( $_POST['wa_token_clear'] ) ) {
+			unset( $fb['token'] );
+		} elseif ( '' !== $tok ) {
+			$fb['token'] = $tok;
+		}
+		if ( ! empty( $_POST['wa_phone_id_clear'] ) ) {
+			unset( $fb['phone_id'] );
+		} elseif ( '' !== $pid ) {
+			$fb['phone_id'] = $pid;
+		}
+		update_option( 'nurax_wa_fallback', $fb, false );
 		if ( class_exists( 'NURAX_Staff' ) && method_exists( 'NURAX_Staff', 'log' ) ) {
 			NURAX_Staff::log( 'settings', 'Updated order alert settings' );
 		}

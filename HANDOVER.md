@@ -2,6 +2,15 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 16 Nov 2026 21:15 EAT (Ray) - plugin 1.114.2: Meta token / phone number ID settings fallback on Order alerts
+
+- **Why:** after the owner edited `public_html/wp-config.php` and restarted PHP, the Order alerts "Meta set-up check" still showed WHATSAPP_TOKEN and WHATSAPP_PHONE_NUMBER_ID as not detected. Real order NURA-261116-UZRG (16 Nov 14:21) failed WhatsApp twice and fell back to e-mail.
+- **What changed:**
+  - `NURAX_WhatsApp::token()` and `phone_id()` now fall back to option `nurax_wa_fallback` (`token`, `phone_id`; not autoloaded) only when env / wp-config constants (and, for the ID, `nurax_wa_bot['phone_id']`) give nothing. Order stays: env > wp-config > settings (AGENTS rule 6). New `NURAX_WhatsApp::fallback()` and `NURAX_WhatsApp::source()` (returns where a value comes from, never the value).
+  - NURA Desk > Order alerts: two password fields "Meta token (fallback)" and "Phone number ID (fallback)" with "Saved - leave blank to keep" placeholders and Remove checkboxes. Values are never printed back. Token allow-listed to `[A-Za-z0-9_.-]`, max 600; ID digits only, max 30. The set-up check line now shows the source, e.g. "detected (wp-config)" or "detected (settings)".
+- **Version:** plugin **1.114.1 -> 1.114.2**. `php -l` clean. No DB or JS change.
+- **Still open:** why the wp-config constants are not seen (wrong file, commented/empty values, name typo, or stale OPcache). CallMeBot key still not received.
+
 ## UPDATE 16 Nov 2026 20:30 EAT (Ray) - plugin 1.114.1 installed
 
 - **Before:** live plugin was 1.114.0 (wp-admin Plugins + asset `?ver=1.114.0`); main had 1.114.1.

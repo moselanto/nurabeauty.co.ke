@@ -12,7 +12,9 @@
  *                              as a non-secret value on the WhatsApp settings page
  *
  * The phone number ID is not secret, so it can live either in a constant or in
- * the nurax_wa_bot option; the access token is only ever read from a constant.
+ * the nurax_wa_bot option. 1.114.2: when wp-config/env give nothing, the token and
+ * phone number ID may be saved on NURA Desk > Order alerts (option nurax_wa_fallback,
+ * not autoloaded, never printed back).
  *
  * @package NURA_Experience
  */
@@ -46,6 +48,9 @@ final class NURAX_WhatsApp {
 		if ( '' === $t ) {
 			$t = self::secret( 'NURAX_WA_TOKEN' );
 		}
+		if ( '' === $t ) {
+			$t = self::fallback( 'token' ); // 1.114.2: last resort, saved on NURA Desk > Order alerts.
+		}
 		return $t;
 	}
 
@@ -59,7 +64,34 @@ final class NURAX_WhatsApp {
 			return $c;
 		}
 		$o = get_option( 'nurax_wa_bot', array() );
-		return ( is_array( $o ) && ! empty( $o['phone_id'] ) ) ? (string) $o['phone_id'] : '';
+		if ( is_array( $o ) && ! empty( $o['phone_id'] ) ) {
+			return (string) $o['phone_id'];
+		}
+		return self::fallback( 'phone_id' ); // 1.114.2: saved on NURA Desk > Order alerts.
+	}
+
+	/** 1.114.2: settings fallback (option nurax_wa_fallback) used only when wp-config/env give nothing. */
+	public static function fallback( string $key ): string {
+		$f = get_option( 'nurax_wa_fallback', array() );
+		return ( is_array( $f ) && isset( $f[ $key ] ) ) ? trim( (string) $f[ $key ] ) : '';
+	}
+
+	/** Where a value comes from: 'wp-config', 'settings' or '' (missing). Never the value. */
+	public static function source( string $what ): string {
+		if ( 'token' === $what ) {
+			if ( '' !== self::secret( 'WHATSAPP_TOKEN' ) || '' !== self::secret( 'NURAX_WA_TOKEN' ) ) {
+				return 'wp-config';
+			}
+			return '' !== self::fallback( 'token' ) ? 'settings' : '';
+		}
+		if ( '' !== self::secret( 'WHATSAPP_PHONE_NUMBER_ID' ) || '' !== self::secret( 'NURAX_WA_PHONE_ID' ) ) {
+			return 'wp-config';
+		}
+		$o = get_option( 'nurax_wa_bot', array() );
+		if ( is_array( $o ) && ! empty( $o['phone_id'] ) ) {
+			return 'WhatsApp bot settings';
+		}
+		return '' !== self::fallback( 'phone_id' ) ? 'settings' : '';
 	}
 
 	public static function api_version(): string {

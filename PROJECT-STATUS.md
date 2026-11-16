@@ -6,7 +6,7 @@ Last updated: 16 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 | Component | Version | Notes |
 |---|---|---|
 | Theme `nura-beauty/` (parent) | **1.161.21** (live since 16 Nov 16:10 EAT; visible closed-day message under the booking date field, commit ba9aea7; 1.161.20 booking open days + early-fee line, f95101a) | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
-| Plugin `nura-experience/` | **1.114.0 live** (checked 16 Nov 20:20 EAT on wp-admin Plugins + asset `?ver=`); repo `main` is **1.114.1** (Meta set-up check on NURA Desk > Order alerts) - **not yet installed** | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
+| Plugin `nura-experience/` | **1.114.1** (live since 16 Nov 20:30 EAT; Meta set-up check on NURA Desk > Order alerts) | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
 
 ## How a release is done (the working method)
 1. Edit in the repo, run `php -l` on every changed file.

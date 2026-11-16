@@ -2,6 +2,13 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 16 Nov 2026 20:30 EAT (Ray) - plugin 1.114.1 installed
+
+- **Before:** live plugin was 1.114.0 (wp-admin Plugins + asset `?ver=1.114.0`); main had 1.114.1.
+- **Install:** zip built from main (`nura-experience/` at zip root), `php -l` (PHP 8.3.13) clean on every plugin PHP file, version 1.114.1 in the plugin header and `NURAX_VERSION`. Uploaded with "Replace current with uploaded" ("Plugin updated successfully"), Plugins shows NURA Experience 1.114.1 active, LiteSpeed Purge All done. curl with cache-buster: plugin assets load `?ver=1.114.1`.
+- **NURA Desk > Order alerts:** "Meta set-up check" shows WhatsApp token **not detected**, Phone number ID **not detected**, Template name **detected**, no last Meta API error. Channels: Meta Cloud API not set up, CallMeBot no key, e-mail fallback on. To finish Meta alerts, add `WHATSAPP_TOKEN` and `WHATSAPP_PHONE_NUMBER_ID` (e.g. in wp-config.php).
+- **Checks (nothing submitted):** cart drawer (subtotal KSh 7,400) and cart page (KSh 7,700 incl. KSh 300 shipping) load; checkout loads details, shipping, payment options and the same total; "Order on WhatsApp" opens the pop-up (IKT Hair Wax Stick, KSh 400). No order, message, booking, test alert or payment sent. No rollback needed.
+
 ## UPDATE 16 Nov 2026 16:10 EAT (Ray) - theme 1.161.21: visible closed-day message on the booking form
 
 - **Change (commit ba9aea7):** `page-book-appointment.php` adds `<p class="nura-bk__datemsg" data-nb-closed-msg role="alert" aria-live="polite" hidden>` under the date input (red, 13px, inline style). In `main.js` and `main.min.js`, `nbSync()` fills it with "We are closed on <Day>s. Please pick another day." for any day unticked in NURA Desk > Settings, clears the date and keeps Time disabled. It hides again when an open day is picked. The browser pop-up (`reportValidity`) is no longer used, because it did not show on phones. Version 1.161.21 in `style.css` and `NURA_VERSION`. `php -l` passed on page-book-appointment.php and functions.php, and `node --check` passed on both JS files.

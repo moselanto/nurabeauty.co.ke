@@ -100,7 +100,8 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 			</div>
 
 			<aside class="nura-bk__aside">
-				<form class="nura-bk__form" data-nura-book data-endpoint="<?php echo esc_url( $nb_endpoint ); ?>" data-wa="<?php echo esc_url( $nb_wa ); ?>" novalidate>
+				<?php $nb_days = class_exists( 'NURAX_Desk' ) ? (string) NURAX_Desk::settings()['appt_days'] : '1,2,3,4,5,6'; $nb_days = implode( ',', array_filter( array_map( 'absint', explode( ',', $nb_days ) ) ) ); ?>
+				<form class="nura-bk__form" data-nura-book data-open-days="<?php echo esc_attr( $nb_days ? $nb_days : '1,2,3,4,5,6' ); ?>" data-endpoint="<?php echo esc_url( $nb_endpoint ); ?>" data-wa="<?php echo esc_url( $nb_wa ); ?>" novalidate>
 					<p class="nura-bk__form-h"><?php esc_html_e( 'Request your appointment', 'nura-beauty' ); ?></p>
 					<input type="hidden" name="service" value="<?php echo esc_attr( $nb_pre ); ?>">
 					<div class="nura-bk__hp" aria-hidden="true"><label><?php esc_html_e( 'Leave empty', 'nura-beauty' ); ?><input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
@@ -120,7 +121,19 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 							<label><input type="radio" name="type" value="video"><span><?php esc_html_e( 'Video call', 'nura-beauty' ); ?></span></label>
 							<label><input type="radio" name="type" value="whatsapp"><span><?php esc_html_e( 'WhatsApp', 'nura-beauty' ); ?></span></label>
 						</div>
-						<p class="nura-bk__typehint"><?php esc_html_e( 'Studio visit: any time the shop is open, secured with a 50% deposit (minimum KSh 500) that comes off your bill. Before 8:00 am: KSh 1,000 extra, paid in advance. Video call or WhatsApp: free, no deposit.', 'nura-beauty' ); ?></p>
+						<?php
+						// 1.161.20: the early-fee line shows only when a slot before the early cut-off exists.
+						$nb_show_early = false;
+						if ( class_exists( 'NURAX_Desk_Appts' ) && method_exists( 'NURAX_Desk_Appts', 'all_times' ) && method_exists( 'NURAX_Desk_Appts', 'early_before' ) && method_exists( 'NURAX_Desk_Appts', 'early_fee' ) && NURAX_Desk_Appts::early_fee() > 0 ) {
+							foreach ( NURAX_Desk_Appts::all_times() as $nb_t ) {
+								if ( $nb_t < NURAX_Desk_Appts::early_before() ) {
+									$nb_show_early = true;
+									break;
+								}
+							}
+						}
+						?>
+						<p class="nura-bk__typehint"><?php esc_html_e( 'Studio visit: any time the shop is open, secured with a 50% deposit (minimum KSh 500) that comes off your bill.', 'nura-beauty' ); ?><?php if ( $nb_show_early ) : ?> <?php echo esc_html( sprintf( 'Before %1$s: KSh %2$s extra, paid in advance.', date_i18n( 'g:i a', strtotime( '2000-01-01 ' . NURAX_Desk_Appts::early_before() ) ), number_format( NURAX_Desk_Appts::early_fee() ) ) ); ?><?php endif; ?> <?php esc_html_e( 'Video call or WhatsApp: free, no deposit.', 'nura-beauty' ); ?></p>
 					</div>
 					<div class="nura-bk__row">
 						<div class="nura-bk__f">

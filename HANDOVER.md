@@ -2,45 +2,19 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
-## UPDATE 17 Nov 2026 01:45 EAT (Ray) - theme 1.161.22: richer "Visit our Nairobi studio" homepage card
+## UPDATE 17 Nov 2026 02:45 EAT (Ray) - vendor wigs received, 16 Nov purchases recorded, care-product buying prices (data only, no code release)
 
-- **Owner's choices:** keep the single card, add all extras, use the Plus Code instead of the repeated street names, and put it live with a screenshot.
-- **Change:** `nura-beauty/inc/nura-r17-local.php`, `nura_home_visit_section()` plus its CSS in the `nura-r17-css` block.
-  - **Live open/closed badge:** the card shows `hours_text` by default. Client-side JS in the Africa/Nairobi timezone (`Intl`) replaces it with "Open now · closes 7:30pm", "Closed now · opens today at 9am", "… opens tomorrow at 9am" or "… opens Monday at 9am". Opening and closing times come from `nura_fact( opens/closes )`. It runs in JS because LiteSpeed caches the homepage for 7 days.
-  - **Service chips:** Try wigs on, Wig fitting, Installation, Wig revamp, Pick up online orders.
-  - **Facts:** Address, Opening hours, and Plus Code (PR8G+554 Nairobi) with a "type it into Google Maps" hint. The duplicated "Landmark" row was removed.
-  - **Buttons:** Get directions (gold), "Chat before you visit" (WhatsApp from `nura_opt( nura_whatsapp )` with a prefilled message), "Call +254 714 994 898" (from `nura_opt( nura_phone )`) and Book a fitting.
-  - "See NURA Beauty on Google Maps" is now a text link under the buttons.
-  - Facts sit in a white panel. On mobile the buttons go full width.
-- **Not changed:** schema and the price guide.
-- Version bumped to 1.161.22 (`style.css` + `NURA_VERSION`).
-
-## UPDATE 17 Nov 2026 01:35 EAT (Ray) - plugin 1.116.1: TEMPORARY Paystack settings save probe (owner approved)
-
-- **Why:** whsec_ Live Webhook Signing Secret saves never reach the database, even after Purge All and an object-cache flush.
-- **Change** in `includes/class-nura-paystack-split.php`, marked TEMPORARY. Remove it once the secret saves.
-  - `probe_request()` runs on `admin_init` priority 1, only on a POST to `wc-settings&section=paystack`. It logs "request reached WordPress" plus `nonce_ok` (woocommerce-settings nonce), `can_manage`, `field_sent`, `filled` and `whsec`.
-  - `probe_before()` runs on `woocommerce_update_options_payment_gateways_paystack` priority 1. It logs "WooCommerce started the Paystack save" plus the same field facts.
-  - `probe_after()` runs on the same hook at priority 999. It clears the option cache, then logs `stored_after` (yes whsec_ / no non-whsec_ / no empty) and `save_errors`. These are the Paystack gateway's own error strings, which never contain the value.
-  - Only yes/no facts are stored, never the value or its length. They go in option `nurax_paystack_save_probe`, last 8 entries, autoload off. The log is shown in an info notice under the "NURA Desk check" line on the Paystack settings page.
-- **How to read it:**
-  - **No entry after a save:** the POST never reached WordPress. Likely a host WAF or ModSecurity rule; check the hosting panel logs.
-  - **"request reached" but no "started the save":** WooCommerce did not run the save. Check `nonce_ok` and `can_manage`.
-  - **`field_sent: no`:** the browser did not send the field.
-  - **`whsec: no`:** the pasted value is wrong.
-  - **`stored_after: no` with `whsec: yes` and no `save_errors`:** Paystack 5.9.0 or another filter is dropping the value. Inspect `process_admin_options` / `pre_update_option_woocommerce_paystack_settings`.
-- **Removal:** delete the three probe hooks, the probe methods and the `nurax_paystack_save_probe` option. Keep `secret_check()` / `secret_status()`.
-- Version bumped to 1.116.1.
-
-## UPDATE 17 Nov 2026 01:25 EAT (Ray) - signing secret still not stored after caches flushed; Pixie redirect already in place
-
-- **Paystack signing secret:** the owner saved the whsec_ value in their own browser and reloaded. The NURA Desk check still says "No - nothing is stored (the field is empty in the database)". The field is blank, and the Live mode line still says "Using a secret key: Paystack recommends switching to a restricted key". LiteSpeed Purge All and a separate Object Cache purge both succeeded; the check was re-run afterwards with the same result, so **stale caching is ruled out**. No red or green notice shows on a fresh load. Nothing else was changed.
-  - **Next steps:**
-    1. Ask the owner for the exact message that appeared immediately after clicking Save changes.
-    2. With approval, add a temporary NURA Desk save probe on `woocommerce_update_options_payment_gateways_paystack`. It records only whether the save request arrived, whether the field was posted and whether its prefix is whsec_, never the value. This shows whether the request reaches WordPress (if not, check the host ModSecurity logs in the hosting panel) or whether Paystack 5.9.0 drops the value.
-- **Trashed product #2009 "Pixie Water Curl Human Hair"** (no SKU or price, last modified 3 Nov, no web orders found):
-  - Rank Math already has an **active 301** from `/product/pixie-water-curl-human-hair/` to `/product/pixie-water-curl-wig/` (live product #396, "Pixie Water Curl Human Hair Wig (13x4 Frontal)", KSh 3,500), created 15 Nov 20:49. The old URL redirects correctly.
-  - This is the best target, so **no change is needed**. The SEO notice can be dismissed. It looks like intentional catalogue consolidation, but the owner should confirm. Nothing was changed.
+- **Owner decisions (17 Nov):** the KSh 85,375 wig order (opening stock register v4.1) already had KSh 3,800 in Accounts (PV-0016 Bone straight 3,100; PV-0025 2x2 closure 700), so only the **balance KSh 81,575** was recorded. Today's purchases were paid **Mon 16 Nov by M-Pesa** (no codes given). Foundations, storage buckets and edge/tail brush are **shop use**, not for sale. Vendor names map to the stock book: Body Wave "light piano" = Piano Dark (website "Piano"); "Black Latisha" = Wonderful Frontal (Black); Loose Wave "99J" = Loose Wave Burgundy; Empress "33" = Empress 1/33. Care products are all existing website products under different seller names.
+- **Accounts > Expenses & income (all M-Pesa, no reference yet):**
+  - PV-0035, 13 Nov, Stock bought: wig order balance (85,375 less PV-0016 and PV-0025) KSh 81,575.
+  - PV-0036, 16 Nov, Shop supplies & cleaning: spray bottles, baby pins, scissors, double dry brush, bands, drippers, apron KSh 2,040.
+  - PV-0037, 16 Nov, Shop renovation & fit-out: 2D photo-booth signage 10,000 + installation 1,300 = KSh 11,300.
+  - PV-0038, 16 Nov, Stock bought: care products (16 lines) KSh 14,340.
+  - PV-0039, 16 Nov, Shop supplies & cleaning: foundation 1,050, storage buckets 400, edge + tail brush 150, flawless foundation 800 = KSh 2,400.
+- **Stock (10 pieces from the vendor, 16 Nov):** Luxury Body Wave #377 613 +1, Black +1, Piano +1 (buying price 2,456.55); Loose Wave Frontal #364 Burgundy +1, 30 +1; Bob Amanda draft #2364 new variations 99J and 30 (1 each, 1,839.90, price KSh 4,000, still Draft); **Empress draft #2459** (1B and 1/33, 1 each, 2,055.47, no selling price); Latisha Dupe Frontal Black stock-tracked at 1 with buying price 1,000 (this is the stock book's Wonderful Frontal). Stock tab On shelf **26 -> 36**, 0 reserved. Note: variations that were not tracked before were set straight to 1 in the product editor, so their History rows show a product edit, not "Goods received from supplier".
+- **Still owed by the vendor (7):** Body Wave 3 (Piano Dark 1, 613 1, Black 1); Bone Straight High Fibre 4 (613 2, Piano Dark 2).
+- **Care-product buying prices (`_nura_cost`; variation level where there is no parent field):** Ghost Bond 180; Lace Glue Remover 180; Detangling Hair Brush 150; CSCR Lace Melting Spray 250; CSCR Lace Tint 280; Luodais Wig Serum 175 (weighted: 2 x 250 + 6 x 150); IKT Wax Stick 180; Asstylist Edge Gel 250 (styling gel); ASTYLSST Texture Spray 262.50 (3 x 250 + 1 x 300); ASTYLSST Curl Mousse 300 ("Astylist pink"); Luodais No5 Curl Keeper 150; Luodais Curl Keeper Serum 150 ("Luodais spray"). Care products stay untracked ("In stock"); quantities were not loaded. LiteSpeed Purge All done.
+- **Pending:** M-Pesa codes for PV-0035 to PV-0039 (owner); Empress photos, details and selling price, then publish; owner to confirm the care-product name mapping above.
 
 ## UPDATE 17 Nov 2026 01:20 EAT (Ray) - plugin 1.116.0: card fee stated on the website; signing-secret save investigation
 

@@ -16,7 +16,19 @@ Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing
   - **Response headers:** `server: LiteSpeed`, PHP 8.1.34. No `cf-ray` or Sucuri headers, so the site is **not behind Cloudflare**. wp-admin returns `x-litespeed-cache-control: no-cache`, so LiteSpeed does not cache the settings page.
   - **NURA Experience code:** no handler touches the WooCommerce settings POST or the `woocommerce_paystack_settings` option. The `option_woocommerce_paystack_settings` filter (main_labels) returns early in wp-admin and only relabels the front end.
   - **Paystack 5.9.0:** uses the standard WC `process_admin_options`. The only rejection is the whsec_ prefix check, which shows a red inline error.
-  - The driver will check installed security plugins and server/WAF notices while the owner enters the secret in the browser hand-off.
+  - **Driver findings (read-only):**
+    - 21 plugins installed, 19 active. There is no Wordfence, Solid/iThemes, AIOS, Sucuri, Shield, NinjaFirewall, Really Simple Security or other WAF plugin. Two Factor is active and shows no blocked-request notice.
+    - LiteSpeed: Cache WP-Admin is off, Cache Logged-in Users is off, and the Redis object cache passes its connection test.
+    - The Paystack page has 0 invalid fields and no validation errors before submitting.
+    - Host ModSecurity and server logs were not accessible. No blocker has been shown.
+    - Possible lead: Redis object cache. If the save works but a stale cached option is served, the NURA Desk check would also read the stale value. To test, flush the object cache (LiteSpeed > Toolbox > Purge All includes object cache) right after saving.
+- **Live 17 Nov ~01:15:** 1.116.0 installed (Replace current with uploaded) and active; LiteSpeed Purge All done. The card-fee note shows on the Luodais No5 Curl Keeper product page, the cart and checkout. Checkout loads with no errors.
+- **Secret entry:** the driver opened the Paystack settings page with the field focused, but it has **no hand-off tool for the owner to type into the hosted browser**. Pre-save state is still "No - nothing is stored". The owner should enter the secret in their **own logged-in browser**:
+  1. Paste the whsec_ value and click Save changes.
+  2. Note any notice at the top of the page.
+  3. Reload the page and read the NURA Desk check line.
+  4. If it still says No, report the exact notice text. The next agent should then check host ModSecurity logs (hosting panel) and test the Redis lead.
+- Note: the admin also shows an unrelated SEO notice: product `pixie-water-curl-human-hair` was trashed and its URL may need a redirect.
 
 ## UPDATE 17 Nov 2026 01:10 EAT (Ray) - plugin 1.115.1: read-only Paystack signing-secret check
 

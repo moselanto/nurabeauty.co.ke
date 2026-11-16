@@ -2,6 +2,13 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 16 Nov 2026 11:15 EAT (Ray) - plugin 1.114.1: Meta set-up check on NURA Desk > Order alerts
+
+- **Why:** after the template name was saved, the page still said "Meta Cloud API not set up" with no hint which part was missing.
+- **What changed:** `NURAX_Order_Alerts::page()` shows a "Meta set-up check" line: WhatsApp token (WHATSAPP_TOKEN) detected / not detected, Phone number ID (WHATSAPP_PHONE_NUMBER_ID) detected / not detected (flags it if not digits only), Template name detected / not detected, plus the last Meta API error (`nurax_wa_last_error`, first 300 chars). Values are never printed.
+- **Version:** plugin **1.114.0 -> 1.114.1**. `php -l` clean. No DB or JS change.
+- **Status 16 Nov:** template `nura_new_order` / `en` saved. CallMeBot key still not received from the owner (messages contained placeholders only).
+
 ## UPDATE 16 Nov 2026 10:30 EAT (Ray) - plugin 1.114.0: order alerts to the shop WhatsApp (+254 714 994 898)
 
 - **Why:** the owner wants every order to reach the business WhatsApp. Before this, a WhatsApp pop-up order only reached 0714 994 898 if the customer pressed Send, and website orders only e-mailed.

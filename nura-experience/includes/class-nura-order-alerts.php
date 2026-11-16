@@ -1,6 +1,6 @@
 <?php
 /**
- * NURA Desk - order alerts to the shop's WhatsApp (NURA Experience 1.114.0).
+ * NURA Desk - order alerts to the shop's WhatsApp (NURA Experience 1.114.0; 1.114.1 set-up check).
  *
  * Every new order (website checkout, WhatsApp pop-up lead, optionally till
  * sales) sends a short alert to the shop WhatsApp number, so an order is never
@@ -300,6 +300,16 @@ class NURAX_Order_Alerts {
 		}
 		echo '<p>Every new website order, WhatsApp pop-up order' . ( ! empty( $s['till'] ) ? ' and till sale' : '' ) . ' sends a short alert to the shop WhatsApp number, even if the customer never presses Send in WhatsApp.</p>';
 		echo '<p><strong>Channels in use:</strong> Meta Cloud API ' . ( self::meta_ready() ? '<span style="color:#00a32a">ready</span>' : '<span style="color:#996800">not set up</span>' ) . ' &middot; CallMeBot ' . ( '' !== self::cmb_key() ? '<span style="color:#00a32a">key saved</span>' : '<span style="color:#996800">no key</span>' ) . ' &middot; E-mail fallback ' . ( ! empty( $s['email'] ) ? 'on (' . esc_html( get_option( 'admin_email' ) ) . ')' : 'off' ) . '</p>';
+		// 1.114.1: show what the site can see for Meta, never the values.
+		$tok = class_exists( 'NURAX_WhatsApp' ) && '' !== NURAX_WhatsApp::token();
+		$pid = class_exists( 'NURAX_WhatsApp' ) ? NURAX_WhatsApp::phone_id() : '';
+		$yes = '<span style="color:#00a32a">detected</span>';
+		$no  = '<span style="color:#b32d2e">not detected</span>';
+		echo '<p><strong>Meta set-up check:</strong> WhatsApp token (WHATSAPP_TOKEN) ' . ( $tok ? $yes : $no ) . ' &middot; Phone number ID (WHATSAPP_PHONE_NUMBER_ID) ' . ( '' !== $pid ? $yes . ( ctype_digit( $pid ) ? '' : ' <span style="color:#b32d2e">(should be digits only)</span>' ) : $no ) . ' &middot; Template name ' . ( '' !== trim( (string) $s['template'] ) ? $yes : $no ) . '</p>';
+		$merr = class_exists( 'NURAX_WhatsApp' ) ? NURAX_WhatsApp::last_error() : '';
+		if ( '' !== $merr ) {
+			echo '<p class="description">Last Meta API error: ' . esc_html( substr( $merr, 0, 300 ) ) . '</p>';
+		}
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="nurax_order_alerts_save">';
 		wp_nonce_field( 'nurax_order_alerts_save' );
 		echo '<table class="form-table" role="presentation">';

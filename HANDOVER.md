@@ -2,12 +2,13 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
-## UPDATE 16 Nov 2026 09:30 EAT (Ray) - plugin 1.113.4: Test button on WhatsApp orders without a confirmation pop-up
+## UPDATE 16 Nov 2026 09:40 EAT (Ray) - theme 1.161.20: booking form closed days + early-fee line
 
-- **Why:** in 1.113.3 the "Mark as test (not a sale)" and quick "Test" buttons used `data-nd-confirm` (window.confirm). In the automated browser the dialog stopped the form, so no status was saved. Marking Test is reversible ("Not a test - restore order"), so the pop-up is not needed.
-- **What changed:** `NURAX_Desk_Orders` - the `test` flow entries for New/Confirmed and the list quick button no longer pass a confirm message. Cancel still asks for confirmation. No DB or JS change.
-- **Version:** plugin **1.113.3 -> 1.113.4** (`Version:` header and `NURAX_VERSION`). `php -l` clean.
-- **Owner confirmed 16 Nov:** Awivest #1777, Sylvia Njenga, Mellie, Felicity Muthoni, Peter and Naveen have NOT paid - leave all six Not paid. Owner capital entries still awaited.
+- **Change (commit f95101a):** `page-book-appointment.php` prints NURA Desk open days as `data-open-days` on the form. In `main.js` / `main.min.js`, the hard-coded Sunday check is replaced by `nbSync()`, which blocks any unticked day: it clears the date, disables Time and shows "Closed that day" / "Pick a date first". The "Before 8:00 am: KSh 1,000 extra" sentence now shows only if a slot earlier than "Early booking before" exists. Version 1.161.20 in `style.css` and `NURA_VERSION`. `php -l` (PHP 8.3.13) passed on page-book-appointment.php and functions.php, and `node --check` passed on both JS files.
+- **Server side:** no plugin change was needed. `stylist-booking` (class-ai-stylist.php) already refuses times not in `NURAX_Desk_Appts::slots( $date )` and closed days (`nurax_closed`, 409) before saving. `slots()` returns nothing for days not in `appt_days`, and the live `/slots?date=2026-11-22` returns `closed: true`. A live test POST was not sent.
+- **Install:** "Replace installed with uploaded" -> theme shows 1.161.20, child theme still active, LiteSpeed Purge All. curl: /book-appointment/ loads `main.min.js?ver=1.161.20` (contains `nbSync`), `data-open-days="1,2,3,4,5,6"`, and no "Before 8:00" text.
+- **Phone check (Customizer mobile view, no booking placed):** Time starts disabled ("Pick a date first"). Sat 21 Nov gives 9:00 am-7:00 pm slots, and 9:00 am shows a KSh 500 deposit with no early fee. Sun 22 Nov clears the date and keeps Time disabled. The browser's "closed" tooltip was not seen in the preview. Cart, checkout and the WhatsApp order pop-up (Yaki Headband) still open. No rollback needed.
+- **Note:** after changing open days in NURA Desk > Settings, run Purge All so the cached page carries the new days.
 
 ## UPDATE 16 Nov 2026 09:25 EAT (Ray) - theme 1.161.19 installed; booking form check
 

@@ -169,6 +169,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.161.20 | - | Booking form follows NURA Desk open days (closed days: no slots, Time disabled); early-fee line hidden when no slot is before the early cut-off |
 | 1.161.12-1.161.19 | - | Journal card images, studio/store markup, installation page polish (PSI 16 Nov: mobile 95-100, desktop 100 on home, shop, product, guide) |
 | 1.154.0-1.161.11 | 1.113.1-1.113.2 | QA fixes and speed rounds R9-R16 (see HANDOVER 14 Nov 21:35) |
 | 1.153.0 | - | R8: water curl price + types of wigs answer pages, services and booking rules in llms.txt |

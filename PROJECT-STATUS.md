@@ -5,7 +5,7 @@ Last updated: 16 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 ## Live versions
 | Component | Version | Notes |
 |---|---|---|
-| Theme `nura-beauty/` (parent) | **1.161.18 live** (checked 16 Nov 09:00 EAT); repo `main` is **1.161.19** (installation hero first-paint + logo aspect-ratio, commit 34a50b7) - **not yet installed** | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
+| Theme `nura-beauty/` (parent) | **1.161.19** (live since 16 Nov 09:20 EAT; installation hero first-paint + logo aspect-ratio, commit 34a50b7) | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
 | Plugin `nura-experience/` | **1.113.2** (live since 14 Nov) | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
 
 ## How a release is done (the working method)
@@ -62,6 +62,9 @@ Last updated: 16 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 - Service prices (1.134.0-1.135.0), the same on every page, FAQ, schema and Google snippet: installation KSh 1,000, half up half down 1,500, tonging 800, flat ironing 500, revamp 1,500, bridal styling 3,500, colouring 2,500-3,500 (human hair only), re-lacing/repair 2,000. Source of truth: `nura_services()` in inc/nura-services.php and theme_mod `nura_inst_services`.
 - Google Business Profile (login nurabeautyke@gmail.com), 13 Nov 2026: services and prices edited to match the banner. Wig Installation KSh 1,000; Tonging KSh 800 (renamed from Wig Styling & Restyle); Wig Colouring price field "From KSh 2,500" with KSh 2,500-3,500, human hair only, in the description (Google has no range field); Wig Wash & Revamp KSh 1,500; Wig Re-lacing & Repair KSh 2,000; added Half up half down KSh 1,500, Flat ironing KSh 500, Bridal styling KSh 3,500. **Status at 20:35 EAT 13 Nov (second check): still pending Google review.** There is one "Your edit is pending review" notice for the whole panel, no service shows "rejected" or "not approved", and all 8 values are saved. Public Search and Maps show no Services menu; Maps has only the Overview, Reviews and About tabs. This was checked while signed in, with personalization off, because no fully signed-out check was possible.
 - Full-site audit 13 Nov (131 URLs, 47 internal links, 292 images): no PHP errors, no broken images, valid JSON-LD. Fixed old hair words in product SEO titles, leftover product text, 6 links to deleted products (301 redirects + guide links rewritten), 3 missing meta descriptions (1.133.0).
+
+## Open bugs
+- **Booking form allows Sunday (found 16 Nov):** on the public booking form (phone view), picking Sunday 22 Nov still enables the time selector with the same 9:00 am-7:00 pm slots, and a time can be selected. NURA Desk > Settings has Sunday unchecked. No booking was submitted, so whether the server rejects it is unknown. Fix next: hide/disable slots on closed days in the front-end form (the theme `main.js` Sunday check on `#nb-date` is not stopping it) and reject closed days on the server. Also: the form still shows "Before 8:00 am: KSh 1,000 extra" although no slot before 9:00 exists, and the page says 9:00am-7:30pm while the last slot is 7:00 pm (fine if 7:30 is closing time).
 
 ## Pending - owner input needed
 1. **Checkout totals on a phone**: the "updating..." fix (1.129.2) is not yet confirmed by the owner.

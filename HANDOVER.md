@@ -2,6 +2,12 @@
 
 Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 16 Nov 2026 09:25 EAT (Ray) - theme 1.161.19 installed; booking form check
+
+- **Theme 1.161.19 live:** zip built from 34a50b7 (`nura-beauty/` at zip root), `php -l` (PHP 8.3.13) passed on the changed PHP files (functions.php, inc/nura-r18-install.php), version 1.161.19 in style.css and `NURA_VERSION`. Uploaded with "Replace installed with uploaded" ("Theme updated successfully"), child theme still active, LiteSpeed Purge All done. curl with cache-buster: home and /installation/ load nura-beauty assets `?ver=1.161.19`.
+- **Checks after install:** installation page and logo load on desktop and in the WordPress mobile preview (screenshots taken; first-paint CTA shift and logo ratio not measured separately). Cart drawer and cart page show the existing 4-item cart (KSh 7,400); checkout shows the same items, shipping KSh 300, total KSh 7,700, M-Pesa/card and bank transfer. WhatsApp order pop-up opens on 2x2 Straight Hair Closure with colours, contact/delivery fields and "Continue to payment". No order, message or payment sent. No rollback needed.
+- **Booking form (phone view, no booking placed):** Mon 16-Sat 21 Nov show half-hour slots 9:00 am-7:00 pm. A 9:00 am slot shows the normal KSh 500 deposit with no early fee. **Bug: Sunday 22 Nov still offers the same slots and a time can be picked** (also on the normal public page), even though Sunday is unchecked in NURA Desk > Settings. Server-side rejection not tested. The form still shows "Before 8:00 am: KSh 1,000 extra, paid in advance", and the page says 9:00am-7:30pm while the last slot is 7:00 pm.
+
 ## UPDATE 16 Nov 2026 09:05 EAT (Ray) - 14 Nov open items closed out: phone speed already met, PSI on 4 pages, booking hours waiting on owner
 
 - **Live versions (curl, mobile UA, cache-buster):** theme **1.161.18**, plugin **1.113.2**. Repo `main` has theme **1.161.19** (34a50b7, installation hero + logo aspect-ratio) not yet installed.

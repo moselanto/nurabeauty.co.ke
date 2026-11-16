@@ -61,7 +61,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.161.19 (live: 1.161.18) | Parent theme |
+| `nura-beauty/` | 1.161.19 (live) | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
 | `nura-experience/` | 1.113.2 | Plugin |
 

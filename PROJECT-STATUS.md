@@ -34,6 +34,18 @@ Last updated: 16 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 - Care products returns: unopened, original packaging, within 48 hours; opened care products can't be returned (hygiene).
 - Product slugs never change on renames (Rank Math follows titles). Old supplier names live in `nura_pai_alt_names()` (schema alternateName, llms.txt).
 
+## Done (16 Nov 2026)
+- **Booking hours (owner confirmed 16 Nov): Mon-Sat 9:00 am-7:30 pm, Sunday closed.** NURA Desk > Settings saved: First slot 09:00, Last slot 19:00, Early booking before 08:00 (unchanged; only applies to special early bookings), open days Mon-Sat, Sunday closed. Settings only, no code release.
+- **Phone speed (jQuery/WooCommerce/theme JS, 14 Nov request) - closed, no new release needed.** Theme 1.161.9-1.161.18 (head-CSS sizing, content-visibility for drawers/footer/below-fold cards, deferred overlap check) already brought mobile TBT to 0 ms. Removing jQuery/WooCommerce scripts was not attempted: it would risk cart, checkout, My Account and the WhatsApp order pop-up for no measurable gain.
+- **PageSpeed Insights 16 Nov (pagespeed.web.dev, Lighthouse 13.6; API quota exhausted, sandbox Chrome cannot start):** all targets met, desktop guide test now runs.
+
+  | Page | Mobile | FCP / LCP | TBT | CLS | Desktop | Desktop CLS |
+  |---|---|---|---|---|---|---|
+  | `/` | 99 | 1.1 / 2.3 s | 0 | 0.006 | 100 | 0.046 |
+  | `/shop/` | 100 | 1.1 / 1.1 s | 0 | 0 | 100 | 0.002 |
+  | `/product/bob-wig/` | 95 | 1.1 / 2.9 s | 0 | 0 | 100 | 0.001 |
+  | `/hd-lace-vs-transparent-lace/` | 96 | 0.9 / 2.7 s | 0 | 0 | 100 | 0 |
+
 ## Done (11-14 Nov 2026)
 - **Book of Accounts (plugin 1.112.0, 14 Nov):** NURA Desk > Accounts > "Book of accounts" downloads a double-entry workbook: Cover (period dates drive every formula), Profit or loss (IAS 1, comparative), Financial position (balance check), Cash flows (IAS 7 direct, agreed to cash), Trial balance, General journal (manual rows picked up automatically), Chart of accounts, Sales register, Unpaid orders, Notes. Code: `includes/class-nura-xlsx-book.php`, `NURAX_Desk_Accounts::book_data()`. "Sold - record payment" asks method, M-Pesa/bank code (duplicate codes refused) and date paid (`_nura_paid_method`, `_nura_paid_ref`, `_nura_paid_on`). Paid WhatsApp orders not billed through the till now count as WhatsApp sales.
 - Theme 1.148.0 + plugin 1.111.3 installed 14 Nov, NURA Desk newsletter delay 12 -> 4 s, Purge All. Desktop logged-out: WhatsApp pop-up OK on all 14 categories + Human Hair Bob, product pictures load, menus open. Newsletter bar shows an inline e-mail form and does not open the Join The House pop-up (footer button does) - to fix. Phone checks and PSI not yet re-run (PSI API daily quota hit).
@@ -52,7 +64,6 @@ Last updated: 16 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 - Full-site audit 13 Nov (131 URLs, 47 internal links, 292 images): no PHP errors, no broken images, valid JSON-LD. Fixed old hair words in product SEO titles, leftover product text, 6 links to deleted products (301 redirects + guide links rewritten), 3 missing meta descriptions (1.133.0).
 
 ## Pending - owner input needed
-0. **Booking hours (asked 16 Nov):** NURA Desk > Settings still has First slot 6:00 am, Last slot 6:30 pm, Early booking before 8:00 am - a guess from 14 Nov. Note the 6 Nov owner decision was opening hours Mon-Sat 9:00 am-7:30 pm, Sunday closed (also on GBP). Once the owner confirms, set the three fields in NURA Desk > Settings (no code release needed).
 1. **Checkout totals on a phone**: the "updating..." fix (1.129.2) is not yet confirmed by the owner.
 2. **New wig photos (1200 px or larger)**: softest originals are Human Hair Bob, Bob Wavy, Latisha Sensational Headband, 12 Inch Jerry Curls, Loose Wave Frontal, Luxury Body Wave, Minky Headband. Two care images are only 680 px (Texture Spray `2026/11/2-3.jpg`, Melting Spray `2026/11/cscr-1.jpg`).
 3. **October orders**: most were marked Test, so revenue shows KSh 0; one cash-on-delivery order (#1777, KSh 8,800) and 13 WhatsApp orders (KSh 58,410) are unpaid. Mark real ones as paid in NURA Desk > Accounts; they then appear in Ask for reviews.

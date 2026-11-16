@@ -50,6 +50,10 @@ class NURAX_Paystack_Split {
 		add_action( 'woocommerce_blocks_loaded', array( __CLASS__, 'store_api' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'assets' ), 30 );
 		add_action( 'admin_notices', array( __CLASS__, 'secret_check' ) );
+		// TEMPORARY save probe (1.116.1): yes/no facts about Paystack settings saves, never the value.
+		add_action( 'admin_init', array( __CLASS__, 'probe_request' ), 1 );
+		add_action( 'woocommerce_update_options_payment_gateways_paystack', array( __CLASS__, 'probe_before' ), 1 );
+		add_action( 'woocommerce_update_options_payment_gateways_paystack', array( __CLASS__, 'probe_after' ), 999 );
 		// Tell shoppers about the card fee before they pay (classic + block cart/checkout, product page).
 		add_action( 'woocommerce_before_cart_totals', array( __CLASS__, 'fee_notice_echo' ) );
 		add_action( 'woocommerce_review_order_before_payment', array( __CLASS__, 'fee_notice_echo' ) );
@@ -101,6 +105,84 @@ class NURAX_Paystack_Split {
 		return 0 === strpos( $v, 'whsec_' ) ? 'yes' : 'no-other';
 	}
 
+	/* ---- TEMPORARY save probe (remove once the signing secret saves) ---- */
+
+	const PROBE = 'nurax_paystack_save_probe';
+	const FIELD = 'woocommerce_paystack_live_webhook_signing_secret';
+
+	private static function probe_log( $row ) {
+		$log = get_option( self::PROBE, array() );
+		$log = is_array( $log ) ? $log : array();
+		array_unshift( $log, array_merge( array( 'time' => current_time( 'Y-m-d H:i:s' ) ), $row ) );
+		update_option( self::PROBE, array_slice( $log, 0, 8 ), false );
+	}
+
+	private static function posted() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- read-only yes/no facts; value is never stored.
+		$raw = isset( $_POST[ self::FIELD ] ) ? trim( (string) wp_unslash( $_POST[ self::FIELD ] ) ) : null;
+		return array(
+			'field_sent' => null === $raw ? 'no' : 'yes',
+			'filled'     => ( null !== $raw && '' !== $raw ) ? 'yes' : 'no',
+			'whsec'      => ( null !== $raw && 0 === strpos( $raw, 'whsec_' ) ) ? 'yes' : 'no',
+		);
+	}
+
+	/** Did a POST for the Paystack settings screen reach WordPress at all? */
+	public static function probe_request() {
+		if ( 'POST' !== ( isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : '' ) ) {
+			return;
+		}
+		$page    = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+		$section = isset( $_GET['section'] ) ? sanitize_key( wp_unslash( $_GET['section'] ) ) : '';
+		if ( 'wc-settings' !== $page || 'paystack' !== $section ) {
+			return;
+		}
+		$nonce_ok = isset( $_POST['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'woocommerce-settings' ) ? 'yes' : 'no';
+		self::probe_log( array_merge( array( 'stage' => 'request reached WordPress', 'nonce_ok' => $nonce_ok, 'can_manage' => current_user_can( 'manage_woocommerce' ) ? 'yes' : 'no' ), self::posted() ) );
+	}
+
+	public static function probe_before() {
+		self::probe_log( array_merge( array( 'stage' => 'WooCommerce started the Paystack save' ), self::posted() ) );
+	}
+
+	public static function probe_after() {
+		$errs = array();
+		if ( function_exists( 'WC' ) && WC()->payment_gateways() ) {
+			$gws = WC()->payment_gateways()->payment_gateways();
+			if ( isset( $gws['paystack'] ) && method_exists( $gws['paystack'], 'get_errors' ) ) {
+				foreach ( (array) $gws['paystack']->get_errors() as $e ) {
+					$errs[] = mb_substr( wp_strip_all_tags( (string) $e ), 0, 120 );
+				}
+			}
+		}
+		wp_cache_delete( 'woocommerce_paystack_settings', 'options' );
+		wp_cache_delete( 'alloptions', 'options' );
+		$st = self::secret_status();
+		self::probe_log( array(
+			'stage'          => 'Paystack save finished',
+			'stored_after'   => 'yes' === $st ? 'yes (whsec_)' : ( 'no-other' === $st ? 'no (non-whsec_ value)' : 'no (empty)' ),
+			'save_errors'    => $errs ? implode( ' | ', $errs ) : 'none',
+		) );
+	}
+
+	private static function probe_html() {
+		$log = get_option( self::PROBE, array() );
+		if ( ! is_array( $log ) || ! $log ) {
+			return '<p><strong>Save check (temporary):</strong> no Paystack save recorded yet - click Save changes, then reload this page.</p>';
+		}
+		$out = '<p><strong>Save check (temporary) - newest first, values never recorded:</strong></p><ul style="margin-left:18px;list-style:disc">';
+		foreach ( $log as $r ) {
+			$bits = array();
+			foreach ( $r as $k => $v ) {
+				if ( 'time' !== $k && 'stage' !== $k ) {
+					$bits[] = $k . ': ' . $v;
+				}
+			}
+			$out .= '<li>' . esc_html( $r['time'] . ' - ' . $r['stage'] . ( $bits ? ' (' . implode( ', ', $bits ) . ')' : '' ) ) . '</li>';
+		}
+		return $out . '</ul>';
+	}
+
 	public static function secret_check() {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return;
@@ -122,6 +204,7 @@ class NURAX_Paystack_Split {
 			'yes' === $st ? 'notice-success' : 'notice-warning',
 			esc_html( $msg[ $st ] )
 		);
+		echo '<div class="notice notice-info">' . self::probe_html() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in probe_html().
 	}
 
 	private static function ready() {

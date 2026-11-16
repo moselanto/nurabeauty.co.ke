@@ -2,6 +2,23 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 17 Nov 2026 01:35 EAT (Ray) - plugin 1.116.1: TEMPORARY Paystack settings save probe (owner approved)
+
+- **Why:** whsec_ Live Webhook Signing Secret saves never reach the database, even after Purge All and an object-cache flush.
+- **Change** in `includes/class-nura-paystack-split.php`, marked TEMPORARY. Remove it once the secret saves.
+  - `probe_request()` runs on `admin_init` priority 1, only on a POST to `wc-settings&section=paystack`. It logs "request reached WordPress" plus `nonce_ok` (woocommerce-settings nonce), `can_manage`, `field_sent`, `filled` and `whsec`.
+  - `probe_before()` runs on `woocommerce_update_options_payment_gateways_paystack` priority 1. It logs "WooCommerce started the Paystack save" plus the same field facts.
+  - `probe_after()` runs on the same hook at priority 999. It clears the option cache, then logs `stored_after` (yes whsec_ / no non-whsec_ / no empty) and `save_errors`. These are the Paystack gateway's own error strings, which never contain the value.
+  - Only yes/no facts are stored, never the value or its length. They go in option `nurax_paystack_save_probe`, last 8 entries, autoload off. The log is shown in an info notice under the "NURA Desk check" line on the Paystack settings page.
+- **How to read it:**
+  - **No entry after a save:** the POST never reached WordPress. Likely a host WAF or ModSecurity rule; check the hosting panel logs.
+  - **"request reached" but no "started the save":** WooCommerce did not run the save. Check `nonce_ok` and `can_manage`.
+  - **`field_sent: no`:** the browser did not send the field.
+  - **`whsec: no`:** the pasted value is wrong.
+  - **`stored_after: no` with `whsec: yes` and no `save_errors`:** Paystack 5.9.0 or another filter is dropping the value. Inspect `process_admin_options` / `pre_update_option_woocommerce_paystack_settings`.
+- **Removal:** delete the three probe hooks, the probe methods and the `nurax_paystack_save_probe` option. Keep `secret_check()` / `secret_status()`.
+- Version bumped to 1.116.1.
+
 ## UPDATE 17 Nov 2026 01:25 EAT (Ray) - signing secret still not stored after caches flushed; Pixie redirect already in place
 
 - **Paystack signing secret:** the owner saved the whsec_ value in their own browser and reloaded. The NURA Desk check still says "No - nothing is stored (the field is empty in the database)". The field is blank, and the Live mode line still says "Using a secret key: Paystack recommends switching to a restricted key". LiteSpeed Purge All and a separate Object Cache purge both succeeded; the check was re-run afterwards with the same result, so **stale caching is ruled out**. No red or green notice shows on a fresh load. Nothing else was changed.

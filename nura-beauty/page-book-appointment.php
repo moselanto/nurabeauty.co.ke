@@ -139,6 +139,7 @@ $nb_endpoint = function_exists( 'rest_url' ) ? rest_url( 'nurax/v1/stylist-booki
 						<div class="nura-bk__f">
 							<label for="nb-date"><?php esc_html_e( 'Date', 'nura-beauty' ); ?></label>
 							<input id="nb-date" name="date" type="date" required>
+							<p class="nura-bk__datemsg" data-nb-closed-msg role="alert" aria-live="polite" hidden style="margin:6px 0 0;font-size:13px;line-height:1.4;color:#b3261e;font-weight:600"></p>
 						</div>
 						<div class="nura-bk__f">
 							<label for="nb-time"><?php esc_html_e( 'Time', 'nura-beauty' ); ?></label>

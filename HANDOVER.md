@@ -1,6 +1,13 @@
 # HANDOVER.md - current state for the next developer / AI agent
 
-Last updated: 14 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+
+## UPDATE 16 Nov 2026 16:10 EAT (Ray) - theme 1.161.21: visible closed-day message on the booking form
+
+- **Change (commit ba9aea7):** `page-book-appointment.php` adds `<p class="nura-bk__datemsg" data-nb-closed-msg role="alert" aria-live="polite" hidden>` under the date input (red, 13px, inline style). In `main.js` and `main.min.js`, `nbSync()` fills it with "We are closed on <Day>s. Please pick another day." for any day unticked in NURA Desk > Settings, clears the date and keeps Time disabled. It hides again when an open day is picked. The browser pop-up (`reportValidity`) is no longer used, because it did not show on phones. Version 1.161.21 in `style.css` and `NURA_VERSION`. `php -l` passed on page-book-appointment.php and functions.php, and `node --check` passed on both JS files.
+- **Install:** the first attempt stopped because the sign-in request expired. The retry used "Replace installed with uploaded"; theme details show 1.161.21, the child theme is still active, and LiteSpeed Purge All was done. curl: /book-appointment/ loads `main.min.js?ver=1.161.21` and has the `data-nb-closed-msg` element.
+- **Phone check (Customizer mobile view, no booking placed):** Sun 22 Nov shows "We are closed on Sundays. Please pick another day." between Date and Time, and Time stays disabled. Sat 21 Nov hides the message and enables 9:00 am-7:00 pm slots. Cart drawer and cart page open with the existing items, checkout loads its summary and payment options, and the "Order on WhatsApp" pop-up opens. Nothing was submitted, and no rollback was needed.
+- **Live versions now:** theme **1.161.21**; plugin as in the entries below (1.114.x).
 
 ## UPDATE 16 Nov 2026 11:15 EAT (Ray) - plugin 1.114.1: Meta set-up check on NURA Desk > Order alerts
 

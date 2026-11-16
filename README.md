@@ -12,7 +12,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.161.19-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.161.21-0E0E0E?style=for-the-badge)](nura-beauty)
 [![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.113.2-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
@@ -61,7 +61,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.161.19 (live) | Parent theme |
+| `nura-beauty/` | 1.161.21 (live) | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
 | `nura-experience/` | 1.113.2 | Plugin |
 
@@ -169,6 +169,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.161.21 | - | Visible closed-day message under the booking date field (no browser pop-up needed) |
 | 1.161.20 | - | Booking form follows NURA Desk open days (closed days: no slots, Time disabled); early-fee line hidden when no slot is before the early cut-off |
 | 1.161.12-1.161.19 | - | Journal card images, studio/store markup, installation page polish (PSI 16 Nov: mobile 95-100, desktop 100 on home, shop, product, guide) |
 | 1.154.0-1.161.11 | 1.113.1-1.113.2 | QA fixes and speed rounds R9-R16 (see HANDOVER 14 Nov 21:35) |

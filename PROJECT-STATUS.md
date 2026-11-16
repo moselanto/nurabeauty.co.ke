@@ -5,7 +5,7 @@ Last updated: 16 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 ## Live versions
 | Component | Version | Notes |
 |---|---|---|
-| Theme `nura-beauty/` (parent) | **1.161.19** (live since 16 Nov 09:20 EAT; installation hero first-paint + logo aspect-ratio, commit 34a50b7) | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
+| Theme `nura-beauty/` (parent) | **1.161.21** (live since 16 Nov 16:10 EAT; visible closed-day message under the booking date field, commit ba9aea7; 1.161.20 booking open days + early-fee line, f95101a) | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
 | Plugin `nura-experience/` | **1.113.2** (live since 14 Nov) | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
 
 ## How a release is done (the working method)
@@ -67,7 +67,7 @@ Last updated: 16 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 - The form reads open days from NURA Desk > Settings (`appt_days`, printed as `data-open-days` on `[data-nura-book]`). Time is disabled until a date is picked ("Pick a date first"); picking any unticked day (Sunday today) clears the date and keeps Time disabled. Code: `nbSync()` in `assets/js/main.js` and `main.min.js`. Settings changes need LiteSpeed Purge All, because the open days are in the cached page.
 - The "Before 8:00 am: KSh 1,000 extra" line only shows when a slot before "Early booking before" exists (none now: first slot 9:00).
 - Server side (plugin, unchanged): `stylist-booking` refuses a time not in `NURAX_Desk_Appts::slots( $date )` and refuses closed days (`nurax_closed`, 409) before anything is saved. Live `/wp-json/nurax/v1/slots?date=2026-11-22` returns `closed: true`. Not tested with a live POST.
-- Small gap: on Sunday the browser's "We are closed on Sundays" note was not seen in the Customizer phone preview (the date still clears). An inline message under the date field would make it clearer.
+- Theme 1.161.21: a visible message under the date field (`[data-nb-closed-msg]`) shows "We are closed on Sundays. Please pick another day." (or the matching day) for any unticked day, and hides again when an open day is picked. It no longer depends on the browser pop-up.
 
 ## Pending - owner input needed
 1. **Checkout totals on a phone**: the "updating..." fix (1.129.2) is not yet confirmed by the owner.

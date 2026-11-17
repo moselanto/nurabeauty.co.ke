@@ -12,7 +12,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 <br>
 
-[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.161.26-0E0E0E?style=for-the-badge)](nura-beauty)
+[![Theme](https://img.shields.io/badge/NURA%20Beauty-v1.161.27-0E0E0E?style=for-the-badge)](nura-beauty)
 [![Plugin](https://img.shields.io/badge/NURA%20Experience-v1.118.0-C9A24B?style=for-the-badge)](nura-experience)
 [![Status](https://img.shields.io/badge/Status-Live-25D366?style=for-the-badge)](https://nurabeauty.co.ke/)
 
@@ -61,7 +61,7 @@ Custom WordPress + WooCommerce storefront for **[nurabeauty.co.ke](https://nurab
 
 | Folder | Version | Installed as |
 | --- | --- | --- |
-| `nura-beauty/` | 1.161.26 (live) | Parent theme |
+| `nura-beauty/` | 1.161.27 (live) | Parent theme |
 | `nura-beauty-child/` | - | Active child theme |
 | `nura-experience/` | 1.118.0 (live) | Plugin |
 
@@ -169,6 +169,7 @@ REST `nurax/v1`: `POST /wig-finder`, `POST /stylist`, `POST /stylist-booking`, `
 
 | Theme | Plugin | Highlights |
 | --- | --- | --- |
+| 1.161.27 | - | 301 for deep-curls-16-inches-wig (Search Console 404) |
 | 1.161.26 | - | Pixie Water Curl #396 refresh (KSh 3,499, lace-front copy, own FAQ); per-product `_nura_faq` questions |
 | 1.161.25 | - | Variation schema: backorder wigs stated as InStock (Merchant Center availabilityDate error) |
 | 1.161.24 | - | Lengths: Human Hair Bob 10-20" (KSh 7,000-13,000) for every colour; Black Jerry Curl 12/16/18/20" (KSh 9,000-16,500) |

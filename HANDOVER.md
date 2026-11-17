@@ -2,6 +2,12 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 18 Nov 2026 02:40 EAT (Ray) - Google/Bing audit; theme 1.161.27
+
+- **Audit (read-only, signed in as nurabeautyke@gmail.com):** Merchant Center 169 approved, 0 issues; #396 shows KSh 3,499 on all 4 colours (gla_397, gla_399, gla_2053, gla_2054). Search Console (19 Oct-15 Nov): 297 clicks, 11,759 impressions, CTR 2.5%, avg position 5.8; 129 indexed; sitemap OK; CWV insufficient data; Product snippets missing aggregateRating/review (17), Merchant listings missing priceValidUntil (9, optional). Re-index request for /product/pixie-water-curl-wig/ was refused because Google's live test hit a 5xx (hosting DB outage) - retry when hosting is stable. Old 5xx list = shop filter URLs, already blocked in robots.txt since 1.150.0. GBP verified, 5.0 from 1 review, 1 product listed, opening date/service area empty, 1 photo rejected. GA4 G-FK5L7NBCZ4 (property 559103735) data flowing, 163 users/7 days, 4 purchases. Bing: verified, 42 indexed, sitemap OK; top issue = few quality inbound links; old scan: 55 long titles, 31 missing meta descriptions.
+- **1.161.27:** 301 for /product/deep-curls-16-inches-wig/ (Search Console 404). Other listed 404s already redirect.
+- Full plan: Town doc "NURA Beauty: Google, Bing and AI search audit and growth plan".
+
 ## UPDATE 18 Nov 2026 01:15 EAT (Ray) - theme 1.161.26 Pixie Water Curl #396 refresh; sales 16-17 Nov recorded
 
 - **Sales recorded (owner):** #2506 Vellah Busolo Musiomi KSh 5,000 (Loose Wave Frontal 30 + Installation, M-Pesa UKGCM2N2TR, created + paid 16 Nov); #2507 Weddy Joy Kanana Gituma KSh 1,400 (Installation 1,000 + Luodais No5 Curl Keeper 400, UKHJR2KQRX); #2508 Liz Wambui Ngamau KSh 5,900 (Luxury Body Wave Black 4,500 + Installation 1,000 + No5 Curl Keeper 400, UKHKA2N921); both created + paid 17 Nov. Accounts 17 Nov = KSh 7,300. Body Wave Black stock now 0. No5 Curl Keeper has no stock tracking. Paid date is set in NURA Desk > Accounts > Sales ("Not paid" then "Sold - record payment").

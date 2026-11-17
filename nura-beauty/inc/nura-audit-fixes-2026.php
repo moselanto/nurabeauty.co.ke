@@ -23,6 +23,7 @@ defined( 'ABSPATH' ) || exit;
 function nura_af_gone() {
 	return array(
 		'deep-curls-14-inches-wig' => '/product/12-inches-wig/',
+		'deep-curls-16-inches-wig' => '/product/12-inches-wig/', // 1.161.27: Search Console 404 (18 Nov).
 		'jerry-curl-14-inches-wig' => '/product/12-inches-wig/',
 		'22-inches-water-curl-wig' => '/product/pixie-water-curl-wig/',
 		'afro-wig'                 => '/product-category/wigs/',

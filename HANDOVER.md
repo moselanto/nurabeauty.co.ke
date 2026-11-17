@@ -2,6 +2,14 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 17 Nov 2026 20:30 EAT (Ray) - plugin 1.118.0: checkout always opens on M-Pesa, also for returning shoppers
+
+- **Owner request:** shoppers who picked Card on an earlier visit still got Card. Checkout must always open with M-Pesa (Paystack) selected and switch to Card only when the shopper clicks it.
+- **Change** (`includes/class-nura-paystack-split.php`):
+  - `reset_on_open()` on `template_redirect` (priority 5): on a normal GET of the checkout page (not order-pay / order-received, not AJAX/REST), a remembered `chosen_payment_method` of `paystack-one` is reset to `paystack` in the WooCommerce session, so the classic radio and the fee start on M-Pesa.
+  - Inline checkout script: until the shopper makes a real (trusted) click, change or key press on a payment option, block checkout switches an active `paystack-one` back to `paystack` (`wc/store/payment` dispatch); classic checkout re-checks M-Pesa after `updated_checkout`. After a real click on Card, Card stays and the 2.9% fee line is added as before.
+- Version 1.117.0 -> 1.118.0. `php -l` clean; inline JS parse-checked with node.
+
 ## UPDATE 17 Nov 2026 20:15 EAT (Ray) - plugin 1.117.0: M-Pesa (Paystack) selected by default at checkout
 
 - **Owner request:** checkout must open with M-Pesa (Paystack) selected, not Card, so the first total shoppers see has no card fee.

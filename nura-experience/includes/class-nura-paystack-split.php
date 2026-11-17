@@ -46,6 +46,7 @@ class NURAX_Paystack_Split {
 		add_action( 'init', array( __CLASS__, 'seed' ), 20 );
 		add_action( 'init', array( __CLASS__, 'order_seed' ), 21 );
 		add_filter( 'woocommerce_available_payment_gateways', array( __CLASS__, 'mpesa_first' ), 100 );
+		add_action( 'template_redirect', array( __CLASS__, 'reset_on_open' ), 5 );
 		add_action( 'woocommerce_cart_calculate_fees', array( __CLASS__, 'cart_fee' ), 20 );
 		add_action( 'woocommerce_checkout_create_order_fee_item', array( __CLASS__, 'tag_fee' ), 10, 4 );
 		add_action( 'woocommerce_store_api_checkout_update_order_from_request', array( __CLASS__, 'guard_order' ), 50, 2 );
@@ -298,6 +299,26 @@ class NURAX_Paystack_Split {
 		update_option( 'nurax_paystack_order_seed', '1.117.0', false );
 	}
 
+	/**
+	 * 1.118.0: every time the checkout page is opened, a remembered Card choice is
+	 * reset to M-Pesa, so returning shoppers also start on M-Pesa with no card fee.
+	 * Card is only used again when the shopper clicks it on the page.
+	 */
+	public static function reset_on_open() {
+		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() || ! self::card_on() ) {
+			return;
+		}
+		if ( function_exists( 'is_wc_endpoint_url' ) && ( is_wc_endpoint_url( 'order-pay' ) || is_wc_endpoint_url( 'order-received' ) ) ) {
+			return;
+		}
+		if ( wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || 'GET' !== ( isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_key( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : 'get' ) ) {
+			return;
+		}
+		if ( self::CARD === self::chosen() && function_exists( 'WC' ) && WC()->session ) {
+			WC()->session->set( 'chosen_payment_method', self::MAIN );
+		}
+	}
+
 	/** M-Pesa (Paystack) is listed first, so it is the method selected by default. */
 	public static function mpesa_first( $gateways ) {
 		if ( ! is_array( $gateways ) || ! isset( $gateways[ self::MAIN ] ) || ( is_admin() && ! wp_doing_ajax() ) ) {
@@ -417,11 +438,17 @@ class NURAX_Paystack_Split {
 		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() || ! self::card_on() ) {
 			return;
 		}
-		$js = '(function(){var last=null,busy=false;'
+		$js = '(function(){var last=null,busy=false,picked=false;'
+			. 'var sel=\'.wc-block-components-radio-control__option,.wc-block-components-radio-control-accordion-option,.wc_payment_method,input[name="payment_method"],input[name="radio-control-wc-payment-method-options"]\';'
+			. 'function mark(e){if(!e.isTrusted)return;var t=e.target;if(t&&t.closest&&t.closest(sel)){picked=true;}}'
+			. 'document.addEventListener("click",mark,true);document.addEventListener("change",mark,true);document.addEventListener("keydown",function(e){if(e.key===" "||e.key==="Enter"||e.key.indexOf("Arrow")===0){mark(e);}},true);'
 			. 'function blocks(){if(!window.wp||!wp.data||!window.wc||!wc.blocksCheckout||!wc.blocksCheckout.extensionCartUpdate)return;'
-			. 'wp.data.subscribe(function(){var s=wp.data.select("wc/store/payment");if(!s||!s.getActivePaymentMethod)return;var m=s.getActivePaymentMethod();if(!m||m===last||busy)return;last=m;busy=true;'
+			. 'wp.data.subscribe(function(){var s=wp.data.select("wc/store/payment");if(!s||!s.getActivePaymentMethod)return;var m=s.getActivePaymentMethod();'
+			. 'if(m==="' . self::CARD . '"&&!picked){var d=wp.data.dispatch("wc/store/payment");var f=d&&(d.__internalSetActivePaymentMethod||d.setActivePaymentMethod);if(f){f("' . self::MAIN . '");return;}}'
+			. 'if(!m||m===last||busy)return;last=m;busy=true;'
 			. 'Promise.resolve(wc.blocksCheckout.extensionCartUpdate({namespace:"' . self::NS . '",data:{method:m}})).then(function(){busy=false;},function(){busy=false;});});}'
-			. 'function classic(){if(!window.jQuery)return;jQuery(document.body).on("change","form.checkout input[name=payment_method]",function(){jQuery(document.body).trigger("update_checkout");});}'
+			. 'function classic(){if(!window.jQuery)return;var $=jQuery;$(document.body).on("change","form.checkout input[name=payment_method]",function(){$(document.body).trigger("update_checkout");});'
+			. '$(document.body).on("updated_checkout",function(){if(picked)return;var c=$("form.checkout input#payment_method_' . self::CARD . '");var m=$("form.checkout input#payment_method_' . self::MAIN . '");if(c.is(":checked")&&m.length){m.prop("checked",true).trigger("click");}});}'
 			. 'if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){blocks();classic();});}else{blocks();classic();}})();';
 		wp_register_script( 'nurax-card-fee', '', array(), NURAX_VERSION, true );
 		wp_enqueue_script( 'nurax-card-fee' );

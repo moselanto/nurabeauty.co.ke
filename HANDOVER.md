@@ -2,6 +2,15 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 17 Nov 2026 12:45 EAT (Ray) - product prices/lengths (owner) + theme 1.161.24 one-time lengths migration
+
+- **Owner list (17 Nov), done in wp-admin by the agent:** 2x2 Minky Hair Closure #2011 all variations KSh 2,500 (was 2,000); 2x2 Straight Hair Closure #2012 KSh 2,000 (was 1,800); Minky Headband #342 KSh 2,500 (was 2,000); price figures in their long descriptions updated. Global Length terms "12 inches", "26 inches", "30 inches" added and set: Bob Amanda #2364 (draft) 12", Bob Wig #271 12" (price 4,000 unchanged), Luxury Fibre Bone Straight Frontal #274 30", 4x4 Latisha Luxury Wig #250 26". Bob Wavy #266 already KSh 7,000 (no change). LiteSpeed Purge All.
+- **Theme 1.161.24** (`inc/nura-lengths-2026.php`, option `nura_len_2026_done`, log `nura_len_2026_log`, view with `wp-admin/?nura_len_log=1`):
+  - Human Hair Bob #318 (owner chose this, not SDD Bob #2010): Length becomes a variation attribute for every colour. 10" 7,000; 12" 8,000; 14" 9,200; 16" 10,500; 18" 11,800; 20" 13,000. The 7 existing colour variations are kept as the 12" option (photos, buying price, order #2272 history); the other 5 lengths are added per colour with the same photo and buying price (42 variations).
+  - Black Jerry Curl #265: simple -> variable, Length 12" 9,000; 16" 10,500; 18" 12,000; 20" 16,500 (owner chose to include 12"). 12 Inch Jerry Curls #255 unchanged.
+  - Both short descriptions get one "Lengths:" price line.
+- `php -l` clean. Version 1.161.23 -> 1.161.24.
+
 ## UPDATE 17 Nov 2026 02:55 EAT (Ray) - theme 1.161.23: "Visit our Nairobi studio" card uses the full page width
 
 - **Owner request:** the homepage "Wig shop in Nairobi CBD / Visit our Nairobi studio" section must fill the page width like the other sections, not a narrow box.

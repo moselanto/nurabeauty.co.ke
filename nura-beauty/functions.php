@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.161.23' );
+define( 'NURA_VERSION', '1.161.24' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -78,6 +78,7 @@ nura_require( 'nura-schema-variants' ); // 1.65.0 ProductGroup + variants.
 nura_require( 'nura-geo' );
 nura_require( 'nura-hair-types-2026' );
 nura_require( 'nura-site-words-2026' );
+nura_require( 'nura-lengths-2026' ); // 1.161.24: Human Hair Bob + Black Jerry Curl lengths (owner 17 Nov).
 nura_require( 'nura-audit-fixes-2026' ); // 1.133.0: full-site audit fixes. // 1.132.0: Pure/Semi Human words on published guides + Human Blend Wigs category. // 1.131.0: Pure Human / Semi Human / Human Blend (owner).
 nura_require( 'nura-product-ai' ); // 1.126.0: brand, schema description, product questions and llms.txt products for every product.
 nura_require( 'nura-content-hub' );

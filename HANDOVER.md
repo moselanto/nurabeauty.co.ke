@@ -2,6 +2,12 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 17 Nov 2026 20:45 EAT (Ray) - reminders cleared for launch; theme 1.161.25 Merchant Center availability fix
+
+- **Owner (17 Nov): "officially launched, we want real numbers" - remove the 6 reminders.** Marked as Test (reversible, "Not a test - restore order"): WhatsApp orders Peter NURA-261015-98GN, Naveen NURA-261006-7L9W, Felicity Muthoni NURA-261022-JV4Y, Mellie NURA-261026-N4KJ, Sylvia Njenga NURA-261106-HHB5. Payment plan LMM-261016-BAP4 (moses njeru, owner test, unpaid deposit KSh 2,850) cancelled (plans have no Test action). Overview "to confirm" 0; Accounts "Not paid yet" 0 / KSh 0.
+- **Merchant Center issue:** "Loose Wave Frontal - 30: Availability date is required if you set the product's availability to backorder or pre-order [availabilityDate]". Cause: `nura_variant_availability()` (`inc/nura-schema-variants.php`) output `schema.org/BackOrder` for a stock-tracked variation at 0 (WooCommerce backorder under the plugin's "nothing goes out of stock by itself" rule). Fix: when `NURAX_Desk_Stock::never_oos()` is on and the item is not stopped, a backorder variation is stated as `InStock` (matches what shoppers see). Stopped items stay OutOfStock. Google clears the issue on its next crawl (or press "Fix / Request review" in Merchant Center, login nurabeautyke@gmail.com).
+- Version 1.161.24 -> 1.161.25. `php -l` clean.
+
 ## UPDATE 17 Nov 2026 20:30 EAT (Ray) - plugin 1.118.0: checkout always opens on M-Pesa, also for returning shoppers
 
 - **Owner request:** shoppers who picked Card on an earlier visit still got Card. Checkout must always open with M-Pesa (Paystack) selected and switch to Card only when the shopper clicks it.

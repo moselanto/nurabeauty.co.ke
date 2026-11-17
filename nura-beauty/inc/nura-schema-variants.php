@@ -41,6 +41,12 @@ function nura_variant_value( $attr, $value ) {
 /** Schema availability URL for a product. */
 function nura_variant_availability( $product ) {
 	if ( $product->is_on_backorder() ) {
+		// 1.161.25: owner rule 'nothing goes out of stock by itself' (plugin Stock tab, suppliers on standby):
+		// a tracked wig at 0 keeps selling and is shown as In stock everywhere. Google Merchant Center
+		// refuses BackOrder without an availability date, so state InStock unless staff stopped the item.
+		if ( class_exists( 'NURAX_Desk_Stock' ) && method_exists( 'NURAX_Desk_Stock', 'never_oos' ) && NURAX_Desk_Stock::never_oos() && ! NURAX_Desk_Stock::stopped( $product ) ) {
+			return 'https://schema.org/InStock';
+		}
 		return 'https://schema.org/BackOrder';
 	}
 	return $product->is_in_stock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';

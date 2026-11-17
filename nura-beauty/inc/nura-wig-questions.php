@@ -327,6 +327,36 @@ add_filter( 'nura_llms_extra', function ( $lines, $full ) {
  * visible text mirrored in a FAQPage node for answer engines.
  * ------------------------------------------------------------------ */
 function nura_pq_items( $p ) {
+	$own = nura_pq_own( $p ); // 1.161.26: product-specific questions written for this product (meta _nura_faq) come first.
+	if ( $own ) {
+		return array_merge( $own, nura_pq_items_auto( $p ) );
+	}
+	return nura_pq_items_auto( $p );
+}
+
+/**
+ * 1.161.26: questions written for one product, saved as product meta _nura_faq
+ * (array of array( question, answer )). Shown first in "Questions about this wig" and
+ * mirrored in the same FAQPage schema, so Google and AI assistants read the exact
+ * visible answers.
+ */
+function nura_pq_own( $p ) {
+	if ( ! $p || ! is_object( $p ) ) {
+		return array();
+	}
+	$raw = $p->get_meta( '_nura_faq', true );
+	$out = array();
+	if ( is_array( $raw ) ) {
+		foreach ( $raw as $qa ) {
+			if ( is_array( $qa ) && ! empty( $qa[0] ) && ! empty( $qa[1] ) ) {
+				$out[] = array( wp_strip_all_tags( (string) $qa[0] ), wp_strip_all_tags( (string) $qa[1] ) );
+			}
+		}
+	}
+	return $out;
+}
+
+function nura_pq_items_auto( $p ) {
 	if ( $p && function_exists( 'nura_pai_is_hair' ) && ! nura_pai_is_hair( $p ) ) {
 		return nura_pai_items( $p ); // 1.126.0: wig care, beauty and tools get their own questions (inc/nura-product-ai.php).
 	}

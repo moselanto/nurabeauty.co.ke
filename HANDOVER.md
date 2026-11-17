@@ -2,6 +2,14 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 18 Nov 2026 01:15 EAT (Ray) - theme 1.161.26 Pixie Water Curl #396 refresh; sales 16-17 Nov recorded
+
+- **Sales recorded (owner):** #2506 Vellah Busolo Musiomi KSh 5,000 (Loose Wave Frontal 30 + Installation, M-Pesa UKGCM2N2TR, created + paid 16 Nov); #2507 Weddy Joy Kanana Gituma KSh 1,400 (Installation 1,000 + Luodais No5 Curl Keeper 400, UKHJR2KQRX); #2508 Liz Wambui Ngamau KSh 5,900 (Luxury Body Wave Black 4,500 + Installation 1,000 + No5 Curl Keeper 400, UKHKA2N921); both created + paid 17 Nov. Accounts 17 Nov = KSh 7,300. Body Wave Black stock now 0. No5 Curl Keeper has no stock tracking. Paid date is set in NURA Desk > Accounts > Sales ("Not paid" then "Sold - record payment").
+- **Owner decided not to add a duplicate "Human Hair Watercurl Pixie Wig"**; instead #396 is improved (`inc/nura-pixie-396.php`, one-time on admin_init, option `nura_px396_done`): name "Human Hair Water Curl Pixie Wig (13x4 Lace Front)" (slug unchanged), KSh 3,499 on every colour (sale prices cleared), new description/short description, product questions in meta `_nura_faq`. Described accurately as a 13x4 lace front (the competitor page called theirs no-lace; our photos show lace). Owner's 4 new photos added in wp-admin as featured + gallery front.
+- **New: per-product questions.** `nura_pq_items()` (`inc/nura-wig-questions.php`) now puts product meta `_nura_faq` (array of [question, answer]) first in "Questions about this wig" and the FAQPage schema, followed by the automatic questions.
+- **Hosting:** repeated "Error establishing a database connection" on 17-18 Nov (server/MySQL side; even static files slow). Owner to raise resource limits with the host.
+- Version 1.161.25 -> 1.161.26. `php -l` clean.
+
 ## UPDATE 17 Nov 2026 20:45 EAT (Ray) - reminders cleared for launch; theme 1.161.25 Merchant Center availability fix
 
 - **Owner (17 Nov): "officially launched, we want real numbers" - remove the 6 reminders.** Marked as Test (reversible, "Not a test - restore order"): WhatsApp orders Peter NURA-261015-98GN, Naveen NURA-261006-7L9W, Felicity Muthoni NURA-261022-JV4Y, Mellie NURA-261026-N4KJ, Sylvia Njenga NURA-261106-HHB5. Payment plan LMM-261016-BAP4 (moses njeru, owner test, unpaid deposit KSh 2,850) cancelled (plans have no Test action). Overview "to confirm" 0; Accounts "Not paid yet" 0 / KSh 0.

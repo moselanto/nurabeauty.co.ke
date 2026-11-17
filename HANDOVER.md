@@ -2,6 +2,15 @@
 
 Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 17 Nov 2026 20:15 EAT (Ray) - plugin 1.117.0: M-Pesa (Paystack) selected by default at checkout
+
+- **Owner request:** checkout must open with M-Pesa (Paystack) selected, not Card, so the first total shoppers see has no card fee.
+- **Change** (`includes/class-nura-paystack-split.php`):
+  - `order_seed()` (one-time, option `nurax_paystack_order_seed` = 1.117.0): rewrites `woocommerce_gateway_order` so `paystack` (M-Pesa) is first and `paystack-one` (Card) second; other gateways keep their order after them. Block and classic checkout both pick the first gateway when the shopper has not chosen one.
+  - `mpesa_first()` on `woocommerce_available_payment_gateways` (priority 100, front end/AJAX only): moves `paystack` to the top of the list.
+  - A returning shopper whose session already chose Card keeps Card until they switch; the fee follows the selected method as before.
+- Version 1.116.1 -> 1.117.0. `php -l` clean. No DB table change.
+
 ## UPDATE 17 Nov 2026 12:45 EAT (Ray) - product prices/lengths (owner) + theme 1.161.24 one-time lengths migration
 
 - **Owner list (17 Nov), done in wp-admin by the agent:** 2x2 Minky Hair Closure #2011 all variations KSh 2,500 (was 2,000); 2x2 Straight Hair Closure #2012 KSh 2,000 (was 1,800); Minky Headband #342 KSh 2,500 (was 2,000); price figures in their long descriptions updated. Global Length terms "12 inches", "26 inches", "30 inches" added and set: Bob Amanda #2364 (draft) 12", Bob Wig #271 12" (price 4,000 unchanged), Luxury Fibre Bone Straight Frontal #274 30", 4x4 Latisha Luxury Wig #250 26". Bob Wavy #266 already KSh 7,000 (no change). LiteSpeed Purge All.

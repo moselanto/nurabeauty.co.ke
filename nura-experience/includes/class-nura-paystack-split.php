@@ -44,6 +44,8 @@ class NURAX_Paystack_Split {
 		add_filter( 'wc_paystack_payment_channels', array( __CLASS__, 'channels' ), 20, 3 );
 		add_filter( 'option_woocommerce_paystack_settings', array( __CLASS__, 'main_labels' ), 20 );
 		add_action( 'init', array( __CLASS__, 'seed' ), 20 );
+		add_action( 'init', array( __CLASS__, 'order_seed' ), 21 );
+		add_filter( 'woocommerce_available_payment_gateways', array( __CLASS__, 'mpesa_first' ), 100 );
 		add_action( 'woocommerce_cart_calculate_fees', array( __CLASS__, 'cart_fee' ), 20 );
 		add_action( 'woocommerce_checkout_create_order_fee_item', array( __CLASS__, 'tag_fee' ), 10, 4 );
 		add_action( 'woocommerce_store_api_checkout_update_order_from_request', array( __CLASS__, 'guard_order' ), 50, 2 );
@@ -273,6 +275,37 @@ class NURAX_Paystack_Split {
 			update_option( 'woocommerce_' . self::CARD . '_settings', $s );
 		}
 		update_option( 'nurax_paystack_split_seed', self::SEEDV, false );
+	}
+
+	/* ---- M-Pesa first (1.117.0, owner 17 Nov 2026) --------------------- */
+
+	/** One-time: put M-Pesa (Paystack) before Card in WooCommerce > Payments order (classic + block checkout). */
+	public static function order_seed() {
+		if ( '1.117.0' === get_option( 'nurax_paystack_order_seed' ) || ! self::ready() ) {
+			return;
+		}
+		$order = get_option( 'woocommerce_gateway_order', array() );
+		$order = is_array( $order ) ? $order : array();
+		asort( $order );
+		$ids = array_keys( $order );
+		$ids = array_values( array_diff( $ids, array( self::MAIN, self::CARD ) ) );
+		$ids = array_merge( array( self::MAIN, self::CARD ), $ids );
+		$new = array();
+		foreach ( $ids as $i => $id ) {
+			$new[ $id ] = $i;
+		}
+		update_option( 'woocommerce_gateway_order', $new );
+		update_option( 'nurax_paystack_order_seed', '1.117.0', false );
+	}
+
+	/** M-Pesa (Paystack) is listed first, so it is the method selected by default. */
+	public static function mpesa_first( $gateways ) {
+		if ( ! is_array( $gateways ) || ! isset( $gateways[ self::MAIN ] ) || ( is_admin() && ! wp_doing_ajax() ) ) {
+			return $gateways;
+		}
+		$main = array( self::MAIN => $gateways[ self::MAIN ] );
+		unset( $gateways[ self::MAIN ] );
+		return $main + $gateways;
 	}
 
 	/* ---- Fee --------------------------------------------------------- */

@@ -2,6 +2,28 @@
 
 Last updated: 18 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 18 Nov 2026 07:00 EAT (Ray) - PAUSED for server migration; where we are and what is pending
+
+**Site state right now:** WooCommerce > Settings > Site visibility = **Coming soon** (whole site, not only store pages), LiteSpeed purged. Visitors see the coming-soon page; logged-in admins see the site. The host (Muhamad R., migration specialist) is moving the cPanel account to a less-loaded server because of the repeated "Error establishing a database connection". DNS uses the host's nameservers (ns1-4.stableserver.net; A 198.38.90.26; MX mail.nurabeauty.co.ke), so the cutover is automatic - no Cloudflare/DNS work for us.
+
+**After the host confirms the migration is done (resume checklist):**
+1. Check the site loads from the new server (wp-admin login, a product page, cart, checkout) and that orders placed before the move are present.
+2. WooCommerce > Settings > Site visibility -> **Live**. LiteSpeed > Purge All.
+3. Re-test: website chat (`POST /wp-json/nurax/v1/stylist`, expect `"engine":"nura-ai"`), WooCommerce webhooks still Active (WooCommerce > Settings > Advanced > Webhooks), a WhatsApp message to 0714 994 898, email delivery.
+4. Check cron jobs and the LiteSpeed Cache plugin still work on the new server; check PHP version matches.
+
+**Done tonight (17-18 Nov):** plugin 1.118.1 (chat -> nurabeautykenya n8n), theme 1.161.28 (phone chat button), n8n NURA 01/02/03 live, WhatsApp on n8n (phone number ID 1190576524148420), signed WooCommerce webhooks, AI sales rules (greeting, exact prices, location, payment flow), **follow-up system (NURA 04 + Supabase, see AUTOMATION.md section 9)**, AUTOMATION.md.
+
+**Pending:**
+- **Paystack verify still 401** (`secret_key_invalid`): owner must re-save n8n credential NURA Paystack with the exact value `Bearer sk_live_<full key>` (copy button in Paystack, no dots/quotes/spaces). Then replay order #2272 (signed request, see AUTOMATION.md) and close escalation #17.
+- **WhatsApp templates** `nura_followup` (Marketing) and `nura_owner_digest` (Utility) submitted to Meta 18 Nov 06:50 - in review. Until approved, follow-ups only go out to customers who wrote within 24h; others become "needs_owner" in the morning list.
+- **Test rows to tidy in Supabase** `nura_followups`: id 1 (fake customer 254700000099, due 20 Nov - set status cancelled) and id 2 (owner test - set status done). Not done: deletes/updates needed owner approval.
+- **n8n plan:** trial (1,000 executions) is too small; owner said no to a Cloudflare relay, so buy a paid plan.
+- **TikTok catalogue ads:** owner said YES. Next: install the official "TikTok for WooCommerce" plugin, connect TikTok For Business (owner login), sync catalogue + pixel, then create catalogue ads in TikTok Ads Manager. Not started (paused for migration).
+- AI: welcome line repeats on the 2nd message of a chat - limit to the first message (n8n AI Reply prompt).
+- WhatsApp username users (no phone): reply via `recipient: <user_id>` is untested.
+- Earlier items still open: Lipa Mdogo Mdogo plan LMM-261016-BAP4 cancel (owner to confirm); 5 more product rewrites offered (water curl, headband, Human Hair Bob, Jerry Curl, Body Wave); owner accounts / M-Pesa balance reconciliation.
+
 ## UPDATE 18 Nov 2026 06:40 EAT (Ray) - automation live; theme 1.161.28 phone chat button; AUTOMATION.md
 
 - **New: [AUTOMATION.md](AUTOMATION.md)** - full record of the n8n / Supabase / Meta / WooCommerce / Paystack automation: workflows, credentials, how to change things, testing, and how to move to another n8n account.

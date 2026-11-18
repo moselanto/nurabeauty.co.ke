@@ -2,6 +2,16 @@
 
 Last updated: 18 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 18 Nov 2026 11:20 EAT (Ray) - migration done, site LIVE, WhatsApp anti-spam guard
+
+- Host migrated the account to the new server **170.39.76.190** (DNS on host nameservers, already resolving; Let's Encrypt cert valid to 19 Jan 2027). Site visibility set back to **Live**, LiteSpeed purged. Home/shop/cart/my-account load in about 1 s; latest orders #2506-#2508 present; both WooCommerce webhooks Active.
+- **Paystack fixed:** owner re-saved the key; replay of #2272 verified payment row 6 = success, KES 7,850, amount matches (order_updated=false - check order #2272 status in wp-admin).
+- **Spam root cause:** Meta redelivered old messages (some 1-6 days old) and NURA 03 replied to every one; Groq 429 errors turned each into the "brief technical issue" text. Fixes (code in `automation/n8n-NURA-03-*.js`, published in n8n):
+  - Extract Messages: skip messages older than 15 min, duplicate message IDs, reactions/stickers, "ok/thanks/sawa/asante"/emoji-only replies, and chats handed to the team in the last 2 h.
+  - Format for WhatsApp: welcome line once per chat per 12 h, one reply per chat per run, catalogue fallback at most once per chat per 6 h.
+  - NURA 01: fallback is now the WhatsApp catalogue link (https://wa.me/c/254714994898); PHOTOS rule in AI Reply; Classify Message moved to llama-3.1-8b-instant.
+- **Still pending:** Groq returns 429 (free-tier limit on openai/gpt-oss-120b) so AI answers fall back to the catalogue link - owner to add billing at console.groq.com (Developer plan). Then TikTok for WooCommerce setup. Other pending items as in the 07:00 entry.
+
 ## UPDATE 18 Nov 2026 07:00 EAT (Ray) - PAUSED for server migration; where we are and what is pending
 
 **Site state right now:** WooCommerce > Settings > Site visibility = **Coming soon** (whole site, not only store pages), LiteSpeed purged. Visitors see the coming-soon page; logged-in admins see the site. The host (Muhamad R., migration specialist) is moving the cPanel account to a less-loaded server because of the repeated "Error establishing a database connection". DNS uses the host's nameservers (ns1-4.stableserver.net; A 198.38.90.26; MX mail.nurabeauty.co.ke), so the cutover is automatic - no Cloudflare/DNS work for us.

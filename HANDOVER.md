@@ -2,6 +2,23 @@
 
 Last updated: 18 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 18 Nov 2026 17:10 EAT (Ray) - WhatsApp messaging PAUSED by owner; Groq upgraded; #2272 closed
+
+**WhatsApp is OFF (owner's decision, 18 Nov afternoon):** the bot was giving customers wrong/misleading information. In n8n, **NURA 03 - WhatsApp Connector** (`EPxYROEkRw84XZIz`) and **NURA 04 - Follow-ups** (`Tgp7uLqJxHcYZDQt`) are **Unpublished**: no automatic WhatsApp replies, no customer follow-ups and no 10:05 owner list. Nothing was deleted; nodes unchanged. Customers are answered manually from the WhatsApp Business app. Still published: NURA 01 Chat (website chat) and NURA 02 Paystack. Meta webhook settings unchanged.
+
+**Before resuming WhatsApp (to do):**
+1. Owner lists the wrong/misleading answers (screenshots or the chats) so the cause can be fixed - AI Reply system prompt / SALES RULES in NURA 01, product data from WooCommerce, or the Classify step (now llama-3.1-8b-instant; switch back to openai/gpt-oss-120b if classification is the problem).
+2. Test the fixes on the website chat first (same NURA 01 workflow), then from the owner's phone: "Hi" (welcome once), a product question (real answer, no second welcome), "ok"/"thanks" (no reply).
+3. Republish NURA 03, then NURA 04. Old messages Meta re-sends while off are ignored (15-minute age filter in Extract Messages).
+
+**Groq:** owner upgraded to the Developer plan. Website chat tested 13:30: real answers (hours + map, bob wigs from KES 7,000 with links, budget wigs from KES 2,000), welcome only on the first message, about 10 s per reply. Live WhatsApp test was not done before the pause.
+
+**Order #2272 (Riley Hughes):** already Completed since 11 Nov; verified note added (KES 7,850 card, ref 2272_1794391061, Paystack txn 6752455827). Escalation #17 resolved in Supabase. `order_updated=false` is correct by design: NURA 02 only changes orders that are Pending payment / On hold / Failed.
+
+**TikTok for WooCommerce:** official TikTok plugin 1.4.3 already installed and active. Waiting for the owner to click **Connect** at wp-admin > Marketing > TikTok and sign in to TikTok For Business (choose Business Center + ad account). Then: product catalogue sync, pixel, catalogue ads.
+
+**Other pending (unchanged):** Supabase `nura_followups` test rows 1 and 2 to tidy (need owner approval); WhatsApp templates in Meta review; n8n paid plan; Lipa Mdogo Mdogo LMM-261016-BAP4 decision; 5 product rewrites; owner accounts / M-Pesa reconciliation.
+
 ## UPDATE 18 Nov 2026 11:20 EAT (Ray) - migration done, site LIVE, WhatsApp anti-spam guard
 
 - Host migrated the account to the new server **170.39.76.190** (DNS on host nameservers, already resolving; Let's Encrypt cert valid to 19 Jan 2027). Site visibility set back to **Live**, LiteSpeed purged. Home/shop/cart/my-account load in about 1 s; latest orders #2506-#2508 present; both WooCommerce webhooks Active.

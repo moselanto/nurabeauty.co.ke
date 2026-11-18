@@ -1,5 +1,7 @@
 # AUTOMATION.md - NURA AI chat, WhatsApp and payment automation (n8n + Supabase)
 
+> **Status 18 Nov 2026 17:10 EAT:** WhatsApp automation is **paused** by the owner (wrong/misleading answers). NURA 03 and NURA 04 are Unpublished; NURA 01 (website chat) and NURA 02 (Paystack) stay Published. Resume steps are in HANDOVER.md (17:10 entry). Groq is on the Developer plan; Classify Message uses llama-3.1-8b-instant, AI Reply uses openai/gpt-oss-120b.
+
 Last updated: 18 Nov 2026 (Ray). Read this before touching the chat, WhatsApp or Paystack automation.
 Secrets are NEVER stored in this repo. Where a secret is needed this file says where it lives.
 
@@ -20,7 +22,7 @@ Secrets are NEVER stored in this repo. Where a secret is needed this file says w
 | `Ub28zvwWE0Izydkh` | NURA 01 - Chat (configurable AI, Groq) | **Published (live)** | `POST /webhook/nura-chat` (website) and "From WhatsApp Workflow" (called by NURA 03) |
 | `PvGNHCWDDGvqs8JL` | NURA 01 - Chat (OpenAI version) | **Off - keep off** | same path `/webhook/nura-chat`, so only one of the two chat workflows can be active |
 | `Gp7M1Lg8MDnAFuT3` | NURA 02 - Paystack Payments | **Published** | `POST /webhook/nura-wc-order` (WooCommerce webhooks) |
-| `EPxYROEkRw84XZIz` | NURA 03 - WhatsApp Connector | **Published** | `GET` + `POST /webhook/nura-whatsapp` (Meta) |
+| `EPxYROEkRw84XZIz` | NURA 03 - WhatsApp Connector | **Unpublished 18 Nov (owner paused WhatsApp)** | `GET` + `POST /webhook/nura-whatsapp` (Meta) |
 
 Production URLs: `https://nurabeautykenya.app.n8n.cloud/webhook/<path>`.
 
@@ -88,7 +90,7 @@ n8n Cloud counts every webhook call as an execution, including WhatsApp delivere
 ## 9. Follow-ups (NURA 04 + Supabase) - added 18 Nov 2026
 - **Supabase** (`automation/supabase-followups.sql`, applied 18 Nov, safe to re-run): table `nura_followups`; trigger on `nura_leads` insert detects promises ("I'll order Friday", "nitakuja kesho", "get back to you", "nikipata pesa"...) with `nura_followup_is_promise()` and sets the due date with `nura_followup_due()` (tomorrow/kesho +1, N days, weekday names, next week +7, end month/salary -> 1st of next month, default +3). Product = the conversation's last recommended item. Owner number 254703201241 is never followed up.
 - Cancels automatically when the customer writes again 6+ hours later or after a follow-up was sent, orders, pays (M-Pesa confirmation text, Paystack success, `paid` event), or makes a newer promise. Max 2 follow-ups per promise (second one 3 days after the first). Opted-out and human-takeover chats are skipped.
-- **n8n `NURA 04 - Follow-ups`** (ID `Tgp7uLqJxHcYZDQt`, export `automation/n8n-NURA-04-Follow-ups.json`, timezone Africa/Nairobi): 10:00 `nura_due_followups()` -> Build Message (normal text if the customer wrote in the last 23h, else template `nura_followup`) -> Send (NURA WhatsApp) -> `nura_mark_followup()`. 10:05 `nura_followup_digest()` -> owner list to 0703 201 241 (text if the owner wrote in the last 23h, else template `nura_owner_digest`), listing who was followed up and who needs a person (failed sends + open escalations from the last 7 days). 2 executions a day.
+- **n8n `NURA 04 - Follow-ups`** (ID `Tgp7uLqJxHcYZDQt`, **Unpublished since 18 Nov - paused with WhatsApp**, export `automation/n8n-NURA-04-Follow-ups.json`, timezone Africa/Nairobi): 10:00 `nura_due_followups()` -> Build Message (normal text if the customer wrote in the last 23h, else template `nura_followup`) -> Send (NURA WhatsApp) -> `nura_mark_followup()`. 10:05 `nura_followup_digest()` -> owner list to 0703 201 241 (text if the owner wrote in the last 23h, else template `nura_owner_digest`), listing who was followed up and who needs a person (failed sends + open escalations from the last 7 days). 2 executions a day.
 - Templates (WhatsApp account 2242482590005279): `nura_followup` Marketing - "Hi {{1}}, this is NURA Beauty. You asked us about the {{2}}, available at {{3}}. Would you like us to reserve it for you? Reply here and we will help you order." footer "Reply STOP to opt out"; `nura_owner_digest` Utility. Submitted 18 Nov, in review.
 - Tested 18 Nov: trigger created a follow-up due Fri 20 Nov from "I will order on Friday"; manual run sent the follow-up and the owner list to 0703 201 241 (HTTP 200).
 - Importing on a new n8n account: Import from URL `https://raw.githubusercontent.com/moselanto/nurabeauty.co.ke/main/automation/n8n-NURA-04-Follow-ups.json`, then select NURA Supabase / NURA WhatsApp on the nodes and publish.

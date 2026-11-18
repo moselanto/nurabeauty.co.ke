@@ -1,6 +1,14 @@
 # HANDOVER.md - current state for the next developer / AI agent
 
-Last updated: 16 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+Last updated: 18 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+
+## UPDATE 18 Nov 2026 05:15 EAT (Ray) - plugin 1.118.1: website chat points at the new n8n workspace
+
+- **n8n workspace is now https://nurabeautykenya.app.n8n.cloud** (owner mosemqute@gmail.com, trial plan - needs a paid plan before the trial ends). The old default `https://nurabeauty.app.n8n.cloud/webhook/nura-chat` is dead.
+- **1.118.1:** `includes/class-ai-stylist.php` default chat URL (both places) -> `https://nurabeautykenya.app.n8n.cloud/webhook/nura-chat`. `NURAX_N8N_CHAT_URL` / filter `nurax_n8n_chat_url` still override it.
+- **n8n setup:** live chat workflow is "NURA 01 Chat - configurable AI (Groq)" `Ub28zvwWE0Izydkh`; the OpenAI copy `PvGNHCWDDGvqs8JL` stays off (same `/webhook/nura-chat` path). Paystack `Gp7M1Lg8MDnAFuT3` (`/webhook/nura-wc-order`), WhatsApp `EPxYROEkRw84XZIz` (`/webhook/nura-whatsapp`, phone number ID 2242482590005279). Credentials in n8n: NURA Supabase, NURA AI Provider (Groq), NURA WooCommerce, NURA Paystack, NURA WhatsApp. Business facts in the chat prompt corrected to the website (Stanbank House 2nd Floor Room 20; Mon-Sat 9:00am-7:30pm; installation from KES 1,000; Till 1679269; returns 48 hours).
+- **WordPress WhatsApp bot (NURA WhatsApp page) stays OFF** - Meta's callback goes to n8n, not WordPress, so "Reply to incoming WhatsApp messages" must stay unticked to avoid double replies.
+- Version 1.118.0 -> 1.118.1. `php -l` clean.
 
 ## UPDATE 18 Nov 2026 02:40 EAT (Ray) - Google/Bing audit; theme 1.161.27
 

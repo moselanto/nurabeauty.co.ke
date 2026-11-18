@@ -170,7 +170,7 @@ class NURAX_AI_Stylist {
 	 * @return array|null Widget response, or null to fall back to the legacy paths.
 	 */
 	private function call_n8n( $text, WP_REST_Request $req ) {
-		$url = defined( 'NURAX_N8N_CHAT_URL' ) ? NURAX_N8N_CHAT_URL : 'https://nurabeauty.app.n8n.cloud/webhook/nura-chat';
+		$url = defined( 'NURAX_N8N_CHAT_URL' ) ? NURAX_N8N_CHAT_URL : 'https://nurabeautykenya.app.n8n.cloud/webhook/nura-chat';
 		$url = (string) apply_filters( 'nurax_n8n_chat_url', $url );
 		if ( '' === $url ) {
 			return null;
@@ -426,7 +426,7 @@ class NURAX_AI_Stylist {
 
 		// Log to the NURA AI system so it lands in nura_consultations (best effort, never blocks).
 		$saved = false;
-		$url   = defined( 'NURAX_N8N_CHAT_URL' ) ? NURAX_N8N_CHAT_URL : 'https://nurabeauty.app.n8n.cloud/webhook/nura-chat';
+		$url   = defined( 'NURAX_N8N_CHAT_URL' ) ? NURAX_N8N_CHAT_URL : 'https://nurabeautykenya.app.n8n.cloud/webhook/nura-chat';
 		$url   = (string) apply_filters( 'nurax_n8n_chat_url', $url );
 		$sid   = substr( preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $req->get_param( 'session_id' ) ), 0, 64 );
 		if ( '' !== $url ) {

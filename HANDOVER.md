@@ -2,6 +2,16 @@
 
 Last updated: 18 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 18 Nov 2026 06:40 EAT (Ray) - automation live; theme 1.161.28 phone chat button; AUTOMATION.md
+
+- **New: [AUTOMATION.md](AUTOMATION.md)** - full record of the n8n / Supabase / Meta / WooCommerce / Paystack automation: workflows, credentials, how to change things, testing, and how to move to another n8n account.
+- **Live now:** n8n NURA 01 Chat (Groq), NURA 02 Paystack, NURA 03 WhatsApp are published. Meta callback -> `https://nurabeautykenya.app.n8n.cloud/webhook/nura-whatsapp` (verify token `nura-wa-5db544dce3bd8079`, verified). WhatsApp phone number ID 1190576524148420 (+254 714 994898). WooCommerce webhooks "NURA n8n - Order created/updated" -> `/webhook/nura-wc-order`, signed; n8n "Verify WC Signature" drops unsigned/fake calls (tested).
+- **Website AI:** enabled, provider Groq (Gemini model retired). Website chat answered by n8n (`engine: nura-ai`), tested.
+- **WhatsApp username users** (no phone, only `from_user_id`) are now saved as `wa:u.<user_id>` instead of `wa:`.
+- **Open:** Paystack verify still returns 401 `secret_key_invalid` - NURA Paystack header value must be exactly `Bearer sk_live_...`. Escalation #17 (order #2272 unverified) stays open until it verifies. n8n trial (1,000 executions) is too small for live WhatsApp - status events count as runs (AUTOMATION.md section 6).
+- **1.161.28:** phones always show the "Ask NURA Stylist" chat button (undoes 1.110.3 hide on home/shop/category and the 1.110.1 "nura-fab-over" hide; still slides away while scrolling).
+- Version 1.161.27 -> 1.161.28. `php -l` clean.
+
 ## UPDATE 18 Nov 2026 05:15 EAT (Ray) - plugin 1.118.1: website chat points at the new n8n workspace
 
 - **n8n workspace is now https://nurabeautykenya.app.n8n.cloud** (owner mosemqute@gmail.com, trial plan - needs a paid plan before the trial ends). The old default `https://nurabeauty.app.n8n.cloud/webhook/nura-chat` is dead.

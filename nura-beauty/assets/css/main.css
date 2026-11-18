@@ -2077,3 +2077,11 @@ html body ul.products li.product[hidden],html body .woocommerce ul.products li.p
 .nura-hero__cta .nura-btn{flex:1 1 0;min-height:44px;padding:.75rem .5rem;font-size:.72rem;justify-content:center;text-align:center}
 .nura-slider-dots{bottom:10px}
 }
+
+/* 1.161.28 Phones: the "Ask NURA Stylist" chat button is always available (owner: "on mobile there is no chatbox").
+   Undoes 1.110.3 (hidden on home/shop/category pages) and the 1.110.1/1.110.2 "nura-fab-over" hide;
+   it still slides away only while the page is scrolling and comes back when scrolling stops. */
+@media(max-width:860px){
+  html body.home div.nurax-stylist:not(.is-open),html body.woocommerce-shop div.nurax-stylist:not(.is-open),html body.tax-product_cat div.nurax-stylist:not(.is-open),html body.tax-product_tag div.nurax-stylist:not(.is-open),html body.post-type-archive-product div.nurax-stylist:not(.is-open){display:block !important}
+  html body.nura-fab-over:not(.nura-scrolling) div.nurax-stylist:not(.is-open) .nurax-stylist__fab.nurax-stylist__fab{transform:none !important;opacity:1 !important;visibility:visible !important;pointer-events:auto !important}
+}

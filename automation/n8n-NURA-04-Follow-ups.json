@@ -1,0 +1,312 @@
+{
+  "name": "NURA 04 - Follow-ups",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      },
+      "name": "Every day 10:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM nura_due_followups(50);",
+        "options": {}
+      },
+      "name": "Get Due Follow-ups",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        220,
+        0
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "NURA Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// NURA 04 - build one WhatsApp message per due follow-up.\n// in_window = customer wrote in the last 23h -> normal text; otherwise approved template \"nura_followup\".\nconst out = [];\nfor (const it of $input.all()) {\n  const r = it.json || {};\n  if (!r.id) continue;\n  const phone = String(r.phone || '').replace(/\\D/g, '');\n  const uid = (!phone && String(r.session_id || '').startsWith('wa:u.')) ? String(r.session_id).slice(5) : '';\n  if (!phone && !uid) continue;\n  const first = (String(r.name || '').trim().split(/\\s+/)[0] || '').replace(/[^\\p{L}\\p{N}'-]/gu, '') || 'there';\n  const product = String(r.product_name || '').trim();\n  const price = r.product_price ? Number(String(r.product_price).replace(/[^\\d.]/g, '')) : 0;\n  const priceTxt = price ? 'KSh ' + Math.round(price).toLocaleString('en-US') : '';\n  const to = phone ? { to: phone } : { recipient: uid };\n  let payload, mode;\n  if (r.in_window) {\n    const lines = ['Hi ' + first + ', this is NURA Beauty checking in.'];\n    if (product) lines.push('You asked about the ' + product + (priceTxt ? ' (' + priceTxt + ')' : '') + '. It is still available' + (r.product_url ? ': ' + r.product_url : '.'));\n    lines.push('Would you like us to reserve it for you? Reply here and we will help you order. You can pay by M-Pesa Till 1679269 or at checkout on our website.');\n    payload = { messaging_product: 'whatsapp', recipient_type: 'individual', ...to, type: 'text', text: { preview_url: true, body: lines.join('\\n') } };\n    mode = 'text';\n  } else {\n    payload = { messaging_product: 'whatsapp', recipient_type: 'individual', ...to, type: 'template',\n      template: { name: 'nura_followup', language: { code: 'en' }, components: [{ type: 'body', parameters: [\n        { type: 'text', text: first },\n        { type: 'text', text: product || 'wig you were looking at' },\n        { type: 'text', text: priceTxt || 'the price shown on our website' },\n      ] }] } };\n    mode = 'template';\n  }\n  out.push({ json: { id: r.id, mode, body: JSON.stringify(payload) } });\n}\nreturn out;"
+      },
+      "name": "Build Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1190576524148420/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "name": "Send Follow-up",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "NURA WhatsApp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pair each WhatsApp API response with its follow-up and build the mark payload.\nconst src = $('Build Message').all();\nreturn $input.all().map((it, i) => {\n  const r = it.json || {};\n  const s = (src[i] || src[0]).json || {};\n  const code = Number(r.statusCode || 0);\n  const b = (r.body && typeof r.body === 'object') ? r.body : {};\n  const wamid = (b.messages && b.messages[0] && b.messages[0].id) || '';\n  const ok = code >= 200 && code < 300 && !!wamid;\n  const err = b.error ? ((b.error.code || '') + ' ' + (b.error.message || '')).trim() : (ok ? '' : 'HTTP ' + code);\n  const p = { id: s.id, ok, wamid, result: ok ? 'sent ' + s.mode : 'failed ' + s.mode + ': ' + err };\n  return { json: { p_json: JSON.stringify(p).replace(/\\$/g, '\\\\u0024') } };\n});"
+      },
+      "name": "Record Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT nura_mark_followup($nq${{ $json.p_json }}$nq$::jsonb) AS marked;",
+        "options": {}
+      },
+      "name": "Mark Follow-up",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1100,
+        0
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "NURA Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "5 10 * * *"
+            }
+          ]
+        }
+      },
+      "name": "Every day 10:05",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM nura_followup_digest();",
+        "options": {}
+      },
+      "name": "Get Digest",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        220,
+        260
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "NURA Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Owner's morning list to 0703 201 241. Text if the owner wrote to the business in the last 23h, else template \"nura_owner_digest\".\nconst OWNER = '254703201241';\nconst d = $input.first().json || {};\nif (Number(d.sent_count || 0) === 0 && Number(d.needs_count || 0) === 0) return [];\nlet payload;\nif (d.owner_in_window) {\n  const body = ('NURA follow-ups - ' + d.today + '\\nSent automatically: ' + d.sent_count + '\\nNeed you: ' + d.needs_count + '\\n\\n' + (d.lines || '')).slice(0, 4000);\n  payload = { messaging_product: 'whatsapp', recipient_type: 'individual', to: OWNER, type: 'text', text: { body } };\n} else {\n  const flat = (String(d.lines || '').replace(/\\s*\\n\\s*/g, '; ').replace(/\\s{2,}/g, ' ').slice(0, 700)) || 'none';\n  payload = { messaging_product: 'whatsapp', recipient_type: 'individual', to: OWNER, type: 'template',\n    template: { name: 'nura_owner_digest', language: { code: 'en' }, components: [{ type: 'body', parameters: [\n      { type: 'text', text: String(d.today) }, { type: 'text', text: String(d.sent_count) },\n      { type: 'text', text: String(d.needs_count) }, { type: 'text', text: flat },\n    ] }] } };\n}\nreturn [{ json: { body: JSON.stringify(payload) } }];"
+      },
+      "name": "Owner Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1190576524148420/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "name": "Send Owner List",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        260
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "NURA WhatsApp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## NURA 04 - Follow-ups\nSupabase decides who is due (automation/supabase-followups.sql in the repo). 10:00 EAT: send due follow-ups (text inside 24h window, else template nura_followup). 10:05: owner list to 0703 201 241 (text inside window, else template nura_owner_digest). Failed sends become 'needs_owner' and appear in the owner list. Max 2 follow-ups per promise. See AUTOMATION.md.",
+        "height": 260,
+        "width": 520
+      },
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        880,
+        220
+      ]
+    }
+  ],
+  "connections": {
+    "Every day 10:00": {
+      "main": [
+        [
+          {
+            "node": "Get Due Follow-ups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Due Follow-ups": {
+      "main": [
+        [
+          {
+            "node": "Build Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Message": {
+      "main": [
+        [
+          {
+            "node": "Send Follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Follow-up": {
+      "main": [
+        [
+          {
+            "node": "Record Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Result": {
+      "main": [
+        [
+          {
+            "node": "Mark Follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every day 10:05": {
+      "main": [
+        [
+          {
+            "node": "Get Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Digest": {
+      "main": [
+        [
+          {
+            "node": "Owner Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Owner Message": {
+      "main": [
+        [
+          {
+            "node": "Send Owner List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Nairobi"
+  },
+  "pinData": {}
+}

@@ -2085,3 +2085,8 @@ html body ul.products li.product[hidden],html body .woocommerce ul.products li.p
   html body.home div.nurax-stylist:not(.is-open),html body.woocommerce-shop div.nurax-stylist:not(.is-open),html body.tax-product_cat div.nurax-stylist:not(.is-open),html body.tax-product_tag div.nurax-stylist:not(.is-open),html body.post-type-archive-product div.nurax-stylist:not(.is-open){display:block !important}
   html body.nura-fab-over:not(.nura-scrolling) div.nurax-stylist:not(.is-open) .nurax-stylist__fab.nurax-stylist__fab{transform:none !important;opacity:1 !important;visibility:visible !important;pointer-events:auto !important}
 }
+
+/* 1.161.30 Mobile: blog featured image fits the screen; long breadcrumb titles wrap instead of being cut off. */
+.single .entry-content img,.single-post .entry-content img,.entry-content img.wp-post-image{max-width:100% !important;height:auto !important}
+.single .entry-content img.wp-post-image{width:100% !important;display:block;margin:0 auto 1.25rem}
+@media(max-width:860px){.single nav li,.single [class*=bread] li,.single [class*=bread]{white-space:normal !important;overflow-wrap:anywhere;text-overflow:clip}}

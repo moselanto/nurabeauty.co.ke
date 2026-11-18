@@ -2,6 +2,13 @@
 
 Last updated: 18 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 19 Nov 2026 00:45 EAT (Ray) - theme 1.161.30: mobile audit, blog images fixed
+
+- 1.161.29 (mobile Ask NURA chat) uploaded and verified: chat button shows on home, shop and category pages on phones.
+- Full mobile audit (headless Chrome, 390x844, all 128 sitemap URLs: 44 pages, 33 posts, 37 products, 14 categories): no HTTP errors, no page-wide sideways scroll.
+- **Problem found on all 32 blog posts** (owner's screenshots: how-to-buy-wigs-online-in-kenya-safely, human-hair-vs-fibre-wig-cost-per-wear): the featured image was 760 px wide on a 390 px phone, so it was cut off on the right and looked zoomed in; the long breadcrumb title was also cut off (white-space:nowrap). Fixed in `main.css` / `main.min.css` (image max-width 100%, height auto; breadcrumb wraps on mobile).
+- Checked and OK: product gallery slides (off-screen slides are the normal slider), hidden variation selects (replaced by swatches), category filter chips (scrollable row by design).
+
 ## UPDATE 18 Nov 2026 23:50 EAT (Ray) - theme 1.161.29: Ask NURA Stylist chat shows on mobile
 
 - Owner reported the "Ask NURA" stylist chat was not available on mobile. Cause: a rule in the parent theme CSS (`main.css`, `main.min.css`, `critical/home.css`, `critical/shop.css`) hid the whole stylist widget at <=860px on the home page, shop, product categories/tags and product archive (`display:none !important`). Removed in all four files, so the chat button now shows on every page on phones (it still slides away while scrolling and when it would cover another button, and stays hidden on cart/checkout/form pages as before).

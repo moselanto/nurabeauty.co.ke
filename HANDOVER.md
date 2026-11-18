@@ -2,6 +2,12 @@
 
 Last updated: 18 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 18 Nov 2026 23:50 EAT (Ray) - theme 1.161.29: Ask NURA Stylist chat shows on mobile
+
+- Owner reported the "Ask NURA" stylist chat was not available on mobile. Cause: a rule in the parent theme CSS (`main.css`, `main.min.css`, `critical/home.css`, `critical/shop.css`) hid the whole stylist widget at <=860px on the home page, shop, product categories/tags and product archive (`display:none !important`). Removed in all four files, so the chat button now shows on every page on phones (it still slides away while scrolling and when it would cover another button, and stays hidden on cart/checkout/form pages as before).
+- Website chat QA 18 Nov 23:30 (Groq Developer plan): correct on location/hours/map, Till 1679269, pay on delivery CBD only, bob/frontal prices, photos -> catalogue. Wrong or weak: says "no installments" (Lipa Mdogo Mdogo exists: 50% deposit, balance within 1 or 2 weeks); did not answer "cheapest wig" (Semi Human Closure KES 1,800); Pixie Water Curl (KES 3,499) found in one answer, "not found" in another; installation "from KES 1,000" and delivery fees (300/350/550, "1-3 business days") not confirmed against store settings.
+- Database errors are still happening on the NEW server: 6 of 14 chat requests at about 23:30 and the Store API page 2/3 returned "Error establishing a database connection". Report to the host.
+
 ## UPDATE 18 Nov 2026 17:10 EAT (Ray) - WhatsApp messaging PAUSED by owner; Groq upgraded; #2272 closed
 
 **WhatsApp is OFF (owner's decision, 18 Nov afternoon):** the bot was giving customers wrong/misleading information. In n8n, **NURA 03 - WhatsApp Connector** (`EPxYROEkRw84XZIz`) and **NURA 04 - Follow-ups** (`Tgp7uLqJxHcYZDQt`) are **Unpublished**: no automatic WhatsApp replies, no customer follow-ups and no 10:05 owner list. Nothing was deleted; nodes unchanged. Customers are answered manually from the WhatsApp Business app. Still published: NURA 01 Chat (website chat) and NURA 02 Paystack. Meta webhook settings unchanged.

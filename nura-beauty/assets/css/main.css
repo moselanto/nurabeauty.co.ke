@@ -2000,7 +2000,7 @@ html body ul.products li.product .woocommerce-loop-product__title.woocommerce-lo
 @media(max-width:860px){html body.nura-fab-over .nurax-stylist:not(.is-open) .nurax-stylist__fab,html body.nura-scrolling .nurax-stylist:not(.is-open) .nurax-stylist__fab{transform:translateX(70px) !important;opacity:0 !important;visibility:hidden !important;pointer-events:none !important}html body .nurax-stylist__fab{transition:transform .25s ease,opacity .25s ease,visibility 0s linear .25s !important}}
 
 /* 1.110.3 Phones: on pages full of product cards the floating chat button is hidden (the "Ask NURA Stylist" questions on these pages open the same chat). */
-@media(max-width:860px){html body.home .nurax-stylist:not(.is-open),html body.woocommerce-shop .nurax-stylist:not(.is-open),html body.tax-product_cat .nurax-stylist:not(.is-open),html body.tax-product_tag .nurax-stylist:not(.is-open),html body.post-type-archive-product .nurax-stylist:not(.is-open){display:none !important}}
+
 
 /* 1.110.4 Prices line up in every row: inside each card the price sits directly under the 2-line title (fixed height), then the optional instalment line, hair-type tags and colour dots. Optional lines can no longer push the price up or down. */
 html body ul.products li.product .woocommerce-LoopProduct-link .woocommerce-loop-product__title{order:1 !important}

@@ -47,7 +47,7 @@
   var TILL = String(C.till || '1679269');
   var PAY_TILL = C.payTill || 'M-Pesa Till (pay now)';
   var PAY_SHOP = C.payShop || 'Pay at the shop on collection';
-  var PAY_COD = C.payCod || 'Pay on delivery (Nairobi CBD)';
+  var PAY_COD = C.payCod || 'Pay on delivery (within 5 km of CBD)';
   var cbdWrap = modal.querySelector('[data-nwo-cbdwrap]');
   var codOpt = modal.querySelector('[data-nwo-cbdonly]');
   var stkBox = modal.querySelector('[data-nwo-stk]');

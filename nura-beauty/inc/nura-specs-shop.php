@@ -212,7 +212,7 @@ function nura_specs_care_shipping_tab() {
 	echo '<li>' . esc_html__( 'Same-day delivery in Nairobi on orders placed before 5:00pm; otherwise next day.', 'nura-beauty' ) . '</li>';
 	if ( $free > 0 ) {
 		/* translators: %s: free delivery minimum. */
-		echo '<li>' . esc_html( sprintf( __( 'Free Nairobi delivery on orders over %s.', 'nura-beauty' ), 'KSh ' . number_format( $free ) ) ) . '</li>';
+		echo '<li>' . esc_html( sprintf( __( 'Free delivery on orders over %s within 5 km of Nairobi CBD and on shuttle parcels.', 'nura-beauty' ), 'KSh ' . number_format( $free ) ) ) . '</li>';
 	}
 	echo '<li>' . esc_html__( 'Same-day dispatch countrywide; the shuttle or courier sets the arrival time.', 'nura-beauty' ) . '</li>';
 	echo '<li>' . esc_html__( 'Pay with M-Pesa or card at checkout, or by M-Pesa Till 1679269 when you order on WhatsApp. Pay on delivery within Nairobi CBD only; pay at the shop when you collect.', 'nura-beauty' ) . '</li>';

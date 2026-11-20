@@ -125,7 +125,7 @@ class NURAX_WA_Order {
 
 	const PAY_TILL = 'M-Pesa Till (pay now)';
 	const PAY_SHOP = 'Pay at the shop on collection';
-	const PAY_COD  = 'Pay on delivery (Nairobi CBD)'; // 1.94.0: owner - pay on delivery only within Nairobi CBD (cash or M-Pesa).
+	const PAY_COD  = 'Pay on delivery (within 5 km of CBD)'; // 1.94.0: owner - pay on delivery only within Nairobi CBD (cash or M-Pesa).
 
 	/** M-Pesa Buy Goods till number. Constant NURAX_MPESA_TILL or filter nurax_mpesa_till. */
 	public static function till() {
@@ -616,7 +616,7 @@ class NURAX_WA_Order {
 		$pay_notes = array(
 			self::PAY_TILL => sprintf( /* translators: %s: till number */ __( 'Buy Goods Till %s - we dispatch once payment is confirmed', 'nura-experience' ), $till ),
 			self::PAY_SHOP => __( 'Cash or M-Pesa at our Stanbank House studio (2nd Floor, Room 20) when you collect', 'nura-experience' ),
-			self::PAY_COD  => __( 'Cash or M-Pesa to our rider when your order arrives - Nairobi CBD only', 'nura-experience' ),
+			self::PAY_COD  => __( 'Cash or M-Pesa to our rider when your order arrives - only within 5 km of Nairobi CBD', 'nura-experience' ),
 		);
 		$stk_on = self::paystack_secret() !== '';
 		?>

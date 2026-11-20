@@ -141,7 +141,7 @@ if ( ! function_exists( 'nura_delivery_lines' ) ) {
 					$amt      = 'KSh ' . number_format( $free_min );
 					$lines[] = ( ! empty( $free_zone ) && false !== stripos( $free_zone, 'nairobi' ) )
 						/* translators: %s: amount. */
-						? sprintf( __( 'Free Nairobi delivery over %s', 'nura-beauty' ), $amt )
+						? sprintf( __( 'Free delivery over %s within 5 km of CBD and on shuttle parcels', 'nura-beauty' ), $amt )
 						/* translators: %s: amount. */
 						: sprintf( __( 'Free delivery over %s', 'nura-beauty' ), $amt );
 				} else {

@@ -208,7 +208,7 @@ class NURAX_Product_Page {
 		echo '<li>' . esc_html__( 'Same-day delivery in Nairobi on orders placed before 5:00pm; otherwise next day.', 'nura-experience' ) . '</li>';
 		if ( $free > 0 ) {
 			/* translators: %s: free delivery minimum, e.g. KSh 10,000 */
-			echo '<li>' . sprintf( esc_html__( 'Free delivery on orders over %s.', 'nura-experience' ), wp_strip_all_tags( wc_price( $free, array( 'decimals' => 0 ) ) ) ) . '</li>';
+			echo '<li>' . sprintf( esc_html__( 'Free delivery on orders over %s within 5 km of Nairobi CBD and on shuttle parcels.', 'nura-experience' ), wp_strip_all_tags( wc_price( $free, array( 'decimals' => 0 ) ) ) ) . '</li>';
 		}
 		echo '<li>' . esc_html__( 'Same-day dispatch countrywide; the shuttle or courier sets the arrival time.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'International shipping available on request.', 'nura-experience' ) . '</li>';

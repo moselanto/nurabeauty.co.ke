@@ -30,6 +30,7 @@ html body ul.products li.product .nwo-btn--card:hover .nwo-ico{color:var(--nwo-w
 html.nwo-lock,html.nwo-lock body{overflow:hidden!important}
 .nwo{--nwo-g:#1faa53;--nwo-gbg:#effaf3;--nwo-bd:#e3ddd3;--nwo-soft:#faf7f2;--nwo-txt:#1b1b1b;--nwo-mut:#6f675d;position:fixed;inset:0;z-index:100050;display:flex;align-items:center;justify-content:center;padding:24px;font-family:var(--font-body,"Montserrat",Arial,sans-serif);color:var(--nwo-txt);-webkit-font-smoothing:antialiased}
 .nwo[hidden]{display:none!important}
+.nwo-opt[hidden],.nwo [data-nwo-cbdonly][hidden],.nwo [data-nwo-shoponly][hidden],.nwo [data-nwo-cbdwrap][hidden]{display:none!important}
 .nwo *{box-sizing:border-box}
 .nwo__overlay{position:absolute;inset:0;background:rgba(14,14,14,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;transition:opacity .22s}
 .nwo__panel{position:relative;display:flex;flex-direction:column;width:100%;max-width:540px;max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px);overflow:hidden;background:#fff;border-radius:20px;box-shadow:0 40px 90px rgba(0,0,0,.38);opacity:0;transform:translateY(16px) scale(.985);transition:opacity .22s,transform .26s cubic-bezier(.22,.61,.36,1)}

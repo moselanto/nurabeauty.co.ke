@@ -2,6 +2,12 @@
 
 Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 20 Nov 2026 15:30 EAT (Ray) - plugin 1.122.1 / theme 1.161.33: clearer pay on delivery + free-delivery wording
+
+- WhatsApp pop-up: the pay-on-delivery choice was still visible (CSS `display` beat the `hidden` attribute) for Lavington/Ruaka; now hidden unless the typed area is within 5 km of the CBD. Renamed to "Pay on delivery (within 5 km of CBD)" (server value `PAY_COD` changed with it).
+- Product pages / shop info: "Free Nairobi delivery over KSh 10,000" now reads "Free delivery on orders over KSh 10,000 within 5 km of Nairobi CBD and on shuttle parcels" (`class-product-page.php`, `nura-specs-shop.php`, `nura-commerce.php`).
+- n8n NURA 01 Chat: Normalize Input delivery line rewritten with the rider/free/pay-on-delivery rules; AI Reply may now quote delivery fees from the rider rule.
+
 ## UPDATE 20 Nov 2026 15:00 EAT (Ray) - plugin 1.122.0: pay on delivery only within 5 km; WhatsApp pop-up uses the same rider fee
 
 - **Pay on delivery fix:** beyond-5-km rider labels no longer contain "CBD" (the old "from our CBD studio" wording made `nura_is_cbd_rate()` treat Lavington/Ruaka as CBD, so pay on delivery showed). New labels: within 5 km "Rider delivery to Westlands (3.1 km) - within 5 km of CBD, pay on delivery or online"; beyond "Rider delivery to Lavington (6.7 km from our studio) - pay before dispatch". When an area is recognised the duplicate zone "Nairobi CBD delivery" rate is removed (the rider rate covers it). Server check, block checkout toggle and Store API safety net all key off "CBD" in the chosen rate label, so pay on delivery = within 5 km or studio pickup only.

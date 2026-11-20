@@ -2,6 +2,11 @@
 
 Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 20 Nov 2026 21:30 EAT (Ray) - plugin 1.123.3 / theme 1.161.37: last "48-hour returns" badges
+
+- Product page promise line (`nura-growth.php`) now "Secure M-Pesa and card checkout. Returns only for a wrong or damaged item." (was "48-hour returns on unworn units").
+- Checkout trust strip (`nura-checkout.php`), content hub (`nura-content-hub.php`), WhatsApp order form trust list (`class-nura-wa-order.php`) and the facts text rewrite ('7-day returns') changed to wrong or damaged item only.
+
 ## UPDATE 20 Nov 2026 21:00 EAT (Ray) - plugin 1.123.2 / theme 1.161.36: returns ONLY for a wrong or damaged item
 
 - Owner rule: returns accepted only for a wrong item or a damaged item. Site wording = receipt wording ("...with your receipt"): facts `returns_text` (both copies + `nura_business_facts` filter at 99 so an older saved option cannot override), product page, schema FAQ, FAQ source, knowledge default, Ask NURA chat {returns}, wig-questions (exchange answer now "No..."), nura-wig-questions, specs-shop, Swahili FAQ (nura-services), SEO FAQ, llms/geo, city pages, r4, boost, PDP "Why order from NURA" row, desk/POS receipt footer default.

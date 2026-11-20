@@ -201,7 +201,7 @@ if ( ! function_exists( 'nura_facts' ) ) {
 			'within 7 days of delivery'                    => 'within 48 hours of delivery',
 			'unworn unit, within 7 days'                   => 'unworn unit, within 48 hours',
 			'wigs within 7 days'                           => 'wigs within 48 hours',
-			'7-day returns'                                => '48-hour returns',
+			'7-day returns'                                => 'returns only for a wrong or damaged item',
 			'Monday to Saturday, 8:00am to 8:00pm'         => 'Monday to Saturday, 9:00am to 7:30pm',
 			'Monday to Saturday, 8am to 8pm'               => 'Monday to Saturday, 9am to 7:30pm',
 			'Mon–Sat 8:00–20:00'                           => (string) nura_fact( 'hours_text' ),

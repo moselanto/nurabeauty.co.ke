@@ -777,7 +777,7 @@ class NURAX_WA_Order {
 						<ul class="nwo-trust">
 							<li><?php esc_html_e( 'Secure M-Pesa Till', 'nura-experience' ); ?></li>
 							<li><?php esc_html_e( 'Dispatched once payment is verified', 'nura-experience' ); ?></li>
-							<li><?php esc_html_e( '48-hour returns', 'nura-experience' ); ?></li>
+							<li><?php esc_html_e( 'Returns only for a wrong or damaged item', 'nura-experience' ); ?></li>
 						</ul>
 						</div>
 						<button type="button" class="nwo-more" data-nwo-more hidden><?php esc_html_e( 'More below', 'nura-experience' ); ?> <span aria-hidden="true">&#8595;</span></button>

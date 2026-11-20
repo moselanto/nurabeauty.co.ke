@@ -146,7 +146,7 @@ add_action( 'woocommerce_single_product_summary', function () {
 			echo '<p class="nura-promise__line nura-promise__line--stock"><span class="nura-promise__pulse" aria-hidden="true"></span>' . esc_html( sprintf( _n( 'Only %d left in stock', 'Only %d left in stock', $qty, 'nura-beauty' ), $qty ) ) . '</p>';
 		}
 	}
-	echo '<p class="nura-promise__line nura-promise__line--secure"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>' . esc_html__( 'Secure M-Pesa and card checkout. 48-hour returns on unworn units.', 'nura-beauty' ) . '</span></p>';
+	echo '<p class="nura-promise__line nura-promise__line--secure"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>' . esc_html__( 'Secure M-Pesa and card checkout. Returns only for a wrong or damaged item.', 'nura-beauty' ) . '</span></p>';
 	echo '</div>';
 }, 32 );
 

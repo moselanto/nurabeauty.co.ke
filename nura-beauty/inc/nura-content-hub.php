@@ -534,7 +534,7 @@ function nura_hub_price_faqs( $lo, $hi ) {
 		array( __( 'How much is a wig in Kenya?', 'nura-beauty' ), sprintf( __( 'At NURA, wigs cost from %1$s to %2$s. Semi Human wigs are the most affordable and Pure Human wigs cost the most.', 'nura-beauty' ), nura_hub_ksh( $lo ), nura_hub_ksh( $hi ) ) ),
 		array( __( 'What is the cheapest wig at NURA?', 'nura-beauty' ), __( 'Semi Human wigs, especially headband and closure styles, are our most affordable options. The list above is sorted from lowest price.', 'nura-beauty' ) ),
 		array( __( 'Can I pay for a wig in instalments?', 'nura-beauty' ), __( 'Yes. With Lipa Mdogo Mdogo you pay a 50% deposit today and the balance within 1 or 2 weeks; the wig is released once fully paid.', 'nura-beauty' ) ),
-		array( __( 'Does the price include delivery?', 'nura-beauty' ), __( 'Delivery is added at checkout: same day in Nairobi before 5pm (rider from KSh 300, free in Nairobi over KSh 10,000) and same-day dispatch countrywide by shuttle or courier.', 'nura-beauty' ) ),
+		array( __( 'Does the price include delivery?', 'nura-beauty' ), __( 'Delivery is added at checkout: same day in Nairobi before 5pm (rider: KSh 300 within 5 km of the CBD, Kilimani KSh 500, Karen KSh 800, other Nairobi areas KSh 300 plus KSh 50 per km beyond 5 km; free in Nairobi over KSh 10,000) and same-day dispatch countrywide by shuttle or courier.', 'nura-beauty' ) ),
 	);
 }
 

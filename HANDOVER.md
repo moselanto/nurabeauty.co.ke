@@ -2,6 +2,14 @@
 
 Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 20 Nov 2026 13:45 EAT (Ray) - theme 1.161.31 / plugin 1.120.1: Nairobi rider delivery fees + delivery terms (owner)
+
+- **Owner rule (20 Nov):** rider delivery is for Nairobi and nearby areas only (customers who want a rider). KSh 300 within 5 km of Nairobi CBD; **Kilimani KSh 500**; **Karen KSh 800**; other areas KSh 300 + KSh 50 per km beyond the first 5 km, measured from the CBD studio. Outside Nairobi unchanged (bus/shuttle parcel, Fargo/G4S courier).
+- Delivery terms (owner approved): same day before 5 PM Mon-Sat; exact fee confirmed on WhatsApp before dispatch and any balance above the checkout fee is told before the rider leaves; pay on delivery only in Nairobi CBD; Kenyan phone + physical location required (no P.O. Box for riders); recipient signs on receipt; WhatsApp +254 714 994 898.
+- Updated copy: checkout rider rate label (`nura-checkout-ux.php`), FAQ/answers (`nura-r4.php` {rider}, `nura-wig-questions.php`, `nura-content-hub.php`, `nura-geo.php` AI summary, `nura-pixie-396.php`), plugin knowledge `{rider}`, `data/wig-questions.php`, Desk catalogue text, and the Shipping & Delivery page template (`class-nura-pages.php`). The live Shipping & Delivery page (database content) was edited in wp-admin with the same section.
+- Checkout still charges the zone's flat KSh 300 for the Nairobi rider rate; the distance balance is confirmed on WhatsApp. A per-area/per-km checkout calculator is a possible next step.
+- Free Nairobi delivery over KSh 10,000 is still stated in some answers (not changed; owner to confirm).
+
 ## UPDATE 20 Nov 2026 13:10 EAT (Ray) - plugin 1.120.0: PDF receipt attached to the Completed order email
 
 - `NURAX_Receipt::attach_to_email()` on `woocommerce_email_attachments`: when WooCommerce sends the **Completed order** customer email (`customer_completed_order`), the branded PDF receipt (`NURA-Beauty-Receipt-<order>.pdf`) is generated and attached automatically, and a private order note records it. Temp copy is written to `uploads/nura-receipts/tmp-<random>/` and deleted at the end of the request.

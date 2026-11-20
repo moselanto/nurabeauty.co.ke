@@ -76,9 +76,33 @@ HTML;
 		$delivery = <<<HTML
 <h2>Shipping &amp; Delivery</h2>
 <p>We deliver across all 47 counties of Kenya. Every NURA unit is quality-checked, packed discreetly and handed to a trusted rider or courier. All prices and delivery fees are in Kenyan Shillings (KES).</p>
+<h3>Nairobi rider delivery (Nairobi and nearby areas only)</h3>
+<p>Rider delivery is for customers in Nairobi and the surrounding areas who want a rider. Outside Nairobi, we send by bus/shuttle parcel or courier (Fargo / G4S) as described below.</p>
+<h4>Rider fees</h4>
+<ul>
+<li>Nairobi CBD and anywhere within 5 km of the CBD: <strong>KSh 300</strong></li>
+<li>Kilimani: <strong>KSh 500</strong></li>
+<li>Karen: <strong>KSh 800</strong></li>
+<li>All other areas: <strong>KSh 300 plus KSh 50 for every km beyond the first 5 km</strong>, measured from our studio in Nairobi CBD to your delivery location</li>
+</ul>
+<h4>Examples</h4>
+<ul>
+<li>8 km = KSh 300 + 3 x 50 = KSh 450</li>
+<li>10 km = KSh 550</li>
+<li>15 km = KSh 800</li>
+</ul>
+<h3>Delivery terms</h3>
+<ul>
+<li>Same-day delivery is for orders confirmed and paid before 5 PM, Monday to Saturday. Later orders go out the next working day. Orders on Sundays and public holidays also go out the next working day.</li>
+<li>We confirm the exact rider fee for your location on WhatsApp before dispatch. If it is more than the fee charged at checkout, we tell you the balance before the rider leaves.</li>
+<li>Pay on delivery (cash or M-Pesa) is available only within Nairobi CBD. All other rider deliveries are paid before dispatch by M-Pesa or card.</li>
+<li>Give us a Kenyan phone number the rider can call and a specific physical location: area or estate, road or street, building or house, and a nearby landmark. A P.O. Box is a postal address and cannot be delivered by rider.</li>
+<li>The person receiving the order signs to confirm they have received it.</li>
+<li>Questions about delivery: WhatsApp +254 714 994 898.</li>
+</ul>
 <h3>Delivery options and times</h3>
 <ul>
-<li><strong>Nairobi - rider delivery:</strong> same day for orders confirmed before 5:00pm (Monday to Saturday), otherwise the next working day. Fees start from KSh 300 depending on your area.</li>
+<li><strong>Nairobi - rider delivery:</strong> same day for orders confirmed before 5:00pm (Monday to Saturday), otherwise the next working day. Rider delivery is for Nairobi and nearby areas only. Fees: <strong>KSh 300</strong> within 5 km of Nairobi CBD; <strong>Kilimani KSh 500</strong>; <strong>Karen KSh 800</strong>; other areas <strong>KSh 300 plus KSh 50 for every km beyond 5 km</strong> from the CBD (for example, 10 km away = KSh 300 + 5 x 50 = KSh 550). We confirm the exact fee before dispatch.</li>
 <li><strong>Outside Nairobi - bus &amp; shuttle parcel:</strong> dispatched the same day you pay to your town's stage or office; the shuttle sets the arrival time (for example Mombasa, Kisumu, Nakuru, Eldoret, Nyeri, Embu). You collect with your ID and the parcel code we send you. The fee is the shuttle or bus company's sending charge from its Nairobi CBD office; if your shuttle or bus leaves from outside the CBD (for example Eastleigh), a rider fee to take the parcel there is added to the sending cost.</li>
 <li><strong>Outside Nairobi - courier (Fargo / G4S):</strong> dispatched the same day you pay to the courier branch nearest you (the courier sets the arrival time), or to your door where the courier offers it. The fee depends on your location and the courier you choose (G4S, Wells Fargo or another available courier); we confirm it before you pay.</li>
 <li><strong>Free pick-up:</strong> collect from our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD, Monday to Saturday.</li>

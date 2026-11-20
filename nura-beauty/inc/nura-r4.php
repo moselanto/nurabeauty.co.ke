@@ -34,7 +34,7 @@ function nura_r4_fill( $t ) {
 		'{hours}'     => $f( 'hours_long', 'Monday to Saturday' ),
 		'{cutoff}'    => $f( 'cutoff', '5 PM' ),
 		'{till}'      => $f( 'till', '1679269' ),
-		'{rider}'     => 'KSh 300',
+		'{rider}'     => 'KSh 300 within 5 km of Nairobi CBD (Kilimani KSh 500, Karen KSh 800, other Nairobi areas KSh 300 plus KSh 50 per km beyond 5 km)',
 		'{human_min}' => 'our lowest human hair price',
 		'{human_max}' => '',
 		'{fibre_min}' => 'our lowest price',
@@ -50,14 +50,14 @@ function nura_r4_where_questions() {
 	return array(
 		array( 'Where can I buy human hair wigs in Nairobi?', 'At NURA Beauty, {address}. Our Pure Human wigs cost {human_min} to {human_max}, every unit is labelled with its exact hair type, and you can see and try it in the studio ({hours}) or order online with same-day Nairobi delivery before {cutoff}.', array( 'hair' => 'human' ) ),
 		array( 'Where is the best place to buy wigs in Nairobi CBD?', 'Choose a shop where you can see the wig before paying, where hair type is labelled honestly and where installation is available. NURA Beauty is a wig studio at {address}: you can try units on, compare human hair, Semi Human and fibre side by side, and book installation the same day if a slot is free.', array() ),
-		array( 'Is there a wig shop near me in Nairobi?', 'NURA Beauty is in Nairobi CBD at {address}, open {hours}. If you cannot come in, we deliver anywhere in Nairobi the same day for orders confirmed before {cutoff} (rider from {rider}), and countrywide by bus or courier.', array() ),
+		array( 'Is there a wig shop near me in Nairobi?', 'NURA Beauty is in Nairobi CBD at {address}, open {hours}. If you cannot come in, we deliver anywhere in Nairobi the same day for orders confirmed before {cutoff} (rider: {rider}), and countrywide by bus or courier.', array() ),
 		array( 'Where can I buy original human hair wigs in Kenya?', 'Buy from a seller that labels every unit with its real hair type and lets you inspect it. At NURA, only units labelled Pure Human are human hair; blends and fibre are named as such. Human hair can be washed, heat-styled and dyed; ask us to show you the hair in the studio or on a WhatsApp video before you pay.', array( 'hair' => 'human' ) ),
 		array( 'How do I avoid fake human hair wigs in Nairobi?', 'Ask for the exact hair type in writing, check that it takes heat (human hair does not melt or turn wiry), ask for a live video, and buy from a shop with a physical address and a returns policy. NURA lists the hair type on every product and accepts returns of unworn, unaltered units: {returns}', array( 'hair' => 'human' ) ),
 		array( 'Which shop sells human hair wigs with installation in Nairobi?', 'NURA Beauty sells human hair wigs and installs them at the studio, {address}. Installation starts from KSh 1,000 and we also install wigs bought elsewhere. Book a morning slot online or on WhatsApp.', array( 'hair' => 'human' ) ),
 		array( 'Can I buy a human hair wig online in Kenya and pay with M-Pesa?', 'Yes. Order on nurabeauty.co.ke and pay by M-Pesa or card at checkout, or order on WhatsApp and pay to Buy Goods Till {till}. Nairobi delivery is same day before {cutoff}; other towns: dispatched the same day you pay by shuttle or courier, which sets the arrival time.', array( 'hair' => 'human' ) ),
 		array( 'Where can I buy affordable wigs in Nairobi?', 'NURA Semi Human wigs start at {blend_min} and Pure Human wigs at {human_min}. Shop by budget on the website or tell NURA Stylist your budget and we show you the three best options in stock.', array( 'sort' => 'cheap' ) ),
 		array( 'Do you have a physical wig shop in Nairobi?', 'Yes - NURA Beauty studio, {address}. Opening hours: {hours}. You can see units, try them on, book a fitting or installation, and collect online orders.', array() ),
-		array( 'Can I buy a wig in Nairobi and have it delivered the same day?', 'Yes. Orders confirmed and paid before {cutoff}, Monday to Saturday, are delivered in Nairobi the same day by our rider (from {rider}); later orders go out the next working day.', array() ),
+		array( 'Can I buy a wig in Nairobi and have it delivered the same day?', 'Yes. Orders confirmed and paid before {cutoff}, Monday to Saturday, are delivered in Nairobi the same day by our rider ({rider}); later orders go out the next working day.', array() ),
 	);
 }
 
@@ -151,7 +151,7 @@ function nura_r4_pages() {
 				'What a good human hair wig shop gives you' => '<ul><li><strong>Honest labels:</strong> the exact hair type on every unit - Pure Human, Semi Human or luxury fibre.</li><li><strong>See it first:</strong> try units in the studio, or ask for a live WhatsApp video before you pay.</li><li><strong>Real prices:</strong> shown on every product, with no "DM for price".</li><li><strong>Installation and aftercare:</strong> fitting, styling and revamp in the same place.</li><li><strong>A returns policy:</strong> {returns}</li></ul>',
 				'Human hair wig prices at NURA' => '<p>Pure Human wigs: {human_min} to {human_max}, rising with length and lace. Semi Human wigs start at {blend_min}. Lipa Mdogo Mdogo (pay in instalments) is available on wigs from KSh 7,000. See the full ' . $a( '/wig-prices-kenya/', 'wig price list' ) . '.</p>',
 				'How to check it is real human hair' => '<ul><li>It takes heat: human hair can be flat-ironed and curled without melting.</li><li>It moves and feels like hair, not plastic, and is not unnaturally shiny.</li><li>It can be washed, conditioned and dyed.</li><li>The seller states the hair type in writing on the product or receipt.</li></ul><p>More in our guide ' . $a( '/how-to-buy-wigs-online-in-kenya-safely/', 'how to buy wigs online in Kenya safely' ) . '.</p>',
-				'Buy in the studio or online' => '<p><strong>Studio:</strong> {address}, {hours}. ' . ( $dir ? '<a href="' . esc_url( $dir ) . '" target="_blank" rel="noopener">Get directions</a>. ' : '' ) . 'See ' . $a( '/wig-shop-nairobi-cbd/', 'how to find us' ) . '.</p><p><strong>Online:</strong> pay by M-Pesa or card at checkout, or order on WhatsApp and pay to Till {till}. Nairobi same day before {cutoff} (rider from {rider}); countrywide by bus/shuttle parcel or courier.</p>',
+				'Buy in the studio or online' => '<p><strong>Studio:</strong> {address}, {hours}. ' . ( $dir ? '<a href="' . esc_url( $dir ) . '" target="_blank" rel="noopener">Get directions</a>. ' : '' ) . 'See ' . $a( '/wig-shop-nairobi-cbd/', 'how to find us' ) . '.</p><p><strong>Online:</strong> pay by M-Pesa or card at checkout, or order on WhatsApp and pay to Till {till}. Nairobi same day before {cutoff} (rider: {rider}); countrywide by bus/shuttle parcel or courier.</p>',
 			),
 			array(
 				array( 'Where can I buy human hair wigs in Nairobi?', 'At NURA Beauty, {address}, or online at nurabeauty.co.ke with same-day Nairobi delivery before {cutoff}.' ),
@@ -188,15 +188,15 @@ function nura_r4_pages() {
 			'Order before 5 PM and get your wig delivered in Nairobi the same day by NURA rider, from KSh 300. Pay by M-Pesa or card. Same-day dispatch countrywide by shuttle or courier.',
 			'same day wig delivery nairobi',
 			'en',
-			'Yes - order and pay before {cutoff}, Monday to Saturday, and our rider delivers your wig in Nairobi the same day, from {rider} depending on your area. Orders after {cutoff} go out the next working day.',
+			'Yes - order and pay before {cutoff}, Monday to Saturday, and our rider delivers your wig in Nairobi the same day. Rider fee: {rider}. Orders after {cutoff} go out the next working day.',
 			array(
 				'How same-day delivery works' => '<ol><li>Choose your wig and checkout, or order on WhatsApp.</li><li>Pay by M-Pesa or card (or to Till {till} on WhatsApp).</li><li>We confirm and pack your wig, discreetly and quality-checked.</li><li>Our rider calls you on the way and delivers to your door or office.</li></ol>',
-				'Delivery fees' => '<ul><li><strong>Nairobi rider:</strong> from {rider}, same day before {cutoff}.</li><li><strong>Countrywide bus / shuttle parcel:</strong> KSh 350, usually dispatched the same day to your town\'s stage.</li><li><strong>Courier (Fargo / G4S):</strong> KSh 550, dispatched the same day you pay; the courier sets the arrival time.</li><li><strong>Studio pick-up:</strong> free at {address}.</li></ul><p>The exact fee for your location shows at checkout.</p>',
+				'Delivery fees' => '<ul><li><strong>Nairobi rider (Nairobi and nearby only):</strong> {rider}; same day before {cutoff}. Example: 10 km from the CBD = KSh 300 + 5 x 50 = KSh 550.</li><li><strong>Countrywide bus / shuttle parcel:</strong> KSh 350, usually dispatched the same day to your town\'s stage.</li><li><strong>Courier (Fargo / G4S):</strong> KSh 550, dispatched the same day you pay; the courier sets the arrival time.</li><li><strong>Studio pick-up:</strong> free at {address}.</li></ul><p>The exact fee for your location shows at checkout.</p>',
 				'Outside Nairobi' => '<p>We deliver to all 47 counties. See ' . $a( '/wigs-mombasa/', 'Mombasa' ) . ', ' . $a( '/wigs-kisumu/', 'Kisumu' ) . ', ' . $a( '/wigs-nakuru/', 'Nakuru' ) . ' and ' . $a( '/wigs-eldoret/', 'Eldoret' ) . ', or the full ' . $a( '/shipping-delivery/', 'shipping and delivery' ) . ' page.</p>',
 			),
 			array(
 				array( 'Do you deliver wigs the same day in Nairobi?', 'Yes, for orders confirmed and paid before {cutoff}, Monday to Saturday.' ),
-				array( 'How much is wig delivery in Nairobi?', 'From {rider} by rider, depending on your area; the exact fee shows at checkout.' ),
+				array( 'How much is wig delivery in Nairobi?', 'By rider: {rider}. For areas beyond 5 km we confirm the exact fee before dispatch.' ),
 				array( 'Do you offer cash on delivery?', 'No. Delivered orders are paid before dispatch by M-Pesa, card or bank transfer; you can pay at the shop when collecting.' ),
 			),
 			'ready to wear wig',

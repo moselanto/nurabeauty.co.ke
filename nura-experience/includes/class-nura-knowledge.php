@@ -119,7 +119,7 @@ final class NURAX_Knowledge {
 			'{till}'        => $f( 'till', '1679269' ),
 			'{returns}'     => $f( 'returns_text', 'Unworn, unaltered wigs can be returned within 48 hours of delivery.' ),
 			'{delivery_ke}' => $rate ? self::ksh( $rate ) : 'charged at the rate shown at checkout',
-			'{rider}'       => 'KSh 300',
+			'{rider}'       => 'KSh 300 within 5 km of Nairobi CBD (Kilimani KSh 500, Karen KSh 800, other Nairobi areas KSh 300 plus KSh 50 per km beyond 5 km)',
 			'{free_over}'   => 'KSh 10,000',
 		);
 		$t = (array) apply_filters( 'nurax_knowledge_tokens', $t );

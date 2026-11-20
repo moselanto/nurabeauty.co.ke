@@ -851,7 +851,7 @@ return array(
 				),
 				array(
 					'Can I get same-day delivery in Nairobi?',
-					'Yes, for orders placed before {cutoff}. Rider delivery starts from {rider}, and Nairobi delivery is free on orders over {free_over}.',
+					'Yes, for orders placed before {cutoff}. Rider delivery (Nairobi and nearby only) costs {rider}, and Nairobi delivery is free on orders over {free_over}.',
 					array(),
 				),
 				array(

@@ -72,7 +72,7 @@ function nura_px396_desc() {
 <ul>
 <li><strong>Price:</strong> KSh 3,499.</li>
 <li><strong>Pay:</strong> M-Pesa or card at checkout, or order on WhatsApp and pay to our M-Pesa Buy Goods Till 1679269. Lipa Mdogo Mdogo (pay in instalments) is available.</li>
-<li><strong>Nairobi:</strong> same-day rider delivery for orders before 5 PM (from KSh 300).</li>
+<li><strong>Nairobi:</strong> same-day rider delivery for orders before 5 PM (KSh 300 within 5 km of the CBD, plus KSh 50 per km beyond).</li>
 <li><strong>Countrywide:</strong> same-day dispatch by shuttle or courier.</li>
 <li><strong>See it first:</strong> NURA Beauty studio, Stanbank House, 2nd Floor, Room 20, Moi Avenue, Nairobi CBD.</li>
 </ul>

@@ -150,7 +150,7 @@ class NURAX_Desk_Catalogue {
 			. ( $p ? '<li>Price: <strong>' . esc_html( $p ) . '</strong>.</li>' : '' )
 			. '<li>Pay securely by M-Pesa or card at checkout, or order on WhatsApp and pay to our M-Pesa Buy Goods Till 1679269.</li>'
 			. ( $price && $price >= 7000 ? '<li>Lipa Mdogo Mdogo: reserve it with a 50% deposit and clear the balance within 2 weeks, no interest.</li>' : '' )
-			. '<li>Nairobi: same-day rider delivery for orders before 5 PM (from KSh 300). Countrywide: bus/shuttle parcel or courier, dispatched the same day.</li>'
+			. '<li>Nairobi: same-day rider delivery for orders before 5 PM (KSh 300 within 5 km of the CBD, Kilimani KSh 500, Karen KSh 800, other areas plus KSh 50 per km beyond 5 km). Countrywide: bus/shuttle parcel or courier, dispatched the same day.</li>'
 			. '<li>Prefer to see it first? Visit our studio at Stanbank House, 2nd Floor, Room 20, Moi Avenue, Nairobi CBD.</li></ul>';
 		$h .= '<h2>Need help choosing?</h2><p>Chat with a NURA stylist on WhatsApp (+254 714 994 898) or try the <a href="/ai-wig-finder/">Wig Finder</a>. We also install, style and revamp wigs at the studio.</p>';
 		$short = esc_html( $text ? rtrim( $text, '.' ) . '.' : ucfirst( $kind . ' ' . $cap ) . '.' ) . ( $cols ? ' <strong>Colours:</strong> ' . esc_html( implode( ', ', $cols ) ) . '.' : '' );

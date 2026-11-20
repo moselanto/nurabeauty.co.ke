@@ -1,6 +1,13 @@
 # HANDOVER.md - current state for the next developer / AI agent
 
-Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+
+## UPDATE 21 Nov 2026 00:30 EAT (Ray) - plugin 1.123.4 / theme 1.161.38: reviews in schema, review request email, llms delivery wording
+
+- llms.txt delivery line (`nura-geo.php`) rewritten to the rider-fee rules in `class-nura-rider-fee.php`: rider for Nairobi and nearby up to about 45 km; KSh 300 within 5 km of the CBD; Kilimani KSh 500; Karen KSh 800; others KSh 300 + KSh 50/km beyond 5 km; free over KSh 10,000 only within 5 km of the CBD and on shuttle parcels.
+- Bing: already verified (owner import from Search Console, 3 Nov) and IndexNow already automatic (`nura-r3.php`: save_post / stock change queues the URL, flush 2 min later to api.indexnow.org, last ping in option `nura_indexnow_last`, Tools > NURA IndexNow). No code change needed.
+- Product schema (`nura-product-ai.php`, rank_math/json_ld filter): when a product has approved reviews, Product/ProductGroup nodes get `aggregateRating` (value, count, best 5) and up to 5 `review` items. Nothing is added when there are no reviews.
+- Review request email (`class-nura-followup.php`): links now clickable and a "Rate your wig" button to the product review form; admin label says the review step is timed from delivery (order marked Completed); new "Send me a test review email" button on WooCommerce > NURA Follow-ups sends the latest completed order's review email to the signed-in admin only.
 
 ## UPDATE 20 Nov 2026 21:30 EAT (Ray) - plugin 1.123.3 / theme 1.161.37: last "48-hour returns" badges
 

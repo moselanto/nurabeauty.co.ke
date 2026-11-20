@@ -50,6 +50,7 @@ final class NURAX_Followup {
 		add_action( 'update_option_' . self::OPTION, array( $this, 'ensure_scheduled' ) );
 		add_action( 'admin_menu', array( $this, 'menu' ), 31 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'admin_post_nurax_fu_test_review', array( $this, 'test_review' ) );
 	}
 
 	/* ------------------------------------------------------------- scheduling */
@@ -330,6 +331,11 @@ final class NURAX_Followup {
 		$email  = (string) $order->get_billing_email();
 		$unsub  = class_exists( 'NURAX_Consent' ) ? NURAX_Consent::unsub_url( $email ) : esc_url_raw( home_url( '/' ) );
 		$body   = nl2br( esc_html( $message ) );
+		// 1.123.4: make links clickable and add a clear review button when the message carries a review link.
+		$body = preg_replace( '#(https?://[^\s<]+)#', '<a href="$1" style="color:' . $accent . ';">$1</a>', $body );
+		if ( preg_match( '#(https?://[^\s<]+\#reviews)#', $message, $m ) ) {
+			$body .= '<p style="margin:22px 0 4px;text-align:center;"><a href="' . esc_url( $m[1] ) . '" style="display:inline-block;background:' . $accent . ';color:#ffffff;text-decoration:none;font-weight:700;padding:12px 26px;border-radius:999px;">' . esc_html__( 'Rate your wig', 'nura-experience' ) . ' &#9733;&#9733;&#9733;&#9733;&#9733;</a></p>';
+		}
 
 		return '<div style="background:#f7f4f2;padding:24px 0;font-family:Arial,Helvetica,sans-serif;">'
 			. '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">'
@@ -340,6 +346,27 @@ final class NURAX_Followup {
 			. '<p style="margin:0;">You are receiving this because you ordered from ' . $brand . '. To stop marketing messages, you can <a href="' . $unsub . '" style="color:' . $muted . ';">unsubscribe</a>.</p>'
 			. '</td></tr>'
 			. '</table></td></tr></table></div>';
+	}
+
+	/**
+	 * 1.123.4: send the review request for the latest completed order to the signed-in
+	 * admin only (never to the customer), so the owner sees exactly what customers get.
+	 */
+	public function test_review(): void {
+		if ( ! current_user_can( 'manage_woocommerce' ) || ! check_admin_referer( 'nurax_fu_test_review' ) ) {
+			wp_die( 'No permission' );
+		}
+		$to     = wp_get_current_user()->user_email;
+		$orders = function_exists( 'wc_get_orders' ) ? wc_get_orders( array( 'limit' => 1, 'status' => array( 'completed' ), 'orderby' => 'date', 'order' => 'DESC' ) ) : array();
+		$ok     = 0;
+		if ( $orders && is_email( $to ) ) {
+			$order = $orders[0];
+			$s     = $this->settings();
+			$msg   = $this->message( (string) $s['fu2_msg'], $order, $this->review_url( $order ) );
+			$ok    = wp_mail( $to, '[TEST] ' . __( 'How are you loving your NURA pieces?', 'nura-experience' ), $this->email_html( $order, $msg ), array( 'Content-Type: text/html; charset=UTF-8', 'From: ' . get_bloginfo( 'name' ) . ' <' . get_option( 'admin_email' ) . '>' ) ) ? (int) $order->get_id() : -1;
+		}
+		wp_safe_redirect( add_query_arg( array( 'page' => 'nurax-followups', 'nurax_test' => $ok, 'nurax_to' => rawurlencode( $to ) ), admin_url( 'admin.php' ) ) );
+		exit;
 	}
 
 	/* ------------------------------------------------------------- admin page */
@@ -397,6 +424,21 @@ final class NURAX_Followup {
 				?>
 			</div>
 
+			<?php if ( isset( $_GET['nurax_test'] ) ) : // phpcs:ignore ?>
+				<div class="notice <?php echo (int) $_GET['nurax_test'] > 0 ? 'notice-success' : 'notice-error'; // phpcs:ignore ?> inline" style="padding:10px 12px;">
+					<?php
+					$t = (int) $_GET['nurax_test']; // phpcs:ignore
+					echo esc_html( $t > 0 ? sprintf( 'Test review email for order #%d sent to %s. The customer was not emailed.', $t, sanitize_email( wp_unslash( $_GET['nurax_to'] ?? '' ) ) ) : 'Test email not sent (no completed order found, or the mail server refused it).' ); // phpcs:ignore
+					?>
+				</div>
+			<?php endif; ?>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin:12px 0;">
+				<input type="hidden" name="action" value="nurax_fu_test_review" />
+				<?php wp_nonce_field( 'nurax_fu_test_review' ); ?>
+				<button type="submit" class="button"><?php esc_html_e( 'Send me a test review email', 'nura-experience' ); ?></button>
+				<span class="description"><?php esc_html_e( 'Uses your latest completed order and sends only to you.', 'nura-experience' ); ?></span>
+			</form>
+
 			<form method="post" action="options.php">
 				<?php settings_fields( 'nurax_followup_group' ); ?>
 				<table class="form-table" role="presentation">
@@ -426,7 +468,7 @@ final class NURAX_Followup {
 						<th scope="row"><?php esc_html_e( 'Review request', 'nura-experience' ); ?></th>
 						<td>
 							<label><input type="checkbox" name="<?php echo esc_attr( self::OPTION ); ?>[review_on]" value="1" <?php checked( ! empty( $s['review_on'] ) ); ?> /> <?php esc_html_e( 'Send', 'nura-experience' ); ?></label>
-							&nbsp; <input type="number" min="2" max="120" name="<?php echo esc_attr( self::OPTION ); ?>[fu2_days]" value="<?php echo esc_attr( (string) $s['fu2_days'] ); ?>" class="small-text" /> <?php esc_html_e( 'days after payment (marketing - consent gated)', 'nura-experience' ); ?>
+							&nbsp; <input type="number" min="2" max="120" name="<?php echo esc_attr( self::OPTION ); ?>[fu2_days]" value="<?php echo esc_attr( (string) $s['fu2_days'] ); ?>" class="small-text" /> <?php esc_html_e( 'days after delivery (order marked Completed; marketing - consent gated)', 'nura-experience' ); ?>
 						</td>
 					</tr>
 					<tr>

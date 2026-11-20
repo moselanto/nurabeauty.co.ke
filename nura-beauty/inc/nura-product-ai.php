@@ -249,6 +249,37 @@ add_filter( 'rank_math/json_ld', function ( $data ) {
 		if ( $alts && empty( $data[ $key ]['alternateName'] ) ) {
 			$data[ $key ]['alternateName'] = $alts; // 1.129.3.
 		}
+		// 1.161.38: star ratings from real on-site reviews (approved only) for Google, Bing and AI answers.
+		$rc = (int) $p->get_review_count();
+		if ( $rc > 0 && empty( $data[ $key ]['aggregateRating'] ) ) {
+			$data[ $key ]['aggregateRating'] = array(
+				'@type'       => 'AggregateRating',
+				'ratingValue' => (string) round( (float) $p->get_average_rating(), 1 ),
+				'reviewCount' => $rc,
+				'bestRating'  => '5',
+				'worstRating' => '1',
+			);
+		}
+		if ( $rc > 0 && empty( $data[ $key ]['review'] ) ) {
+			$revs = get_comments( array( 'post_id' => $p->get_id(), 'status' => 'approve', 'type' => 'review', 'number' => 5, 'parent' => 0 ) );
+			$out  = array();
+			foreach ( $revs as $c ) {
+				$r = (int) get_comment_meta( $c->comment_ID, 'rating', true );
+				if ( $r < 1 ) {
+					continue;
+				}
+				$out[] = array(
+					'@type'         => 'Review',
+					'reviewRating'  => array( '@type' => 'Rating', 'ratingValue' => (string) $r, 'bestRating' => '5', 'worstRating' => '1' ),
+					'author'        => array( '@type' => 'Person', 'name' => wp_strip_all_tags( $c->comment_author ) ),
+					'datePublished' => mysql2date( 'Y-m-d', $c->comment_date ),
+					'reviewBody'    => wp_trim_words( wp_strip_all_tags( $c->comment_content ), 60, '...' ),
+				);
+			}
+			if ( $out ) {
+				$data[ $key ]['review'] = $out;
+			}
+		}
 		$cur = isset( $node['description'] ) ? wp_strip_all_tags( (string) $node['description'] ) : '';
 		if ( '' !== $full && strlen( $cur ) < 200 && strlen( $full ) > strlen( $cur ) ) {
 			$data[ $key ]['description'] = $full;

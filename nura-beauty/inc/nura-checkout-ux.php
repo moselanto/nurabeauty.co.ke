@@ -92,7 +92,7 @@ add_filter( 'woocommerce_package_rates', function ( $rates ) {
 			continue;
 		}
 		if ( preg_match( '/rider/i', $label ) && preg_match( '/nairobi/i', $label ) ) {
-			$rate->set_label( __( 'Rider delivery - Nairobi and nearby: KSh 300 within 5 km of CBD, Kilimani KSh 500, Karen KSh 800, else +KSh 50 per extra km (confirmed before dispatch)', 'nura-beauty' ) );
+			$rate->set_label( __( 'Rider delivery (Nairobi and nearby) - fee by your area', 'nura-beauty' ) );
 		}
 	}
 	return $rates;

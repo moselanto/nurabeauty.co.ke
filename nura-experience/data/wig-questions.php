@@ -851,7 +851,7 @@ return array(
 				),
 				array(
 					'Can I get same-day delivery in Nairobi?',
-					'Yes, for orders placed before {cutoff}. Rider delivery (Nairobi and nearby only) costs {rider}, and Nairobi delivery is free on orders over {free_over}.',
+					'Yes, for orders placed before {cutoff}. Rider delivery (Nairobi and nearby only) costs {rider}, and delivery is free on orders over {free_over} within 5 km of the CBD and on shuttle parcels. Checkout shows your exact rider fee once you enter your area.',
 					array(),
 				),
 				array(

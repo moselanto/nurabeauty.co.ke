@@ -2,6 +2,17 @@
 
 Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 20 Nov 2026 14:30 EAT (Ray) - plugin 1.121.0 / theme 1.161.32: rider fee auto-calculated from the customer's area
+
+- **Owner (20 Nov):** free delivery on orders over KSh 10,000 applies ONLY to shuttle parcels and to deliveries within 5 km of the CBD. Within 5 km = KSh 300; everywhere else the fee must be calculated automatically from the location the customer types.
+- New `nura-experience/includes/class-nura-rider-fee.php` (`NURAX_Rider_Fee`, `woocommerce_package_rates` priority 130, after the theme's label filter at 120). Reads the shipping address lines + town, matches an area table (109 Nairobi/nearby areas with aliases; Google driving distance from Stanbank House, 20 Nov 2026), and sets the rider rate: KSh 300 within 5 km; Kilimani KSh 500 and Karen (incl. Hardy, Kerarapon, Bogani) KSh 800 fixed; else 300 + 50 x km beyond 5 (rounded up). Label e.g. "Rider delivery to Lavington (6.7 km from our CBD studio), pay before dispatch". Area, km and rule saved as shipping-line meta on the order. Words followed by road/rd/avenue/street etc. are ignored ("Ngong Road" does not mean Ngong town); a specific area beats a generic one (Ruaka beats Kiambu).
+- Nearby areas outside Nairobi County (Kiambu/Kajiado/Machakos zone = "Kenya") get a rider rate added (`nura_rider:1`) when the area is recognised; max rider distance 45 km.
+- Unrecognised address (e.g. P.O. Box only): rider rate stays KSh 300 with "Type your estate or area in the address to see your exact fee"; order meta says confirm on WhatsApp.
+- Free shipping method rate (Nairobi zone, min KSh 10,000) is removed from checkout; instead, when subtotal >= minimum: rider within 5 km = free, Nairobi CBD rate = free, Bus & shuttle parcel = free. Courier and rider beyond 5 km are charged. The Nairobi CBD (pay on delivery) rate is hidden when the recognised area is beyond 5 km.
+- Editable in **WooCommerce > Rider delivery fees** (base, base km, per km, free minimum, max km, area table) with an address tester.
+- Copy: free-delivery wording updated in FAQs/AI summary/knowledge; checkout base label now "Rider delivery (Nairobi and nearby) - fee by your area" (replaced by the area label once matched).
+- Not changed: the WhatsApp order pop-up still quotes by county.
+
 ## UPDATE 20 Nov 2026 13:45 EAT (Ray) - theme 1.161.31 / plugin 1.120.1: Nairobi rider delivery fees + delivery terms (owner)
 
 - **Owner rule (20 Nov):** rider delivery is for Nairobi and nearby areas only (customers who want a rider). KSh 300 within 5 km of Nairobi CBD; **Kilimani KSh 500**; **Karen KSh 800**; other areas KSh 300 + KSh 50 per km beyond the first 5 km, measured from the CBD studio. Outside Nairobi unchanged (bus/shuttle parcel, Fargo/G4S courier).

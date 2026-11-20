@@ -3,7 +3,7 @@
  * Plugin Name:       NURA Experience
  * Plugin URI:        https://nurabeauty.co.ke
  * Description:       NURA's exclusive features: AI Wig Finder, Virtual Try-On, and The NURA Circle luxury client portal (order history, care schedule, warranty certificates, maintenance reminders, loyalty points, VIP membership), plus the NURA catalogue architecture, a catalogue-driven mega menu, mobile bottom navigation, a faceted shop experience and an upgraded product page. Requires WooCommerce.
- * Version:           1.120.1
+ * Version:           1.121.0
  * Author:            NURA - The House of Radiant Confidence
  * License:           GPL-2.0-or-later
  * Text Domain:       nura-experience
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURAX_VERSION', '1.120.1' );
+define( 'NURAX_VERSION', '1.121.0' );
 
 /*
  * Virtual Try-On is switched OFF for the Kenyan market (v1.42.0). The code stays in
@@ -83,6 +83,7 @@ require_once NURAX_DIR . 'includes/class-nura-whatsapp-bot.php';
 require_once NURAX_DIR . 'includes/class-nura-paystack-split.php'; // 1.115.0 Paystack M-Pesa / Card split + 2.9% card fee.
 require_once NURAX_DIR . 'includes/class-nura-order-alerts.php'; // 1.114.0 every new order alerts the shop WhatsApp.
 require_once NURAX_DIR . 'includes/class-nura-receipt.php'; // 1.119.0 branded PDF receipts on the order screen.
+require_once NURAX_DIR . 'includes/class-nura-rider-fee.php'; // 1.121.0 rider fee from the customer's area + free-delivery rules.
 
 // Growth: marketing consent, abandoned-cart recovery, follow-ups, retargeting.
 require_once NURAX_DIR . 'includes/class-nura-consent.php';
@@ -176,6 +177,7 @@ function nurax_init() {
 	new NURAX_Perf();
 	if ( class_exists( 'WooCommerce' ) ) {
 		new NURAX_Receipt(); // v1.119.0 PDF receipts: open/print, download, save to order, email.
+		new NURAX_Rider_Fee(); // v1.121.0 rider fee by area/distance; free over 10k only within 5 km and shuttle.
 	}
 
 	// Admin housekeeping (admin-only): keep third-party SEO columns from

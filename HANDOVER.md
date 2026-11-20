@@ -2,6 +2,11 @@
 
 Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 20 Nov 2026 20:30 EAT (Ray) - plugin 1.123.1: receipt returns policy
+
+- PDF receipt (`class-nura-receipt.php`): the thank-you box now has a bold "Returns policy:" line: "We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with this receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed." Filter `nurax_receipt_returns`. Box height 30 -> 38 mm.
+- NOTE: the Returns & Refunds page, FAQs, facts `returns_text`, SEO/geo text still describe the older 48-hour unworn-return policy; pending owner decision.
+
 ## UPDATE 20 Nov 2026 20:15 EAT (Ray) - theme 1.161.35: Shipping & Delivery payment line
 
 - `nura_pod_5km_text()` (nura-inner.php) now also rewrites the published Shipping & Delivery line "Nairobi: delivered orders are paid before dispatch by M-Pesa, card or bank transfer" to "Nairobi deliveries beyond 5 km of the CBD are paid before dispatch by M-Pesa, card or bank transfer". Plugin unchanged (1.123.0).

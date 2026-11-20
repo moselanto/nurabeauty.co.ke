@@ -416,7 +416,8 @@ class NURAX_Receipt {
 				'web'     => 'nurabeauty.co.ke',
 				'till'    => isset( $f['till'] ) ? $f['till'] : '',
 				'hours'   => isset( $f['hours_text'] ) ? $f['hours_text'] : '',
-				'returns' => isset( $f['returns_text'] ) ? $f['returns_text'] : '',
+				// 1.123.1: owner - returns only for a wrong or damaged item.
+				'returns' => apply_filters( 'nurax_receipt_returns', 'We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with this receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.' ),
 			),
 			'logo'        => apply_filters( 'nurax_receipt_logo', NURAX_DIR . 'assets/img/nura-receipt-logo.png' ),
 		);
@@ -663,21 +664,25 @@ class NURAX_Receipt {
 
 		// Thank-you + policy block.
 		$p->SetY( max( $p->GetY() + 8, 214 ) );
-		if ( $p->GetY() > 236 ) {
+		if ( $p->GetY() > 228 ) {
 			$p->AddPage();
 		}
 		$by = $p->GetY();
 		$p->SetFillColor( $cream[0], $cream[1], $cream[2] );
-		$p->Rect( $L, $by, $W, 30, 'F' );
+		$p->Rect( $L, $by, $W, 38, 'F' );
 		$p->SetFillColor( $gold[0], $gold[1], $gold[2] );
-		$p->Rect( $L, $by, 1.2, 30, 'F' );
+		$p->Rect( $L, $by, 1.2, 38, 'F' );
 		$p->SetXY( $L + 6, $by + 4 );
 		$p->SetFont( 'Helvetica', 'B', 12 );
 		$p->SetTextColor( $brown[0], $brown[1], $brown[2] );
 		$p->Cell( $W - 12, 6, 'Thank you for choosing NURA Beauty.', 0, 2 );
 		$p->SetFont( 'Helvetica', '', 8 );
 		$p->SetTextColor( 70, 64, 58 );
-		$p->MultiCell( $W - 12, 4, self::t( 'Returns: ' . $b['returns'] ), 0, 'L' );
+		$p->SetFont( 'Helvetica', 'B', 8 );
+		$p->Cell( 17, 4, 'Returns policy:', 0, 0 );
+		$p->SetFont( 'Helvetica', '', 8 );
+		$p->SetX( $L + 6 );
+		$p->MultiCell( $W - 12, 4, self::t( '                            ' . $b['returns'] ), 0, 'L' );
 		$p->SetX( $L + 6 );
 		$p->MultiCell( $W - 12, 4, self::t( 'Visit us: ' . $b['hours'] . ( $b['till'] ? '.   M-Pesa Till ' . $b['till'] . '.' : '.' ) ), 0, 'L' );
 

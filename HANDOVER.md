@@ -2,6 +2,12 @@
 
 Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 20 Nov 2026 13:10 EAT (Ray) - plugin 1.120.0: PDF receipt attached to the Completed order email
+
+- `NURAX_Receipt::attach_to_email()` on `woocommerce_email_attachments`: when WooCommerce sends the **Completed order** customer email (`customer_completed_order`), the branded PDF receipt (`NURA-Beauty-Receipt-<order>.pdf`) is generated and attached automatically, and a private order note records it. Temp copy is written to `uploads/nura-receipts/tmp-<random>/` and deleted at the end of the request.
+- Turn off with `add_filter( 'nurax_receipt_auto_attach', '__return_false' );`. Add other emails (e.g. `customer_processing_order`, `customer_invoice`) with the `nurax_receipt_attach_emails` filter.
+- If the PDF fails to build, the email still goes out without it and the error is written as an order note.
+
 ## UPDATE 20 Nov 2026 12:30 EAT (Ray) - plugin 1.119.0: branded PDF receipts on the order screen
 
 - New `nura-experience/includes/class-nura-receipt.php` (class `NURAX_Receipt`). Order edit screen (classic + HPOS) now has a **PDF receipt** box: **Open and print receipt** (inline PDF, print from the browser viewer), **Download PDF**, **Save receipt to order** (stored in `wp-content/uploads/nura-receipts/`, web access denied by .htaccess, served only through admin-post with nonce + `edit_shop_orders`; private order note added; re-saving replaces the file) and **Email receipt to customer** (wp_mail with the PDF attached to the billing email, confirm prompt, private note).

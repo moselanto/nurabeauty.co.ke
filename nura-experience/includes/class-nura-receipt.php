@@ -1,6 +1,9 @@
 <?php
 /**
  * NURA Experience 1.119.0 - branded PDF receipts for WooCommerce orders.
+ * 1.120.0 - the receipt is attached automatically to WooCommerce's "Completed order"
+ * customer email (filters: 'nurax_receipt_auto_attach' true/false,
+ * 'nurax_receipt_attach_emails' list of WC email IDs).
  *
  * On the order edit screen (classic and HPOS) a "PDF receipt" box offers:
  *   - Open / print: streams the receipt inline so the browser PDF viewer can print it.
@@ -30,6 +33,7 @@ class NURAX_Receipt {
 		add_action( 'admin_post_' . self::ACTION, array( $this, 'handle_admin' ) );
 		add_action( 'admin_post_nurax_receipt_customer', array( $this, 'handle_customer' ) );
 		add_action( 'woocommerce_order_details_after_order_table', array( $this, 'customer_button' ) );
+		add_filter( 'woocommerce_email_attachments', array( $this, 'attach_to_email' ), 10, 4 );
 	}
 
 	/* ---------------------------------------------------------------- admin box */
@@ -129,6 +133,53 @@ class NURAX_Receipt {
 		$ok = self::email( $order, $pdf );
 		wp_safe_redirect( add_query_arg( 'nurax_receipt', $ok ? 'emailed' : 'failed', $back ) );
 		exit;
+	}
+
+	/* ------------------------------------------------- auto-attach to WC emails */
+
+	/** Temp files created for this request's emails; removed at shutdown. */
+	private static $tmp_dirs = array();
+
+	public function attach_to_email( $attachments, $email_id = '', $order = null, $email = null ) {
+		if ( ! apply_filters( 'nurax_receipt_auto_attach', true ) ) {
+			return $attachments;
+		}
+		$ids = (array) apply_filters( 'nurax_receipt_attach_emails', array( 'customer_completed_order' ) );
+		if ( ! in_array( $email_id, $ids, true ) || ! $order instanceof WC_Order ) {
+			return $attachments;
+		}
+		try {
+			$pdf = self::pdf( $order );
+		} catch ( \Throwable $e ) {
+			$order->add_order_note( 'PDF receipt could not be attached to the "' . $email_id . '" email: ' . $e->getMessage() );
+			return $attachments;
+		}
+		$dir = self::dir() . 'tmp-' . wp_generate_password( 16, false, false ) . '/';
+		if ( ! wp_mkdir_p( $dir ) ) {
+			return $attachments;
+		}
+		$file = $dir . self::filename( $order );
+		if ( false === @file_put_contents( $file, $pdf ) ) { // phpcs:ignore
+			return $attachments;
+		}
+		if ( empty( self::$tmp_dirs ) ) {
+			register_shutdown_function( array( __CLASS__, 'cleanup_tmp' ) );
+		}
+		self::$tmp_dirs[] = $dir;
+		$attachments   = is_array( $attachments ) ? $attachments : array();
+		$attachments[] = $file;
+		$order->add_order_note( sprintf( 'PDF receipt %s attached to the Completed order email to %s.', self::receipt_no( $order ), $order->get_billing_email() ) );
+		return $attachments;
+	}
+
+	public static function cleanup_tmp() {
+		foreach ( self::$tmp_dirs as $dir ) {
+			foreach ( (array) glob( $dir . '*' ) as $f ) {
+				@unlink( $f ); // phpcs:ignore
+			}
+			@rmdir( $dir ); // phpcs:ignore
+		}
+		self::$tmp_dirs = array();
 	}
 
 	/* ------------------------------------------------------------- customer side */

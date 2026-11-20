@@ -1,6 +1,13 @@
 # HANDOVER.md - current state for the next developer / AI agent
 
-Last updated: 18 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+
+## UPDATE 20 Nov 2026 12:30 EAT (Ray) - plugin 1.119.0: branded PDF receipts on the order screen
+
+- New `nura-experience/includes/class-nura-receipt.php` (class `NURAX_Receipt`). Order edit screen (classic + HPOS) now has a **PDF receipt** box: **Open and print receipt** (inline PDF, print from the browser viewer), **Download PDF**, **Save receipt to order** (stored in `wp-content/uploads/nura-receipts/`, web access denied by .htaccess, served only through admin-post with nonce + `edit_shop_orders`; private order note added; re-saving replaces the file) and **Email receipt to customer** (wp_mail with the PDF attached to the billing email, confirm prompt, private note).
+- Customers get **Download receipt (PDF)** on My Account > Orders > View order once the order is paid (order key + logged-in owner check).
+- Layout: A4, gold/brown brand colours, owner's compact full-colour logo (`assets/img/nura-receipt-logo.png`, from NURA_Beauty_Compact_Logo_Full_Colour.svg), receipt no. `NB-00xxxx`, PAID / UNPAID / REFUNDED badge, billed to / deliver to, order no., dates, payment method, Paystack reference, items with variation + SKU, subtotal, fees (card 2.9%), delivery, TOTAL, amount paid, balance due, customer note, returns policy + hours + Till from `nura_facts()`, footer with phone and website.
+- PDF engine: FPDF 1.9 bundled in `includes/lib/fpdf/` (core Helvetica, Windows-1252 text; no Composer). Filters: `nurax_receipt_logo`, `nurax_receipt_phone`, `nurax_receipt_email`.
 
 ## UPDATE 19 Nov 2026 00:45 EAT (Ray) - theme 1.161.30: mobile audit, blog images fixed
 

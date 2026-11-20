@@ -719,7 +719,7 @@ class NURAX_WA_Order {
 									<label class="nwo-opt nwo-opt--row"<?php echo self::PAY_SHOP === $pay ? ' data-nwo-shoponly hidden' : ( self::PAY_COD === $pay ? ' data-nwo-cbdonly hidden' : '' ); ?>><input type="radio" name="payment" value="<?php echo esc_attr( $pay ); ?>"<?php checked( 0, $i ); ?>><span class="nwo-opt__box"><span class="nwo-opt__txt"><strong><?php echo esc_html( $pay ); ?></strong><?php if ( isset( $pay_notes[ $pay ] ) ) : ?><small><?php echo esc_html( $pay_notes[ $pay ] ); ?></small><?php endif; ?></span><span class="nwo-opt__tick" aria-hidden="true"></span></span></label>
 								<?php endforeach; ?>
 							</div>
-							<p class="nwo-paynote" data-nwo-paynote><?php esc_html_e( 'Pay on delivery (cash or M-Pesa) is available within Nairobi CBD only. All other deliveries are paid in full, delivery fee included, before dispatch. Paying in person is also available when you collect from our studio.', 'nura-experience' ); ?></p>
+							<p class="nwo-paynote" data-nwo-paynote><?php esc_html_e( 'Pay on delivery (cash or M-Pesa) is available only within 5 km of the CBD. All other deliveries are paid in full, delivery fee included, before dispatch. Paying in person is also available when you collect from our studio.', 'nura-experience' ); ?></p>
 						</fieldset>
 
 						<div class="nwo-paybox" data-nwo-paybox>

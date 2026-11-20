@@ -2,6 +2,10 @@
 
 Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 20 Nov 2026 19:30 EAT (Ray) - plugin 1.122.2: WhatsApp order form payment note
+
+- WhatsApp order form payment note now reads "Pay on delivery (cash or M-Pesa) is available only within 5 km of the CBD..." (was "within Nairobi CBD only"), matching the "Pay on delivery (within 5 km of CBD)" choice. `class-nura-wa-order.php`. Theme unchanged (1.161.33).
+
 ## UPDATE 20 Nov 2026 15:30 EAT (Ray) - plugin 1.122.1 / theme 1.161.33: clearer pay on delivery + free-delivery wording
 
 - WhatsApp pop-up: the pay-on-delivery choice was still visible (CSS `display` beat the `hidden` attribute) for Lavington/Ruaka; now hidden unless the typed area is within 5 km of the CBD. Renamed to "Pay on delivery (within 5 km of CBD)" (server value `PAY_COD` changed with it).

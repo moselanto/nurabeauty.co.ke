@@ -886,7 +886,7 @@ return array(
 				),
 				array(
 					'Can I exchange a wig?',
-					'{returns} Returns and exchanges are accepted at the studio or by courier.',
+					'No. We do not exchange or take back wigs for change of mind, size, colour or style. {returns}',
 					array(),
 				),
 				array(

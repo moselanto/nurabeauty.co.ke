@@ -239,7 +239,7 @@ function nura_sw_items() {
 		array( 'Nataka bob fupi. Mko na?', 'Ndiyo. Tuna Human Hair Bob Lace Front na 8 Inch Water Curl 4x4 Closure Bob. Angalia bei na upatikanaji kwenye duka letu.' ),
 		array( 'Mko na curls?', 'Ndiyo: jerry curl, deep curl, water curl na bubble curl, kwa human hair na fibre.' ),
 		array( 'Nataka wig ionekane natural. Nichague ipi?', 'Kinky straight (Yaki) ya rangi ya natural black (1B) au dark brown inaonekana kama nywele zako za asili. Lace front hutoa mstari wa nywele wa asili zaidi, na tunaweza kuiweka kwa ajili yako.' ),
-		array( 'Naweza kurudisha wig nikibadili mawazo?', 'Wigi ambayo haijavaliwa wala kubadilishwa inaweza kurudishwa ndani ya saa 48 baada ya kupokea, studio au kwa courier. Wigi iliyovaliwa, kukatwa au kuwekwa haiwezi kurudishwa kwa sababu za usafi.' ),
+		array( 'Naweza kurudisha wig nikibadili mawazo?', 'Hapana. Tunakubali kurudisha bidhaa TU kama ulipokea bidhaa isiyo sahihi au ilifika ikiwa imeharibika. Tujulishe ndani ya saa 48 baada ya kupokea, ukiwa na picha, na uiweke wigi bila kuvaliwa, bila kukatwa na ndani ya kifungashio chake cha awali pamoja na risiti yako. Hatukubali kurudisha kwa sababu ya kubadili mawazo, saizi, rangi au mtindo, wala wigi yoyote iliyovaliwa, kukatwa, kuoshwa au kuwekwa.' ),
 	);
 }
 

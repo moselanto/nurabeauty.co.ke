@@ -124,42 +124,34 @@ HTML;
 
 		$returns = <<<HTML
 <h2>Returns &amp; Refunds</h2>
-<p>Your confidence matters. We want you to love your NURA unit - here is exactly how returns, exchanges and refunds work.</p>
-<h3>Our promise</h3>
-<p>For hygiene and safety reasons, wigs and hair products are intimate items. We follow Kenyan consumer-protection guidance and offer returns and exchanges under the clear conditions below. Nothing here removes any right you have under the Consumer Protection Act.</p>
+<p><strong>Returns policy:</strong> We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.</p>
+<p>Nothing here removes any right you have under the Consumer Protection Act.</p>
 <h3>What can be returned</h3>
 <ul>
-<li><strong>Unworn, unaltered units</strong> in original condition with tags on, lace uncut and all packaging intact - within <strong>48 hours</strong> of delivery.</li>
-<li><strong>Wrong item received</strong> - we cover return shipping and send the correct unit or a full refund.</li>
-<li><strong>Faulty or damaged on arrival</strong> - reported with photos within 48 hours of delivery (see Warranty for full coverage terms).</li>
+<li><strong>Wrong item received</strong> - the wig or product you received is not the one you ordered.</li>
+<li><strong>Damaged item</strong> - the item arrived damaged or faulty.</li>
 </ul>
 <h3>What cannot be returned</h3>
 <ul>
-<li>Units that have been <strong>worn, washed, cut, coloured, installed or restyled</strong>.</li>
-<li>Custom or bespoke units built to your specification (unless faulty).</li>
-<li>Clearance items and gift cards.</li>
+<li>Change of mind, including size, colour, length, texture or style.</li>
+<li>Any wig that has been <strong>worn, cut, washed or installed</strong>.</li>
+<li>Wrong or damaged items reported more than 48 hours after delivery.</li>
 <li>Accessories that have been opened or used, for hygiene reasons (caps, edge control).</li>
 </ul>
-<h3>Who pays for return shipping</h3>
-<ul>
-<li><strong>Wrong item received or faulty on arrival:</strong> NURA covers return shipping in full.</li>
-<li><strong>Change-of-mind returns</strong> (unworn unit, within 48 hours): return shipping is the customer's responsibility. We recommend a tracked courier so we can confirm arrival before processing your refund.</li>
-</ul>
-<h3>Orders shipped outside Kenya</h3>
-<p>Because of the cost of international return freight, change-of-mind returns are not available for orders shipped outside Kenya. These orders are still covered for wrong or faulty items under our <a href="/warranty/">Warranty</a>. If you are unsure about size, colour or texture, book a free virtual consultation before you order.</p>
-<h3>How to start a return</h3>
+<h3>How to report a wrong or damaged item</h3>
 <ol>
 <li>Contact us on WhatsApp or email within 48 hours of delivery, quoting your order number.</li>
-<li>Share clear photos of the item and packaging.</li>
-<li>We confirm approval and share return instructions, including the return address.</li>
-<li>Send the item back (unworn, in original packaging) via a tracked courier.</li>
+<li>Send clear photos of the item and its packaging.</li>
+<li>Keep the wig unworn, uncut and in its original packaging with your receipt.</li>
+<li>We confirm and tell you how to send it back.</li>
 </ol>
-<h3>Refunds &amp; exchanges</h3>
+<h3>Return shipping, replacements and refunds</h3>
 <ul>
-<li>Approved refunds are processed to your original payment method (M-Pesa or card) within <strong>3 to 7 business days</strong> of us receiving and inspecting the returned item.</li>
-<li>Original delivery fees are non-refundable unless the return is due to our error (wrong item or fault).</li>
-<li>Prefer an exchange or store credit? We can swap length, texture or colour, or issue NURA credit - often faster than a refund.</li>
+<li>For a wrong or damaged item, NURA covers return shipping in full.</li>
+<li>We send the correct item or replace the damaged one. If we cannot, we refund you in full to your original payment method (M-Pesa or card) within <strong>3 to 7 business days</strong> of receiving and inspecting the item.</li>
 </ul>
+<h3>Orders shipped outside Kenya</h3>
+<p>The same policy applies: returns only for a wrong item or a damaged item, reported within 48 hours of delivery with photos.</p>
 <h3>Questions</h3>
 <p>Our team will guide you through every step. Reach us on WhatsApp for the fastest response at <strong>$phone</strong> or email <strong>$email</strong>.</p>
 HTML;
@@ -301,11 +293,11 @@ HTML;
 <h3>What lengths, textures and colours are available?</h3>
 <p>Most units come in 10&Prime; to 30&Prime; lengths, densities of 130% to 200%, textures from straight to afro curly, and colours from natural black to blonde, ombr&eacute;, burgundy and 613. Each variation shows its own price and availability on the product page.</p>
 <h3>How do I pay?</h3>
-<p>M-Pesa and Visa/Mastercard (both via Paystack), M-Pesa Buy Goods Till 1679269, and bank transfer. Delivered orders are paid before dispatch, except deliveries within 5 km of the CBD (pay on delivery, cash or M-Pesa); pay at the shop when you collect. See <a href="/payment-information/">Payment Information</a>.</p>
+<p>M-Pesa and Visa/Mastercard (both via Paystack), M-Pesa Buy Goods Till 1679269, and bank transfer. Delivered orders are paid before dispatch, except deliveries within 5 km of the CBD (pay on delivery, cash or M-Pesa); pay at the shop when you collect. See <a href="/shipping-delivery/#paying-for-delivery-orders">Paying for delivery orders</a>.</p>
 <h3>How fast is delivery?</h3>
 <p>Same-day within Nairobi (order before 5:00pm), same-day dispatch countrywide (arrival time set by the shuttle or courier), and shipping abroad on request. See <a href="/shipping-delivery/">Shipping &amp; Delivery</a>.</p>
-<h3>Can I return or exchange a wig?</h3>
-<p>Unworn, unaltered units can be returned within 48 hours of delivery. Worn, cut or installed units cannot be returned for hygiene reasons. See <a href="/returns-refunds/">Refund &amp; Returns</a>.</p>
+<h3>Can I return a wig?</h3>
+<p>We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed. See <a href="/returns-refunds/">Refund &amp; Returns</a>.</p>
 <h3>Can I pay in instalments?</h3>
 <p>Yes - Lipa Mdogo Mdogo on wigs from KSh 7,000: pay a 50% deposit to reserve your wig, then clear the balance within a maximum of 2 weeks, with no interest and no extra fees. Your wig is released once fully paid. See the <a href="/lipa-mdogo-mdogo-terms/">Lipa Mdogo Mdogo Terms</a>.</p>
 <h3>Do you install wigs?</h3>

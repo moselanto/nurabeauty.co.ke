@@ -262,3 +262,66 @@ function nura_pod_5km_text( $t ) {
 }
 add_filter( 'the_content', 'nura_pod_5km_text', 99 );
 add_filter( 'woocommerce_short_description', 'nura_pod_5km_text', 99 );
+
+
+/**
+ * 1.161.36: owner - returns ONLY for a wrong item or a damaged item.
+ * - Replaces the published Returns & Refunds page text while it still holds the
+ *   old 48-hour change-of-mind policy (an owner edit to the page wins).
+ * - Rewrites the old returns sentence anywhere in page/post text (FAQ etc.).
+ * - Points "Payment Information" links to the Shipping & Delivery payment section.
+ */
+function nura_returns_policy_text() {
+	return 'We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.';
+}
+function nura_returns_fix_content( $c ) {
+	if ( ! is_string( $c ) || '' === $c ) {
+		return $c;
+	}
+	if ( false !== strpos( $c, 'Change-of-mind returns' ) || false !== stripos( $c, 'Unworn, unaltered units</strong> in original condition' ) || false !== stripos( $c, 'Unworn, unaltered units in original condition with tags' ) ) {
+		return '<p><strong>Returns policy:</strong> We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.</p>
+<p>Nothing here removes any right you have under the Consumer Protection Act.</p>
+<h2>What can be returned</h2>
+<ul>
+<li><strong>Wrong item received</strong> - the wig or product you received is not the one you ordered.</li>
+<li><strong>Damaged item</strong> - the item arrived damaged or faulty.</li>
+</ul>
+<h2>What cannot be returned</h2>
+<ul>
+<li>Change of mind, including size, colour, length, texture or style.</li>
+<li>Any wig that has been <strong>worn, cut, washed or installed</strong>.</li>
+<li>Wrong or damaged items reported more than 48 hours after delivery.</li>
+<li>Accessories that have been opened or used, for hygiene reasons (caps, edge control).</li>
+</ul>
+<h2>How to report a wrong or damaged item</h2>
+<ol>
+<li>Contact us on WhatsApp or email within 48 hours of delivery, quoting your order number.</li>
+<li>Send clear photos of the item and its packaging.</li>
+<li>Keep the wig unworn, uncut and in its original packaging with your receipt.</li>
+<li>We confirm and tell you how to send it back.</li>
+</ol>
+<h2>Return shipping, replacements and refunds</h2>
+<ul>
+<li>For a wrong or damaged item, NURA covers return shipping in full.</li>
+<li>We send the correct item or replace the damaged one. If we cannot, we refund you in full to your original payment method (M-Pesa or card) within <strong>3 to 7 business days</strong> of receiving and inspecting the item.</li>
+</ul>
+<h2>Orders shipped outside Kenya</h2>
+<p>The same policy applies: returns only for a wrong item or a damaged item, reported within 48 hours of delivery with photos.</p>
+<h2>Questions</h2>
+<p>Reach us on WhatsApp for the fastest response at +254 714 994 898 or email care@nurabeauty.co.ke.</p>
+';
+	}
+	$c = preg_replace( '/Unworn,? unaltered (?:units|wigs)[^.<]*?returned within 48 hours of delivery[^.<]*\.(?:\s*Worn, cut or installed (?:units|wigs) cannot be returned for hygiene reasons\.)?/i', nura_returns_policy_text(), $c );
+	$c = str_replace( 'Can I return or exchange a wig?', 'Can I return a wig?', $c );
+	$c = preg_replace( '#href=(["\'])(?:https?://(?:www\.)?nurabeauty\.co\.ke)?/payment-information/?\1#i', 'href="/shipping-delivery/#paying-for-delivery-orders"', $c );
+	$c = preg_replace( '#(>)\s*Payment Information\s*(</a>)#', '$1Paying for delivery orders$2', $c );
+	return $c;
+}
+add_filter( 'the_content', 'nura_returns_fix_content', 5 );
+add_filter( 'woocommerce_short_description', 'nura_returns_fix_content', 98 );
+add_action( 'template_redirect', function () {
+	if ( is_404() && preg_match( '#^/payment-information/?$#', (string) wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '', PHP_URL_PATH ) ) ) { // phpcs:ignore
+		wp_safe_redirect( home_url( '/shipping-delivery/#paying-for-delivery-orders' ), 301 );
+		exit;
+	}
+} );

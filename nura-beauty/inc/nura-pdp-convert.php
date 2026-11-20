@@ -74,11 +74,11 @@ add_action( 'woocommerce_single_product_summary', function () {
 		return function_exists( 'nura_fact' ) ? nura_fact( $k, $d ) : $d;
 	};
 	$days = (int) $f( 'returns_days', 2 );
-	$ret  = $days > 0 ? ( $days * 24 ) . '-hour returns on unworn wigs' : 'Easy returns on unworn wigs';
+	$ret  = 'Returns: wrong or damaged item only';
 	$rows = array(
 		array( 'Real photos', 'Every wig is photographed as it is - ask for a live video on WhatsApp.' ),
 		array( 'Checked in our studio', 'Inspected in Nairobi before it leaves us.' ),
-		array( $ret, 'In original condition. Worn or installed wigs cannot be returned for hygiene.' ),
+		array( $ret, 'Report within ' . ( $days > 0 ? $days * 24 : 48 ) . ' hours of delivery with photos. No returns for change of mind or for worn, cut or installed wigs.' ),
 		array( 'A stylist on WhatsApp', 'Help choosing colour, length and fit: +254 714 994 898.' ),
 		array( 'See it in person', $f( 'address_short', 'Stanbank House, 2nd Floor, Room 20, Moi Avenue, Nairobi CBD' ) ),
 	);

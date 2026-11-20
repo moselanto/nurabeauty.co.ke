@@ -1452,7 +1452,7 @@ class NURAX_Desk_POS {
 		}
 
 		$note    = $order->get_customer_note() ? esc_html( $order->get_customer_note() ) : '';
-		$footer  = '' !== trim( $b['note'] ) ? esc_html( $b['note'] ) : 'Thank you for choosing ' . esc_html( $b['name'] ) . '. Unworn wigs in their original condition can be returned within 48 hours of delivery with this document.';
+		$footer  = '' !== trim( $b['note'] ) ? esc_html( $b['note'] ) : 'Thank you for choosing ' . esc_html( $b['name'] ) . '. We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.';
 		$qr      = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&color=14-14-14&data=' . rawurlencode( self::public_url( $order, $type ) );
 		$brand   = $logo
 			? '<img class="logo" src="' . esc_url( $logo ) . '" alt="' . esc_attr( $b['name'] ) . '">'

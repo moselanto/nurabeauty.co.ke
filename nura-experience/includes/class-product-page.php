@@ -213,7 +213,7 @@ class NURAX_Product_Page {
 		echo '<li>' . esc_html__( 'Same-day dispatch countrywide; the shuttle or courier sets the arrival time.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'International shipping available on request.', 'nura-experience' ) . '</li>';
 		echo '<li>' . esc_html__( 'Pay with M-Pesa or card at checkout, or by M-Pesa Till 1679269 when you order on WhatsApp. Pay on delivery only within 5 km of the CBD; pay at the shop when you collect.', 'nura-experience' ) . '</li>';
-		echo '<li>' . esc_html__( 'Unworn units in original condition may be returned within 48 hours of delivery; worn, cut or installed units cannot be returned for hygiene reasons.', 'nura-experience' ) . '</li>';
+		echo '<li>' . esc_html__( 'We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.', 'nura-experience' ) . '</li>';
 		echo '</ul>';
 	}
 

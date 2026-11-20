@@ -389,7 +389,7 @@ function nura_pq_items_auto( $p ) {
 	if ( $price > 0 ) {
 		$q[] = array( __( 'Can I pay for this wig in instalments?', 'nura-beauty' ), sprintf( __( 'Yes, with Lipa Mdogo Mdogo: pay a 50%% deposit (about %s) and the balance within 1 or 2 weeks, then we release your wig.', 'nura-beauty' ), 'KSh ' . number_format( ceil( $price / 2 ) ) ) );
 	}
-	$q[] = array( __( 'Can I return it if it does not suit me?', 'nura-beauty' ), $tok['{returns}'] . ' ' . __( 'Returns are accepted at the studio or by courier.', 'nura-beauty' ) );
+	$q[] = array( __( 'Can I return it if it does not suit me?', 'nura-beauty' ), __( 'No. ', 'nura-beauty' ) . $tok['{returns}'] );
 	// 1.129.3: the question shoppers and AI assistants actually ask.
 	$q[] = array(
 		sprintf( __( 'Where can I buy the %s in Kenya?', 'nura-beauty' ), $name ),

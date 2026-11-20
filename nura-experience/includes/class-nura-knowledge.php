@@ -117,7 +117,7 @@ final class NURAX_Knowledge {
 			'{hours}'       => $f( 'hours_long', 'Monday to Saturday, 9:00am to 7:30pm' ),
 			'{cutoff}'      => $f( 'cutoff', '5 PM' ),
 			'{till}'        => $f( 'till', '1679269' ),
-			'{returns}'     => $f( 'returns_text', 'Unworn, unaltered wigs can be returned within 48 hours of delivery.' ),
+			'{returns}'     => $f( 'returns_text', 'We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.' ),
 			'{delivery_ke}' => $rate ? self::ksh( $rate ) : 'charged at the rate shown at checkout',
 			'{rider}'       => 'KSh 300 within 5 km of Nairobi CBD (Kilimani KSh 500, Karen KSh 800, other Nairobi areas KSh 300 plus KSh 50 per km beyond 5 km)',
 			'{free_over}'   => 'KSh 10,000',

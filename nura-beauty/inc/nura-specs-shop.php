@@ -216,7 +216,7 @@ function nura_specs_care_shipping_tab() {
 	}
 	echo '<li>' . esc_html__( 'Same-day dispatch countrywide; the shuttle or courier sets the arrival time.', 'nura-beauty' ) . '</li>';
 	echo '<li>' . esc_html__( 'Pay with M-Pesa or card at checkout, or by M-Pesa Till 1679269 when you order on WhatsApp. Pay on delivery only within 5 km of the CBD; pay at the shop when you collect.', 'nura-beauty' ) . '</li>';
-	echo '<li>' . esc_html__( 'Unopened products in their original packaging may be returned within 48 hours of delivery; opened products cannot be returned for hygiene reasons.', 'nura-beauty' ) . '</li>';
+	echo '<li>' . esc_html__( 'We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.', 'nura-beauty' ) . '</li>';
 	echo '<li>' . esc_html__( 'Directions are in the Description tab and on the label. Do a patch test before first use of glues, sprays and removers.', 'nura-beauty' ) . '</li>';
 	echo '</ul>';
 }

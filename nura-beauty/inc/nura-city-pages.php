@@ -49,7 +49,7 @@ function nura_city_faqs( $city, $d ) {
 	return array(
 		array( sprintf( __( 'Do you deliver wigs to %s?', 'nura-beauty' ), $city ), __( 'Yes.', 'nura-beauty' ) . ' ' . $fee ),
 		array( sprintf( __( 'How do I pay for a wig delivered to %s?', 'nura-beauty' ), $city ), __( 'Pay by M-Pesa or card (Visa, Mastercard) securely through Paystack, or by bank transfer, or to our M-Pesa Buy Goods Till 1679269 for WhatsApp orders. Orders beyond 5 km of the CBD are paid in full, delivery fee included, before dispatch.', 'nura-beauty' ) ),
-		array( sprintf( __( 'Can I return a wig from %s?', 'nura-beauty' ), $city ), __( 'Yes. Unworn, unaltered wigs can be returned within 48 hours of delivery by courier, or at our Stanbank House studio (2nd Floor, Room 20) in Nairobi CBD. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' ) ),
+		array( sprintf( __( 'Can I return a wig from %s?', 'nura-beauty' ), $city ), __( 'We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.', 'nura-beauty' ) ),
 		array( __( 'Can I pay in instalments?', 'nura-beauty' ), __( 'Yes, with Lipa Mdogo Mdogo: a 50% deposit today and the balance within 1 or 2 weeks. We send the wig once it is fully paid.', 'nura-beauty' ) ),
 	);
 }

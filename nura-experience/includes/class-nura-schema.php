@@ -168,8 +168,8 @@ class NURAX_Schema {
 				'Same-day within Nairobi on orders before 5:00pm, same-day dispatch countrywide (arrival time set by the shuttle or courier), and 3 to 10 business days internationally with tracking.',
 			),
 			array(
-				'Can I return or exchange a wig?',
-				'Unworn, unaltered units can be returned within 48 hours of delivery. Worn, cut or installed units cannot be returned for hygiene reasons.',
+				'Can I return a wig?',
+				'We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.',
 			),
 			array(
 				'Do you install wigs?',

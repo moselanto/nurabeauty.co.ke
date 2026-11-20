@@ -2,6 +2,13 @@
 
 Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 20 Nov 2026 21:00 EAT (Ray) - plugin 1.123.2 / theme 1.161.36: returns ONLY for a wrong or damaged item
+
+- Owner rule: returns accepted only for a wrong item or a damaged item. Site wording = receipt wording ("...with your receipt"): facts `returns_text` (both copies + `nura_business_facts` filter at 99 so an older saved option cannot override), product page, schema FAQ, FAQ source, knowledge default, Ask NURA chat {returns}, wig-questions (exchange answer now "No..."), nura-wig-questions, specs-shop, Swahili FAQ (nura-services), SEO FAQ, llms/geo, city pages, r4, boost, PDP "Why order from NURA" row, desk/POS receipt footer default.
+- Returns & Refunds page: `class-nura-pages.php` copy rewritten; `nura_returns_fix_content()` (nura-inner.php, the_content priority 5) replaces the published page body while it still holds the old change-of-mind policy (an owner edit wins), rewrites the old returns sentence anywhere in page text, and renames "Can I return or exchange a wig?".
+- FAQ "See Payment Information" link -> /shipping-delivery/#paying-for-delivery-orders; /payment-information/ 404 now 301-redirects there.
+- n8n NURA 01 Chat returns line updated to the same wording.
+
 ## UPDATE 20 Nov 2026 20:30 EAT (Ray) - plugin 1.123.1: receipt returns policy
 
 - PDF receipt (`class-nura-receipt.php`): the thank-you box now has a bold "Returns policy:" line: "We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with this receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed." Filter `nurax_receipt_returns`. Box height 30 -> 38 mm.

@@ -60,7 +60,7 @@ if ( ! function_exists( 'nura_facts' ) ) {
 			'cutoff'         => '5 PM',
 			'returns_window' => '48 hours',
 			'returns_days'   => 2,
-			'returns_text'   => 'Unworn, unaltered wigs in their original condition can be returned within 48 hours of delivery. Worn, cut or installed wigs cannot be returned for hygiene reasons.',
+			'returns_text'   => 'We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.',
 			'pickup'         => true,
 			'international'  => 'International shipping is available on request. Message us on WhatsApp for a quote.',
 			'cod'            => false,

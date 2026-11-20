@@ -40,7 +40,7 @@ function nura_r4_fill( $t ) {
 		'{fibre_min}' => 'our lowest price',
 		'{fibre_max}' => '',
 		'{blend_min}' => 'a mid-range price',
-		'{returns}'   => 'Unworn, unaltered wigs can be returned within 48 hours of delivery.',
+		'{returns}'   => 'We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.',
 	) );
 }
 

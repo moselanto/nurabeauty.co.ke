@@ -54,7 +54,7 @@ function nura_geo_llms( $full = false ) {
 	$o[] = '- Delivery: same day in Nairobi for orders before 5:00 PM; same-day dispatch to the rest of Kenya by shuttle or courier, which sets the arrival time, (Mombasa, Kisumu, Nakuru, Eldoret and more); Nairobi rider: KSh 300 within 5 km of the CBD, Kilimani KSh 500, Karen KSh 800, other Nairobi areas KSh 300 plus KSh 50 per km beyond 5 km (rider pricing is for Nairobi and nearby only); free delivery on orders over KSh 10,000 only within 5 km of the CBD and on shuttle parcels; checkout calculates the rider fee from the area the customer types; international shipping on request.';
 	$o[] = '- Payment: M-Pesa, Visa and Mastercard (via Paystack), M-Pesa Buy Goods Till 1679269 for WhatsApp orders, bank transfer. Pay on delivery (cash or M-Pesa) only within 5 km of the CBD; all other deliveries are paid in full, delivery fee included, before dispatch; customers collecting from the studio may pay in person. Countrywide delivery by shuttle/bus parcel, G4S, Wells Fargo or another courier; fee depends on location and the courier chosen.';
 	$o[] = '- Lipa Mdogo Mdogo (pay in instalments): 50% deposit, balance within 1 or 2 weeks, wig released when fully paid.';
-	$o[] = '- Returns: ' . nura_fact( 'returns_text' ) . ' Returns are accepted at the shop or by courier.';
+	$o[] = '- Returns: ' . nura_fact( 'returns_text' );
 	$o[] = '- Services: wig consultation, fitting, installation, revamp, styling and bridal units at the studio (appointments Monday to Saturday from 6:00am, before 8:00am +KSh 1,000; 50% deposit, minimum KSh 500, secures the slot); free video and WhatsApp consultations.';
 	$o[] = '- Every product states its hair type (Pure Human, Semi Human or luxury fibre) so shoppers know exactly what they are buying.';
 	$o[] = '';
@@ -164,7 +164,7 @@ add_action( 'save_post_product', function () {
 add_filter( 'nura_home_faqs', function ( $faqs ) {
 	foreach ( $faqs as $i => $qa ) {
 		if ( false !== stripos( $qa[0], 'return' ) ) {
-			$faqs[ $i ][1] = __( 'Yes. Unworn, unaltered wigs in their original condition can be returned within 48 hours of delivery, either at our Stanbank House studio (2nd Floor, Room 20) in Nairobi CBD or by courier. Worn, cut or installed wigs cannot be returned for hygiene reasons.', 'nura-beauty' );
+			$faqs[ $i ][1] = __( 'We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.', 'nura-beauty' );
 		}
 	}
 	$faqs[] = array(

@@ -2,6 +2,11 @@
 
 Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 20 Nov 2026 20:15 EAT (Ray) - theme 1.161.35: Shipping & Delivery payment line
+
+- `nura_pod_5km_text()` (nura-inner.php) now also rewrites the published Shipping & Delivery line "Nairobi: delivered orders are paid before dispatch by M-Pesa, card or bank transfer" to "Nairobi deliveries beyond 5 km of the CBD are paid before dispatch by M-Pesa, card or bank transfer". Plugin unchanged (1.123.0).
+- /payment-information/ is not published (HTTP 404, not in the page sitemap); the FAQ "See Payment Information" link points there.
+
 ## UPDATE 20 Nov 2026 19:45 EAT (Ray) - plugin 1.123.0 / theme 1.161.34: "within 5 km of the CBD" everywhere + corrected rider distances
 
 - Pay on delivery wording changed from "within Nairobi CBD only" to "only within 5 km of the CBD" on product pages (`class-product-page.php`, `nura-specs-shop.php`, `nura-product-ai.php`), policy page copy (`class-nura-pages.php`), FAQs (`data/wig-questions.php`, `nura-wig-questions.php`, `nura-services.php` Swahili, `nura-city-pages.php`), chat (`class-ai-stylist.php` prompt + fallback), schema (`class-nura-schema.php`, `nura-schema-tidy.php`), llms/geo (`nura-geo.php`), SEO FAQ (`nura-seo.php`), facts rewrites (`nura-facts.php` x2), checkout trust strip (`nura-checkout.php`), COD gateway description and checkout error messages (`nura-checkout-ux.php`, `woocommerce-support.php`; errors no longer tell the customer to "choose Nairobi CBD delivery").

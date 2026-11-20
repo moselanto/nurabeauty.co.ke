@@ -255,6 +255,8 @@ function nura_pod_5km_text( $t ) {
 		'/within Nairobi CBD you can pay on delivery/'        => 'within 5 km of the CBD you can pay on delivery',
 		'/except Nairobi CBD deliveries/i'                    => 'except deliveries within 5 km of the CBD',
 		'/Pay on delivery in Nairobi CBD\b/'                  => 'Pay on delivery within 5 km of the CBD',
+		// 1.161.35: Shipping & Delivery "Paying for delivery orders" first line.
+		'#(?:<strong>|<b>)?\s*Nairobi:\s*(?:</strong>|</b>)?\s*delivered orders are paid before dispatch by M-Pesa, card or bank transfer#i' => 'Nairobi deliveries beyond 5 km of the CBD are paid before dispatch by M-Pesa, card or bank transfer',
 	);
 	return preg_replace( array_keys( $map ), array_values( $map ), $t );
 }

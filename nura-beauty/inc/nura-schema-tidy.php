@@ -103,7 +103,7 @@ function nura_schema_tidy_r3( &$node ) {
 		unset( $node['priceRange'], $node['currenciesAccepted'], $node['paymentAccepted'] );
 	}
 	if ( array_intersect( $types, array( 'HealthAndBeautyBusiness', 'LocalBusiness', 'BeautySalon', 'Store' ) ) && isset( $node['paymentAccepted'] ) ) {
-		$node['paymentAccepted'] = 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash (at studio pick-up, or on delivery within Nairobi CBD only)';
+		$node['paymentAccepted'] = 'M-Pesa, Visa, Mastercard, Bank Transfer, Cash (at studio pick-up, or on delivery only within 5 km of the CBD)';
 	}
 	if ( in_array( 'ProductGroup', $types, true ) && ! empty( $node['hasVariant'] ) && is_array( $node['hasVariant'] ) ) {
 		$brand = isset( $node['brand'] ) ? $node['brand'] : array( '@type' => 'Brand', 'name' => 'NURA Beauty' );

@@ -95,7 +95,7 @@ HTML;
 <ul>
 <li>Same-day delivery is for orders confirmed and paid before 5 PM, Monday to Saturday. Later orders go out the next working day. Orders on Sundays and public holidays also go out the next working day.</li>
 <li>We confirm the exact rider fee for your location on WhatsApp before dispatch. If it is more than the fee charged at checkout, we tell you the balance before the rider leaves.</li>
-<li>Pay on delivery (cash or M-Pesa) is available only within Nairobi CBD. All other rider deliveries are paid before dispatch by M-Pesa or card.</li>
+<li>Pay on delivery (cash or M-Pesa) is available only within 5 km of the CBD. All other rider deliveries are paid before dispatch by M-Pesa or card.</li>
 <li>Give us a Kenyan phone number the rider can call and a specific physical location: area or estate, road or street, building or house, and a nearby landmark. A P.O. Box is a postal address and cannot be delivered by rider.</li>
 <li>The person receiving the order signs to confirm they have received it.</li>
 <li>Questions about delivery: WhatsApp +254 714 994 898.</li>
@@ -112,7 +112,7 @@ HTML;
 <p>Orders are packed and dispatched the same day payment is confirmed (Monday to Saturday). We send your rider details, parcel code or courier tracking number by WhatsApp or SMS as soon as your order is dispatched. Orders placed on Sundays and public holidays are dispatched the next working day.</p>
 <h3>Paying for delivery orders</h3>
 <ul>
-<li><strong>Nairobi:</strong> pay online (M-Pesa or card), by bank transfer, or to our M-Pesa Buy Goods Till 1679269 before dispatch. Within Nairobi CBD you can pay on delivery (cash or M-Pesa).</li>
+<li><strong>Nairobi:</strong> pay online (M-Pesa or card), by bank transfer, or to our M-Pesa Buy Goods Till 1679269 before dispatch. Within 5 km of the CBD you can pay on delivery (cash or M-Pesa).</li>
 <li><strong>Outside Nairobi:</strong> full payment is needed before dispatch, because parcels travel by bus or courier.</li>
 </ul>
 <h3>Receiving your order</h3>
@@ -213,7 +213,7 @@ HTML;
 <h3>Orders &amp; payment</h3>
 <ul>
 <li>All prices are in Kenyan Shillings (KES) and include any applicable taxes. Delivery fees are shown separately at checkout.</li>
-<li>We accept M-Pesa and card (via Paystack), M-Pesa Buy Goods Till 1679269 for WhatsApp orders, and bank transfer. Pay on delivery (cash or M-Pesa) is available within Nairobi CBD only; all other deliveries are paid in full before dispatch. You can also pay in person when you collect from our studio.</li>
+<li>We accept M-Pesa and card (via Paystack), M-Pesa Buy Goods Till 1679269 for WhatsApp orders, and bank transfer. Pay on delivery (cash or M-Pesa) is available only within 5 km of the CBD; all other deliveries are paid in full before dispatch. You can also pay in person when you collect from our studio.</li>
 <li>Orders are confirmed once payment is received, or for studio pick-up orders paid in person, once we have confirmed the order details with you.</li>
 <li>We may cancel or refuse an order - for example in cases of suspected fraud, pricing errors or stock unavailability - and will notify you promptly.</li>
 </ul>
@@ -301,7 +301,7 @@ HTML;
 <h3>What lengths, textures and colours are available?</h3>
 <p>Most units come in 10&Prime; to 30&Prime; lengths, densities of 130% to 200%, textures from straight to afro curly, and colours from natural black to blonde, ombr&eacute;, burgundy and 613. Each variation shows its own price and availability on the product page.</p>
 <h3>How do I pay?</h3>
-<p>M-Pesa and Visa/Mastercard (both via Paystack), M-Pesa Buy Goods Till 1679269, and bank transfer. Delivered orders are paid before dispatch, except Nairobi CBD deliveries (pay on delivery, cash or M-Pesa); pay at the shop when you collect. See <a href="/payment-information/">Payment Information</a>.</p>
+<p>M-Pesa and Visa/Mastercard (both via Paystack), M-Pesa Buy Goods Till 1679269, and bank transfer. Delivered orders are paid before dispatch, except deliveries within 5 km of the CBD (pay on delivery, cash or M-Pesa); pay at the shop when you collect. See <a href="/payment-information/">Payment Information</a>.</p>
 <h3>How fast is delivery?</h3>
 <p>Same-day within Nairobi (order before 5:00pm), same-day dispatch countrywide (arrival time set by the shuttle or courier), and shipping abroad on request. See <a href="/shipping-delivery/">Shipping &amp; Delivery</a>.</p>
 <h3>Can I return or exchange a wig?</h3>

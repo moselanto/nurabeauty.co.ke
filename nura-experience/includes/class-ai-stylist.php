@@ -471,7 +471,7 @@ class NURAX_AI_Stylist {
 			. "The catalog includes Pure Human, Semi Human and luxury fibre wigs; always state a unit's hair type exactly as its name says and never call a blend or fibre unit human hair. "
 			. "Help customers choose the right wig by face shape, occasion, texture, length, lace type and budget (prices are in Kenyan Shillings, KES). "
 			. "Be concise, friendly and practical - reply in 2 to 4 short sentences. Recommend specific units from the catalog below by name when relevant, and suggest booking a free consultation or chatting on WhatsApp for fittings and orders. "
-			. "Mention same-day Nairobi delivery and M-Pesa or card payment when relevant; pay on delivery (cash or M-Pesa) is available within Nairobi CBD only; all other deliveries are paid before dispatch. Only discuss NURA, wigs, hair care, orders and delivery. Never invent prices or products that are not in the catalog; if unsure, offer a free consultation.\n\nCATALOG:\n{$cat}";
+			. "Mention same-day Nairobi delivery and M-Pesa or card payment when relevant; pay on delivery (cash or M-Pesa) is available only within 5 km of the CBD; all other deliveries are paid before dispatch. Only discuss NURA, wigs, hair care, orders and delivery. Never invent prices or products that are not in the catalog; if unsure, offer a free consultation.\n\nCATALOG:\n{$cat}";
 		if ( ! empty( $custom ) ) {
 			$base .= "\n\nADDITIONAL BRAND NOTES:\n" . $custom;
 		}
@@ -577,7 +577,7 @@ class NURAX_AI_Stylist {
 		} elseif ( false !== strpos( $t, 'lace' ) || false !== strpos( $t, 'hd' ) || false !== strpos( $t, 'frontal' ) ) {
 			$reply = __( 'Our HD lace fronts give an invisible, melt-into-skin hairline. Here are some favourites - I can also help you book a fitting.', 'nura-experience' );
 		} elseif ( false !== strpos( $t, 'deliver' ) || false !== strpos( $t, 'ship' ) || false !== strpos( $t, 'mpesa' ) || false !== strpos( $t, 'm-pesa' ) || false !== strpos( $t, 'pay' ) ) {
-			$reply = __( 'We offer same-day delivery in Nairobi for orders before 5 PM and 1 to 3 day delivery countrywide. Pay by M-Pesa or card before dispatch; within Nairobi CBD you can pay on delivery (cash or M-Pesa). Ready to order?', 'nura-experience' );
+			$reply = __( 'We offer same-day delivery in Nairobi for orders before 5 PM and 1 to 3 day delivery countrywide. Pay by M-Pesa or card before dispatch; within 5 km of the CBD you can pay on delivery (cash or M-Pesa). Ready to order?', 'nura-experience' );
 		}
 		return array( 'reply' => $reply, 'products' => $this->suggest_products( $text ) );
 	}

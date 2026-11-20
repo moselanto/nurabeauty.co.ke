@@ -2,6 +2,12 @@
 
 Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 20 Nov 2026 19:45 EAT (Ray) - plugin 1.123.0 / theme 1.161.34: "within 5 km of the CBD" everywhere + corrected rider distances
+
+- Pay on delivery wording changed from "within Nairobi CBD only" to "only within 5 km of the CBD" on product pages (`class-product-page.php`, `nura-specs-shop.php`, `nura-product-ai.php`), policy page copy (`class-nura-pages.php`), FAQs (`data/wig-questions.php`, `nura-wig-questions.php`, `nura-services.php` Swahili, `nura-city-pages.php`), chat (`class-ai-stylist.php` prompt + fallback), schema (`class-nura-schema.php`, `nura-schema-tidy.php`), llms/geo (`nura-geo.php`), SEO FAQ (`nura-seo.php`), facts rewrites (`nura-facts.php` x2), checkout trust strip (`nura-checkout.php`), COD gateway description and checkout error messages (`nura-checkout-ux.php`, `woocommerce-support.php`; errors no longer tell the customer to "choose Nairobi CBD delivery").
+- New `nura_pod_5km_text()` in `nura-inner.php` (the_content + short description, priority 99) rewrites the old wording in published page text (Shipping & Delivery, FAQ, Payment information) without editing the database.
+- Rider distances corrected (shortest motorbike route from Stanbank House; Expressway excluded): Fedha 18.0 -> 11.2 km (KSh 650), Tassia 16.9 -> 11.3 km (KSh 650), Kangemi 13.7 -> 13.0 km (KSh 700). Default table in `class-nura-rider-fee.php` and saved table in WooCommerce > Rider delivery fees.
+
 ## UPDATE 20 Nov 2026 19:30 EAT (Ray) - plugin 1.122.2: WhatsApp order form payment note
 
 - WhatsApp order form payment note now reads "Pay on delivery (cash or M-Pesa) is available only within 5 km of the CBD..." (was "within Nairobi CBD only"), matching the "Pay on delivery (within 5 km of CBD)" choice. `class-nura-wa-order.php`. Theme unchanged (1.161.33).

@@ -101,7 +101,7 @@ Two Rivers | 12.8 | two rivers |
 Rosslyn | 13.1 | rosslyn | 
 Dandora | 13.4 | dandora | 
 Garden City | 13.6 | garden city | 
-Kangemi | 13.7 | kangemi | 
+Kangemi | 13.0 | kangemi | 
 Pipeline | 13.8 | pipeline | 
 Nyari | 13.8 | nyari | 
 Ruaka | 14.2 | ruaka | 
@@ -115,10 +115,10 @@ Mountain View | 16.0 | mountain view |
 Mwiki | 16.2 | mwiki | 
 Karen | 16.2 | karen, hardy, kerarapon, bogani | KSh 800
 Komarock | 16.5 | komarock, koma rock | 
-Tassia | 16.9 | tassia | 
+Tassia | 11.3 | tassia | 
 JKIA | 16.9 | jkia, jomo kenyatta international airport | 
 Banana Hill | 17.4 | banana hill, banana | 
-Fedha | 18.0 | fedha | 
+Fedha | 11.2 | fedha | 
 Kahawa Wendani | 18.3 | kahawa wendani, wendani | 
 Kahawa West | 18.5 | kahawa west | 
 Ndenderu | 18.5 | ndenderu | 

@@ -120,7 +120,7 @@ add_filter( 'option_woocommerce_cod_settings', function ( $v ) {
 		return $v;
 	}
 	$v['title']       = __( 'Pay on delivery (cash or M-Pesa)', 'nura-beauty' );
-	$v['description'] = __( 'Nairobi CBD delivery: pay the rider in cash or M-Pesa when your order arrives. Studio pickup: pay when you collect. All other deliveries are paid before dispatch.', 'nura-beauty' );
+	$v['description'] = __( 'Within 5 km of the CBD: pay the rider in cash or M-Pesa when your order arrives. Studio pickup: pay when you collect. All other deliveries are paid before dispatch.', 'nura-beauty' );
 	return $v;
 }, 120 );
 add_filter( 'option_woocommerce_pickup_location_settings', function ( $v ) {

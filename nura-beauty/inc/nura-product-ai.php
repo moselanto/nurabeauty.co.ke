@@ -320,7 +320,7 @@ function nura_pai_items( $p ) {
 	}
 	$q[] = array(
 		__( 'How do I pay?', 'nura-beauty' ),
-		sprintf( __( 'Pay by M-Pesa or card at checkout, or order on WhatsApp and pay to M-Pesa Buy Goods Till %s (the M-Pesa message shows NURA CROWN & BEAUTY). Pay on delivery (cash or M-Pesa) is available within Nairobi CBD only.', 'nura-beauty' ), $till ),
+		sprintf( __( 'Pay by M-Pesa or card at checkout, or order on WhatsApp and pay to M-Pesa Buy Goods Till %s (the M-Pesa message shows NURA CROWN & BEAUTY). Pay on delivery (cash or M-Pesa) is available only within 5 km of the CBD.', 'nura-beauty' ), $till ),
 	);
 	return (array) apply_filters( 'nura_pai_items', $q, $p );
 }

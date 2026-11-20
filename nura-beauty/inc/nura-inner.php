@@ -211,7 +211,7 @@ add_filter( 'the_content', function ( $content ) {
 	$slug    = get_post_field( 'post_name', get_queried_object_id() );
 	$content = nura_fmt_drop_title( $content );
 	// Stale wording kept in old page text (1.112.0: pay on delivery within Nairobi CBD only).
-	$content = preg_replace( '/,?\s*and cash on delivery within Nairobi(?! CBD)/i', ', and the M-Pesa Buy Goods Till 1679269 for WhatsApp orders (pay on delivery within Nairobi CBD only)', $content );
+	$content = preg_replace( '/,?\s*and cash on delivery within Nairobi(?! CBD)/i', ', and the M-Pesa Buy Goods Till 1679269 for WhatsApp orders (pay on delivery only within 5 km of the CBD)', $content );
 	$content = nura_fmt_linklists( $content );
 	if ( in_array( $slug, array( 'faq', 'help-support', 'warranty', 'warranty-provenance' ), true ) ) {
 		$content = nura_fmt_faq( $content );
@@ -235,3 +235,28 @@ add_filter( 'the_content', function ( $content ) {
 	$upd = '<p class="nura-policy__updated">' . esc_html( sprintf( __( 'Last updated %s', 'nura-beauty' ), get_the_modified_date( 'j F Y', get_queried_object_id() ) ) ) . '</p>';
 	return '<div class="nura-policy' . ( $nav ? ' has-toc' : '' ) . '">' . $nav . '<div class="nura-policy__body">' . $upd . $content . nura_fmt_help_panel() . '</div></div>';
 }, 30 );
+
+
+/**
+ * 1.161.34: pay on delivery is allowed only within 5 km of the CBD. Rewrites the
+ * older "within Nairobi CBD only" wording kept in published page and post text
+ * (Shipping & Delivery, FAQ, Payment information) without editing the database.
+ */
+function nura_pod_5km_text( $t ) {
+	if ( ! is_string( $t ) || false === stripos( $t, 'CBD' ) ) {
+		return $t;
+	}
+	$map = array(
+		'/is available only within Nairobi CBD\b/i'          => 'is available only within 5 km of the CBD',
+		'/is available within Nairobi CBD only\b/i'          => 'is available only within 5 km of the CBD',
+		'/pay on delivery within Nairobi CBD only\b/i'       => 'pay on delivery only within 5 km of the CBD',
+		'/(on delivery[^.<]{0,40}?) within Nairobi CBD only\b/i' => '$1 only within 5 km of the CBD',
+		'/Within Nairobi CBD you can pay on delivery/'        => 'Within 5 km of the CBD you can pay on delivery',
+		'/within Nairobi CBD you can pay on delivery/'        => 'within 5 km of the CBD you can pay on delivery',
+		'/except Nairobi CBD deliveries/i'                    => 'except deliveries within 5 km of the CBD',
+		'/Pay on delivery in Nairobi CBD\b/'                  => 'Pay on delivery within 5 km of the CBD',
+	);
+	return preg_replace( array_keys( $map ), array_values( $map ), $t );
+}
+add_filter( 'the_content', 'nura_pod_5km_text', 99 );
+add_filter( 'woocommerce_short_description', 'nura_pod_5km_text', 99 );

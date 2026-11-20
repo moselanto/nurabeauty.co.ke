@@ -799,13 +799,13 @@ add_filter( 'woocommerce_gateway_description', function ( $desc, $id = '' ) {
 	if ( 'cod' !== $id ) {
 		return $desc;
 	}
-	return ( function_exists( 'nura_chosen_is_cbd' ) && nura_chosen_is_cbd() ) ? __( 'Pay the rider in cash or by M-Pesa when your order arrives. Pay on delivery is available within Nairobi CBD only; all other deliveries are paid before dispatch.', 'nura-beauty' ) : __( 'Pay in person (cash or M-Pesa) when you collect your order from our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD.', 'nura-beauty' );
+	return ( function_exists( 'nura_chosen_is_cbd' ) && nura_chosen_is_cbd() ) ? __( 'Pay the rider in cash or by M-Pesa when your order arrives. Pay on delivery is available only within 5 km of the CBD; all other deliveries are paid before dispatch.', 'nura-beauty' ) : __( 'Pay in person (cash or M-Pesa) when you collect your order from our studio at Stanbank House, 2nd Floor, Room 20, Nairobi CBD.', 'nura-beauty' );
 }, 10, 2 );
 add_action( 'woocommerce_after_checkout_validation', function ( $data, $errors ) {
 	if ( isset( $data['payment_method'] ) && 'cod' === $data['payment_method'] ) {
 		$chosen = isset( $data['shipping_method'] ) ? (array) $data['shipping_method'] : null;
 		if ( ! nura_cod_allowed( $chosen ) ) {
-			$errors->add( 'nura_cod', __( 'Pay on delivery is available within Nairobi CBD only. Please pay with M-Pesa or card before dispatch, choose Nairobi CBD delivery, or choose studio pick-up to pay at the shop.', 'nura-beauty' ) );
+			$errors->add( 'nura_cod', __( 'Pay on delivery is available only within 5 km of the CBD. Please pay with M-Pesa or card before dispatch, or choose studio pick-up to pay at the shop.', 'nura-beauty' ) );
 		}
 	}
 }, 10, 2 );
@@ -822,7 +822,7 @@ add_action( 'woocommerce_store_api_checkout_order_processed', function ( $order 
 		}
 	}
 	if ( ! $ok ) {
-		throw new \Exception( esc_html__( 'Pay on delivery is available within Nairobi CBD only. Please pay with M-Pesa or card before dispatch, choose Nairobi CBD delivery, or choose studio pick-up to pay at the shop.', 'nura-beauty' ) );
+		throw new \Exception( esc_html__( 'Pay on delivery is available only within 5 km of the CBD. Please pay with M-Pesa or card before dispatch, or choose studio pick-up to pay at the shop.', 'nura-beauty' ) );
 	}
 } );
 

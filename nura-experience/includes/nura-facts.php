@@ -207,8 +207,8 @@ if ( ! function_exists( 'nura_facts' ) ) {
 			'Mon–Sat 8:00–20:00'                           => (string) nura_fact( 'hours_text' ),
 			'before 2:00 PM'                               => 'before 5:00 PM',
 			'before <strong>2:00 PM</strong>'              => 'before <strong>5:00 PM</strong>',
-			'(M-Pesa, card or cash on delivery)'           => '(M-Pesa or card; pay on delivery within Nairobi CBD only)',
-			'bank transfer, or cash on delivery in Nairobi' => 'bank transfer, or M-Pesa Till 1679269 for WhatsApp orders. Pay on delivery within Nairobi CBD only',
+			'(M-Pesa, card or cash on delivery)'           => '(M-Pesa or card; pay on delivery only within 5 km of the CBD)',
+			'bank transfer, or cash on delivery in Nairobi' => 'bank transfer, or M-Pesa Till 1679269 for WhatsApp orders. Pay on delivery only within 5 km of the CBD',
 			'by appointment)'                              => 'walk-ins welcome)',
 			// 1.111.0 / 1.114.0: wig 'from' phrases point to the live cheapest wig (owner). Wig-price phrases only; service prices (installation, revamp from KSh 1,500) are untouched.
 			'KSh 1,500 - 4,900'                            => $wf . ' - 4,900',

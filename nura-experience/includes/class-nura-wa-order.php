@@ -344,6 +344,9 @@ class NURAX_WA_Order {
 				if ( in_array( $id, array( 'local_pickup', 'pickup_location' ), true ) ) {
 					continue;
 				}
+				if ( 'free_shipping' === $id && class_exists( 'NURAX_Rider_Fee' ) ) {
+					continue; // 1.122.0: free delivery follows the rider/shuttle rules, not the zone's free method.
+				}
 				if ( 'free_shipping' === $id ) {
 					$req = (string) $m->get_option( 'requires', '' );
 					$min = (float) $m->get_option( 'min_amount', 0 );
@@ -402,7 +405,17 @@ class NURAX_WA_Order {
 	}
 
 	/** Delivery quote for a county + subtotal. */
-	public static function ship_quote( $county, $sub ) {
+	public static function ship_quote( $county, $sub, $area = '' ) {
+		// 1.122.0: rider fee from the area the customer types (same rules + table as checkout).
+		if ( '' !== trim( (string) $area ) && class_exists( 'NURAX_Rider_Fee' ) ) {
+			$r = NURAX_Rider_Fee::quote( $area, $sub );
+			if ( $r ) {
+				$r['county'] = $county;
+				$r['eta']    = __( 'Same-day rider delivery when ordered and paid before 5 PM (Mon-Sat)', 'nura-experience' );
+				$r['free']   = $r['fee'] <= 0;
+				return apply_filters( 'nurax_wa_order_shipping', $r, $county, $sub );
+			}
+		}
 		$q = self::wc_quote( $county, $sub );
 		if ( null === $q ) {
 			$q = self::table_quote( $county, $sub );
@@ -413,6 +426,11 @@ class NURAX_WA_Order {
 		$q['county'] = $county;
 		$q['eta']    = self::eta( $county );
 		$q['free']   = $q['known'] && $q['fee'] <= 0;
+		if ( 'Nairobi' === $county && class_exists( 'NURAX_Rider_Fee' ) ) {
+			// Area not recognised yet: show the base as a starting price, never a final fee.
+			$q['from'] = true;
+			$q['rule'] = __( 'Rider from KSh 300 (within 5 km of the CBD). Type your estate or area to see your exact fee.', 'nura-experience' );
+		}
 		return apply_filters( 'nurax_wa_order_shipping', $q, $county, $sub );
 	}
 
@@ -423,7 +441,8 @@ class NURAX_WA_Order {
 		if ( ! in_array( $county, self::counties(), true ) ) {
 			wp_send_json_error( array( 'message' => 'county' ), 400 );
 		}
-		wp_send_json_success( self::ship_quote( $county, $sub ) );
+		$area   = isset( $_GET['area'] ) ? self::cut( sanitize_text_field( wp_unslash( $_GET['area'] ) ), 160 ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		wp_send_json_success( self::ship_quote( $county, $sub, $area ) );
 	}
 
 	/** Admin: fallback delivery fees box on the WhatsApp Orders page. */
@@ -682,8 +701,8 @@ class NURAX_WA_Order {
 
 						<div data-nwo-delivery>
 							<div class="nwo-f">
-								<label for="nwo-area"><?php esc_html_e( 'Estate, street or landmark (optional)', 'nura-experience' ); ?></label>
-								<input id="nwo-area" name="area" type="text" autocomplete="street-address" maxlength="120" placeholder="<?php esc_attr_e( 'e.g. Kilimani, Argwings Kodhek Rd, near Yaya Centre', 'nura-experience' ); ?>">
+								<label for="nwo-area"><?php esc_html_e( 'Estate / area, street and landmark (we use it to calculate your rider fee)', 'nura-experience' ); ?></label>
+								<input id="nwo-area" name="area" type="text" autocomplete="street-address" maxlength="120" placeholder="<?php esc_attr_e( 'e.g. Lavington, James Gichuru Rd, near Valley Arcade', 'nura-experience' ); ?>">
 							</div>
 							<label class="nwo-check" data-nwo-cbdwrap hidden><input type="checkbox" name="cbd" value="1"><span><strong><?php esc_html_e( 'Deliver within Nairobi CBD', 'nura-experience' ); ?></strong><small><?php esc_html_e( 'Pay on delivery (cash or M-Pesa) is available in the CBD only.', 'nura-experience' ); ?></small></span></label>
 						</div>
@@ -954,6 +973,11 @@ class NURAX_WA_Order {
 		}
 		// Paying at the shop is only for studio pick-up; pay on delivery only within Nairobi CBD (1.94.0).
 		$cbd = 'delivery' === $fulfil && 'Nairobi' === $location && ! empty( $in['cbd'] );
+		// 1.122.0: a recognised area decides it - pay on delivery only within 5 km of the CBD.
+		$rq = ( 'delivery' === $fulfil && class_exists( 'NURAX_Rider_Fee' ) ) ? NURAX_Rider_Fee::quote( $area . ' ' . $town, 0 ) : null;
+		if ( $rq ) {
+			$cbd = ! empty( $rq['within'] );
+		}
 		if ( self::PAY_SHOP === $payment && 'pickup' !== $fulfil ) {
 			$payment = self::PAY_TILL;
 		}
@@ -991,6 +1015,9 @@ class NURAX_WA_Order {
 			}
 		}
 		$delivery = 'pickup' === $fulfil ? self::pickup_text() : trim( ( '' !== $area ? $area . ', ' : '' ) . $place, ', ' ) . ( $cbd ? ' (Nairobi CBD)' : '' );
+		if ( $rq ) {
+			$delivery .= ' | Rider: ' . $rq['area'] . ', ' . $rq['km'] . ' km from studio, ' . $rq['rule'];
+		}
 		$source   = isset( $in['source'] ) && in_array( $in['source'], array( 'product', 'card', 'cart' ), true ) ? (string) $in['source'] : 'product';
 		$page     = isset( $in['page'] ) ? esc_url_raw( (string) $in['page'] ) : '';
 		if ( '' !== $page && wp_parse_url( $page, PHP_URL_HOST ) !== wp_parse_url( home_url(), PHP_URL_HOST ) ) {

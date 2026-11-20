@@ -241,6 +241,43 @@ TXT;
 		return array( $fee, $km, $area[0] );
 	}
 
+	/**
+	 * Quote for free text (WhatsApp order pop-up): null when no area is recognised.
+	 * Same rules and table as checkout.
+	 */
+	public static function quote( $text, $sub = 0 ) {
+		$s    = self::settings();
+		$area = self::match( $text );
+		if ( ! $area ) {
+			return null;
+		}
+		list( $fee, $km, $name ) = self::fee_for( $area );
+		if ( $km > (float) $s['max_km'] ) {
+			return null;
+		}
+		$within = $km <= (float) $s['base_km'];
+		$free   = $within && (float) $s['free_min'] > 0 && (float) $sub >= (float) $s['free_min'];
+		if ( null !== $area[3] ) {
+			$rule = $name . ' fixed rider fee ' . self::money( $area[3] );
+		} elseif ( $within ) {
+			$rule = 'Within ' . $s['base_km'] . ' km of the CBD: ' . self::money( $s['base'] );
+		} else {
+			$extra = (int) ceil( $km - (float) $s['base_km'] - 1e-9 );
+			$rule  = self::money( $s['base'] ) . ' + ' . $extra . ' km x ' . self::money( $s['per_km'] ) . ' = ' . self::money( $fee );
+		}
+		return array(
+			'known'     => true,
+			'rider'     => true,
+			'fee'       => $free ? 0 : $fee,
+			'full_fee'  => $fee,
+			'area'      => $name,
+			'km'        => round( $km, 1 ),
+			'within'    => $within,
+			'free_over' => $within && ! $free ? (float) $s['free_min'] : 0,
+			'rule'      => $rule . ( $free ? ' - free on orders over ' . self::money( $s['free_min'] ) : '' ),
+		);
+	}
+
 	/* ------------------------------------------------------------------ rates */
 
 	private static function is_rider( $rate ) {
@@ -317,12 +354,17 @@ TXT;
 				$within = $km <= (float) $s['base_km'];
 				$cost   = ( $free && $within ) ? 0 : $fee;
 				self::set_cost( $rate, $cost );
-				$where = 'Nairobi CBD' === $name ? 'Nairobi CBD' : $name . ' (' . number_format( $km, 1 ) . ' km from our CBD studio)';
-				$label = 'Rider delivery to ' . $where;
-				if ( 0.0 === (float) $cost ) {
-					$label .= ' - free on orders over ' . self::money( $s['free_min'] );
+				if ( $within ) {
+					$where = 'Nairobi CBD' === $name ? 'Nairobi CBD' : $name . ' (' . number_format( $km, 1 ) . ' km)';
+					$label = 'Rider delivery to ' . $where . ' - within 5 km of CBD, pay on delivery or online';
+				} else {
+					// No "CBD" in this label: pay on delivery is only for deliveries within 5 km.
+					$label = 'Rider delivery to ' . $name . ' (' . number_format( $km, 1 ) . ' km from our studio) - pay before dispatch';
 				}
-				$rate->set_label( $label . ', pay before dispatch' );
+				if ( 0.0 === (float) $cost ) {
+					$label .= ' - FREE on orders over ' . self::money( $s['free_min'] );
+				}
+				$rate->set_label( $label );
 				$rate->add_meta_data( 'Delivery area', $name );
 				$rate->add_meta_data( 'Distance from studio', number_format( $km, 1 ) . ' km' );
 				$rate->add_meta_data( 'Rider fee rule', null !== $area[3] ? 'Fixed area fee ' . self::money( $area[3] ) : ( $within ? self::money( $s['base'] ) . ' within ' . $s['base_km'] . ' km' : self::money( $s['base'] ) . ' + ' . self::money( $s['per_km'] ) . ' per km beyond ' . $s['base_km'] . ' km' ) );
@@ -340,8 +382,9 @@ TXT;
 			$label = (string) $rate->get_label();
 			$cbd   = function_exists( 'nura_is_cbd_rate' ) ? nura_is_cbd_rate( $id, $label ) : (bool) preg_match( '/\bcbd\b/i', $label );
 			if ( $cbd ) {
-				// CBD (pay on delivery) only makes sense within 5 km.
-				if ( $area && $km > (float) $s['base_km'] ) {
+				// Area recognised: the rider rate above already covers it (within 5 km it allows
+				// pay on delivery), so drop the duplicate zone CBD rate.
+				if ( $area && null !== $rider_id ) {
 					unset( $rates[ $id ] );
 					continue;
 				}

@@ -112,7 +112,12 @@
     return (/^[A-Z0-9]{10}$/.test(c) && /[A-Z]/.test(c) && /\d/.test(c)) ? c : '';
   }
   function payTill() { var p = val('payment'); return p !== PAY_SHOP && p !== PAY_COD; }
-  function cbdOn() { var c = form.elements.cbd; return !!(c && c.checked && val('fulfil') !== 'pickup' && val('location') === 'Nairobi'); }
+  function riderQ() { return !!(ship && !ship.loading && ship.rider && val('fulfil') !== 'pickup'); }
+  function cbdOn() {
+    if (val('fulfil') === 'pickup') { return false; }
+    if (riderQ()) { return !!ship.within; } // 1.122.0: the typed area decides (within 5 km of the CBD).
+    var c = form.elements.cbd; return !!(c && c.checked && val('location') === 'Nairobi');
+  }
   function stkPaid() { return !!(stk && stk.status === 'success'); }
   function qty() {
     var q = parseInt(qtyIn.value, 10);
@@ -230,19 +235,19 @@
     if (val('fulfil') === 'pickup') { shipKey = 'pickup'; ship = { known: true, fee: 0, pickup: true }; renderBill(); return; }
     var c = val('location');
     if (!c) { shipKey = ''; ship = null; renderBill(); return; }
-    var sub = Math.round(subtotal()), key = c + '|' + sub;
+    var place = (val('area') + ' ' + val('town')).trim(), sub = Math.round(subtotal()), key = c + '|' + sub + '|' + place.toLowerCase();
     if (key === shipKey && ship && !ship.loading) { renderBill(); return; }
     shipKey = key; ship = { loading: true }; renderBill();
     clearTimeout(shipTimer);
     shipTimer = setTimeout(function () {
-      var url = (C.ajax || '/wp-admin/admin-ajax.php') + '?action=nurax_wa_ship&county=' + encodeURIComponent(c) + '&subtotal=' + sub;
+      var url = (C.ajax || '/wp-admin/admin-ajax.php') + '?action=nurax_wa_ship&county=' + encodeURIComponent(c) + '&subtotal=' + sub + '&area=' + encodeURIComponent(place);
       var fail = function () { if (shipKey === key) { ship = { known: false }; renderBill(); } };
       if (!window.fetch) { fail(); return; }
       fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (res) {
         if (shipKey !== key) { return; }
         ship = (res && res.success && res.data) ? res.data : { known: false };
         ship.fee = Number(ship.fee) || 0; ship.free_over = Number(ship.free_over) || 0;
-        renderBill();
+        renderBill(); syncPay();
       }).catch(fail);
     }, 150);
   }
@@ -254,6 +259,7 @@
     if (pick) { shipTxt = 'Free (pick-up)'; }
     else if (!ship) { shipTxt = 'Select your county'; }
     else if (ship.loading) { shipTxt = 'Calculating...'; }
+    else if (ship.from && !ship.rider) { shipTxt = 'From ' + money(ship.fee || 300) + ' - type your area'; }
     else { shipTxt = ship.known ? (ship.fee > 0 ? money(ship.fee) : 'Free') : 'Confirmed on WhatsApp'; }
     if (billShip) {
       billShip.textContent = shipTxt;
@@ -267,9 +273,17 @@
     }
     if (shipBox) {
       if (!pick && ship && !ship.loading && val('location')) {
-        var h = '<span class="nwo-ship__ico" aria-hidden="true"></span><span class="nwo-ship__txt"><strong>' + esc(val('location')) + ' County</strong>' +
-          (ship.known ? ' &middot; Delivery ' + esc(ship.fee > 0 ? money(ship.fee) : 'free') : ' &middot; Delivery fee confirmed on WhatsApp') +
-          (ship.eta ? '<small>' + esc(ship.eta) + '</small>' : '');
+        var h;
+        if (ship.rider) {
+          h = '<span class="nwo-ship__ico" aria-hidden="true"></span><span class="nwo-ship__txt"><strong>Rider to ' + esc(ship.area) + '</strong> &middot; ' + esc(String(ship.km)) + ' km from our studio &middot; Delivery ' + esc(ship.fee > 0 ? money(ship.fee) : 'FREE') +
+            '<small>' + esc(ship.rule || '') + (ship.within ? ' | Pay on delivery available' : ' | Pay before dispatch') + '</small>' +
+            (ship.eta ? '<small>' + esc(ship.eta) + '</small>' : '');
+        } else {
+          h = '<span class="nwo-ship__ico" aria-hidden="true"></span><span class="nwo-ship__txt"><strong>' + esc(val('location')) + ' County</strong>' +
+            (ship.from ? ' &middot; Rider from ' + esc(money(ship.fee || 300)) : (ship.known ? ' &middot; Delivery ' + esc(ship.fee > 0 ? money(ship.fee) : 'free') : ' &middot; Delivery fee confirmed on WhatsApp')) +
+            (ship.rule ? '<small>' + esc(ship.rule) + '</small>' : '') +
+            (ship.eta ? '<small>' + esc(ship.eta) + '</small>' : '');
+        }
         if (ship.known && ship.fee > 0 && ship.free_over > sub) { h += '<small class="nwo-ship__up">Add ' + esc(money(ship.free_over - sub)) + ' more for free delivery.</small>'; }
         shipBox.innerHTML = h + '</span>';
         shipBox.hidden = false;
@@ -299,7 +313,7 @@
       shopOpt.hidden = !pick;
       if (!pick && val('payment') === PAY_SHOP) { setRadio('payment', PAY_TILL); }
     }
-    if (cbdWrap) { cbdWrap.hidden = pick || val('location') !== 'Nairobi'; }
+    if (cbdWrap) { cbdWrap.hidden = pick || val('location') !== 'Nairobi' || riderQ(); }
     if (codOpt) {
       codOpt.hidden = !cbdOn();
       if (!cbdOn() && val('payment') === PAY_COD) { setRadio('payment', PAY_TILL); }
@@ -423,7 +437,12 @@
     }
     L.push(SEP);
     if (sub > 0) { L.push('Subtotal: ' + from + money(sub)); }
-    L.push((pick ? 'Collection' : 'Delivery') + ': ' + (pick ? 'Free (studio pick-up)' : (sk ? (ship.fee > 0 ? money(ship.fee) : 'Free') : 'To be confirmed')));
+    if (!pick && riderQ()) {
+      L.push('Delivery: ' + (ship.fee > 0 ? money(ship.fee) : 'FREE') + ' (rider to ' + ship.area + ', ' + ship.km + ' km from our studio)');
+      L.push('    ' + (ship.rule || ''));
+    } else {
+      L.push((pick ? 'Collection' : 'Delivery') + ': ' + (pick ? 'Free (studio pick-up)' : (sk ? (ship.fee > 0 ? money(ship.fee) : 'Free') : 'To be confirmed')));
+    }
     if (sub > 0) { L.push(sk ? '*TOTAL: ' + from + money(sub + (pick ? 0 : ship.fee)) + '*' : '*TOTAL: ' + from + money(sub) + ' + delivery*'); }
     L.push(SEP);
     L.push('*CUSTOMER*');
@@ -436,6 +455,7 @@
       var area = val('area');
       L.push('*DELIVERY ADDRESS*');
       L.push((area ? area + ', ' : '') + val('town') + ', ' + val('location') + ' County' + (cbdOn() ? ' (Nairobi CBD)' : ''));
+      if (riderQ()) { L.push(ship.within ? 'Zone: within 5 km of the CBD (pay on delivery available)' : 'Zone: beyond 5 km (pay before dispatch)'); }
       if (ship && ship.eta) { L.push('Timing: ' + ship.eta); }
     }
     L.push(SEP);
@@ -444,7 +464,7 @@
       L.push('Method: M-Pesa prompt (Paystack)');
       L.push('Status: PAID ' + money(stk.amount) + ' - ref ' + stk.reference + (stk.receipt ? ', M-Pesa ' + stk.receipt : ''));
     } else if (val('payment') === PAY_COD) {
-      L.push('Method: Pay on delivery in Nairobi CBD (cash or M-Pesa to the rider)');
+      L.push('Method: Pay on delivery within 5 km of the CBD (cash or M-Pesa to the rider)');
     } else if (payTill()) {
       L.push('Method: M-Pesa Buy Goods, Till ' + TILL + (C.tillName ? ' (' + C.tillName + ')' : ''));
       var code = normCode(val('mpesa_code'));
@@ -674,8 +694,10 @@
     if (e.target.name === 'fulfil' || e.target.name === 'location') { refreshShip(); }
     if (e.target.name === 'location' && e.target.value) { setErr(e.target, ''); }
   });
+  var areaTimer = null;
   form.addEventListener('input', function (e) {
     var t = e.target;
+    if (t.name === 'area' || t.name === 'town') { clearTimeout(areaTimer); areaTimer = setTimeout(refreshShip, 500); }
     if (t.getAttribute('aria-invalid') === 'true') {
       if (t.name === 'phone' && normPhone(t.value)) { setErr(t, ''); }
       if ((t.name === 'name' || t.name === 'town') && clean(t.value).length >= 2) { setErr(t, ''); }

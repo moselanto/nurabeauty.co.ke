@@ -2,6 +2,12 @@
 
 Last updated: 20 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 20 Nov 2026 15:00 EAT (Ray) - plugin 1.122.0: pay on delivery only within 5 km; WhatsApp pop-up uses the same rider fee
+
+- **Pay on delivery fix:** beyond-5-km rider labels no longer contain "CBD" (the old "from our CBD studio" wording made `nura_is_cbd_rate()` treat Lavington/Ruaka as CBD, so pay on delivery showed). New labels: within 5 km "Rider delivery to Westlands (3.1 km) - within 5 km of CBD, pay on delivery or online"; beyond "Rider delivery to Lavington (6.7 km from our studio) - pay before dispatch". When an area is recognised the duplicate zone "Nairobi CBD delivery" rate is removed (the rider rate covers it). Server check, block checkout toggle and Store API safety net all key off "CBD" in the chosen rate label, so pay on delivery = within 5 km or studio pickup only.
+- **WhatsApp order pop-up:** `ship_quote( $county, $sub, $area )` uses `NURAX_Rider_Fee::quote()` (same rules + area table as checkout) on the estate/area + town the customer types; re-quotes 0.5 s after typing. Shows "Rider to Lavington - 6.7 km from our studio - Delivery KSh 400" with the rule (e.g. "KSh 300 + 2 km x KSh 50 = KSh 400") and whether pay on delivery is available. WhatsApp message now has the delivery line with area, km and rule plus a Zone line. Pay on delivery choice in the pop-up appears only within 5 km; the server also decides it from the area. The zone Free shipping method is ignored in the pop-up (free only within 5 km / shuttle). Unrecognised Nairobi area: "From KSh 300 - type your area".
+- `assets/js/nura-wa-order.min.js` is a copy of the unminified file (the plugin enqueues the unminified file).
+
 ## UPDATE 20 Nov 2026 14:30 EAT (Ray) - plugin 1.121.0 / theme 1.161.32: rider fee auto-calculated from the customer's area
 
 - **Owner (20 Nov):** free delivery on orders over KSh 10,000 applies ONLY to shuttle parcels and to deliveries within 5 km of the CBD. Within 5 km = KSh 300; everywhere else the fee must be calculated automatically from the location the customer types.

@@ -2,6 +2,11 @@
 
 Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 21 Nov 2026 17:45 EAT (Ray) - theme 1.161.40: shorter page titles
+
+- Bing site scan (5 Nov) flagged 55 long titles and 31 missing meta descriptions. Crawl of all 128 sitemap URLs on 21 Nov: 0 missing descriptions (already fixed), 44 titles over 65 characters.
+- New `inc/nura-title-len.php`: last `rank_math/frontend/title` filter (priority 9999) caps titles at 65 characters: drops " | Same-Day Nairobi Delivery", "Kenya" after the brand, then shortens the brand to "NURA", then cuts at a bracket/colon/dash/comma. Titles that fit are untouched. Filters `nura_title_cap`, `nura_title_max`.
+
 ## UPDATE 21 Nov 2026 17:30 EAT (Ray) - theme 1.161.39: /shop/ grid rows
 
 - Owner: /shop/ showed some rows of 4 and others of 2. Cause: the "Wigs" / "Wig care" heading rows inserted inside the product grid (`nura-specs-shop.php`, woocommerce_shop_loop) start a new row, so each section ended with a short row (live page 1 was 4, 4, 3, heading, 1). The in-grid headings are now off (filter `nura_shop_loop_dividers`, default false); ordering is unchanged (wigs first, then wig care) and the Wigs / Wig care pills above the grid stay. 12 per page = 3 full rows of 4 on desktop.

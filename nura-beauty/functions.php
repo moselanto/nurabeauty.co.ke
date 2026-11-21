@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURA_VERSION', '1.161.39' );
+define( 'NURA_VERSION', '1.161.40' );
 define( 'NURA_DIR', trailingslashit( get_template_directory() ) );
 define( 'NURA_URI', trailingslashit( get_template_directory_uri() ) );
 
@@ -108,6 +108,7 @@ nura_require( 'nura-checkout-ux' ); // 1.129.0: checkout clarity (bag wording, d
 nura_require( 'nura-seo-r5' ); // 1.149.0: short product titles, de-duplicated snippets, singular category counts.
 nura_require( 'nura-r6' ); // 1.150.0: 404 redirects, filter URLs out of robots, Offer validFrom, tags on interaction, shop CLS.
 nura_require( 'nura-r7' ); // 1.152.0: order attribution, pop-up, option pickers and (on guides) WooCommerce cart scripts load on first interaction.
+nura_require( 'nura-title-len' ); // 1.161.40: cap page titles at 65 characters (Bing title-too-long).
 nura_require( 'nura-r8' ); // 1.153.0: water curl price + types of wigs answer pages, services and booking rules in llms.txt.
 nura_require( 'nura-r9' ); // 1.154.0: QA fixes (clean sitemap, direct guide links, phone tables and bundle button).
 nura_require( 'nura-r10' ); // 1.155.0: tracking tags and helper scripts on first interaction only (owner approved).

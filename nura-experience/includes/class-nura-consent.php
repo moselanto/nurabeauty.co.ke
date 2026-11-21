@@ -49,6 +49,9 @@ final class NURAX_Consent {
 		// Capture at the classic checkout.
 		add_action( 'woocommerce_review_order_before_submit', array( $this, 'checkout_checkbox' ) );
 		add_action( 'woocommerce_checkout_order_processed', array( $this, 'capture_checkout' ), 20, 3 );
+		// 1.123.5: the live checkout is the block checkout, where the classic hook above never runs.
+		add_action( 'woocommerce_init', array( $this, 'register_block_field' ) );
+		add_action( 'woocommerce_store_api_checkout_order_processed', array( $this, 'capture_block_checkout' ), 20 );
 
 		// Capture from the My Account details form.
 		add_action( 'woocommerce_edit_account_form', array( $this, 'account_field' ) );
@@ -70,7 +73,7 @@ final class NURAX_Consent {
 			'default_checked' => 0,
 			'gate_email'      => 1,
 			'gate_whatsapp'   => 1,
-			'label'           => __( 'Keep me updated with NURA news, new arrivals and offers by email and WhatsApp.', 'nura-experience' ),
+			'label'           => self::optin_label(),
 		);
 	}
 
@@ -248,6 +251,62 @@ final class NURAX_Consent {
 		return esc_url_raw( add_query_arg( 'nurax_unsub', (string) $token, home_url( '/' ) ) );
 	}
 
+	/** 1.123.5: clearer opt-in wording (what they get, how often, how to stop). */
+	public static function optin_label(): string {
+		return (string) apply_filters( 'nurax_optin_label', __( 'Yes, send me wig care tips, new arrivals and NURA-only offers by email. Unsubscribe anytime.', 'nura-experience' ) );
+	}
+
+	/** Block checkout: optional opt-in checkbox under the email address (WooCommerce additional checkout fields). */
+	public function register_block_field(): void {
+		$s = $this->settings();
+		if ( empty( $s['checkout_optin'] ) || ! function_exists( 'woocommerce_register_additional_checkout_field' ) ) {
+			return;
+		}
+		try {
+			woocommerce_register_additional_checkout_field(
+				array(
+					'id'       => 'nurax/marketing-optin',
+					'label'    => self::optin_label(),
+					'location' => 'contact',
+					'type'     => 'checkbox',
+					'required' => false,
+				)
+			);
+		} catch ( \Throwable $e ) {
+			return;
+		}
+	}
+
+	/** Block checkout: record a positive opt-in only. */
+	public function capture_block_checkout( $order ): void {
+		if ( ! $order || ! is_object( $order ) || ! method_exists( $order, 'get_meta_data' ) ) {
+			return;
+		}
+		$email = (string) $order->get_billing_email();
+		if ( ! is_email( $email ) ) {
+			return;
+		}
+		$on = false;
+		foreach ( $order->get_meta_data() as $m ) {
+			$d = $m->get_data();
+			if ( isset( $d['key'] ) && false !== strpos( (string) $d['key'], 'nurax/marketing-optin' ) ) {
+				$on = in_array( (string) $d['value'], array( '1', 'true', 'yes', 'on' ), true ) || true === $d['value'];
+			}
+		}
+		if ( ! $on && class_exists( 'WC_Customer' ) && $order->get_customer_id() ) {
+			$c = new WC_Customer( (int) $order->get_customer_id() );
+			foreach ( $c->get_meta_data() as $m ) {
+				$d = $m->get_data();
+				if ( false !== strpos( (string) $d['key'], 'nurax/marketing-optin' ) && in_array( (string) $d['value'], array( '1', 'true', 'yes', 'on' ), true ) ) {
+					$on = true;
+				}
+			}
+		}
+		if ( $on ) {
+			self::record( $email, true, 'checkout', (int) $order->get_customer_id() );
+		}
+	}
+
 	/* --------------------------------------------------------------- capture */
 
 	public function checkout_checkbox(): void {
@@ -260,7 +319,7 @@ final class NURAX_Consent {
 			array(
 				'type'    => 'checkbox',
 				'class'   => array( 'form-row-wide', 'nurax-optin' ),
-				'label'   => $s['label'],
+				'label'   => self::optin_label(),
 				'default' => empty( $s['default_checked'] ) ? 0 : 1,
 			),
 			! empty( $s['default_checked'] ) ? 1 : 0

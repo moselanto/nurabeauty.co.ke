@@ -2,6 +2,11 @@
 
 Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 21 Nov 2026 18:30 EAT (Ray) - plugin 1.123.5: marketing opt-in on the block checkout
+
+- Finding: the live checkout is the WooCommerce block checkout, so the classic opt-in checkbox (woocommerce_review_order_before_submit) never showed; only 14 customers had opted in. The review request email is consent gated (owner: keep it opted-in only).
+- `class-nura-consent.php`: registers an optional checkbox `nurax/marketing-optin` under the email address via `woocommerce_register_additional_checkout_field` (location contact), not pre-ticked; `woocommerce_store_api_checkout_order_processed` records a positive opt-in in the consent ledger (source checkout). New clearer wording (filter `nurax_optin_label`), also used on the classic checkout: "Yes, send me wig care tips, new arrivals and NURA-only offers by email. Unsubscribe anytime."
+
 ## UPDATE 21 Nov 2026 17:45 EAT (Ray) - theme 1.161.40: shorter page titles
 
 - Bing site scan (5 Nov) flagged 55 long titles and 31 missing meta descriptions. Crawl of all 128 sitemap URLs on 21 Nov: 0 missing descriptions (already fixed), 44 titles over 65 characters.

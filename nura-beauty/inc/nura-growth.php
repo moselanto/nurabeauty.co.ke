@@ -83,7 +83,9 @@ add_filter( 'nura_home_faqs', function ( $faqs ) {
 	$parts = array();
 	if ( isset( $b['fibre'] ) ) {
 		/* translators: 1: lowest price, 2: highest price. */
-		$parts[] = sprintf( __( 'luxury fibre wigs cost %1$s to %2$s', 'nura-beauty' ), nura_growth_ksh( $b['fibre'][0] ), nura_growth_ksh( $b['fibre'][1] ) );
+		$parts[] = ( (float) $b['fibre'][0] === (float) $b['fibre'][1] ) // 1.161.41: one price, no "KSh 4,500 to KSh 4,500".
+			? sprintf( __( 'luxury fibre wigs cost %s', 'nura-beauty' ), nura_growth_ksh( $b['fibre'][0] ) )
+			: sprintf( __( 'luxury fibre wigs cost %1$s to %2$s', 'nura-beauty' ), nura_growth_ksh( $b['fibre'][0] ), nura_growth_ksh( $b['fibre'][1] ) );
 	}
 	if ( isset( $b['blend'] ) ) {
 		/* translators: 1: lowest price, 2: highest price. */

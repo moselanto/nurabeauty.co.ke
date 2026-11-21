@@ -2,6 +2,10 @@
 
 Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 21 Nov 2026 23:40 EAT (Ray) - theme 1.161.41: homepage facts
+
+- Homepage facts strip (`nura-seo.php`) still said "48 hours Easy returns" (old policy); now "M-Pesa or card, secure checkout". Homepage FAQ price answer (`nura-growth.php`) said "luxury fibre wigs cost KSh 4,500 to KSh 4,500"; a single price now reads "cost KSh 4,500". Both are read by AI assistants and Google.
+
 ## UPDATE 21 Nov 2026 23:00 EAT (Ray) - plugin 1.124.2: cleanup tool removed
 
 - The six stale Loose Wave variations (366, 370, 371, 374, 812, 813) were deleted with the 1.124.1 tool on 21 Nov; together with 365, 368, 369, 373 (WooCommerce) and Meta items 265, 367, 372 all 13 stale records are gone from the Meta catalogue (36 products / 190 variants). Live Loose Wave (13 colours) and Black Jerry Curl (2499-2502) untouched.

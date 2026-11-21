@@ -2,6 +2,11 @@
 
 Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 21 Nov 2026 17:30 EAT (Ray) - theme 1.161.39: /shop/ grid rows
+
+- Owner: /shop/ showed some rows of 4 and others of 2. Cause: the "Wigs" / "Wig care" heading rows inserted inside the product grid (`nura-specs-shop.php`, woocommerce_shop_loop) start a new row, so each section ended with a short row (live page 1 was 4, 4, 3, heading, 1). The in-grid headings are now off (filter `nura_shop_loop_dividers`, default false); ordering is unchanged (wigs first, then wig care) and the Wigs / Wig care pills above the grid stay. 12 per page = 3 full rows of 4 on desktop.
+- This release also carries the not-yet-uploaded 1.161.38 changes (llms delivery wording, review schema).
+
 ## UPDATE 21 Nov 2026 00:30 EAT (Ray) - plugin 1.123.4 / theme 1.161.38: reviews in schema, review request email, llms delivery wording
 
 - llms.txt delivery line (`nura-geo.php`) rewritten to the rider-fee rules in `class-nura-rider-fee.php`: rider for Nairobi and nearby up to about 45 km; KSh 300 within 5 km of the CBD; Kilimani KSh 500; Karen KSh 800; others KSh 300 + KSh 50/km beyond 5 km; free over KSh 10,000 only within 5 km of the CBD and on shuttle parcels.

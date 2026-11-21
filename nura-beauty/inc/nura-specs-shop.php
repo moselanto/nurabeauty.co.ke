@@ -324,6 +324,11 @@ add_filter( 'posts_clauses', function ( $clauses, $q ) {
 /** Section headings inside the /shop/ grid. */
 add_action( 'woocommerce_shop_loop', function () {
 	static $last = null;
+	// 1.161.39: headings inside the grid left short rows (e.g. 4 then 2, or 3 then 1) on /shop/.
+	// Wigs still come first, then wig care, in one continuous 4-across grid; the Wigs / Wig care pills above the grid do the splitting.
+	if ( ! apply_filters( 'nura_shop_loop_dividers', false ) ) {
+		return;
+	}
 	if ( ! nura_shop_split_on() || ! is_shop() || is_search() || ! empty( $_GET['orderby'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 		return;
 	}

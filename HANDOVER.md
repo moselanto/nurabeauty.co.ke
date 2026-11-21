@@ -2,6 +2,11 @@
 
 Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 21 Nov 2026 23:00 EAT (Ray) - plugin 1.124.2: cleanup tool removed
+
+- The six stale Loose Wave variations (366, 370, 371, 374, 812, 813) were deleted with the 1.124.1 tool on 21 Nov; together with 365, 368, 369, 373 (WooCommerce) and Meta items 265, 367, 372 all 13 stale records are gone from the Meta catalogue (36 products / 190 variants). Live Loose Wave (13 colours) and Black Jerry Curl (2499-2502) untouched.
+- Tools > NURA catalogue cleanup (cleanup_menu / cleanup_page / cleanup_run in `class-nura-meta-labels.php`) removed. The Meta labels and the admin preview stay.
+
 ## UPDATE 21 Nov 2026 22:45 EAT (Ray) - plugin 1.124.1: catalogue cleanup tool
 
 - Owner approved removing 13 stale Meta items. Done: WooCommerce variations 365, 368, 369, 373 deleted; Meta items 265 (old Black Jerry Curl parent record KSh 15,600), 367, 372 deleted in Commerce Manager. The variation Remove link did not delete 366, 370, 371, 374, 812, 813 (no error shown).

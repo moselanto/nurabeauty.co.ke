@@ -2,6 +2,11 @@
 
 Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 21 Nov 2026 22:45 EAT (Ray) - plugin 1.124.1: catalogue cleanup tool
+
+- Owner approved removing 13 stale Meta items. Done: WooCommerce variations 365, 368, 369, 373 deleted; Meta items 265 (old Black Jerry Curl parent record KSh 15,600), 367, 372 deleted in Commerce Manager. The variation Remove link did not delete 366, 370, 371, 374, 812, 813 (no error shown).
+- New Tools > NURA catalogue cleanup (`class-nura-meta-labels.php`): deletes only those six IDs, only if each is a disabled (private) variation of product 364, then syncs the parent. Remove the tool once used.
+
 ## UPDATE 21 Nov 2026 21:45 EAT (Ray) - plugin 1.124.0: Meta catalogue labels
 
 - New `class-nura-meta-labels.php` on `facebook_for_woocommerce_integration_prepare_product` (WooCommerce by Meta sync): `custom_label_0` = "From KSh 7,000" (cheapest option; "KSh 3,000" for one price), `custom_label_1` = "wig" / "not-wig" (Wigs category tree, not Wig care, name not "Hair Closure"; per-product override meta `_nura_meta_wig` yes/no). custom_label_4 untouched (already used).

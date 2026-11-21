@@ -2,6 +2,12 @@
 
 Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 21 Nov 2026 21:45 EAT (Ray) - plugin 1.124.0: Meta catalogue labels
+
+- New `class-nura-meta-labels.php` on `facebook_for_woocommerce_integration_prepare_product` (WooCommerce by Meta sync): `custom_label_0` = "From KSh 7,000" (cheapest option; "KSh 3,000" for one price), `custom_label_1` = "wig" / "not-wig" (Wigs category tree, not Wig care, name not "Hair Closure"; per-product override meta `_nura_meta_wig` yes/no). custom_label_4 untouched (already used).
+- Preview for admins: /wp-admin/admin-post.php?action=nurax_meta_labels_preview.
+- Meta: carousel card description {{product.custom_label_0}}; "Wigs only" set rule custom label 1 = wig. One-time "Product Feed by Facebook for WooCommerce" upload (162 items, stale copies such as Black Jerry Curl KSh 15,600) to be removed so only the WooCommerce by Meta source remains.
+
 ## UPDATE 21 Nov 2026 18:30 EAT (Ray) - plugin 1.123.5: marketing opt-in on the block checkout
 
 - Finding: the live checkout is the WooCommerce block checkout, so the classic opt-in checkbox (woocommerce_review_order_before_submit) never showed; only 14 customers had opted in. The review request email is consent gated (owner: keep it opted-in only).

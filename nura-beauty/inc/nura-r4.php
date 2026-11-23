@@ -141,25 +141,27 @@ function nura_r4_pages() {
 	};
 	return apply_filters( 'nura_r4_pages', array(
 		'where-to-buy-human-hair-wigs-nairobi' => array(
-			'Where to Buy Human Hair Wigs in Nairobi',
-			'Where to Buy Human Hair Wigs in Nairobi (Prices & Shop) | NURA Beauty',
-			'Buy Pure Human wigs in Nairobi CBD at NURA Beauty: real prices, honest hair-type labels, try-on and installation at Stanbank House, same-day delivery.',
-			'where to buy human hair wigs in nairobi',
+			'Where to Buy Wigs in Nairobi: Human Hair, Semi Human and Fibre',
+			'Where to Buy Wigs in Nairobi (Human Hair, Semi Human, Fibre) | NURA',
+			'Where to buy wigs in Nairobi: Pure Human, Semi Human and luxury fibre wigs at NURA Beauty, Nairobi CBD. Real prices, honest hair-type labels, same-day delivery.',
+			'where to buy wigs in nairobi',
 			'en',
-			'NURA Beauty sells Pure Human wigs at its studio at {address} and online with same-day Nairobi delivery before {cutoff}. Prices run from {human_min} to {human_max}, every unit is labelled with its exact hair type, and you can try it on and have it installed the same visit.',
+			'NURA Beauty sells Pure Human, Semi Human and luxury fibre wigs at its studio at {address} and online with same-day Nairobi delivery before {cutoff}. Every wig is labelled with its exact hair type and price, and you can try it on and have it installed the same visit.',
 			array(
-				'What a good human hair wig shop gives you' => '<ul><li><strong>Honest labels:</strong> the exact hair type on every unit - Pure Human, Semi Human or luxury fibre.</li><li><strong>See it first:</strong> try units in the studio, or ask for a live WhatsApp video before you pay.</li><li><strong>Real prices:</strong> shown on every product, with no "DM for price".</li><li><strong>Installation and aftercare:</strong> fitting, styling and revamp in the same place.</li><li><strong>A returns policy:</strong> {returns}</li></ul>',
-				'Human hair wig prices at NURA' => '<p>Pure Human wigs: {human_min} to {human_max}, rising with length and lace. Semi Human wigs start at {blend_min}. Lipa Mdogo Mdogo (pay in instalments) is available on wigs from KSh 7,000. See the full ' . $a( '/wig-prices-kenya/', 'wig price list' ) . '.</p>',
+				'What a good wig shop gives you' => '<ul><li><strong>Honest labels:</strong> the exact hair type on every unit - Pure Human, Semi Human or luxury fibre.</li><li><strong>See it first:</strong> try units in the studio, or ask for a live WhatsApp video before you pay.</li><li><strong>Real prices:</strong> shown on every product, with no "DM for price".</li><li><strong>Installation and aftercare:</strong> fitting, styling and revamp in the same place.</li><li><strong>A returns policy:</strong> {returns}</li></ul>',
+				'Wig prices in Nairobi by hair type' => '<ul><li><strong>Pure Human wigs:</strong> {human_min} to {human_max}, rising with length and lace. ' . $a( '/product-category/wigs/human-hair-wigs/', 'Shop Pure Human wigs' ) . '.</li><li><strong>Semi Human wigs:</strong> from {blend_min}. ' . $a( '/product-category/wigs/human-hair-blend-wigs/', 'Shop Semi Human wigs' ) . '.</li><li><strong>Luxury fibre wigs:</strong> from {fibre_min}. ' . $a( '/product-category/wigs/high-fibre-wigs/', 'Shop luxury fibre wigs' ) . '.</li></ul><p>Lipa Mdogo Mdogo (pay in instalments) is available on wigs from KSh 7,000. See the full ' . $a( '/wig-prices-kenya/', 'wig price list' ) . '.</p>',
+				'Which hair type is right for you?' => '<table><thead><tr><th>Hair type</th><th>Best for</th><th>Heat styling</th><th>Care</th></tr></thead><tbody><tr><td>Pure Human</td><td>The most natural look and the longest life; colour and restyle it</td><td>Yes: flat iron, curl, dye</td><td>Wash and condition like your own hair</td></tr><tr><td>Semi Human</td><td>A natural look at a mid-range price; daily wear</td><td>Low heat only</td><td>Gentle wash, light products</td></tr><tr><td>Luxury fibre</td><td>The lowest price, ready to wear, style holds after washing</td><td>Only if labelled heat-resistant, on low heat</td><td>Cool water, wig shampoo</td></tr></tbody></table><p>Still unsure? Read ' . $a( '/human-hair-vs-fibre-wig-cost-per-wear/', 'human hair vs fibre: which is cheaper per wear' ) . ' or ask NURA Stylist on the website or WhatsApp.</p>',
 				'How to check it is real human hair' => '<ul><li>It takes heat: human hair can be flat-ironed and curled without melting.</li><li>It moves and feels like hair, not plastic, and is not unnaturally shiny.</li><li>It can be washed, conditioned and dyed.</li><li>The seller states the hair type in writing on the product or receipt.</li></ul><p>More in our guide ' . $a( '/how-to-buy-wigs-online-in-kenya-safely/', 'how to buy wigs online in Kenya safely' ) . '.</p>',
-				'Buy in the studio or online' => '<p><strong>Studio:</strong> {address}, {hours}. ' . ( $dir ? '<a href="' . esc_url( $dir ) . '" target="_blank" rel="noopener">Get directions</a>. ' : '' ) . 'See ' . $a( '/wig-shop-nairobi-cbd/', 'how to find us' ) . '.</p><p><strong>Online:</strong> pay by M-Pesa or card at checkout, or order on WhatsApp and pay to Till {till}. Nairobi same day before {cutoff} (rider: {rider}); countrywide by bus/shuttle parcel or courier.</p>',
+				'Buy in the studio or online' => '<p><strong>Studio:</strong> {address}, {hours}. ' . ( $dir ? '<a href="' . esc_url( $dir ) . '" target="_blank" rel="noopener">Get directions</a>. ' : '' ) . 'See ' . $a( '/wig-shop-nairobi-cbd/', 'how to find our Nairobi CBD shop' ) . '.</p><p><strong>Online:</strong> pay by M-Pesa or card at checkout, or order on WhatsApp and pay to Till {till}. Nairobi same day before {cutoff} (rider: {rider}); countrywide by bus/shuttle parcel or courier.</p>',
 			),
 			array(
-				array( 'Where can I buy human hair wigs in Nairobi?', 'At NURA Beauty, {address}, or online at nurabeauty.co.ke with same-day Nairobi delivery before {cutoff}.' ),
-				array( 'How much is a human hair wig in Nairobi?', 'At NURA, Pure Human wigs cost {human_min} to {human_max}, depending on length, density and lace.' ),
-				array( 'Can I try a human hair wig before buying?', 'Yes. Visit the studio ({hours}) or ask for a live video on WhatsApp before you pay.' ),
-				array( 'Do you install the human hair wig after I buy it?', 'Yes. Installation starts from KSh 1,000 at the studio; book a morning slot.' ),
+				array( 'Where can I buy wigs in Nairobi?', 'At NURA Beauty, {address}, or online at nurabeauty.co.ke with same-day Nairobi delivery before {cutoff}. We stock Pure Human, Semi Human and luxury fibre wigs.' ),
+				array( 'Where can I buy human hair wigs in Nairobi?', 'At NURA Beauty, {address}. Pure Human wigs cost {human_min} to {human_max}, depending on length, density and lace.' ),
+				array( 'What is the cheapest wig type?', 'Luxury fibre wigs, from {fibre_min}. Semi Human wigs start at {blend_min} and look more natural.' ),
+				array( 'Can I try a wig before buying?', 'Yes. Visit the studio ({hours}) or ask for a live video on WhatsApp before you pay.' ),
+				array( 'Do you install the wig after I buy it?', 'Yes. Installation starts from KSh 1,000 at the studio; book a morning slot.' ),
 			),
-			'human hair wig',
+			'wig',
 		),
 		'wig-shop-nairobi-cbd' => array(
 			'Wig Shop in Nairobi CBD: How to Find NURA Beauty',
@@ -171,7 +173,7 @@ function nura_r4_pages() {
 			array(
 				'Address and opening hours' => '<p><strong>NURA Beauty</strong><br>{address}<br>Nairobi CBD, Kenya</p><p>{hours}. Fittings and installations are by appointment in the mornings; walk-ins are welcome to browse and buy.</p>' . ( $dir ? '<p><a class="nura-btn nura-btn--gold" href="' . esc_url( $dir ) . '" target="_blank" rel="noopener">Open directions in Google Maps</a></p>' : '' ),
 				'Getting here' => '<ol><li>Make your way to <strong>Moi Avenue</strong> in the CBD - most matatu stages and the main bus termini are a short walk away.</li><li>Look for <strong>Stanbank House</strong> on Moi Avenue.</li><li>Go up to the <strong>2nd floor</strong> and find <strong>Room 20</strong>.</li><li>Lost? Call or WhatsApp <a href="tel:+254714994898">+254 714 994 898</a> and share your location.</li></ol>',
-				'Before you visit' => '<ul><li>For an installation, book first: ' . '<a href="' . esc_url( $book ) . '">book an appointment</a>' . '.</li><li>Want a specific wig? Send us the link on WhatsApp and we will set it aside.</li><li>Pay by M-Pesa (Till {till}), card or bank transfer. We do not take cash on delivery for delivered orders.</li></ul>',
+				'Before you visit' => '<ul><li>For an installation, book first: ' . '<a href="' . esc_url( $book ) . '">book an appointment</a>' . '.</li><li>Want a specific wig? Send us the link on WhatsApp and we will set it aside.</li><li>Not sure which wig type to choose? Compare Pure Human, Semi Human and luxury fibre in ' . $a( '/where-to-buy-human-hair-wigs-nairobi/', 'where to buy wigs in Nairobi' ) . '.</li><li>Pay by M-Pesa (Till {till}), card or bank transfer. We do not take cash on delivery for delivered orders.</li></ul>',
 				'Cannot come to town?' => '<p>We deliver in Nairobi the same day for orders before {cutoff} and countrywide by bus/shuttle parcel or courier. See ' . $a( '/same-day-wig-delivery-nairobi/', 'same-day delivery' ) . ' and ' . $a( '/shipping-delivery/', 'shipping and delivery' ) . '.</p>',
 			),
 			array(
@@ -388,7 +390,7 @@ add_filter( 'nura_llms_extra', function ( $lines ) {
 /* 1.99.0: link the two key local pages from the footer Help menu, the footer fallback and the header Help dropdown. */
 function nura_r4_nav_links() {
 	return (array) apply_filters( 'nura_r4_nav_links', array(
-		array( __( 'Where to buy human hair wigs', 'nura-beauty' ), home_url( '/where-to-buy-human-hair-wigs-nairobi/' ) ),
+		array( __( 'Where to buy wigs in Nairobi', 'nura-beauty' ), home_url( '/where-to-buy-human-hair-wigs-nairobi/' ) ),
 		array( __( 'Find our Nairobi CBD shop', 'nura-beauty' ), home_url( '/wig-shop-nairobi-cbd/' ) ),
 	) );
 }

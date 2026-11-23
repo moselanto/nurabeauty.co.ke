@@ -2,6 +2,14 @@
 
 Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 23 Nov 2026 18:00 EAT (Ray) - theme 1.161.43: where to buy wigs in Nairobi (all hair types)
+
+- Owner: expand /where-to-buy-human-hair-wigs-nairobi/ to cover all wig types instead of a new page. `nura-r4.php`: new title "Where to Buy Wigs in Nairobi: Human Hair, Semi Human and Fibre", SEO title, meta description, focus keyword "where to buy wigs in nairobi", prices by hair type with category links (Pure Human, Semi Human, high fibre), a hair-type comparison table, wider FAQ. Slug unchanged (no redirect needed).
+- /wig-shop-nairobi-cbd/ "Before you visit" now links to it. Header/footer link label "Where to buy wigs in Nairobi".
+- The WP page title was inserted once in 1.98.0; if the H1 still shows the old title, update the page title in wp-admin.
+- Daily routine "NURA site health check" (Town) checks every sitemap URL at 07:00 and posts to the owner's thread only on problems.
+- Hair-type fix on 18 wigs still waiting on the owner's actual answers.
+
 ## UPDATE 23 Nov 2026 17:20 EAT (Ray) - theme 1.161.42: single-price category copy
 
 - Full cross-check of 131 sitemap URLs: all HTTP 200, no PHP/DB errors, all JSON-LD valid. Found body-wave and bone-straight category FAQ (visible + FAQPage schema) saying "from KSh 4,500 to KSh 4,500". `nura-boost.php`: FAQ price answer and category meta description now say "cost KSh X" / "Shop N style(s) at KSh X" when min equals max.

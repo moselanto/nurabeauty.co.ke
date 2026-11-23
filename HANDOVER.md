@@ -2,6 +2,79 @@
 
 Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## FULL RECORD OF THE RAY CHAT ("Nura Beauty Project Update" Town thread), 19-23 Nov 2026
+
+Everything done in this chat, in one place, so the next AI agent knows exactly what exists. Detail for each release is in the `## UPDATE` entries below; n8n chat rules are in AUTOMATION.md section 2.
+
+### Owner rules (always follow)
+- Do the upload, LiteSpeed Purge All and live check yourself; do not hand it back to the owner.
+- Every release: new `## UPDATE` entry at the top of HANDOVER.md; keep README.md and AUTOMATION.md current.
+- No emojis and no em dashes in any copy. Never mention the owner's wife; call NURA "our business".
+- Never guess product facts (hair types, prices, policies): ask the owner.
+
+### How releases were done
+1. Edit, `php -l`. 2. Bump versions: theme `style.css` + `NURA_VERSION` (functions.php); plugin header + `NURAX_VERSION`. 3. HANDOVER entry. 4. Zip `nura-beauty/` or `nura-experience/` only. 5. Commit to `main`. 6. wp-admin upload with "Replace current with uploaded". 7. LiteSpeed Cache > Purge All. 8. Verify live (home, shop, product, add to cart, cart, checkout).
+- Checkout rate test without a browser: Store API GET `/wp-json/wc/store/v1/cart` (Cart-Token + Nonce headers), POST `cart/add-item` (product 250), POST `cart/update-customer` with the address.
+- Chat test: POST `/wp-json/nurax/v1/stylist` body `{"messages":[...],"session_id":"fresh-<16 hex>"}` with Origin/Referer = site and a browser User-Agent.
+
+### Releases in this chat (oldest to newest)
+| Version | What |
+|---|---|
+| Theme 1.161.38 / plugin 1.123.4 | llms.txt delivery wording, star ratings in product schema (approved reviews only), test review email button |
+| Theme 1.161.39 | Shop grid: removed "Wigs"/"Wig care" headings inside the grid; full rows (4 desktop, 2 phone) |
+| Theme 1.161.40 | Every page title max 65 chars; all 31 pages missing a meta description fixed |
+| Plugin 1.123.5 | Marketing opt-in checkbox on the block checkout ("Yes, send me wig care tips, new arrivals and NURA-only offers by email. Unsubscribe anytime. (optional)") |
+| Plugin 1.124.0 | Meta catalogue labels: custom_label_0 = "From KSh" price, custom_label_1 = wig / not-wig |
+| Plugin 1.124.1 / 1.124.2 | Temporary cleanup tool (deleted Loose Wave variations 366, 370, 371, 374, 812, 813), then removed |
+| Theme 1.161.41 | Homepage: "48 hours Easy returns" -> "M-Pesa or card, secure checkout"; "KSh 4,500 to KSh 4,500" -> "KSh 4,500" |
+| Plugin 1.124.3 | From price also in custom_label_4; wig flag as internal label `nura_wig` / `nura_not_wig` (the WooCommerce by Meta daily feed wipes custom_label_0/1) |
+| Plugin 1.125.0 / 1.125.1 / 1.125.2 | Free rider + CBD delivery week, 23 Nov to Sun 29 Nov 23:59 Nairobi, switches off automatically; Nairobi County only (`promo_outside_county()`); Githurai pays normal fee (KSh 850); Utawala, Ruai, Njiru, Mihango, Kahawa West, Mwiki free. Checked: Kileleshwa 0, CBD 0, Ruaka 800, Ongata Rongai 1,100, Kitengela 1,650 |
+| Plugin 1.126.0 | Review stars (only with approved reviews), review links in the order completed email, WooCommerce > AI referrals report + Monday 08:00 email, product page script deferral |
+| Plugin 1.126.1 | Hair-type price tokens count wigs only |
+| Theme 1.161.42 | No "KSh X to KSh X" on category FAQ / meta when min = max |
+| Theme 1.161.43 / 1.161.44 | /where-to-buy-human-hair-wigs-nairobi/ covers all wig types, linked from /wig-shop-nairobi-cbd/; FAQ "How much do Semi Human and luxury fibre wigs cost?"; picks back to human hair wigs. 1.161.44 uploaded by the owner, verified 23 Nov 18:30 |
+
+### Store data changes (wp-admin, not code)
+- Product 2144 renamed "Luodais Curl Keeper", KSh 400 (simple, no sale), SKU `luodais-classic-curl-keeper`, new short and long description (vitamin E curl keeper). URL slug unchanged on purpose. 2145 (No5 Curl Keeper KSh 350) and 2146 (Wig Serum KSh 400) unchanged.
+- Variations 365, 368, 369, 373 deleted in WooCommerce. Note: the WooCommerce variation "Remove" button failed silently; use code instead.
+- Order #2555 (Completed): order note "Note to customer" added 23 Nov 10:51 (received Sunday while closed, dispatched Monday via Wells Fargo, WhatsApp +254 714 994 898). Its review email will go out about 25 Nov, possibly before delivery; owner has not decided whether to move it back to Processing.
+- Review email: on, email only, 3 days after Completed, opted-in customers only (15 opted in on 23 Nov). Reviews need approval before they show. Test address used: mosemqute@gmail.com.
+- Rank Math title/description for the where-to-buy page set in wp-admin.
+
+### Meta (Facebook / Instagram ads)
+- Business 1163951186812680, ad account 1089836700086486 (prepaid, top up by M-Pesa or card), catalogue 1656257866151419 (WooCommerce by Meta source 474166926521348), product set "Wigs only" 1463160861869203 (21 wigs, restored by title list after the daily feed emptied it on 22 Nov), pixel "Nura beauty". Page used for engagers: 1163947033479762 (owner confirmed). Unresolved: which Page the pixel should link to (1192504933955559 "nurabeautyke" was also seen).
+- Old campaign 52680585326138 "NURA Beauty | Wigs Sales | Nov 19-26", ends 26 Nov 14:50. Win-back ad set Off. Carousels show each product's own name/price; "from KSh 1,800" removed from ad text. Lifetime to 23 Nov: KSh 913.77, 2,497 impressions, 110 link clicks, 2 add to cart, 1 checkout, 0 purchases. Only order in the window (#2520, KSh 3,909, card) came from Ecosia/Bing.
+- New, both start 26 Nov 15:00 Nairobi, no end date:
+  - "NURA | WhatsApp orders | from 26 Nov": campaign 52681324411538, ad set 52681324411338, ad "Wigs | WhatsApp launch video" 52681324411138, KSh 350/day, opens WhatsApp +254 714 994 898 with "Hi NURA, I'd like to see your wigs and prices."
+  - "NURA | Catalogue retargeting | from 26 Nov": campaign 52681327378338, ad set 52681327378538 renamed "Kenya | Viewed/ATC + visitors 180d + engagers 365d + engaged video viewers", ad "Wigs | Catalogue retargeting carousel" 52681327378738, KSh 150/day (Meta minimum above KSh 120). Audiences: Wigs-only viewed/ATC 180d, site visitors 180d, Instagram engagers and messagers 365d, Facebook Page 1163947033479762 engagers 365d, "Engaged video viewers" of the launch video. Estimate under 1,000 ("too small") on 23 Nov.
+- Billing 23 Nov: prepaid funds KSh 968.38, account spending limit KSh 2,715.50 with KSh 2,311.38 spent (about KSh 404 left), daily limit KSh 2,614.46. No setting exists to change the account limit; the owner must contact Meta support (message drafted in chat). Do not keep hunting for the control.
+
+### Town scheduled checks and routines (run by Ray, outside the repo)
+- 24 Nov ~09:03: if custom_label_4 and nura_wig survived the daily Meta feed, switch "Wigs only" to the internal-label rule and the Kenya carousel description to {{product.custom_label_4}}.
+- Daily ~12:03 until 23 Dec: full health check (site, chat, offer, ads, billing, pixel, orders); restores "Wigs only" if it empties; on or after 30 Nov removes the free-delivery sentence from the new ads' text.
+- 26 Nov ~14:30: check approval of both new ads and the retargeting audience size; owner-approved: if under 1,000, widen Page and Instagram engagers to 730 days and use all video viewers (no budget or schedule change).
+- 26 Nov ~17:30: check delivery of the new ads, confirm the old campaign ended, check billing. Change nothing.
+- Routine "NURA site health check": daily 07:00 Nairobi, checks every sitemap URL for HTTP errors, DB/PHP errors, broken product data and wrong price copy; posts to the owner's thread only on problems. Test run 23 Nov: 132 pages, no problems.
+
+### Findings and audits
+- AI crawlers (GPTBot, OAI-SearchBot, ChatGPT-User, Perplexity, Claude, Google, Bing) all get HTTP 200; llms.txt is detailed. One paid order came from ChatGPT in the week to 23 Nov (AI referrals report).
+- Ecosia results come from Bing. Bing Webmaster verified 3 Nov; IndexNow working; sitemap 129 pages, 49 indexed; monthly scan allowance used up (re-scan pending).
+- NURA is not in the top 10 for "best wig shop in Nairobi": needs Google reviews, directory listings and article mentions.
+- Growth audit Town document written for the owner (AI visibility, reviews, speed, plan). Google review WhatsApp message written for the owner to send to recent customers (owner action).
+
+### Offers made to the owner, not yet answered (ask before doing)
+- Draft outreach emails to directories/blogs.
+- Make the checkout opt-in also set the NURA Desk Consent field (order #2555 shows opt-in Yes in NURA Consent but "No" in Desk).
+- Move order #2555 back to Processing so the review email waits for delivery.
+- Kiswahili wording review in the n8n chat.
+- International sales: needs countries, courier and whether to absorb Paystack's international card fee.
+
+### Known failures and lessons
+- Town browser sessions can stop when Town credits run out; nothing is half-applied in that case, retry the whole step.
+- n8n "Import from File" fails; "Import from URL" works.
+- Paystack replays failed 3 times with 401: do not retry until the owner pastes `Bearer <sk_live key>`.
+- Meta rejected KSh 100/day budgets (minimum above KSh 120).
+
 ## NEXT TASKS FOR THE NEXT AI AGENT (owner request, 23 Nov 2026 18:30 EAT)
 
 ### Task 1: Retry the n8n NURA 01 - Chat colon-line fix

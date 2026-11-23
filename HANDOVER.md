@@ -2,6 +2,10 @@
 
 Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 23 Nov 2026 17:20 EAT (Ray) - theme 1.161.42: single-price category copy
+
+- Full cross-check of 131 sitemap URLs: all HTTP 200, no PHP/DB errors, all JSON-LD valid. Found body-wave and bone-straight category FAQ (visible + FAQPage schema) saying "from KSh 4,500 to KSh 4,500". `nura-boost.php`: FAQ price answer and category meta description now say "cost KSh X" / "Shop N style(s) at KSh X" when min equals max.
+
 ## UPDATE 23 Nov 2026 16:45 EAT (Ray) - plugin 1.126.0: review stars, review link in completed email, AI referral report, speed trim
 
 - New `includes/class-nura-growth.php` (NURAX_Growth):

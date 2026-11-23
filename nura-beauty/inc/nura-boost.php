@@ -252,7 +252,9 @@ function nura_boost_current_guide() {
 			/* translators: %s: category name. */
 			sprintf( __( 'How much do %s cost?', 'nura-beauty' ), $name ),
 			/* translators: 1: category, 2: low price, 3: high price. */
-			sprintf( __( 'At NURA, %1$s currently cost from %2$s to %3$s. Prices are in Kenya Shillings and you can pay by M-Pesa or card.', 'nura-beauty' ), $name, nura_boost_ksh( $px['lo'] ), nura_boost_ksh( $px['hi'] ) ),
+			( (int) $px['lo'] === (int) $px['hi']
+				? sprintf( __( 'At NURA, %1$s currently cost %2$s. Prices are in Kenya Shillings and you can pay by M-Pesa or card.', 'nura-beauty' ), $name, nura_boost_ksh( $px['lo'] ) )
+				: sprintf( __( 'At NURA, %1$s currently cost from %2$s to %3$s. Prices are in Kenya Shillings and you can pay by M-Pesa or card.', 'nura-beauty' ), $name, nura_boost_ksh( $px['lo'] ), nura_boost_ksh( $px['hi'] ) ) ),
 		) );
 	}
 	$g['faqs'][] = array( __( 'Can I return a wig?', 'nura-beauty' ), __( 'We accept returns ONLY if you received the wrong item or the item arrived damaged. Report it within 48 hours of delivery with photos, and keep the wig unworn, uncut and in its original packaging with your receipt. We do not accept returns for change of mind, size, colour or style, or for any wig that has been worn, cut, washed or installed.', 'nura-beauty' ) );
@@ -336,7 +338,9 @@ add_filter( 'rank_math/frontend/description', function ( $desc ) {
 	$d  = $g['intro'];
 	if ( $px ) {
 		/* translators: 1: count, 2: low, 3: high. */
-		$d = sprintf( __( 'Shop %1$d styles from %2$s to %3$s.', 'nura-beauty' ), $px['count'], nura_boost_ksh( $px['lo'] ), nura_boost_ksh( $px['hi'] ) ) . ' ' . $d;
+		$d = ( (int) $px['lo'] === (int) $px['hi']
+			? sprintf( _n( 'Shop %1$d style at %2$s.', 'Shop %1$d styles at %2$s.', (int) $px['count'], 'nura-beauty' ), $px['count'], nura_boost_ksh( $px['lo'] ) )
+			: sprintf( __( 'Shop %1$d styles from %2$s to %3$s.', 'nura-beauty' ), $px['count'], nura_boost_ksh( $px['lo'] ), nura_boost_ksh( $px['hi'] ) ) ) . ' ' . $d;
 	}
 	return wp_trim_words( $d, 30, '...' );
 }, 30 );

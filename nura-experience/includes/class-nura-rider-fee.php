@@ -314,6 +314,7 @@ TXT;
 			'Kahawa Sukari', 'Kinoo', 'Syokimau', 'Mlolongo', 'Tatu City', 'Ongata Rongai', 'Uthiru',
 			'Membley', 'Kikuyu', 'Ngong Town', 'Ruiru', 'Kabete', 'Wangige', 'Kamiti', 'Kiserian',
 			'Matasia', 'Athi River', 'Kitengela', 'Juja', 'Limuru', 'Joska', 'Thika',
+			'Githurai', // 1.125.2: owner - Githurai pays its normal rider fee.
 		) );
 	}
 

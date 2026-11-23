@@ -2,6 +2,10 @@
 
 Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 23 Nov 2026 12:45 EAT (Ray) - plugin 1.125.2: Githurai excluded from free delivery
+
+- Owner: Githurai pays its normal rider fee during the free Nairobi County delivery week (added to `promo_outside_county()`). Utawala, Ruai, Njiru, Mihango, Kahawa West and Mwiki stay free.
+
 ## UPDATE 23 Nov 2026 12:30 EAT (Ray) - plugin 1.125.1: free delivery offer Nairobi County only
 
 - Owner: free delivery week applies to Nairobi County only. `promo()` now zeroes the rider rate only when the matched area is not in `promo_outside_county()` (Ruaka, Kiambu Town, Gachie, Banana Hill, Ndenderu, Thindigua, Kahawa Wendani, Kahawa Sukari, Kinoo, Syokimau, Mlolongo, Tatu City, Ongata Rongai, Uthiru, Membley, Kikuyu, Ngong Town, Ruiru, Kabete, Wangige, Kamiti, Kiserian, Matasia, Athi River, Kitengela, Juja, Limuru, Joska, Thika; filter `nurax_free_nairobi_outside`). Unrecognised areas keep the KSh 300 base with a note to type the estate. CBD rate still free. Wording: "FREE delivery in Nairobi County this week only, until Sunday 29 November".

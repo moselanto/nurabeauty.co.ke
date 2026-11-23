@@ -75,6 +75,23 @@ Everything done in this chat, in one place, so the next AI agent knows exactly w
 - Paystack replays failed 3 times with 401: do not retry until the owner pastes `Bearer <sk_live key>`.
 - Meta rejected KSh 100/day budgets (minimum above KSh 120).
 
+## UPDATE 23 Nov 2026 19:30 EAT (Ray) - private test wig explained; hair types re-audited (owner's edits went into duplicate boxes)
+
+### "Private: Test wig item by nura only for testing" (KSh 15, sale KSh 10)
+- Owner saw it on the site and asked why it is there. It is a WooCommerce product with status **Private**. WordPress adds "Private:" to the title and shows private products only to logged-in admins/shop managers, so the owner sees it in the shop and search while logged in.
+- Checked logged out on 23 Nov 19:20: not on /shop/, not on the home page, no result for a "test" product search, not in the Store API product list (36 public products, none named test), not in product-sitemap.xml. Customers, Google and the AI chat cannot see it.
+- Purpose: a cheap item kept for test purchases (checkout, Paystack, delivery fees). Not created or changed in the Ray chat. Leave it Private; if the owner wants it gone, move it to the Bin (do not publish it). To see the site as customers do, use a private/incognito window or log out.
+- Drafts and private products are never counted in audits; only the 36 published products are.
+
+### Hair types: real state on 23 Nov 19:20 (supersedes the "18 wigs" list)
+- The owner says he updated every wig's hair type. He did, but on most wigs the new value was added as a **second, product-only "Hair Type" attribute** (Attributes tab > "Add new" / custom attribute) instead of changing the global attribute `pa_hair-type`. The code (class-nura-knowledge.php `hair_of()`, product schema, class-ai-stylist.php) reads `pa_hair-type`, so the old value still wins.
+- 13 wigs show both `pa_hair-type` = Synthetic AND custom Hair Type = Semi Human: Loose Wave Frontal (364), 4x4 Loose Wave Hair Closure (243), Luxury Body Wave (377), 4x4 Latisha Luxury Wig (250), Bob Wig (271), Minky Headband (342), Latisha Dupe Frontal (356), 2x2 Minky Closure Wig (386), Latisha Headband (359), Yaki Headband (419), Latisha Sensational Headband (360), Naturalista Headband Wig (389), Water Curl Headband (416). Owner intent = Semi Human.
+- Doubled but consistent: Human Hair Bob (318), Black Jerry Curl (265), 12 Inch Jerry Curls (255) = "100% Human Hair" + "Pure Human"; Bob Wavy (266) = "Human Hair Blend" + "Human Blend"; Semi Human Closure (404) = Semi Human twice. Lace Type is also doubled on most wigs.
+- Set correctly with one value: SDD Bob Wig (2010) Pure Human, 2x2 Straight Hair Closure (2012) Semi Human, 2x2 Minky Hair Closure (2011) Semi Human, Human Hair Water Curl Pixie Wig (396) "Pure Human (100% human hair)".
+- Still no hair type at all: Luxury Fibre Bone Straight Frontal (274), 4x4 Luxury Bone Straight Closure Wig (251).
+- Conflicts to confirm with the owner: 2012, 2011 and 386 are set Semi Human but sit in the "High Fibre (Heat-Resistant) Wigs" category; 274 and 251 are presumably Luxury Fibre (name + category) but not confirmed.
+- Questions sent to the owner 23 Nov 19:20: (1) 274 and 251 Luxury Fibre? (2) 2012 and 2011 Semi Human or fibre? (3) 386 Semi Human or fibre? Awaiting answer.
+
 ## UPDATE 23 Nov 2026 19:00 EAT (Ray) - n8n NURA 01 - Chat "Keep non-booking colon lines" published
 
 - n8n workflow "NURA 01 - Chat (Website + WhatsApp)" (ID Ub28zvwWE0Izydkh), "Finalize Reply" Code node: when the AI writes its own booking link, only the lead-in line directly before it that ends in ":" and mentions book / booking / appointment / miadi / installation / fitting is removed. All other colon lines stay. Labelled appointment line unchanged. Published as "Keep non-booking colon lines".
@@ -93,6 +110,7 @@ Everything done in this chat, in one place, so the next AI agent knows exactly w
 - Why it is not done yet: the browser session was blocked by Town credits on 23 Nov. n8n can only be edited in the browser ("Import from File" fails; "Import from URL" works if re-importing).
 
 ### Task 2: Fix the wig hair types (luxury fibre is wrong today)
+- **READ FIRST: the UPDATE 23 Nov 19:30 above supersedes the problem list below.** Owner intent is now known for 13 wigs (Semi Human, entered as a duplicate custom attribute). Fix = copy each custom Hair Type value into `pa_hair-type` (normalised to Pure Human / Semi Human / Human Blend / Luxury Fibre), delete the duplicate custom Hair Type and duplicate Lace Type attributes, then retire Synthetic, 100% Human Hair and Pure Human (100% human hair). Only 274, 251, 2011, 2012 and 386 still need the owner's answer.
 - Problem: the WooCommerce attribute `pa_hair-type` disagrees with product titles/descriptions. 13 wigs titled or described as "Semi Human" have `pa_hair-type` = "Synthetic": Loose Wave Frontal, 4x4 Loose Wave Closure, Luxury Body Wave, 4x4 Latisha Luxury Wig, Bob Wig, Minky Headband, Latisha Dupe Frontal, 2x2 Minky Closure Wig, Latisha Headband, Yaki Headband, Latisha Sensational Headband, Naturalista Headband Wig, Water Curl Headband. 5 wigs have no hair type: Luxury Fibre Bone Straight Frontal, 2x2 Straight Closure, 2x2 Minky Closure, 4x4 Luxury Bone Straight Closure Wig, SDD Bob Wig. Human hair labels are inconsistent ("100% Human Hair", "Pure Human (100% human hair)", "Human Hair Blend").
 - Visible effect: `NURAX_Knowledge::hair_of()` (nura-experience/includes/class-nura-knowledge.php) treats "Synthetic" and empty as fibre, so {fibre_min} reads KSh 3,500 and the where-to-buy page says "luxury fibre wigs from KSh 3,500"; product schema `additionalProperty hair-type` tells Google/AI "Synthetic" for Semi Human wigs. The AI stylist (class-ai-stylist.php ~682-689) also filters on these terms.
 - BLOCKER: the owner has not yet given the real hair type per wig (three replies on 23 Nov contained a placeholder). **Do not guess.** Ask the owner for Pure Human / Semi Human / Luxury Fibre per wig (group answers are fine, e.g. "all headbands are Semi Human").

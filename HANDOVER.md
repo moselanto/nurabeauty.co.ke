@@ -1,6 +1,15 @@
 # HANDOVER.md - current state for the next developer / AI agent
 
-Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+
+## UPDATE 23 Nov 2026 16:45 EAT (Ray) - plugin 1.126.0: review stars, review link in completed email, AI referral report, speed trim
+
+- New `includes/class-nura-growth.php` (NURAX_Growth):
+  - Stars + review count on shop cards (`woocommerce_after_shop_loop_item_title` p7) and beside the price on product pages (p9, links to #reviews). Shown only when a product has approved reviews; nothing renders at 0 reviews.
+  - Order completed email (`customer_completed_order` only, `woocommerce_email_after_order_table`): "How is your new look?" block linking to up to 3 purchased products' review forms (utm_source=completed_email) plus the Google write-review page when `nura_google_place_id` / NURA_GOOGLE_PLACE_ID is set. Transactional, goes to every buyer of an online order (POS orders skip the WC email already).
+  - WooCommerce > AI referrals: paid orders (processing, completed, on-hold) by source for 7/28/90 days from WooCommerce order attribution (`_wc_order_attribution_utm_source`, `_referrer`, `_source_type`). AI = ChatGPT, Perplexity, Copilot, Gemini, Claude. Weekly email to admin_email every Monday 08:00 (cron `nurax_weekly_referral_report`, filter `nurax_referral_report_to`).
+- `class-nura-perf.php`: also defers `tt4b_ajax_script`, `gla-gtag-events`, and on product pages `underscore` + `wp-util` (no inline code runs straight after them); dequeues `googlesitekit-events-provider-wpforms` except on pages with a [wpforms] shortcode.
+- Hair-type data fix on 18 wigs NOT done: waiting for the owner to give the true hair type per wig.
 
 ## UPDATE 23 Nov 2026 12:45 EAT (Ray) - plugin 1.125.2: Githurai excluded from free delivery
 

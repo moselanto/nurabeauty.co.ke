@@ -94,3 +94,7 @@ n8n Cloud counts every webhook call as an execution, including WhatsApp delivere
 - Templates (WhatsApp account 2242482590005279): `nura_followup` Marketing - "Hi {{1}}, this is NURA Beauty. You asked us about the {{2}}, available at {{3}}. Would you like us to reserve it for you? Reply here and we will help you order." footer "Reply STOP to opt out"; `nura_owner_digest` Utility. Submitted 18 Nov, in review.
 - Tested 18 Nov: trigger created a follow-up due Fri 20 Nov from "I will order on Friday"; manual run sent the follow-up and the owner list to 0703 201 241 (HTTP 200).
 - Importing on a new n8n account: Import from URL `https://raw.githubusercontent.com/moselanto/nurabeauty.co.ke/main/automation/n8n-NURA-04-Follow-ups.json`, then select NURA Supabase / NURA WhatsApp on the nodes and publish.
+
+## Weekly orders-by-source report (plugin 1.126.0)
+
+- WordPress cron `nurax_weekly_referral_report`, every Monday 08:00 Nairobi: emails admin_email a table of paid orders and revenue by source (ChatGPT, Perplexity, Copilot, Gemini, Claude, Google, Bing / Ecosia, Facebook, Instagram, TikTok, WhatsApp, direct) for the last 7 and 28 days. Live view: WooCommerce > AI referrals. Recipient filter: `nurax_referral_report_to`.

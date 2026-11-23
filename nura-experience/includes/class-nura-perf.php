@@ -34,7 +34,15 @@ class NURAX_Perf {
 
 	/** Defer our own scripts (safe: they already wait for DOMContentLoaded). */
 	public function defer_own( $tag, $handle, $src ) {
-		$ours = apply_filters( 'nurax_defer_handles', array( 'nurax', 'nurax-shop' ) );
+		// 1.126.0: also defer scripts with no inline code that runs straight after them:
+		// TikTok's ajax helper, Google Listings events, and (product pages) underscore +
+		// wp-util, whose only users (variation add-to-cart) are already deferred.
+		$ours = array( 'nurax', 'nurax-shop', 'tt4b_ajax_script', 'gla-gtag-events' );
+		if ( function_exists( 'is_product' ) && is_product() ) {
+			$ours[] = 'underscore';
+			$ours[] = 'wp-util';
+		}
+		$ours = apply_filters( 'nurax_defer_handles', $ours );
 		if ( in_array( $handle, (array) $ours, true ) && false === strpos( $tag, ' defer' ) && false === strpos( $tag, ' async' ) ) {
 			$tag = str_replace( ' src=', ' defer src=', $tag );
 		}
@@ -57,6 +65,10 @@ class NURAX_Perf {
 	public function trim_assets() {
 		if ( ! is_user_logged_in() ) {
 			wp_dequeue_style( 'dashicons' );
+		}
+		// 1.126.0: WPForms event tracking only where a form is on the page.
+		if ( ! is_admin() && ! ( is_singular() && has_shortcode( (string) get_post_field( 'post_content', get_queried_object_id() ), 'wpforms' ) ) ) {
+			wp_dequeue_script( 'googlesitekit-events-provider-wpforms' );
 		}
 	}
 

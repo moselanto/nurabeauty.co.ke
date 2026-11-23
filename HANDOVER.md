@@ -2,6 +2,29 @@
 
 Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## NEXT TASKS FOR THE NEXT AI AGENT (owner request, 23 Nov 2026 18:30 EAT)
+
+### Task 1: Retry the n8n NURA 01 - Chat colon-line fix
+- Where: n8n workspace `nurabeautykenya`, workflow "NURA 01 - Chat" ID `Ub28zvwWE0Izydkh` (https://nurabeautykenya.app.n8n.cloud/workflow/Ub28zvwWE0Izydkh), the reply post-processing Code node after "AI Reply".
+- Problem: since the published version "Remove colon booking lead-ins", when the AI writes its own `/book-appointment/` link the code removes that sentence AND every line ending in ":" in the reply, so list headings such as "Payment options:" disappear.
+- Fix: remove only the line ending in ":" that sits directly before the removed booking-link line, and only when that line mentions book / booking / appointment / miadi / installation / fitting. Every other line ending in ":" must stay. Keep the labelled appointment line behaviour (exactly one labelled booking line linking to https://nurabeauty.co.ke/book-appointment/) unchanged.
+- Test in a fresh chat: POST https://nurabeauty.co.ke/wp-json/nurax/v1/stylist, body `{"messages":[{"role":"user","content":"I want to book a wig installation tomorrow. Also what are your payment options?"}],"session_id":"fresh-<16 hex>"}`, headers Origin and Referer https://nurabeauty.co.ke plus a browser User-Agent. Pass = the reply keeps its non-booking colon headings and has exactly one labelled booking line. Also re-test a Kiswahili booking ("Nataka kupanga miadi ya kufitisha wig") and a returns question ("I want to return my wig") to confirm no regressions.
+- Save, then Publish with version name **"Keep non-booking colon lines"**.
+- Then update AUTOMATION.md section 2 (NURA 01 rules, item 7): remove the "Known side effect" sentence and add item 8 describing this fix. Remove Task 1 from this section and log an `## UPDATE` entry.
+- Why it is not done yet: the browser session was blocked by Town credits on 23 Nov. n8n can only be edited in the browser ("Import from File" fails; "Import from URL" works if re-importing).
+
+### Task 2: Fix the wig hair types (luxury fibre is wrong today)
+- Problem: the WooCommerce attribute `pa_hair-type` disagrees with product titles/descriptions. 13 wigs titled or described as "Semi Human" have `pa_hair-type` = "Synthetic": Loose Wave Frontal, 4x4 Loose Wave Closure, Luxury Body Wave, 4x4 Latisha Luxury Wig, Bob Wig, Minky Headband, Latisha Dupe Frontal, 2x2 Minky Closure Wig, Latisha Headband, Yaki Headband, Latisha Sensational Headband, Naturalista Headband Wig, Water Curl Headband. 5 wigs have no hair type: Luxury Fibre Bone Straight Frontal, 2x2 Straight Closure, 2x2 Minky Closure, 4x4 Luxury Bone Straight Closure Wig, SDD Bob Wig. Human hair labels are inconsistent ("100% Human Hair", "Pure Human (100% human hair)", "Human Hair Blend").
+- Visible effect: `NURAX_Knowledge::hair_of()` (nura-experience/includes/class-nura-knowledge.php) treats "Synthetic" and empty as fibre, so {fibre_min} reads KSh 3,500 and the where-to-buy page says "luxury fibre wigs from KSh 3,500"; product schema `additionalProperty hair-type` tells Google/AI "Synthetic" for Semi Human wigs. The AI stylist (class-ai-stylist.php ~682-689) also filters on these terms.
+- BLOCKER: the owner has not yet given the real hair type per wig (three replies on 23 Nov contained a placeholder). **Do not guess.** Ask the owner for Pure Human / Semi Human / Luxury Fibre per wig (group answers are fine, e.g. "all headbands are Semi Human").
+- Fix once answers arrive:
+  1. Use one term set in `pa_hair-type`: "Pure Human", "Semi Human", "Luxury Fibre" (create missing terms; rename or merge "100% Human Hair", "Pure Human (100% human hair)" into Pure Human and "Human Hair Blend" into Semi Human only if the owner confirms; retire "Synthetic" after reassignment).
+  2. Assign the correct term to each of the 18 wigs (Products > Edit > Attributes, or a one-time admin tool in the plugin that sets terms by product ID and is removed in the next release, as done with the 1.124.1 cleanup tool).
+  3. Make sure titles/short descriptions say the same hair type; check category membership (Pure Human = product-category/wigs/human-hair-wigs, Semi Human = human-hair-blend-wigs, fibre = high-fibre-wigs).
+  4. Update `hair_of()` so "luxury fibre" / "fibre" map to fibre and "semi human" to blend (already handled) and "pure human" to human; bump the transient key (`nurax_kb_rows2_` -> `nurax_kb_rows3_`).
+  5. Release (version bump, php -l, commit, zip, upload with "Replace current with uploaded", LiteSpeed Purge All), then verify: product JSON-LD hair-type on all 18 wigs, /where-to-buy-human-hair-wigs-nairobi/ fibre price, /wig-prices-kenya/, llms.txt.
+  6. Then build the blocked items: quick-facts box beside the price on every wig, the "Best wigs in Kenya by budget (2026)" page, llms.txt update.
+
 ## CURRENT STATE AND REMAINING WORK (read first) - 23 Nov 2026 18:20 EAT (Ray)
 
 ### Live vs repo

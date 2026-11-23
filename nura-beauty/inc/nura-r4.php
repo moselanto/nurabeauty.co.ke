@@ -157,11 +157,11 @@ function nura_r4_pages() {
 			array(
 				array( 'Where can I buy wigs in Nairobi?', 'At NURA Beauty, {address}, or online at nurabeauty.co.ke with same-day Nairobi delivery before {cutoff}. We stock Pure Human, Semi Human and luxury fibre wigs.' ),
 				array( 'Where can I buy human hair wigs in Nairobi?', 'At NURA Beauty, {address}. Pure Human wigs cost {human_min} to {human_max}, depending on length, density and lace.' ),
-				array( 'What is the cheapest wig type?', 'Luxury fibre wigs, from {fibre_min}. Semi Human wigs start at {blend_min} and look more natural.' ),
+				array( 'How much do Semi Human and luxury fibre wigs cost?', 'At NURA, Semi Human wigs start at {blend_min} and luxury fibre wigs at {fibre_min}. Every price is shown on the product.' ),
 				array( 'Can I try a wig before buying?', 'Yes. Visit the studio ({hours}) or ask for a live video on WhatsApp before you pay.' ),
 				array( 'Do you install the wig after I buy it?', 'Yes. Installation starts from KSh 1,000 at the studio; book a morning slot.' ),
 			),
-			'wig',
+			'human hair wig',
 		),
 		'wig-shop-nairobi-cbd' => array(
 			'Wig Shop in Nairobi CBD: How to Find NURA Beauty',

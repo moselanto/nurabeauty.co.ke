@@ -2,6 +2,10 @@
 
 Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 23 Nov 2026 18:20 EAT (Ray) - theme 1.161.44: where-to-buy FAQ and picks
+
+- After 1.126.1 the fibre token reads KSh 3,500 because wigs whose pa_hair-type is "Synthetic" (13 wigs titled Semi Human) count as fibre. The FAQ "What is the cheapest wig type? Luxury fibre" contradicted Semi Human from KSh 1,800; replaced with "How much do Semi Human and luxury fibre wigs cost?". Picks query back to 'human hair wig' (the 'wig' query pulled wig-care items labelled as fibre). Real fix = owner's hair types for the 18 wigs.
+
 ## UPDATE 23 Nov 2026 18:10 EAT (Ray) - plugin 1.126.1: fibre price token counts wigs only
 
 - {fibre_min}/{human_min}/{blend_min} (NURAX_Knowledge::tokens) counted wig-care products: hair_of() defaults to "fibre", so Luodais No5 Curl Keeper (KSh 350) made the where-to-buy page say "Luxury fibre wigs: from KSh 350". Catalogue rows now carry 'wig' (NURAX_Meta_Labels::is_wig); hair-type ranges use wigs only. Transient key bumped to nurax_kb_rows2_.

@@ -2,6 +2,11 @@
 
 Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 23 Nov 2026 12:00 EAT (Ray) - plugin 1.125.0: free Nairobi delivery week
+
+- Owner offer: free Nairobi delivery this week only, Mon 23 Nov to Sun 29 Nov 2026 23:59 (Africa/Nairobi). `class-nura-rider-fee.php` promo(): woocommerce_package_rates priority 140 sets the rider rate (Nairobi and nearby) and the Nairobi CBD rate to KSh 0 with the label "... - FREE Nairobi delivery this week only, until Sunday 29 November"; shuttle/courier fees unchanged; pay on delivery rules unchanged. Announcement bar (theme_mod_nura_announcement) shows the offer during the window. Switches itself off after 29 Nov; window filter `nurax_free_nairobi_window`.
+- Meta: click-to-WhatsApp campaign from 26 Nov (KSh 400/day) plus a small catalogue retargeting ad (KSh 100/day) with the offer in the ad text; account spending limit checked in Payment settings.
+
 ## UPDATE 23 Nov 2026 11:30 EAT (Ray) - plugin 1.124.3: Meta labels survive the daily feed
 
 - Finding: on 22 Nov ~06:23 the WooCommerce by Meta scheduled feed upload re-sent every item without custom_label_0/1 (the feed CSV header in facebook-for-woocommerce `fbproductfeed.php` only has custom_label_4 and internal_label), so the "Wigs only" set (rule custom label 1 = wig) went to 0 products and both carousels stopped delivering ("No valid products", "Products invalid"). Set restored to the 21 exact titles on 23 Nov.

@@ -32,6 +32,8 @@ class NURAX_Rider_Fee {
 
 	public function __construct() {
 		add_filter( 'woocommerce_package_rates', array( $this, 'rates' ), 130, 2 );
+		add_filter( 'woocommerce_package_rates', array( $this, 'promo' ), 140, 2 ); // 1.125.0 free Nairobi delivery week.
+		add_filter( 'theme_mod_nura_announcement', array( $this, 'promo_bar' ), 20 );
 		add_action( 'admin_menu', array( $this, 'menu' ), 60 );
 		add_action( 'admin_post_nurax_rider_fee_save', array( $this, 'save' ) );
 	}
@@ -276,6 +278,62 @@ TXT;
 			'free_over' => $within && ! $free ? (float) $s['free_min'] : 0,
 			'rule'      => $rule . ( $free ? ' - free on orders over ' . self::money( $s['free_min'] ) : '' ),
 		);
+	}
+
+	/* ------------------------------------------------------------------ promo */
+
+	/**
+	 * 1.125.0 - Owner offer: free Nairobi delivery this week only (Mon 23 Nov to Sun 29 Nov 2026,
+	 * Nairobi time). Rider delivery (Nairobi and nearby) and the Nairobi CBD rate cost KSh 0.
+	 * Shuttle/courier countrywide fees are unchanged. Window filter: nurax_free_nairobi_window
+	 * (array of two 'Y-m-d H:i:s' Africa/Nairobi times); off: return array().
+	 */
+	public static function promo_window() {
+		return (array) apply_filters( 'nurax_free_nairobi_window', array( '2026-11-23 00:00:00', '2026-11-29 23:59:59' ) );
+	}
+
+	public static function promo_on() {
+		$w = self::promo_window();
+		if ( count( $w ) < 2 ) {
+			return false;
+		}
+		try {
+			$tz  = new DateTimeZone( 'Africa/Nairobi' );
+			$now = new DateTime( 'now', $tz );
+			return $now >= new DateTime( $w[0], $tz ) && $now <= new DateTime( $w[1], $tz );
+		} catch ( Exception $e ) {
+			return false;
+		}
+	}
+
+	public static function promo_text() {
+		return 'FREE Nairobi delivery this week only, until Sunday 29 November';
+	}
+
+	public function promo( $rates, $package ) {
+		if ( ! is_array( $rates ) || ! self::promo_on() ) {
+			return $rates;
+		}
+		foreach ( $rates as $id => $rate ) {
+			if ( ! is_object( $rate ) ) {
+				continue;
+			}
+			$label = (string) $rate->get_label();
+			$cbd   = function_exists( 'nura_is_cbd_rate' ) ? nura_is_cbd_rate( $id, $label ) : (bool) preg_match( '/\bcbd\b/i', $label );
+			if ( $cbd || self::is_rider( $rate ) ) {
+				self::set_cost( $rate, 0 );
+				$label = preg_replace( '/ - (FREE|free) on orders over KSh [0-9,]+/', '', $label );
+				$label = preg_replace( '/\. Type your estate or area in the address to see your exact fee/', '', $label );
+				$label = preg_replace( '/ - from KSh [0-9,]+/', '', $label );
+				$rate->set_label( $label . ' - ' . self::promo_text() );
+				$rate->add_meta_data( 'Offer', self::promo_text() );
+			}
+		}
+		return $rates;
+	}
+
+	public function promo_bar( $text ) {
+		return self::promo_on() ? self::promo_text() . ' - same-day delivery on orders before 5 PM, pay with M-Pesa or card' : $text;
 	}
 
 	/* ------------------------------------------------------------------ rates */

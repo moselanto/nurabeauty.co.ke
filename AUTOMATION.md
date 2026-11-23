@@ -31,6 +31,18 @@ Production URLs: `https://nurabeautykenya.app.n8n.cloud/webhook/<path>`.
 - Load Memory (Postgres, NURA Supabase) -> Classify Message (Groq, NURA AI Provider) -> WooCommerce Product Search / Get WooCommerce Order (NURA WooCommerce) -> AI Reply (Groq) -> Finalize Reply -> Save to Supabase (Postgres) -> Output.
 - SQL is built from a JSON string inside a dollar-quoted literal `$nq$...$nq$`; every JSON string is built with `.replace(/\$/g, '\\u0024')` so user text can never close the quote. Keep that pattern for any new query.
 
+#### NURA 01 - Chat reply rules added 23 Nov 2026 (all saved and Published; tested in fresh chats)
+Rules live in the reply post-processing / AI Reply prompt of `Ub28zvwWE0Izydkh`. Published versions, in order:
+1. **Fit rule:** "fit" / "fitting" trigger the returns text only together with a problem word (doesn't, not, too, "my wig"). A plain fitting or installation request is a booking, not a return.
+2. **"Booking intent and appointment link":** booking requests skip the returns text; booking replies get the labelled appointment line linking to https://nurabeauty.co.ke/book-appointment/ ("Book a Wig Fitting or Installation in Nairobi").
+3. **"Prioritize explicit returns":** return / refund words always trigger the exact returns policy text. Booking intent also recognises the Kiswahili words miadi, kupanga, kufitisha and "installation".
+4. **"Returns booking and Kiswahili wording":** no booking line is added when the returns text is shown.
+5. **"Kiswahili first welcome":** a chat that starts in Kiswahili opens with "Karibu NURA Beauty, Nyumba ya Kujiamini Kunakong'aa!".
+6. **"Label appointment links":** a bare booking URL in the AI reply is replaced with the labelled appointment line.
+7. **"Language wording and booking cleanup" + "Remove colon booking lead-ins":** "tupe" is used only in Kiswahili replies; English replies say "give us". When the AI writes its own booking link, that whole sentence and any lead-in line ending in a colon are removed and replaced with the labelled line. Known side effect: other lines ending in a colon in the same reply are also dropped. Check this if a reply loses a list heading.
+
+Testing: POST `https://nurabeauty.co.ke/wp-json/nurax/v1/stylist` with `{"messages":[...],"session_id":"fresh-<16 hex>"}` and Origin/Referer set to the site plus a browser User-Agent; always use a new session_id. Delete test rows afterwards (section 7).
+
 ### NURA 02 - Paystack Payments
 WooCommerce Order Webhook (Raw Body ON) -> **Verify WC Signature** (Code: HMAC-SHA256 of the raw body with the WooCommerce webhook secret, base64, compared to `X-WC-Webhook-Signature`; anything unsigned or wrong is dropped) -> Get Order ID -> Get WooCommerce Order -> Paystack Payment? -> Verify with Paystack (`GET https://api.paystack.co/transaction/verify/<ref>`, NURA Paystack) -> Reconcile Payment -> Save Payment -> New Result? -> Add Order Note (private) -> Update Order? -> Mark Order Processing -> Record Order Updated.
 - De-duplication key: `nura_processed_events.event_key = paystack:<reference>:<status>`. A replay with the same result does nothing new.

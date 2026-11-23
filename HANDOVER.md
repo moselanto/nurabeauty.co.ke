@@ -16,14 +16,14 @@ Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing
 - Town routine "NURA site health check": daily 07:00 Nairobi, checks every sitemap URL (HTTP, DB/PHP errors, product data, wrong price copy), posts to the owner's Town thread only on problems. Test run: 132 pages, no problems.
 - Meta: WhatsApp campaign (KSh 350/day) and catalogue retargeting (KSh 150/day, renamed "...engaged video viewers", Page 1163947033479762 engagers + Instagram + 180d site audiences) both scheduled 26 Nov 15:00. A Town check on 26 Nov ~14:30 widens engagers to 730 days and all video viewers if the audience is still under 1,000.
 - Growth audit document written for the owner (AI visibility, reviews, speed, plan).
+- AUTOMATION.md: 23 Nov NURA 01 - Chat reply rules (returns, booking, Kiswahili) documented under section 2.
 
 ### Remaining (blocked or not started)
 1. **Hair types for 18 wigs (owner input needed, do not guess).** 13 wigs say "Semi Human" in title/description but `pa_hair-type` = "Synthetic": Loose Wave Frontal, 4x4 Loose Wave Closure, Luxury Body Wave, 4x4 Latisha Luxury Wig, Bob Wig, Minky Headband, Latisha Dupe Frontal, 2x2 Minky Closure Wig, Latisha Headband, Yaki Headband, Latisha Sensational Headband, Naturalista Headband Wig, Water Curl Headband. No hair type: Luxury Fibre Bone Straight Frontal, 2x2 Straight Closure, 2x2 Minky Closure, 4x4 Luxury Bone Straight Closure Wig, SDD Bob Wig. Also unify labels ("100% Human Hair", "Pure Human (100% human hair)", "Human Hair Blend") to Pure Human / Semi Human / Luxury Fibre. Until fixed, {fibre_min} on the where-to-buy page reads KSh 3,500 (Synthetic-labelled Semi Human wigs counted as fibre).
 2. After (1): quick-facts box beside the price on every wig; "Best wigs in Kenya by budget (2026)" page; update llms.txt.
 3. Owner actions: send Google review WhatsApp message to last 20-30 customers; set `nura_google_place_id` so the completed email shows the Google review link; complete Google Business Profile; directory listings.
-4. AUTOMATION.md still lacks the 23 Nov n8n "NURA 01 - Chat" changes (returns/booking/Kiswahili rules).
-5. Fresh Bing site scan when the monthly allowance resets.
-6. Older open items: Paystack webhook 401 (owner must paste `Bearer <sk_live>`), Meta spending-limit support request, database connection errors on host, NURA Desk consent field not updated by checkout opt-in, order #2555 review email may arrive before delivery, TikTok for Business sign-in, test data cleanup (nura_leads, nura_followups).
+4. Fresh Bing site scan when the monthly allowance resets.
+5. Older open items: Paystack webhook 401 (owner must paste `Bearer <sk_live>`), Meta spending-limit support request, database connection errors on host, NURA Desk consent field not updated by checkout opt-in, order #2555 review email may arrive before delivery, TikTok for Business sign-in, test data cleanup (nura_leads, nura_followups).
 
 ## UPDATE 23 Nov 2026 18:20 EAT (Ray) - theme 1.161.44: where-to-buy FAQ and picks
 

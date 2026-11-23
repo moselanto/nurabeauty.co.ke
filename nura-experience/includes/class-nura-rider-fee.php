@@ -284,7 +284,8 @@ TXT;
 
 	/**
 	 * 1.125.0 - Owner offer: free Nairobi delivery this week only (Mon 23 Nov to Sun 29 Nov 2026,
-	 * Nairobi time). Rider delivery (Nairobi and nearby) and the Nairobi CBD rate cost KSh 0.
+	 * Nairobi time). Rider delivery inside Nairobi County and the Nairobi CBD rate cost KSh 0
+ * (1.125.1: towns outside the county, e.g. Ruaka and Kitengela, keep their normal rider fee).
 	 * Shuttle/courier countrywide fees are unchanged. Window filter: nurax_free_nairobi_window
 	 * (array of two 'Y-m-d H:i:s' Africa/Nairobi times); off: return array().
 	 */
@@ -306,8 +307,27 @@ TXT;
 		}
 	}
 
+	/** Areas in the rider table that are outside Nairobi County (normal fee during the offer). */
+	public static function promo_outside_county() {
+		return (array) apply_filters( 'nurax_free_nairobi_outside', array(
+			'Ruaka', 'Kiambu Town', 'Gachie', 'Banana Hill', 'Ndenderu', 'Thindigua', 'Kahawa Wendani',
+			'Kahawa Sukari', 'Kinoo', 'Syokimau', 'Mlolongo', 'Tatu City', 'Ongata Rongai', 'Uthiru',
+			'Membley', 'Kikuyu', 'Ngong Town', 'Ruiru', 'Kabete', 'Wangige', 'Kamiti', 'Kiserian',
+			'Matasia', 'Athi River', 'Kitengela', 'Juja', 'Limuru', 'Joska', 'Thika',
+		) );
+	}
+
+	public static function promo_in_county( $area ) {
+		foreach ( self::promo_outside_county() as $out ) {
+			if ( 0 === strcasecmp( trim( (string) $area ), $out ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public static function promo_text() {
-		return 'FREE Nairobi delivery this week only, until Sunday 29 November';
+		return 'FREE delivery in Nairobi County this week only, until Sunday 29 November';
 	}
 
 	public function promo( $rates, $package ) {
@@ -321,6 +341,19 @@ TXT;
 			$label = (string) $rate->get_label();
 			$cbd   = function_exists( 'nura_is_cbd_rate' ) ? nura_is_cbd_rate( $id, $label ) : (bool) preg_match( '/\bcbd\b/i', $label );
 			if ( $cbd || self::is_rider( $rate ) ) {
+				if ( ! $cbd ) {
+					// 1.125.1: Nairobi County only. Recognised areas outside the county (Ruaka,
+					// Kitengela, Rongai...) and unrecognised areas keep their normal rider fee.
+					$meta = $rate->get_meta_data();
+					$area = isset( $meta['Delivery area'] ) ? (string) $meta['Delivery area'] : '';
+					if ( '' === $area || 0 === strpos( $area, 'Not recognised' ) ) {
+						$rate->set_label( $label . ' (free delivery this week applies in Nairobi County: type your estate to check)' );
+						continue;
+					}
+					if ( ! self::promo_in_county( $area ) ) {
+						continue;
+					}
+				}
 				self::set_cost( $rate, 0 );
 				$label = preg_replace( '/ - (FREE|free) on orders over KSh [0-9,]+/', '', $label );
 				$label = preg_replace( '/\. Type your estate or area in the address to see your exact fee/', '', $label );

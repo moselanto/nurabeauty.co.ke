@@ -2,6 +2,11 @@
 
 Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 23 Nov 2026 12:30 EAT (Ray) - plugin 1.125.1: free delivery offer Nairobi County only
+
+- Owner: free delivery week applies to Nairobi County only. `promo()` now zeroes the rider rate only when the matched area is not in `promo_outside_county()` (Ruaka, Kiambu Town, Gachie, Banana Hill, Ndenderu, Thindigua, Kahawa Wendani, Kahawa Sukari, Kinoo, Syokimau, Mlolongo, Tatu City, Ongata Rongai, Uthiru, Membley, Kikuyu, Ngong Town, Ruiru, Kabete, Wangige, Kamiti, Kiserian, Matasia, Athi River, Kitengela, Juja, Limuru, Joska, Thika; filter `nurax_free_nairobi_outside`). Unrecognised areas keep the KSh 300 base with a note to type the estate. CBD rate still free. Wording: "FREE delivery in Nairobi County this week only, until Sunday 29 November".
+- Meta: WhatsApp ad set KSh 350/day, catalogue retargeting ad set KSh 150/day, both from 26 Nov 15:00.
+
 ## UPDATE 23 Nov 2026 12:00 EAT (Ray) - plugin 1.125.0: free Nairobi delivery week
 
 - Owner offer: free Nairobi delivery this week only, Mon 23 Nov to Sun 29 Nov 2026 23:59 (Africa/Nairobi). `class-nura-rider-fee.php` promo(): woocommerce_package_rates priority 140 sets the rider rate (Nairobi and nearby) and the Nairobi CBD rate to KSh 0 with the label "... - FREE Nairobi delivery this week only, until Sunday 29 November"; shuttle/courier fees unchanged; pay on delivery rules unchanged. Announcement bar (theme_mod_nura_announcement) shows the offer during the window. Switches itself off after 29 Nov; window filter `nurax_free_nairobi_window`.

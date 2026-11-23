@@ -55,7 +55,7 @@ final class NURAX_Knowledge {
 
 	/** Cached live catalogue rows used for answers and picks. */
 	public static function catalogue() {
-		$key  = 'nurax_kb_rows_' . (int) get_option( 'nura_seo_cache_v', 1 );
+		$key  = 'nurax_kb_rows2_' . (int) get_option( 'nura_seo_cache_v', 1 );
 		$rows = get_transient( $key );
 		if ( is_array( $rows ) ) {
 			return $rows;
@@ -78,6 +78,7 @@ final class NURAX_Knowledge {
 					'hair'  => self::hair_of( $p ),
 					'text'  => strtolower( wp_strip_all_tags( $p->get_name() ) . ' | ' . implode( ' | ', $attrs ) ),
 					'stock' => $p->is_in_stock(),
+					'wig'   => class_exists( 'NURAX_Meta_Labels' ) ? (bool) NURAX_Meta_Labels::is_wig( $p ) : true,
 				);
 			}
 		}
@@ -98,7 +99,10 @@ final class NURAX_Knowledge {
 		$by = array( 'human' => array(), 'blend' => array(), 'fibre' => array() );
 		$all = array();
 		foreach ( self::catalogue() as $r ) {
-			$by[ $r['hair'] ][] = $r['price'];
+			// 1.126.1: hair-type price ranges count wigs only (wig care was counted as fibre).
+			if ( ! isset( $r['wig'] ) || $r['wig'] ) {
+				$by[ $r['hair'] ][] = $r['price'];
+			}
 			$all[]              = $r['price'];
 		}
 		$f    = function ( $k, $d = '' ) {

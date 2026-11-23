@@ -2,6 +2,10 @@
 
 Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 23 Nov 2026 18:10 EAT (Ray) - plugin 1.126.1: fibre price token counts wigs only
+
+- {fibre_min}/{human_min}/{blend_min} (NURAX_Knowledge::tokens) counted wig-care products: hair_of() defaults to "fibre", so Luodais No5 Curl Keeper (KSh 350) made the where-to-buy page say "Luxury fibre wigs: from KSh 350". Catalogue rows now carry 'wig' (NURAX_Meta_Labels::is_wig); hair-type ranges use wigs only. Transient key bumped to nurax_kb_rows2_.
+
 ## UPDATE 23 Nov 2026 18:00 EAT (Ray) - theme 1.161.43: where to buy wigs in Nairobi (all hair types)
 
 - Owner: expand /where-to-buy-human-hair-wigs-nairobi/ to cover all wig types instead of a new page. `nura-r4.php`: new title "Where to Buy Wigs in Nairobi: Human Hair, Semi Human and Fibre", SEO title, meta description, focus keyword "where to buy wigs in nairobi", prices by hair type with category links (Pure Human, Semi Human, high fibre), a hair-type comparison table, wider FAQ. Slug unchanged (no redirect needed).

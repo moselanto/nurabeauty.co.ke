@@ -2,6 +2,12 @@
 
 Last updated: 21 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 23 Nov 2026 11:30 EAT (Ray) - plugin 1.124.3: Meta labels survive the daily feed
+
+- Finding: on 22 Nov ~06:23 the WooCommerce by Meta scheduled feed upload re-sent every item without custom_label_0/1 (the feed CSV header in facebook-for-woocommerce `fbproductfeed.php` only has custom_label_4 and internal_label), so the "Wigs only" set (rule custom label 1 = wig) went to 0 products and both carousels stopped delivering ("No valid products", "Products invalid"). Set restored to the 21 exact titles on 23 Nov.
+- `class-nura-meta-labels.php`: From price now also in `custom_label_4`; wig flag also as internal label `nura_wig` / `nura_not_wig` (both are feed columns). Next: after the next feed upload, set rule = internal label nura_wig and card description {{product.custom_label_4}}.
+- Meta (23 Nov): card descriptions switched back to {{product.price}} as a stopgap; Win-back ad set paused so the budget goes to the Kenya broad ad set (owner approved).
+
 ## UPDATE 21 Nov 2026 23:40 EAT (Ray) - theme 1.161.41: homepage facts
 
 - Homepage facts strip (`nura-seo.php`) still said "48 hours Easy returns" (old policy); now "M-Pesa or card, secure checkout". Homepage FAQ price answer (`nura-growth.php`) said "luxury fibre wigs cost KSh 4,500 to KSh 4,500"; a single price now reads "cost KSh 4,500". Both are read by AI assistants and Google.

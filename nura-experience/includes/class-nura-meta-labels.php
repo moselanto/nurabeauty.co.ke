@@ -13,8 +13,11 @@
  *                    does not say "Hair Closure" (the loose closures). Override per
  *                    product with the meta _nura_meta_wig = yes / no.
  *
- * Filters: nura_meta_from_label, nura_meta_is_wig. custom_label_4 is left alone
- * (already used in the catalogue).
+ * 1.124.3: the scheduled feed file only carries custom_label_4 and internal_label, so the
+ * From price is also sent as custom_label_4 and the wig flag as internal label nura_wig /
+ * nura_not_wig. Carousel description: {{product.custom_label_4}}; set rule: internal label nura_wig.
+ *
+ * Filters: nura_meta_from_label, nura_meta_is_wig.
  *
  * @package NURA_Experience
  */
@@ -109,10 +112,21 @@ class NURAX_Meta_Labels {
 			return $data;
 		}
 		$from = self::from_label( $p );
+		$wig  = self::is_wig( $p );
 		if ( '' !== $from ) {
 			$data['custom_label_0'] = $from;
+			// 1.124.3: the daily feed file from WooCommerce by Meta only has a custom_label_4
+			// column (no 0-3), so the From price also goes in custom_label_4, which survives it.
+			$data['custom_label_4'] = $from;
 		}
-		$data['custom_label_1'] = self::is_wig( $p ) ? 'wig' : 'not-wig';
+		$data['custom_label_1'] = $wig ? 'wig' : 'not-wig';
+		// 1.124.3: internal label (feed column internal_label, and the API): "nura_wig" / "nura_not_wig".
+		$labels = isset( $data['internal_label'] ) && is_array( $data['internal_label'] ) ? $data['internal_label'] : array();
+		$labels = array_values( array_filter( $labels, function ( $l ) {
+			return '' !== (string) $l && 0 !== strpos( (string) $l, 'nura_' );
+		} ) );
+		$labels[] = $wig ? 'nura_wig' : 'nura_not_wig';
+		$data['internal_label'] = $labels;
 		return $data;
 	}
 
@@ -125,7 +139,7 @@ class NURAX_Meta_Labels {
 		$ids = wc_get_products( array( 'status' => 'publish', 'limit' => -1, 'return' => 'ids' ) );
 		foreach ( $ids as $id ) {
 			$p = wc_get_product( $id );
-			echo esc_html( $id . ' | ' . $p->get_name() . ' | ' . self::from_label( $p ) . ' | ' . ( self::is_wig( $p ) ? 'wig' : 'not-wig' ) ) . "\n";
+			echo esc_html( $id . ' | ' . $p->get_name() . ' | ' . self::from_label( $p ) . ' | ' . ( self::is_wig( $p ) ? 'nura_wig' : 'nura_not_wig' ) ) . "\n";
 		}
 		exit;
 	}

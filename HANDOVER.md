@@ -75,9 +75,15 @@ Everything done in this chat, in one place, so the next AI agent knows exactly w
 - Paystack replays failed 3 times with 401: do not retry until the owner pastes `Bearer <sk_live key>`.
 - Meta rejected KSh 100/day budgets (minimum above KSh 120).
 
+## UPDATE 23 Nov 2026 19:00 EAT (Ray) - n8n NURA 01 - Chat "Keep non-booking colon lines" published
+
+- n8n workflow "NURA 01 - Chat (Website + WhatsApp)" (ID Ub28zvwWE0Izydkh), "Finalize Reply" Code node: when the AI writes its own booking link, only the lead-in line directly before it that ends in ":" and mentions book / booking / appointment / miadi / installation / fitting is removed. All other colon lines stay. Labelled appointment line unchanged. Published as "Keep non-booking colon lines".
+- Live tests (POST /wp-json/nurax/v1/stylist, fresh session_id): English booking + payment options = one labelled booking line, payment details kept; Kiswahili booking = one "Unaweza kupanga miadi yako hapa:" line; returns question = wrong/damaged-only policy with link, no booking line. The AI did not write a colon heading in these live replies, so headings were also tested offline against the new code ("Payment options:" and "Njia za malipo:" kept, booking lead-in removed).
+- AUTOMATION.md section 2: rule 7 "Known side effect" removed, rule 8 added. Task 1 below is done.
+
 ## NEXT TASKS FOR THE NEXT AI AGENT (owner request, 23 Nov 2026 18:30 EAT)
 
-### Task 1: Retry the n8n NURA 01 - Chat colon-line fix
+### Task 1: DONE 23 Nov 19:00 (see UPDATE above). Retry the n8n NURA 01 - Chat colon-line fix
 - Where: n8n workspace `nurabeautykenya`, workflow "NURA 01 - Chat" ID `Ub28zvwWE0Izydkh` (https://nurabeautykenya.app.n8n.cloud/workflow/Ub28zvwWE0Izydkh), the reply post-processing Code node after "AI Reply".
 - Problem: since the published version "Remove colon booking lead-ins", when the AI writes its own `/book-appointment/` link the code removes that sentence AND every line ending in ":" in the reply, so list headings such as "Payment options:" disappear.
 - Fix: remove only the line ending in ":" that sits directly before the removed booking-link line, and only when that line mentions book / booking / appointment / miadi / installation / fitting. Every other line ending in ":" must stay. Keep the labelled appointment line behaviour (exactly one labelled booking line linking to https://nurabeauty.co.ke/book-appointment/) unchanged.
@@ -102,7 +108,8 @@ Everything done in this chat, in one place, so the next AI agent knows exactly w
 
 ### Live vs repo
 - Live = repo `main`: theme NURA Beauty 1.161.44 (NURA Beauty Child active), plugin NURA Experience 1.126.1.
-- Pending: n8n NURA 01 - Chat fix "Keep non-booking colon lines" (when the AI writes its own booking link, remove only the booking lead-in line ending in ":", not every colon line). Not started: browser session blocked by Town credits on 23 Nov. After publishing, update AUTOMATION.md section 2 rule 7.
+- n8n NURA 01 - Chat fix "Keep non-booking colon lines": published and tested 23 Nov 19:00 (see top UPDATE).
+- Hair types (Task 2): owner confirmed label merges on 23 Nov ("100% Human Hair" + "Pure Human (100% human hair)" -> Pure Human; "Human Hair Blend" -> Semi Human). Per-wig hair types for the 18 wigs still NOT received (owner's message contained the placeholder again). Do not guess.
 
 ### Done on 23 Nov (see UPDATE entries below for detail)
 - Plugin 1.126.0: review stars (only when approved reviews exist), review links in the order completed email, WooCommerce > AI referrals report + Monday 08:00 email, product page speed trim (deferred scripts).

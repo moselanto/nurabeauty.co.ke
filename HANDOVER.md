@@ -5,8 +5,8 @@ Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing
 ## CURRENT STATE AND REMAINING WORK (read first) - 23 Nov 2026 18:20 EAT (Ray)
 
 ### Live vs repo
-- Live: theme NURA Beauty 1.161.43 (child theme active), plugin NURA Experience 1.126.1.
-- Repo `main`: theme **1.161.44 committed but NOT yet uploaded** (commit 4d07a5b; zip built). Next agent: upload it (Themes > Upload > Replace current with uploaded), LiteSpeed Purge All, then check /where-to-buy-human-hair-wigs-nairobi/: FAQ must read "How much do Semi Human and luxury fibre wigs cost?" and stylist picks must not show wig-care items as luxury fibre.
+- Live = repo `main`: theme NURA Beauty 1.161.44 (NURA Beauty Child active), plugin NURA Experience 1.126.1.
+- Pending: n8n NURA 01 - Chat fix "Keep non-booking colon lines" (when the AI writes its own booking link, remove only the booking lead-in line ending in ":", not every colon line). Not started: browser session blocked by Town credits on 23 Nov. After publishing, update AUTOMATION.md section 2 rule 7.
 
 ### Done on 23 Nov (see UPDATE entries below for detail)
 - Plugin 1.126.0: review stars (only when approved reviews exist), review links in the order completed email, WooCommerce > AI referrals report + Monday 08:00 email, product page speed trim (deferred scripts).
@@ -24,6 +24,11 @@ Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing
 3. Owner actions: send Google review WhatsApp message to last 20-30 customers; set `nura_google_place_id` so the completed email shows the Google review link; complete Google Business Profile; directory listings.
 4. Fresh Bing site scan when the monthly allowance resets.
 5. Older open items: Paystack webhook 401 (owner must paste `Bearer <sk_live>`), Meta spending-limit support request, database connection errors on host, NURA Desk consent field not updated by checkout opt-in, order #2555 review email may arrive before delivery, TikTok for Business sign-in, test data cleanup (nura_leads, nura_followups).
+
+## UPDATE 23 Nov 2026 18:30 EAT (Ray) - theme 1.161.44 live and verified
+
+- Owner uploaded theme 1.161.44 and purged LiteSpeed. Checked from outside: parent style.css Version 1.161.44; NURA Beauty Child still active (child stylesheet and body class present); /where-to-buy-human-hair-wigs-nairobi/ FAQ reads "How much do Semi Human and luxury fibre wigs cost?" (answer: Semi Human from KSh 1,800, luxury fibre from KSh 3,500; the fibre figure stays wrong until the 18 wig hair types are fixed); old "What is the cheapest wig type" FAQ gone.
+- Cart/checkout: Store API add-item (product 250) and update-customer (Kileleshwa) worked; rates returned Rider KSh 0 (free Nairobi County week), Bus/shuttle KSh 350, Fargo/G4S KSh 550, Studio pickup free. /cart/ and /checkout/ HTTP 200, no PHP/DB errors.
 
 ## UPDATE 23 Nov 2026 18:20 EAT (Ray) - theme 1.161.44: where-to-buy FAQ and picks
 

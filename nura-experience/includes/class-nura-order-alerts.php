@@ -133,6 +133,7 @@ class NURAX_Order_Alerts {
 				'ref'      => $d['ref'] ? $d['ref'] : 'WA-' . $id,
 				'customer' => trim( $d['name'] . ( $d['phone'] ? ' +' . $d['phone'] : '' ) ),
 				'items'    => implode( ', ', $items ),
+				'item_list' => $items,
 				'total'    => self::money( $total ),
 				'payment'  => trim( $d['payment'] . ( $d['mpesa_code'] ? ' - code ' . $d['mpesa_code'] : '' ) ),
 				'place'    => trim( ( 'pickup' === $d['fulfil'] ? 'Pick-up' : 'Delivery' ) . ( $d['delivery'] ? ': ' . $d['delivery'] : '' ) ),
@@ -168,6 +169,7 @@ class NURAX_Order_Alerts {
 			'ref'      => '#' . $o->get_order_number(),
 			'customer' => trim( ( $name ? $name : 'Customer' ) . ( $ph ? ' ' . $ph : '' ) ),
 			'items'    => implode( ', ', $items ),
+			'item_list' => $items,
 			'total'    => self::money( $o->get_total() ),
 			'payment'  => trim( $o->get_payment_method_title() . ( $o->is_paid() ? ' (paid)' : ' (not paid yet)' ) ),
 			'place'    => $addr ? 'Deliver to: ' . $addr : '',
@@ -224,6 +226,57 @@ class NURAX_Order_Alerts {
 		self::log( $x['kind'] . ' ' . $x['ref'], $res['ok'] ? 'Sent via ' . $res['via'] : 'Failed (attempt ' . (int) $attempt . '): ' . $res['err'] );
 	}
 
+	/**
+	 * 1.127.1: Meta rejects template values with newlines, tabs or 4+ spaces in a row.
+	 * Turn line breaks and tabs into spaces and squeeze repeated spaces into one.
+	 */
+	private static function meta_param( $v ) {
+		$v = preg_replace( '/[\r\n\t\v\f]+/u', ' ', (string) $v );
+		$v = preg_replace( '/[ \x{00A0}]{2,}/u', ' ', (string) $v );
+		return trim( (string) $v );
+	}
+
+	/** 1.127.1: items value for {{3}}, cleaned and capped at about 300 characters ("... and N more"). */
+	private static function meta_items( $x, $cap = 300 ) {
+		$list = ! empty( $x['item_list'] ) && is_array( $x['item_list'] ) ? $x['item_list'] : array( (string) $x['items'] );
+		$list = array_values( array_filter( array_map( array( __CLASS__, 'meta_param' ), $list ), 'strlen' ) );
+		$len  = function ( $t ) {
+			return function_exists( 'mb_strlen' ) ? mb_strlen( $t ) : strlen( $t );
+		};
+		$all = implode( ', ', $list );
+		if ( $len( $all ) <= $cap ) {
+			return $all;
+		}
+		$out = '';
+		$n   = count( $list );
+		foreach ( $list as $i => $it ) {
+			$left = $n - $i - 1;
+			$try  = '' === $out ? $it : $out . ', ' . $it;
+			$tail = $left ? ' and ' . $left . ' more' : '';
+			if ( $len( $try . $tail ) > $cap ) {
+				break;
+			}
+			$out = $try;
+		}
+		if ( '' === $out ) {
+			$first = $list[0];
+			$out   = ( function_exists( 'mb_substr' ) ? mb_substr( $first, 0, $cap - 40 ) : substr( $first, 0, $cap - 40 ) ) . '...';
+			$shown = 1;
+		} else {
+			$shown = 0;
+			$acc   = '';
+			foreach ( $list as $it ) {
+				$acc = '' === $acc ? $it : $acc . ', ' . $it;
+				$shown++;
+				if ( $acc === $out ) {
+					break;
+				}
+			}
+		}
+		$rest = $n - $shown;
+		return $rest > 0 ? $out . ' and ' . $rest . ' more' : $out;
+	}
+
 	/** Try Meta, then CallMeBot. */
 	private static function deliver( $x ) {
 		$s    = self::settings();
@@ -233,7 +286,7 @@ class NURAX_Order_Alerts {
 			return array( 'ok' => false, 'via' => '', 'err' => 'No shop WhatsApp number saved.' );
 		}
 		if ( self::meta_ready() ) {
-			$ok = NURAX_WhatsApp::send_template( $to, (string) $s['template'], (string) $s['lang'], array( $x['kind'] . ' ' . $x['ref'], $x['customer'], $x['items'], $x['total'] ) );
+			$ok = NURAX_WhatsApp::send_template( $to, (string) $s['template'], (string) $s['lang'], array( self::meta_param( $x['kind'] . ' ' . $x['ref'] ), self::meta_param( $x['customer'] ), self::meta_items( $x ), self::meta_param( $x['total'] ) ) );
 			if ( $ok ) {
 				return array( 'ok' => true, 'via' => 'Meta Cloud API', 'err' => '' );
 			}

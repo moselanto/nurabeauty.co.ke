@@ -2,6 +2,12 @@
 
 Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 24 Nov 2026 17:05 EAT (Ray) - plugin 1.127.1: clean WhatsApp template values (order alerts)
+
+- `includes/class-nura-order-alerts.php`: before sending to Meta, all four nura_new_order body values ({{1}} order, {{2}} customer, {{3}} items, {{4}} total) go through `meta_param()`: newlines, tabs and other line breaks become spaces, and repeated spaces (incl. non-breaking) are squeezed to one (Meta rejects newlines/tabs/4+ spaces, error 132018). {{3}} uses `meta_items()`: built from the item list, capped at about 300 characters, ending "and N more". CallMeBot text and the e-mail fallback are unchanged (their newlines are intentional).
+- WhatsApp pop-up orders already save name/option via sanitize_text_field and phone as digits only; website item names come from product names unchanged, now cleaned at send time.
+- Order alerts: as of 16:56 today the page still shows no CallMeBot key and no Meta token (WHATSAPP_TOKEN not detected); no "Updated order alert settings" entry in the NURA Desk log today, so the Save handler never completed. Owner (moses) is Administrator.
+
 ## UPDATE 24 Nov 2026 16:00 EAT (Ray) - plugin 1.127.0: order source on every order, Orders by source report, short bio links
 
 - New `nura-experience/includes/class-nura-order-source.php` (NURAX_Order_Source), loaded after NURAX_Growth.

@@ -2,6 +2,15 @@
 
 Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 24 Nov 2026 16:00 EAT (Ray) - plugin 1.127.0: order source on every order, Orders by source report, short bio links
+
+- New `nura-experience/includes/class-nura-order-source.php` (NURAX_Order_Source), loaded after NURAX_Growth.
+- **Order source box** (wp-admin order screen, side): required dropdown for hand-entered orders (WhatsApp chat, Studio walk-in, Phone call, Instagram DM, TikTok DM, Facebook message, Referral + "Referred by" code/name, Website, Other). Website orders show the detected source from WooCommerce order attribution (via NURAX_Growth::classify) and staff may override. Meta: `_nura_order_source`, `_nura_order_referrer`. `_nura_ref_code` (future referral module) is reported as Referral. Till orders (`created_via nura_pos`) count as Studio.
+- **Source column** on the orders page (HPOS `wc-orders` and legacy), after Origin. Hand-entered orders with no source show "No source yet" in red.
+- **WooCommerce > Orders by source**: paid orders (processing/on-hold/completed) for 7/30/90 days: totals by source, per-day table, top referrers. The existing "AI referrals" page is unchanged.
+- **Short links**: /ig, /tt, /fb, /wa -> 302 to home with utm_source instagram/tiktok/facebook/whatsapp, utm_medium=social, utm_campaign bio/bio/page/profile (filter `nurax_short_links`). noindex header.
+- Checkout not touched. Growth plan: Town doc "NURA Beauty plan to grow daily orders".
+
 ## UPDATE 24 Nov 2026 15:15 EAT (Ray) - theme 1.161.46: one-hop fix for removed products that still exist as draft/private/trash
 
 - Live check after 1.161.45: /index.php//product/<slug>/ still took two hops for premium-high-fibre-wig, deep-curls-14/16-inches-wig, jerry-curl-14-inches-wig, latisha-sensational-wig and 22-inches-water-curl-wig. Cause: get_page_by_path() also returns non-published products, so the one-hop map was skipped. `inc/nura-crawl.php` now only lets a PUBLISHED product block the map. /product/<slug>/ redirects were already fine.

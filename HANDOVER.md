@@ -2,6 +2,15 @@
 
 Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 24 Nov 2026 12:45 EAT (Ray) - theme 1.161.45: Search Console 404 redirects
+
+- `inc/nura-crawl.php`: `premium-high-fibre-wig` -> `/product-category/wigs/high-fibre-wigs/` (owner, 24 Nov). /index.php/ (and //) URLs for removed products now redirect in ONE hop straight to the final page (merged map: `nura_removed_product_redirects()` + `nura_af_gone()`), instead of /index.php//product/x/ -> /product/x/ -> final. /index.php/product-tag/.../page/N/ stay at two hops (by design).
+- Owner confirmed all 9 product-to-product redirects (deep-curls-14/16 and jerry-curl-14 -> 12-inches-wig; human-blend-bob and rich-short-wavy -> bob-wavy-wig; lakisha and latisha-sensational-wig -> latisha-sensational-headband-wig; pixie-wig and 22-inches-water-curl-wig -> pixie-water-curl-wig). Category redirects unchanged.
+- robots.txt: filter/query_type/instock/min_price/max_price/orderby/wc-ajax are already disallowed for User-agent: * (incl. Googlebot) since 1.75.0/1.150.0. No change.
+- Merchant listings "missing priceValidUntil" (34 items, non-critical): owner decided to leave it (no rolling date; only real sale end dates).
+- Search Console 404 issue: re-validation requested after the live check (see below). 5xx validation (started 2 Nov) left running; filter URLs return 200 + noindex.
+- Checklist: Town doc "NURA Beauty Search Console and Merchant Center fix checklist".
+
 ## FULL RECORD OF THE RAY CHAT ("Nura Beauty Project Update" Town thread), 19-23 Nov 2026
 
 Everything done in this chat, in one place, so the next AI agent knows exactly what exists. Detail for each release is in the `## UPDATE` entries below; n8n chat rules are in AUTOMATION.md section 2.

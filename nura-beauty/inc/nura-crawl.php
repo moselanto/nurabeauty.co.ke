@@ -37,6 +37,17 @@ add_action( 'template_redirect', function () {
 		return;
 	}
 	$target = home_url( $clean ) . ( isset( $parts[1] ) && '' !== $parts[1] ? '?' . $parts[1] : '' );
+	// 1.161.45: one hop. If the clean path is a removed product with a known redirect, go straight there
+	// (Search Console showed /index.php//product/<removed>/ -> /product/<removed>/ -> final page chains).
+	if ( preg_match( '#^/product/([a-z0-9-]+)/?$#', $clean, $m ) && ! get_page_by_path( $m[1], OBJECT, 'product' ) ) {
+		$map = nura_removed_product_redirects();
+		if ( function_exists( 'nura_af_gone' ) ) {
+			$map = array_merge( nura_af_gone(), $map );
+		}
+		if ( isset( $map[ $m[1] ] ) ) {
+			$target = home_url( $map[ $m[1] ] );
+		}
+	}
 	wp_safe_redirect( $target, 301, 'NURA' );
 	exit;
 }, 1 );

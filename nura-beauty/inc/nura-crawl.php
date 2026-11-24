@@ -39,7 +39,9 @@ add_action( 'template_redirect', function () {
 	$target = home_url( $clean ) . ( isset( $parts[1] ) && '' !== $parts[1] ? '?' . $parts[1] : '' );
 	// 1.161.45: one hop. If the clean path is a removed product with a known redirect, go straight there
 	// (Search Console showed /index.php//product/<removed>/ -> /product/<removed>/ -> final page chains).
-	if ( preg_match( '#^/product/([a-z0-9-]+)/?$#', $clean, $m ) && ! get_page_by_path( $m[1], OBJECT, 'product' ) ) {
+	// 1.161.46: get_page_by_path() also returns draft/private/trashed products, so only a PUBLISHED product blocks the map.
+	$nura_live = preg_match( '#^/product/([a-z0-9-]+)/?$#', $clean, $m ) ? get_page_by_path( $m[1], OBJECT, 'product' ) : null;
+	if ( ! empty( $m[1] ) && ( ! $nura_live || 'publish' !== $nura_live->post_status ) ) {
 		$map = nura_removed_product_redirects();
 		if ( function_exists( 'nura_af_gone' ) ) {
 			$map = array_merge( nura_af_gone(), $map );

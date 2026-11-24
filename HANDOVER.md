@@ -2,6 +2,10 @@
 
 Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 24 Nov 2026 15:15 EAT (Ray) - theme 1.161.46: one-hop fix for removed products that still exist as draft/private/trash
+
+- Live check after 1.161.45: /index.php//product/<slug>/ still took two hops for premium-high-fibre-wig, deep-curls-14/16-inches-wig, jerry-curl-14-inches-wig, latisha-sensational-wig and 22-inches-water-curl-wig. Cause: get_page_by_path() also returns non-published products, so the one-hop map was skipped. `inc/nura-crawl.php` now only lets a PUBLISHED product block the map. /product/<slug>/ redirects were already fine.
+
 ## UPDATE 24 Nov 2026 12:45 EAT (Ray) - theme 1.161.45: Search Console 404 redirects
 
 - `inc/nura-crawl.php`: `premium-high-fibre-wig` -> `/product-category/wigs/high-fibre-wigs/` (owner, 24 Nov). /index.php/ (and //) URLs for removed products now redirect in ONE hop straight to the final page (merged map: `nura_removed_product_redirects()` + `nura_af_gone()`), instead of /index.php//product/x/ -> /product/x/ -> final. /index.php/product-tag/.../page/N/ stay at two hops (by design).

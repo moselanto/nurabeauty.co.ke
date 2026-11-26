@@ -2,6 +2,14 @@
 
 Last updated: 26 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 26 Nov 2026 11:45 EAT (Ray) - plugin 1.130.1: paid-date time fix, access key for the monthly M-Pesa check
+
+- Fix: the Paid on field passed a site-local time to `set_date_paid()` as a UTC timestamp, which shifted the time by 3 hours (order #2576 went from 01:35 to 04:35 when its date was set to 23 Nov). It now passes a site-local string, so the time of day is kept.
+- The M-Pesa statement tab has a "Monthly check by Ray: access key" box with Create / Replace / Remove buttons.
+  - The key (40 characters) is shown once. Only its sha256 hash is stored, in option `nurax_recon_key_hash`.
+  - `POST /wp-json/nurax/v1/mpesa-recon` accepts it in the `X-API-Key` header as an alternative to a logged-in owner. The route is still read-only.
+  - The owner saves the key in Town's private API key form (host nurabeauty.co.ke, X-API-Key) for the monthly reconciliation routine.
+
 ## UPDATE 26 Nov 2026 11:25 EAT (Ray) - plugin 1.130.0: Record Paystack fee button, paid date on orders, read-only REST check
 
 - `includes/class-nura-mpesa-recon.php`, M-Pesa statement tab: a Paystack payout row that is a likely match to an order now shows a **Record Paystack fee KSh N** button. The fee is the order total minus the payout. One click books a `fees` voucher with method `card` (Paystack account 1040), ref = payout code, payee Paystack, dated the payout date. The button refuses if the fee is 0 or less, above 6% of the order, or the payout code is already in the books. Once recorded, the row shows "Paystack fee recorded (PV-xxxx)". Paystack rows no longer show as "matched to voucher" when their fee voucher exists.

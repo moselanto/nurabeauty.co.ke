@@ -27,6 +27,7 @@ class NURAX_Mpesa_Recon {
 	public static function hooks() {
 		add_action( 'admin_post_nurax_mpesa_read', array( __CLASS__, 'h_read' ) );
 		add_action( 'admin_post_nurax_mpesa_act', array( __CLASS__, 'h_act' ) );
+		add_action( 'admin_post_nurax_mpesa_key', array( __CLASS__, 'h_key' ) );
 		add_action( 'woocommerce_admin_order_data_after_order_details', array( __CLASS__, 'order_check_box' ) );
 		add_action( 'woocommerce_process_shop_order_meta', array( __CLASS__, 'save_paid_date' ), 99 );
 		add_action( 'rest_api_init', array( __CLASS__, 'rest' ) );
@@ -129,7 +130,7 @@ class NURAX_Mpesa_Recon {
 		if ( $old === $d ) {
 			return;
 		}
-		$o->set_date_paid( strtotime( $d . ' ' . $o->get_date_paid()->date( 'H:i:s' ) ) );
+		$o->set_date_paid( $d . ' ' . $o->get_date_paid()->date( 'H:i:s' ) ); // 1.130.1: site-local string, so the time of day is kept.
 		if ( $o->get_meta( '_nura_paid_on', true ) ) {
 			$o->update_meta_data( '_nura_paid_on', $d );
 		}
@@ -149,8 +150,8 @@ class NURAX_Mpesa_Recon {
 	public static function rest() {
 		register_rest_route( 'nurax/v1', '/mpesa-recon', array(
 			'methods'             => 'POST',
-			'permission_callback' => function () {
-				return current_user_can( NURAX_Desk_Accounts::cap() );
+			'permission_callback' => function ( $req ) {
+				return current_user_can( NURAX_Desk_Accounts::cap() ) || self::key_ok( (string) $req->get_header( 'x_api_key' ) );
 			},
 			'callback'            => function ( $req ) {
 				$rows = self::match( self::parse( (string) $req->get_param( 'statement' ) ) );
@@ -174,6 +175,52 @@ class NURAX_Mpesa_Recon {
 				);
 			},
 		) );
+	}
+
+	/** 1.130.1: access key for the read-only check (X-API-Key header). Only its hash is stored. */
+	const KEY_OPT = 'nurax_recon_key_hash';
+
+	public static function key_ok( $key ) {
+		$h = (string) get_option( self::KEY_OPT, '' );
+		return '' !== $h && strlen( $key ) >= 32 && hash_equals( $h, hash( 'sha256', $key ) );
+	}
+
+	public static function h_key() {
+		self::guard( 'nurax_mpesa_key' );
+		$do = isset( $_POST['do'] ) ? sanitize_key( wp_unslash( $_POST['do'] ) ) : '';
+		if ( 'revoke' === $do ) {
+			delete_option( self::KEY_OPT );
+			wp_safe_redirect( self::url( array( 'nd_err' => 'The access key was removed. The monthly check can no longer read the statement matches.' ) ) );
+			exit;
+		}
+		$key = wp_generate_password( 40, false, false );
+		update_option( self::KEY_OPT, hash( 'sha256', $key ), false );
+		set_transient( 'nurax_recon_key_show_' . get_current_user_id(), $key, 10 * MINUTE_IN_SECONDS );
+		if ( class_exists( 'NURAX_Staff' ) && method_exists( 'NURAX_Staff', 'log' ) ) {
+			NURAX_Staff::log( 'accounts', 'Created a new access key for the monthly M-Pesa check' );
+		}
+		wp_safe_redirect( self::url() );
+		exit;
+	}
+
+	private static function render_key_box() {
+		$show = get_transient( 'nurax_recon_key_show_' . get_current_user_id() );
+		$has  = '' !== (string) get_option( self::KEY_OPT, '' );
+		echo '<details class="na-card" style="margin-top:12px"' . ( $show ? ' open' : '' ) . '><summary><strong>Monthly check by Ray: access key</strong> ' . ( $has ? '(key set)' : '(no key yet)' ) . '</summary>';
+		echo '<p>Ray\'s monthly M-Pesa check reads the matches below with this key. It can only read; it cannot change anything. Save the key only in Town\'s private key form, never in a chat.</p>';
+		if ( $show ) {
+			delete_transient( 'nurax_recon_key_show_' . get_current_user_id() );
+			echo '<p><input type="text" readonly value="' . esc_attr( $show ) . '" style="width:100%;font-family:monospace" onclick="this.select()"><br><small>Copy it now. It is shown only once.</small></p>';
+		}
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="display:inline">';
+		wp_nonce_field( 'nurax_mpesa_key' );
+		echo '<input type="hidden" name="action" value="nurax_mpesa_key"><input type="hidden" name="do" value="new"><button class="nd-btn nd-btn--ghost nd-btn--sm">' . ( $has ? 'Replace key' : 'Create key' ) . '</button></form> ';
+		if ( $has ) {
+			echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="display:inline">';
+			wp_nonce_field( 'nurax_mpesa_key' );
+			echo '<input type="hidden" name="action" value="nurax_mpesa_key"><input type="hidden" name="do" value="revoke"><button class="nd-btn nd-btn--ghost nd-btn--sm">Remove key</button></form>';
+		}
+		echo '</details>';
 	}
 
 	/* ------------------------------------------------------------ statement reading */
@@ -683,6 +730,7 @@ class NURAX_Mpesa_Recon {
 		echo '<script>(function(){var f=document.getElementById("nurax-mp-file"),t=document.getElementById("nurax-mp-text"),st=document.getElementById("nurax-mp-st");if(!f)return;'
 			. 'var B="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";function lib(cb){if(window.pdfjsLib)return cb();var s=document.createElement("script");s.src=B+"pdf.min.js";s.onload=function(){pdfjsLib.GlobalWorkerOptions.workerSrc=B+"pdf.worker.min.js";cb();};s.onerror=function(){st.textContent="Could not load the PDF reader. Open the PDF, select all, copy and paste instead.";};document.head.appendChild(s);}'
 			. 'f.addEventListener("change",function(){var file=f.files[0];if(!file||!/\\.pdf$/i.test(file.name))return;st.textContent="Reading the PDF...";var rd=new FileReader();rd.onload=function(){lib(function(){pdfjsLib.getDocument({data:new Uint8Array(rd.result)}).promise.then(function(pdf){var out=[],n=pdf.numPages,i=1;function page(){if(i>n){t.value=out.join("\\n");f.value="";st.textContent="PDF read: "+n+" page(s). Press Check statement.";return;}pdf.getPage(i).then(function(pg){return pg.getTextContent();}).then(function(tc){var L={};tc.items.forEach(function(it){if(!it.str||!it.str.trim())return;var k=Math.round(it.transform[5]/2);(L[k]=L[k]||[]).push(it);});Object.keys(L).map(Number).sort(function(a,b){return b-a;}).forEach(function(k){var r=L[k].sort(function(a,b){return a.transform[4]-b.transform[4];}),s="",last=null;r.forEach(function(it){var x=it.transform[4];if(last!==null)s+=(x-last>8?"   ":" ");s+=it.str.trim();last=x+(it.width||0);});out.push(s);});i++;page();});}page();}).catch(function(){st.textContent="This PDF could not be read. If it is password protected, use the unlocked copy.";});});};rd.readAsArrayBuffer(file);});})();</script>';
+		self::render_key_box();
 		if ( ! $run || empty( $run['rows'] ) ) {
 			return;
 		}

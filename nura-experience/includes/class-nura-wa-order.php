@@ -164,9 +164,9 @@ class NURAX_WA_Order {
 	}
 
 	/** Delivery areas: Nairobi estates + major towns. */
-	/** Kenya's 47 counties (Nairobi first, the rest A-Z). */
+	/** Kenya's 47 counties (Nairobi first, then A-Z with Nairobi also in its alphabetical place, 1.131.0). */
 	private static function counties() {
-		$list = array( 'Nairobi', 'Baringo', 'Bomet', 'Bungoma', 'Busia', 'Elgeyo-Marakwet', 'Embu', 'Garissa', 'Homa Bay', 'Isiolo', 'Kajiado', 'Kakamega', 'Kericho', 'Kiambu', 'Kilifi', 'Kirinyaga', 'Kisii', 'Kisumu', 'Kitui', 'Kwale', 'Laikipia', 'Lamu', 'Machakos', 'Makueni', 'Mandera', 'Marsabit', 'Meru', 'Migori', 'Mombasa', "Murang'a", 'Nakuru', 'Nandi', 'Narok', 'Nyamira', 'Nyandarua', 'Nyeri', 'Samburu', 'Siaya', 'Taita-Taveta', 'Tana River', 'Tharaka-Nithi', 'Trans Nzoia', 'Turkana', 'Uasin Gishu', 'Vihiga', 'Wajir', 'West Pokot' );
+		$list = array( 'Nairobi', 'Baringo', 'Bomet', 'Bungoma', 'Busia', 'Elgeyo-Marakwet', 'Embu', 'Garissa', 'Homa Bay', 'Isiolo', 'Kajiado', 'Kakamega', 'Kericho', 'Kiambu', 'Kilifi', 'Kirinyaga', 'Kisii', 'Kisumu', 'Kitui', 'Kwale', 'Laikipia', 'Lamu', 'Machakos', 'Makueni', 'Mandera', 'Marsabit', 'Meru', 'Migori', 'Mombasa', "Murang'a", 'Nairobi', 'Nakuru', 'Nandi', 'Narok', 'Nyamira', 'Nyandarua', 'Nyeri', 'Samburu', 'Siaya', 'Taita-Taveta', 'Tana River', 'Tharaka-Nithi', 'Trans Nzoia', 'Turkana', 'Uasin Gishu', 'Vihiga', 'Wajir', 'West Pokot' );
 		return apply_filters( 'nurax_wa_order_counties', $list );
 	}
 
@@ -677,8 +677,9 @@ class NURAX_WA_Order {
 								<div class="nwo-select">
 									<select id="nwo-location" name="location" autocomplete="address-level1" required aria-describedby="nwo-err-location">
 										<option value=""><?php esc_html_e( 'Select county', 'nura-experience' ); ?></option>
+										<?php $nwo_def = (string) apply_filters( 'nurax_wa_order_default_county', 'Nairobi' ); $nwo_sel = false; // 1.131.0: Nairobi chosen when the form opens. ?>
 										<?php foreach ( self::counties() as $county ) : ?>
-											<option value="<?php echo esc_attr( $county ); ?>"><?php echo esc_html( $county ); ?></option>
+											<option value="<?php echo esc_attr( $county ); ?>"<?php if ( ! $nwo_sel && $county === $nwo_def ) { $nwo_sel = true; echo ' selected'; } ?>><?php echo esc_html( $county ); ?></option>
 										<?php endforeach; ?>
 									</select>
 								</div>

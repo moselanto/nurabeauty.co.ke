@@ -141,7 +141,7 @@
     if (!s) { return; }
     ['name', 'phone', 'location', 'town', 'area'].forEach(function (k) {
       var el = form.elements[k];
-      if (el && !el.value && s[k]) { el.value = s[k]; }
+      if (el && s[k] && (!el.value || k === 'location')) { el.value = s[k]; } // 1.131.0: a saved county replaces the Nairobi default
     });
     setRadio('fulfil', s.fulfil);
     setRadio('payment', s.payment);

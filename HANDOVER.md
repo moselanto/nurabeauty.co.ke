@@ -2,6 +2,14 @@
 
 Last updated: 26 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 26 Nov 2026 23:50 EAT (Ray) - plugin 1.131.0: WhatsApp order form opens with Nairobi chosen
+
+- Owner: customers could not find Nairobi in the WhatsApp order form county list (it was only at the very top, above Baringo).
+- `NURAX_WA_Order::counties()` now lists Nairobi first and again in its A-Z place between Murang'a and Nakuru. Validation (`in_array`) is unaffected by the duplicate.
+- The county select opens with the first Nairobi option selected (filter `nurax_wa_order_default_county`, default 'Nairobi'), so the delivery quote loads straight away. The "Select county" placeholder stays as the first option.
+- `prefill()` in `assets/js/nura-wa-order.js` (and `.min.js`, identical) now lets a county saved from a previous order replace the Nairobi default.
+- php -l and node --check pass.
+
 ## UPDATE 26 Nov 2026 11:45 EAT (Ray) - plugin 1.130.1: paid-date time fix, access key for the monthly M-Pesa check
 
 - Fix: the Paid on field passed a site-local time to `set_date_paid()` as a UTC timestamp, which shifted the time by 3 hours (order #2576 went from 01:35 to 04:35 when its date was set to 23 Nov). It now passes a site-local string, so the time of day is kept.

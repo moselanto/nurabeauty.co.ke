@@ -1,6 +1,22 @@
 # HANDOVER.md - current state for the next developer / AI agent
 
-Last updated: 23 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+Last updated: 26 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+
+## UPDATE 26 Nov 2026 11:05 EAT (Ray) - plugin 1.129.0: M-Pesa statement matching, M-Pesa code checks, staff float
+
+- Version 1.129.0 skips 1.128.0, which is the unreleased referral programme on branch `referral-programme`. That branch must be bumped to 1.129.x or later before it is merged.
+- New `includes/class-nura-mpesa-recon.php` (NURAX_Mpesa_Recon), loaded after order source.
+  - **Accounts > M-Pesa statement (new tab):** paste the statement text, choose the PDF (read in the browser with pdf.js 3.11.174 from cdnjs into lines of text; the file is not uploaded), or upload the CSV export. Rows are parsed by receipt number and date, and charge lines are merged into their payment. The amount is the figure not followed by words (the balance is printed before the transaction type). Results are stored in a per-user transient (1 day); nothing is written on read.
+  - **Matching:** money in goes to orders by transaction ID or `_nura_paid_ref` / `_nura_pay_ref` / `_nura_part_ref`. Paystack payouts (PAYSTACK, PSTK ref) go to Paystack orders paid in the 6 days before, net of fees up to 6%. Otherwise orders within 3 days with the same total or phone ending are suggested. Money out goes to vouchers by ref (sum compared); otherwise vouchers with no ref within 3 days and the same total are suggested.
+  - **Buttons per line:** Record expense (category plus description), Record as other income, Staff float returned, Link to suggested order (sets transaction ID plus note), Link to suggested voucher (sets ref, method M-Pesa, payee), and Record M-Pesa charges (one `fees` voucher, ref CHGyymmdd-yymmdd, payee Safaricom; skipped if a fees voucher with the same total already exists). A ref already in the books is never recorded twice. All writes go through `next_txn()` and `audit()`, which are now public.
+  - **Tested against** the 13-26 Nov 2026 statement (till 1207531): 31 receipts, money in KSh 47,763, money out 22,940, charges 343.40. These match the statement summary for both layout and line-grouped text.
+- **M-Pesa code check box** on the order screen: format (10 letters and numbers), code date (1st letter year U=2026, 2nd month A=Jan, 3rd day 1-9 then A=10) versus order date, code used on another order (`NURAX_Desk::ref_used`), and no code on a paid hand-entered M-Pesa order. Warnings only; saving is never blocked.
+- **Staff float:**
+  - New categories `float` (Staff float given) and `float_back` (Staff float returned), in a new group `float` that is not in profit.
+  - New payment method `float` (Staff float, money already given).
+  - Book of accounts account 1250 (Staff float): given is Dr 1250 / Cr cash, returned is Dr cash / Cr 1250, and spending with method float credits 1250.
+  - New tab Accounts > Staff float shows given / spent / returned / still holding per payee, with every movement listed.
+- Accounts corrected by hand the same day to match the statement: PV-0039 to PV-0049 now carry M-Pesa refs and payees. Reconciliation doc: https://www.town.com/content/document/nx773qjde96jzvb07df9g314ds8jy8xj
 
 ## UPDATE 24 Nov 2026 17:05 EAT (Ray) - plugin 1.127.1: clean WhatsApp template values (order alerts)
 

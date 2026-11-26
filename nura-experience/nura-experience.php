@@ -3,7 +3,7 @@
  * Plugin Name:       NURA Experience
  * Plugin URI:        https://nurabeauty.co.ke
  * Description:       NURA's exclusive features: AI Wig Finder, Virtual Try-On, and The NURA Circle luxury client portal (order history, care schedule, warranty certificates, maintenance reminders, loyalty points, VIP membership), plus the NURA catalogue architecture, a catalogue-driven mega menu, mobile bottom navigation, a faceted shop experience and an upgraded product page. Requires WooCommerce.
- * Version:           1.127.1
+ * Version:           1.129.0
  * Author:            NURA - The House of Radiant Confidence
  * License:           GPL-2.0-or-later
  * Text Domain:       nura-experience
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NURAX_VERSION', '1.127.1' );
+define( 'NURAX_VERSION', '1.129.0' );
 
 /*
  * Virtual Try-On is switched OFF for the Kenyan market (v1.42.0). The code stays in
@@ -110,6 +110,7 @@ require_once NURAX_DIR . 'includes/class-nura-load.php';
 require_once NURAX_DIR . 'includes/class-nura-perf.php';
 require_once NURAX_DIR . 'includes/class-nura-growth.php'; // 1.126.0 review stars, completed-email review link, weekly AI referral report.
 require_once NURAX_DIR . 'includes/class-nura-order-source.php'; // 1.127.0 order source on every order, Orders by source report, /ig /tt /fb /wa short links.
+require_once NURAX_DIR . 'includes/class-nura-mpesa-recon.php'; // 1.129.0 M-Pesa statement matching, M-Pesa code checks, staff float.
 
 // Admin housekeeping: tidy third-party admin list-table columns.
 require_once NURAX_DIR . 'includes/class-admin-tidy.php';

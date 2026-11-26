@@ -135,10 +135,10 @@ class NURAX_Desk_Accounts {
 	}
 
 	public static function is_in( $cat ) {
-		return 'income' === self::group_of( $cat ) || 'capital' === $cat;
+		return 'income' === self::group_of( $cat ) || 'capital' === $cat || 'float_back' === $cat;
 	}
 
-	private static function next_txn( $in ) {
+	public static function next_txn( $in ) {
 		global $wpdb;
 		$key = $in ? 'nurax_ledger_seq_rv' : 'nurax_ledger_seq_pv';
 		$n   = (int) get_option( $key, 0 );
@@ -178,7 +178,7 @@ class NURAX_Desk_Accounts {
 		update_option( 'nurax_ledger_m_txn', time(), false );
 	}
 
-	private static function audit( $entry_id, $txn, $action, $changes = array(), $reason = '' ) {
+	public static function audit( $entry_id, $txn, $action, $changes = array(), $reason = '' ) {
 		global $wpdb;
 		$wpdb->insert( self::log_table(), array( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			'entry_id' => (int) $entry_id,
@@ -264,6 +264,8 @@ class NURAX_Desk_Accounts {
 			'prepaid'    => array( 'Rent paid in advance (non-refundable)', 'prepaid', 'Months of rent paid ahead, e.g. a 2-month advance you later sit on. Becomes rent in the months it covers.' ),
 			'deposit'    => array( 'Deposits paid (refundable)', 'asset', 'Only money you will get back (e.g. KPLC/water deposit) - not a cost.' ),
 			'equipment'  => array( 'Furniture & equipment', 'asset', 'Chairs, mirrors, wig heads, POS phone, steamers - kept for years.' ),
+			'float'      => array( 'Staff float given (money sent to staff to spend)', 'float', 'Money sent to staff to spend for the shop. Record what they spend with payment method Staff float and the same payee. Not a cost.' ),
+			'float_back' => array( 'Staff float returned to the shop', 'float', 'Unspent float money a staff member sends back.' ),
 			'capital'    => array( 'Owner capital in', 'owner', 'Money the owner puts into the business.' ),
 			'drawings'   => array( 'Owner drawings out', 'owner', 'Money the owner takes out for personal use.' ),
 		) );
@@ -279,11 +281,12 @@ class NURAX_Desk_Accounts {
 			'prepaid' => 'Paid in advance (becomes a cost month by month)',
 			'asset'  => 'Assets & refundable deposits (not in profit)',
 			'owner'  => 'Owner capital & drawings (not in profit)',
+			'float'  => 'Staff float (not in profit)',
 		);
 	}
 
 	public static function methods() {
-		return array( 'mpesa' => 'M-Pesa', 'cash' => 'Cash', 'bank' => 'Bank transfer', 'card' => 'Card', 'other' => 'Other' );
+		return array( 'mpesa' => 'M-Pesa', 'cash' => 'Cash', 'bank' => 'Bank transfer', 'card' => 'Card', 'other' => 'Other', 'float' => 'Staff float (money already given)' );
 	}
 
 	public static function group_of( $cat ) {
@@ -818,7 +821,7 @@ class NURAX_Desk_Accounts {
 
 	/** Payment method key -> cash account code. */
 	public static function cash_code( $m ) {
-		$map = array( 'cash' => 1010, 'mpesa' => 1020, 'bank' => 1030, 'card' => 1040, 'other' => 1010 );
+		$map = array( 'cash' => 1010, 'mpesa' => 1020, 'bank' => 1030, 'card' => 1040, 'other' => 1010, 'float' => 1250 );
 		return isset( $map[ $m ] ) ? $map[ $m ] : 1020;
 	}
 
@@ -931,6 +934,7 @@ class NURAX_Desk_Accounts {
 			1040 => array( 'Paystack (card and online M-Pesa)', 'asset' ),
 			1100 => array( 'Inventory - wigs, hair and products', 'asset' ),
 			1200 => array( 'Rent paid in advance', 'asset' ),
+			1250 => array( 'Staff float (money held by staff)', 'asset' ),
 			1300 => array( 'Refundable deposits', 'asset' ),
 			1500 => array( 'Furniture and equipment (at cost)', 'asset' ),
 			2000 => array( 'Amounts owed and customer deposits', 'liability' ),
@@ -1120,6 +1124,11 @@ class NURAX_Desk_Accounts {
 				case 'asset':
 					$isdep = 'deposit' === $e->category;
 					$lines = array( array( $isdep ? 1300 : 1500, $amt, 0 ), array( $cash, 0, $amt, $isdep ? 'Refundable deposits paid' : 'Furniture and equipment bought' ) );
+					break;
+				case 'float':
+					$lines = 'float_back' === $e->category
+						? array( array( $cash, $amt, 0, 'Staff float returned' ), array( 1250, 0, $amt ) )
+						: array( array( 1250, $amt, 0 ), array( $cash, 0, $amt, 'Staff float given' ) );
 					break;
 				case 'owner':
 					$lines = 'capital' === $e->category
@@ -1629,6 +1638,10 @@ class NURAX_Desk_Accounts {
 		}
 
 		$tabs = array( 'overview' => 'Profit & Loss', 'products' => 'Profit by product', 'entries' => 'Expenses & income', 'breakdown' => 'Where the money goes' );
+		if ( class_exists( 'NURAX_Mpesa_Recon' ) ) { // 1.129.0.
+			$tabs['mpesa'] = 'M-Pesa statement';
+			$tabs['float'] = 'Staff float';
+		}
 		echo '<nav class="nt-tabs na-tabs">';
 		foreach ( $tabs as $k => $l ) {
 			echo '<a class="nt-tab' . ( $k === $tab ? ' is-on' : '' ) . '" href="' . esc_url( NURAX_Desk::url( self::PAGE, array_merge( $keep, array( 'tab' => $k ) ) ) ) . '">' . esc_html( $l ) . '</a>';
@@ -1639,6 +1652,10 @@ class NURAX_Desk_Accounts {
 			self::render_entries( $from, $to, $cat, $q, $edit, $keep );
 		} elseif ( 'products' === $tab ) {
 			self::render_products( $r );
+		} elseif ( 'mpesa' === $tab && class_exists( 'NURAX_Mpesa_Recon' ) ) {
+			NURAX_Mpesa_Recon::render( $keep );
+		} elseif ( 'float' === $tab && class_exists( 'NURAX_Mpesa_Recon' ) ) {
+			NURAX_Mpesa_Recon::render_float( $keep );
 		} elseif ( 'breakdown' === $tab ) {
 			self::render_breakdown( $r );
 		} else {

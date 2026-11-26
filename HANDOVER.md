@@ -2,6 +2,12 @@
 
 Last updated: 26 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 26 Nov 2026 11:25 EAT (Ray) - plugin 1.130.0: Record Paystack fee button, paid date on orders, read-only REST check
+
+- `includes/class-nura-mpesa-recon.php`, M-Pesa statement tab: a Paystack payout row that is a likely match to an order now shows a **Record Paystack fee KSh N** button. The fee is the order total minus the payout. One click books a `fees` voucher with method `card` (Paystack account 1040), ref = payout code, payee Paystack, dated the payout date. The button refuses if the fee is 0 or less, above 6% of the order, or the payout code is already in the books. Once recorded, the row shows "Paystack fee recorded (PV-xxxx)". Paystack rows no longer show as "matched to voucher" when their fee voucher exists.
+- Order screen, M-Pesa code check box: owners (manage_woocommerce) get a **Paid on** date field. Saving the order changes `date_paid` (keeping the time), updates `_nura_paid_on` if set, and adds the note "Paid date changed from X to Y by NAME".
+- New read-only REST route `POST /wp-json/nurax/v1/mpesa-recon` with `{statement}` (text or CSV), for the owner only (application password). It returns from / to, charges, charges_recorded and every row with status, match, suggestions, order_id, fee and fee_txn. It writes nothing. It is used by the monthly reconciliation routine.
+
 ## UPDATE 26 Nov 2026 11:05 EAT (Ray) - plugin 1.129.0: M-Pesa statement matching, M-Pesa code checks, staff float
 
 - Version 1.129.0 skips 1.128.0, which is the unreleased referral programme on branch `referral-programme`. That branch must be bumped to 1.129.x or later before it is merged.

@@ -1,6 +1,6 @@
 <?php
 /**
- * NURA Desk - M-Pesa statement matching, M-Pesa code checks and staff float (NURA Experience 1.129.0).
+ * NURA Desk - M-Pesa statement matching, M-Pesa code checks and staff float (NURA Experience 1.129.0; Paystack fee button, paid date, REST check 1.130.0).
  *
  * Accounts > M-Pesa statement: paste the text of the Safaricom till statement (open the PDF, select
  * all, copy, paste) or upload the CSV export. Nothing is written on upload: the page shows every
@@ -28,6 +28,8 @@ class NURAX_Mpesa_Recon {
 		add_action( 'admin_post_nurax_mpesa_read', array( __CLASS__, 'h_read' ) );
 		add_action( 'admin_post_nurax_mpesa_act', array( __CLASS__, 'h_act' ) );
 		add_action( 'woocommerce_admin_order_data_after_order_details', array( __CLASS__, 'order_check_box' ) );
+		add_action( 'woocommerce_process_shop_order_meta', array( __CLASS__, 'save_paid_date' ), 99 );
+		add_action( 'rest_api_init', array( __CLASS__, 'rest' ) );
 	}
 
 	private static function cap() {
@@ -106,7 +108,72 @@ class NURAX_Mpesa_Recon {
 		} else {
 			echo esc_html( 'No M-Pesa code on this order.' );
 		}
+		if ( $o->get_date_paid() && current_user_can( 'manage_woocommerce' ) ) {
+			echo '<label style="display:block;margin-top:6px">Paid on (change only to match the M-Pesa or bank date) <input type="date" name="nurax_paid_on" value="' . esc_attr( $o->get_date_paid()->date( 'Y-m-d' ) ) . '" max="' . esc_attr( current_time( 'Y-m-d' ) ) . '"></label>';
+		}
 		echo '</div>';
+	}
+
+	/** 1.130.0: owner can correct an order's paid date from the order screen. */
+	public static function save_paid_date( $order_id ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce verified the order nonce before this hook.
+		if ( empty( $_POST['nurax_paid_on'] ) || ! current_user_can( 'manage_woocommerce' ) ) {
+			return;
+		}
+		$d = NURAX_Desk::valid_date( sanitize_text_field( wp_unslash( $_POST['nurax_paid_on'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$o = wc_get_order( $order_id );
+		if ( ! $d || ! $o || ! $o->get_date_paid() || $d > current_time( 'Y-m-d' ) ) {
+			return;
+		}
+		$old = $o->get_date_paid()->date( 'Y-m-d' );
+		if ( $old === $d ) {
+			return;
+		}
+		$o->set_date_paid( strtotime( $d . ' ' . $o->get_date_paid()->date( 'H:i:s' ) ) );
+		if ( $o->get_meta( '_nura_paid_on', true ) ) {
+			$o->update_meta_data( '_nura_paid_on', $d );
+		}
+		$o->save();
+		$u = wp_get_current_user();
+		$o->add_order_note( 'Paid date changed from ' . $old . ' to ' . $d . ' by ' . ( $u && $u->ID ? $u->display_name : 'owner' ) . '.' );
+		if ( class_exists( 'NURAX_Desk_Accounts' ) ) {
+			NURAX_Desk_Accounts::bust();
+		}
+	}
+
+	/**
+	 * 1.130.0: read-only REST check for the monthly reconciliation routine.
+	 * POST /wp-json/nurax/v1/mpesa-recon {statement: "<statement text or CSV>"} as the owner
+	 * (application password). Returns every row with its match; writes nothing.
+	 */
+	public static function rest() {
+		register_rest_route( 'nurax/v1', '/mpesa-recon', array(
+			'methods'             => 'POST',
+			'permission_callback' => function () {
+				return current_user_can( NURAX_Desk_Accounts::cap() );
+			},
+			'callback'            => function ( $req ) {
+				$rows = self::match( self::parse( (string) $req->get_param( 'statement' ) ) );
+				if ( ! $rows ) {
+					return new WP_Error( 'nurax_empty', 'No M-Pesa transactions found in the statement text.', array( 'status' => 400 ) );
+				}
+				$from = $rows[0]['date'];
+				$to   = end( $rows )['date'];
+				$chg  = 0;
+				foreach ( $rows as &$r ) {
+					$chg += $r['charge'];
+					unset( $r['details'] );
+				}
+				unset( $r );
+				return array(
+					'from'              => $from,
+					'to'                => $to,
+					'charges'           => round( $chg, 2 ),
+					'charges_recorded'  => self::charges_recorded( $from, $to, round( $chg, 2 ) ),
+					'rows'              => $rows,
+				);
+			},
+		) );
 	}
 
 	/* ------------------------------------------------------------ statement reading */
@@ -360,13 +427,14 @@ class NURAX_Mpesa_Recon {
 				$r['link']   = $o->get_edit_order_url();
 				continue;
 			}
-			if ( $led ) {
+			if ( $led && 'paystack' !== $r['kind'] ) {
 				$r['status'] = 'matched';
 				$r['match']  = $led[0]->txn;
 				$r['link']   = self::voucher_url( $led[0]->txn );
 				continue;
 			}
 			if ( 'paystack' === $r['kind'] ) {
+				$r['fee_txn'] = $led ? $led[0]->txn : '';
 				foreach ( $cands as $c ) {
 					$pm = strtolower( $c->get_payment_method() . ' ' . $c->get_payment_method_title() );
 					$pd = $c->get_date_paid() ? $c->get_date_paid()->date( 'Y-m-d' ) : $c->get_date_created()->date( 'Y-m-d' );
@@ -379,6 +447,8 @@ class NURAX_Mpesa_Recon {
 						$r['status'] = 'likely';
 						$r['match']  = 'Paystack payout for order #' . $c->get_order_number() . ' (' . NURAX_Desk::money( $tt ) . ' less ' . NURAX_Desk::money( $tt - $r['amount'] ) . ' Paystack fee)';
 						$r['link']   = $c->get_edit_order_url();
+						$r['order_id'] = $c->get_id();
+						$r['fee']      = round( $tt - $r['amount'], 2 );
 						break;
 					}
 				}
@@ -547,6 +617,20 @@ class NURAX_Mpesa_Recon {
 					$err  = $row['receipt'] . ' recorded as ' . $txn . '.';
 				}
 			}
+		} elseif ( $row && 'paystack_fee' === $do ) {
+			// 1.130.0: book the Paystack fee (order total minus payout) under M-Pesa, bank & card charges.
+			$o   = isset( $_POST['target'] ) ? wc_get_order( absint( $_POST['target'] ) ) : null;
+			$fee = $o ? round( (float) $o->get_total() - abs( $row['amount'] ), 2 ) : 0;
+			if ( ! $o || 'paystack' !== $row['kind'] || $fee <= 0 || $fee > (float) $o->get_total() * 0.06 + 1 ) {
+				$msg = 'refused';
+				$err = 'The Paystack fee could not be worked out for this payout.';
+			} elseif ( self::ledger_by_ref( $row['receipt'] ) ) {
+				$msg = 'refused';
+				$err = 'The fee for payout ' . $row['receipt'] . ' is already in the books.';
+			} else {
+				$txn = self::insert_voucher( $row['date'], array( array( 'category' => 'fees', 'description' => 'Paystack fee on order #' . $o->get_order_number() . ' (payout ' . $row['receipt'] . ')', 'amount' => $fee ) ), 'card', $row['receipt'], 'Paystack', 'Order total ' . $o->get_total() . ' less payout ' . abs( $row['amount'] ) . ', from the M-Pesa statement.' );
+				$err = 'Paystack fee ' . NURAX_Desk::money( $fee ) . ' for order #' . $o->get_order_number() . ' recorded as ' . $txn . '.';
+			}
 		} elseif ( $row && 'link_voucher' === $do ) {
 			$txn = isset( $_POST['target'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_POST['target'] ) ) ) : '';
 			if ( self::ledger_by_ref( $row['receipt'] ) || ! preg_match( '/^PV-\d{4}$/', $txn ) ) {
@@ -660,6 +744,13 @@ class NURAX_Mpesa_Recon {
 		foreach ( $rows as $r ) {
 			echo '<tr><td>' . esc_html( date_i18n( 'j M', strtotime( $r['date'] ) ) . ' ' . substr( $r['time'], 0, 5 ) ) . '</td><td><code>' . esc_html( $r['receipt'] ) . '</code></td><td>' . esc_html( 'paystack' === $r['kind'] ? 'Paystack payout' : $r['name'] ) . '</td><td style="text-align:right">' . esc_html( NURAX_Desk::money( abs( $r['amount'] ) ) ) . '</td>';
 			echo '<td><span style="color:' . esc_attr( $col[ $r['status'] ] ) . ';font-weight:600">' . esc_html( $lab[ $r['status'] ] ) . '</span>' . ( $r['match'] ? '<br>' . ( $r['link'] ? '<a href="' . esc_url( $r['link'] ) . '">' . esc_html( $r['match'] ) . '</a>' : esc_html( $r['match'] ) ) : '' ) . '</td><td>';
+			if ( 'paystack' === $r['kind'] && ! empty( $r['order_id'] ) ) {
+				if ( ! empty( $r['fee_txn'] ) ) {
+					echo '<span style="color:#00a32a">Paystack fee recorded (' . esc_html( $r['fee_txn'] ) . ')</span>';
+				} elseif ( $r['fee'] > 0 ) {
+					echo self::act_btn( 'paystack_fee', $r['receipt'], 'Record Paystack fee ' . NURAX_Desk::money( $r['fee'] ), 'nd-btn--primary nd-btn--sm', '<input type="hidden" name="target" value="' . esc_attr( $r['order_id'] ) . '">' ); // phpcs:ignore WordPress.Security.EscapeOutput
+				}
+			}
 			if ( 'unmatched' === $r['status'] ) {
 				foreach ( $r['suggest'] as $s ) {
 					echo '<div>' . self::act_btn( 'order' === $s['type'] ? 'link_order' : 'link_voucher', $r['receipt'], 'Link to ' . $s['label'], 'nd-btn--ghost nd-btn--sm', '<input type="hidden" name="target" value="' . esc_attr( $s['id'] ) . '">' ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput

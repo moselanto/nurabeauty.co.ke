@@ -2,6 +2,14 @@
 
 Last updated: 26 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 26 Nov 2026 23:55 EAT (Ray) - plugin 1.132.0: free Nairobi delivery week now applies on the WhatsApp order form
+
+- Owner report: the WhatsApp order form showed "Rider from KSh 300" for Nairobi and added it to the total (KSh 800 for a KSh 500 item) while the banner advertised free Nairobi County delivery until 29 Nov.
+- Confirmed cause (live `admin-ajax.php?action=nurax_wa_ship` before the fix, plus code): the form's `ship_quote()` never runs `woocommerce_package_rates`, where checkout's `NURAX_Rider_Fee::promo()` (priority 140) zeroes the rider and CBD rates. With no area it reads the zone method cost directly (`wc_quote()`, KSh 300); with an area it uses `NURAX_Rider_Fee::quote()`, which has no promo check (Karen 800, Kilimani 500, CBD 300). The JS adds any known fee to the total, so the KSh 300 was added.
+- Fix: new `NURAX_WA_Order::promo_free( $area )` uses `NURAX_Rider_Fee::promo_on()` and `promo_in_county()`. While the offer is on: Nairobi with no area typed is free with the line "FREE delivery in Nairobi County this week" (fee 0, so nothing is added to the total); a typed area inside the county is free with `promo_text()`; areas outside the county (Ruaka, Githurai, etc.) and unrecognised areas keep their normal fee or the KSh 300 starting price, matching checkout. After 29 Nov 23:59 `promo_on()` is false and normal rider pricing returns automatically.
+- Not changed (found during the check): the M-Pesa prompt (`nurax_wa_stk`) works out the delivery fee from the county only, not the typed area, so outside the offer a Karen order paid by prompt would be charged the KSh 300 base, not KSh 800. Needs the area sent from the JS and passed to `ship_quote()`; awaiting owner go-ahead.
+- php -l pass; quote logic tested in PHP CLI for offer on and off.
+
 ## UPDATE 26 Nov 2026 23:50 EAT (Ray) - plugin 1.131.0: WhatsApp order form opens with Nairobi chosen
 
 - Owner: customers could not find Nairobi in the WhatsApp order form county list (it was only at the very top, above Baringo).

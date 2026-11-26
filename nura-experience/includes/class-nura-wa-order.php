@@ -404,6 +404,17 @@ class NURAX_WA_Order {
 		return array( 'known' => true, 'fee' => $fee, 'free_over' => $fee > 0 ? $over : 0 );
 	}
 
+	/**
+	 * 1.132.0: is the free Nairobi County delivery week on for this rider area?
+	 * '' = no area typed yet. Areas outside the county (Ruaka, Githurai...) keep their fee.
+	 */
+	private static function promo_free( $area ) {
+		if ( ! class_exists( 'NURAX_Rider_Fee' ) || ! method_exists( 'NURAX_Rider_Fee', 'promo_on' ) || ! NURAX_Rider_Fee::promo_on() ) {
+			return false;
+		}
+		return '' === $area || NURAX_Rider_Fee::promo_in_county( $area );
+	}
+
 	/** Delivery quote for a county + subtotal. */
 	public static function ship_quote( $county, $sub, $area = '' ) {
 		// 1.122.0: rider fee from the area the customer types (same rules + table as checkout).
@@ -412,6 +423,13 @@ class NURAX_WA_Order {
 			if ( $r ) {
 				$r['county'] = $county;
 				$r['eta']    = __( 'Same-day rider delivery when ordered and paid before 5 PM (Mon-Sat)', 'nura-experience' );
+				// 1.132.0: free Nairobi County delivery week, same rule as checkout (NURAX_Rider_Fee::promo()).
+				if ( 'Nairobi' === $county && self::promo_free( isset( $r['area'] ) ? $r['area'] : '' ) ) {
+					$r['fee']       = 0;
+					$r['free_over'] = 0;
+					$r['promo']     = true;
+					$r['rule']      = NURAX_Rider_Fee::promo_text();
+				}
 				$r['free']   = $r['fee'] <= 0;
 				return apply_filters( 'nurax_wa_order_shipping', $r, $county, $sub );
 			}
@@ -426,6 +444,16 @@ class NURAX_WA_Order {
 		$q['county'] = $county;
 		$q['eta']    = self::eta( $county );
 		$q['free']   = $q['known'] && $q['fee'] <= 0;
+		if ( 'Nairobi' === $county && '' === trim( (string) $area ) && self::promo_free( '' ) ) {
+			// 1.132.0: during the free Nairobi County delivery week, Nairobi with no area typed yet is free.
+			$q['known']     = true;
+			$q['fee']       = 0;
+			$q['free_over'] = 0;
+			$q['free']      = true;
+			$q['promo']     = true;
+			$q['rule']      = __( 'FREE delivery in Nairobi County this week', 'nura-experience' );
+			return apply_filters( 'nurax_wa_order_shipping', $q, $county, $sub );
+		}
 		if ( 'Nairobi' === $county && class_exists( 'NURAX_Rider_Fee' ) ) {
 			// Area not recognised yet: show the base as a starting price, never a final fee.
 			$q['from'] = true;

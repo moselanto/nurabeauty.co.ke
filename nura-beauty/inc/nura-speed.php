@@ -569,3 +569,24 @@ add_action( 'wp_footer', function () {
 		wp_dequeue_script( 'googlesitekit-events-provider-wpforms' );
 	}
 }, 1 );
+
+
+/* 22. v1.161.48 Block cart: WooCommerce still enqueues its classic-cart helpers on /cart/ even though
+ * the page uses the Cart block, which never runs them: classic cart.js, the shipping-calculator
+ * country/state pickers (selectWoo + select2.css, country-select, address-i18n) and the product
+ * option scripts (add-to-cart-variation, underscore, wp-util; underscore and wp-util were printed
+ * in <head> and blocked rendering). Dequeuing only removes them from the queue: if another script
+ * still depends on one, WordPress prints it anyway. Off: add_filter( 'nura_trim_block_cart', '__return_false' ). */
+add_action( 'wp_enqueue_scripts', function () {
+	if ( ! nura_speed_on() || ! apply_filters( 'nura_trim_block_cart', true ) || ! function_exists( 'is_cart' ) || ! is_cart() ) {
+		return;
+	}
+	$cart_id = function_exists( 'wc_get_page_id' ) ? (int) wc_get_page_id( 'cart' ) : 0;
+	if ( $cart_id <= 0 || ! function_exists( 'has_block' ) || ! has_block( 'woocommerce/cart', $cart_id ) ) {
+		return; // Classic [woocommerce_cart] page: it needs these scripts.
+	}
+	foreach ( array( 'wc-cart', 'wc-country-select', 'wc-address-i18n', 'selectWoo', 'select2', 'wc-add-to-cart-variation', 'wp-util', 'underscore' ) as $h ) {
+		wp_dequeue_script( $h );
+	}
+	wp_dequeue_style( 'select2' );
+}, 130 );

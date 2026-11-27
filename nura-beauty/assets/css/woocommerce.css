@@ -418,3 +418,25 @@ body form.cart button.single_add_to_cart_button.button.alt:disabled,
 body form.cart button.single_add_to_cart_button.button.alt:disabled:hover,
 body form.cart button.single_add_to_cart_button.button.alt:disabled[disabled],
 body form.cart button.single_add_to_cart_button.button.alt:disabled[disabled]:hover{background:var(--nura-ink,#0E0E0E);background-color:var(--nura-ink,#0E0E0E);color:#fff;opacity:.55;cursor:not-allowed}
+
+
+/* 1.161.48: colour contrast (PageSpeed / WCAG AA 4.5:1) - same black-and-gold look,
+   darker gold on light backgrounds. Ratios: #8a6a24 on white 5.0, #7a5a12 on white 6.4,
+   #7a5a12 on cream #FAF6EE 6.0, #5c5650 on white 7.2. */
+html body p.price,html body.woocommerce div.product p.price,html body.woocommerce div.product span.price,
+html body .summary p.price .woocommerce-Price-amount,html body .summary p.price .woocommerce-Price-currencySymbol{color:#8a6a24}
+html body .nura-chosen{color:#8a6a24}
+html body .nura-swatch__name{color:#2b2b2b}
+html body .nura-why-buy__h{color:#8a6a24}
+html body.single-product #tab-description strong{color:#7a5a12}
+html body.single-product #tab-description li,html body.single-product #tab-description td,html body.single-product .woocommerce-Tabs-panel td{color:#2b2b2b}
+html body.home .nura-shop-now__head .nura-eyebrow,html body.home .nura-shead .nura-eyebrow{color:#8a6a24}
+html body .nura-visit__hint{color:#5c5650}
+html body.nura-inner .nura-page-hero .nura-eyebrow{color:#7a5a12}
+html body.nura-inner .nura-breadcrumbs,html body.nura-inner .nura-breadcrumbs a,html body.nura-inner .nura-breadcrumbs li{color:#5c5650}
+html body.nura-inner .nura-breadcrumbs a:hover{color:#7a5a12}
+/* Footer + product tabs: content-visibility:auto hid their dark/white backgrounds from
+   the contrast checker (light footer text was measured against nothing). Render them normally. */
+html body footer.site-footer,html body .site-footer,html body #colophon,html body.single-product .woocommerce-tabs{content-visibility:visible!important;contain-intrinsic-size:none!important}
+html body .site-footer .nura-foot-bottom,html body .site-footer .nura-pay,html body .site-footer .nura-foot-bottom span{color:rgba(243,233,220,.78)}
+html body .site-footer .nura-foot-links a,html body .site-footer .nura-foot-col a{color:rgba(243,233,220,.88)}

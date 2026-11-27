@@ -2,6 +2,13 @@
 
 Last updated: 27 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 27 Nov 2026 23:30 EAT (Ray) - theme 1.161.48: block-cart script trim + colour contrast
+
+- Cart (mobile PSI 76, TBT 650 ms, SI 6.4 s). Confirmed from the live HTML: /cart/ is the WooCommerce Cart block, so it loads React + wp-components (components.min.js 817 KiB uncompressed), wc-cart-checkout-base (212), vendors (133), react-dom (129), date (141) + moment (57) and ~70 other block scripts (88 scripts, ~3.5 MB uncompressed incl. two gtag tags ~1 MB). Head blockers: 11 stylesheets (wc-blocks, all-products, packages-style, cart block, select2, nurax, nura-ux, woocommerce-layout/general, theme main + woocommerce) and sync jQuery, underscore, wp-util. WooCommerce also enqueues classic-cart helpers the block never uses.
+- Fix (inc/nura-speed.php section 22, filter `nura_trim_block_cart`): on the block cart only, dequeue wc-cart, wc-country-select, wc-address-i18n, selectWoo/select2 (+ select2.css), wc-add-to-cart-variation, wp-util, underscore (WordPress still prints any that another script needs). The React/wp-components stack stays: only switching the Cart page to the classic [woocommerce_cart] shortcode removes it (owner decision, not done).
+- Contrast (assets/css/woocommerce.css end): darker gold on light backgrounds (#8a6a24 5.0:1 price, chosen colour, why-buy heading, home Shop NURA eyebrow; #7a5a12 cart hero eyebrow + description strong), #5c5650 visit hint + cart breadcrumbs, #2b2b2b swatch names / description li, td. Footer and product tabs no longer use content-visibility:auto (it hid their background from the checker, so light footer text was measured as failing; ivory text on ink is 10.9:1); footer-bottom text raised to 78% opacity.
+- php -l pass; CSS braces balanced.
+
 ## UPDATE 27 Nov 2026 23:00 EAT (Ray) - theme 1.161.47 (Add to Bag black and gold) + plugin 1.137.1 (login-address messages at top, refused saves logged)
 
 - Theme 1.161.47: WooCommerce 11.3.1 core CSS colours `button.button.alt` purple (#7f54b3) with `.woocommerce:where(...) button.button.alt` (specificity 0,3,1), which beat the theme's `form.cart .single_add_to_cart_button` (0,2,1), so Add to Bag showed purple. New rules at the end of `assets/css/woocommerce.css` (`body form.cart button.single_add_to_cart_button.button.alt`): ink background + white text; hover/focus gold background + ink text (focus outline gold); disabled / `.disabled` / `.wc-variation-selection-needed` ink at 55% with no hover change. Not caused by plugin 1.137.0 (back-office files only).

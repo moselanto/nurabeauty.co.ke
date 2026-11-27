@@ -2,6 +2,10 @@
 
 Last updated: 27 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 28 Nov 2026 00:05 EAT (Ray) - plugin 1.137.3: per-request A/B switch for the gtag-loader change
+
+- `?nurax_gtag_once=0` on any URL prints Google for WooCommerce's own AW loader for that request only (pre-1.137.2 behaviour); nothing is stored, so there is nothing to switch back on. Used for alternating PageSpeed A/B runs on /cart/ (off: `/cart/?nurax_gtag_once=0`, on: `/cart/?nurax_gtag_once=1`).
+
 ## UPDATE 27 Nov 2026 23:55 EAT (Ray) - plugin 1.137.2: one Google tag loader when Site Kit already loads gtag.js
 
 - New `includes/class-nura-gtag-once.php` (NURAX_Gtag_Once). Buffers wp_head priority 999998-1000001 around Google for WooCommerce's GlobalSiteTag output (priority 999999). When Site Kit's `google_gtagjs` is already printed, removes only GLA's `<script src=".../gtag/js?id=AW-18515352802">` loader and its repeated `gtag('js', new Date())`; keeps GLA consent defaults, developer ID, `gtag("config", "AW-18515352802", {groups: "GLA"})`, enhanced-conversion data and all later events (purchase on order-received). Unchanged when Site Kit's tag did not print. Off: `add_filter( 'nurax_gtag_once', '__return_false' )`. Becomes a no-op once GLA ships PR #4153.

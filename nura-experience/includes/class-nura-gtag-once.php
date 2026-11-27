@@ -15,7 +15,7 @@
  * library processes, so conversions still reach Google Ads.
  *
  * If Site Kit's tag did not print (not connected, tracking excluded for this visitor), nothing changes.
- * Off: add_filter( 'nurax_gtag_once', '__return_false' );
+ * Off: add_filter( 'nurax_gtag_once', '__return_false' ); per request (A/B tests): ?nurax_gtag_once=0
  * When GLA ships PR #4153 this becomes a no-op (GLA no longer prints its loader there).
  *
  * @package NURA_Experience
@@ -38,7 +38,10 @@ class NURAX_Gtag_Once {
 	}
 
 	public function start() {
-		if ( ! apply_filters( 'nurax_gtag_once', true ) ) {
+		// 1.137.3: per-request switch for A/B speed tests. /any-page/?nurax_gtag_once=0 prints Google for
+		// WooCommerce's own loader as before 1.137.2 (only for that request; nothing is saved).
+		$ab = isset( $_GET['nurax_gtag_once'] ) ? sanitize_key( wp_unslash( $_GET['nurax_gtag_once'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display switch.
+		if ( '0' === $ab || ! apply_filters( 'nurax_gtag_once', true ) ) {
 			return;
 		}
 		$this->buffering = true;

@@ -15,11 +15,28 @@ from datetime import datetime, timezone
 from playwright.sync_api import sync_playwright
 
 URL = "https://nurabeauty.co.ke/product/astylsst-texture-setting-spray-400-ml-hair-styling-spray-for-hold-and-shine/"
-CASES = [("Mombasa", "Mombasa"), ("Nakuru", "Nakuru"), ("Nairobi", "Karen")]
+ITEM_PRICE = 500  # ASTYLSST Texture Spray, quantity 1
+# (county, town typed). Expected fees are checked where known; every option is also
+# checked for "total = item + option price".
+CASES = [("Mombasa", "Mombasa"), ("Nakuru", "Nakuru"), ("Kisumu", "Kisumu"), ("Uasin Gishu", "Eldoret"),
+         ("Kiambu", "Thika"), ("Nairobi", "Westlands"), ("Nairobi", "Karen")]
+EXPECTED = {  # option label contains -> fee in KSh (normal pricing, order under KSh 10,000)
+    "Bus & shuttle": 350,
+    "Fargo Courier": 550,
+    "Rider delivery to Westlands": 300,
+    "Rider delivery to Karen": 800,
+}
+
+def ksh(text):
+    import re
+    if "FREE" in text.upper() and not re.search(r"KSh\s*[1-9]", text):
+        return 0
+    m = re.findall(r"KSh\s*([\d,]+)", text)
+    return int(m[-1].replace(",", "")) if m else None
 
 def main(out):
     rep = {"url": URL, "started": datetime.now(timezone.utc).isoformat(), "console_errors": [],
-           "page_errors": [], "failed_requests": [], "steps": []}
+           "page_errors": [], "failed_requests": [], "unexpected_totals": [], "steps": []}
     with sync_playwright() as p:
         b = p.chromium.launch()
         pg = b.new_page(viewport={"width": 390, "height": 844})
@@ -41,7 +58,7 @@ def main(out):
         for county, town in CASES:
             pg.select_option("#nwo-location", county)
             pg.fill("#nwo-town", town)
-            if county == "Nairobi":
+            if pg.locator("#nwo-area").is_visible():
                 pg.fill("#nwo-area", town)
             pg.wait_for_timeout(2000)
             opts = pg.locator("[data-nwo-ship] input[name='ship_opt']")
@@ -55,10 +72,23 @@ def main(out):
                 label = o.locator("xpath=..").inner_text().strip().replace("\n", " ")
                 tl = pg.locator("[data-nwo-foottotal]")
                 total = tl.first.inner_text() if tl.count() else ""
-                rep["steps"].append({"county": county, "town": town, "option": label, "total": total.strip()})
+                step = {"county": county, "town": town, "option": label, "total": total.strip()}
+                fee, tot = ksh(label), ksh(total)
+                problems = []
+                if fee is None or tot is None:
+                    problems.append("could not read option price or total")
+                elif tot != ITEM_PRICE + fee:
+                    problems.append("total %s is not item %s + option %s" % (tot, ITEM_PRICE, fee))
+                for key, want in EXPECTED.items():
+                    if key in label and fee is not None and fee != want:
+                        problems.append("expected %s at KSh %s, form shows KSh %s" % (key, want, fee))
+                if problems:
+                    step["problems"] = problems
+                    rep["unexpected_totals"].append(step)
+                rep["steps"].append(step)
         b.close()
     rep["finished"] = datetime.now(timezone.utc).isoformat()
-    rep["ok"] = not (rep["console_errors"] or rep["page_errors"])
+    rep["ok"] = not (rep["console_errors"] or rep["page_errors"] or rep["failed_requests"] or rep["unexpected_totals"])
     with open(out, "w") as f:
         json.dump(rep, f, indent=2)
     print(json.dumps(rep, indent=2))

@@ -1351,7 +1351,9 @@ class NURAX_WA_Order {
 			if ( ! in_array( $county, self::counties(), true ) ) {
 				wp_send_json_error( array( 'message' => __( 'Please choose your county first.', 'nura-experience' ) ), 400 );
 			}
-			$q = self::ship_quote( $county, $total );
+			// 1.133.0: same quote as the form shows (area + town, as in nura-wa-order.js refreshShip()).
+			$place = trim( self::cut( sanitize_text_field( (string) ( isset( $in['area'] ) ? $in['area'] : '' ) ), 120 ) . ' ' . self::cut( sanitize_text_field( (string) ( isset( $in['town'] ) ? $in['town'] : '' ) ), 60 ) );
+			$q     = self::ship_quote( $county, $total, $place );
 			if ( empty( $q['known'] ) ) {
 				wp_send_json_error( array( 'message' => __( 'We will confirm the delivery fee for your area on WhatsApp first. Send the order, then pay when we confirm the total.', 'nura-experience' ) ), 400 );
 			}

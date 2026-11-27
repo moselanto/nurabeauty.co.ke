@@ -2,6 +2,12 @@
 
 Last updated: 26 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 27 Nov 2026 10:05 EAT (Ray) - plugin 1.133.0: free Nairobi delivery week ended early; M-Pesa prompt charges the typed area's fee
+
+- Owner: remove the free Nairobi delivery promo (Fri 27 Nov). `NURAX_Rider_Fee::promo_window()` now returns an empty window, so `promo_on()` is false: checkout rider/CBD rates, the WhatsApp order form and the announcement-bar override all return to normal pricing. The promo code is kept; to run it again, return two Africa/Nairobi dates from `promo_window()` or the `nurax_free_nairobi_window` filter.
+- Fix: the WhatsApp form's M-Pesa prompt (`ajax_stk`) worked out delivery from the county only. The JS now sends `area` and `town`, and `ajax_stk()` passes `trim( area . ' ' . town )` to `ship_quote()`, the same text the form uses in `refreshShip()`, so the prompt amount equals the total the form shows (e.g. Karen KSh 800, not the KSh 300 base).
+- php -l and node --check pass; `.min.js` kept identical to `.js`.
+
 ## UPDATE 26 Nov 2026 23:55 EAT (Ray) - plugin 1.132.0: free Nairobi delivery week now applies on the WhatsApp order form
 
 - Owner report: the WhatsApp order form showed "Rider from KSh 300" for Nairobi and added it to the total (KSh 800 for a KSh 500 item) while the banner advertised free Nairobi County delivery until 29 Nov.

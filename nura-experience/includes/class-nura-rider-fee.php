@@ -290,7 +290,8 @@ TXT;
 	 * (array of two 'Y-m-d H:i:s' Africa/Nairobi times); off: return array().
 	 */
 	public static function promo_window() {
-		return (array) apply_filters( 'nurax_free_nairobi_window', array( '2026-11-23 00:00:00', '2026-11-29 23:59:59' ) );
+		// 1.133.0: owner ended the offer early on Fri 27 Nov 2026; empty window = off. To run it again, return two dates here.
+		return (array) apply_filters( 'nurax_free_nairobi_window', array() );
 	}
 
 	public static function promo_on() {

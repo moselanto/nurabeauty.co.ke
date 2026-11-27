@@ -759,7 +759,7 @@
     fd.append('ref', stkRef);
     fd.append('stk_phone', phone);
     fd.append('items', JSON.stringify(orderItems()));
-    ['fulfil', 'location', 'website'].forEach(function (k) { fd.append(k, val(k)); });
+    ['fulfil', 'location', 'area', 'town', 'website'].forEach(function (k) { fd.append(k, val(k)); }); // 1.133.0: area + town so the prompt charges the fee the form shows
     fd.append('cbd', cbdOn() ? '1' : '');
     stkBtn.disabled = true;
     stkSay('Sending the prompt to your phone...', '');

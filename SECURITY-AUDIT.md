@@ -78,7 +78,7 @@ Verified with no change needed: all 60+ staff handlers (nonce + capability), POS
 ## 6. Maintenance (owner checklist)
 
 1. Weekly: Dashboard > Updates - update WordPress core, WooCommerce, Rank Math, payment and all other plugins. Delete unused plugins and themes.
-2. Turn on two-factor authentication for every administrator (for example the "Two Factor" plugin).
+2. Two-factor sign-in: since plugin 1.137.0 every administrator and shop manager must use an authenticator app ("Two Factor" plugin, enforced by `class-nura-staff-login.php`). Keep the Two Factor plugin active and backup codes offline. Set a private login address in NURA Desk > Settings > Staff sign-in.
 3. Unique long passwords for every staff account; remove staff who leave (NURA Desk > Team).
 4. In `wp-config.php`: `define( 'FORCE_SSL_ADMIN', true );`, `define( 'DISALLOW_FILE_EDIT', true );`, and the `NURA_DATA_KEY` line shown in NURA Desk > Security. Keep a copy of that key offline.
 5. Daily off-site backups; test a restore every quarter.

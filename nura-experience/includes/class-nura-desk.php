@@ -868,6 +868,9 @@ class NURAX_Desk {
 		echo '<p><button type="submit" class="nd-btn nd-btn--primary">Save settings</button></p></form>';
 		echo '<section class="nd-card nd-sec"><header class="nd-card__h"><h2>Team &amp; permissions</h2></header><p>Choose what shop managers can see and do, the highest discount they can give, and see each person\'s sales and activity.</p>' . self::btn( self::url( 'nurax-team', array( 'tab' => 'perms' ) ), 'Open team permissions', 'nd-btn--primary' ) . ' ' . self::btn( self::url( 'nurax-team' ), 'Team performance', 'nd-btn--ghost' ) . '</section>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		NURAX_Vault::card();
+		if ( class_exists( 'NURAX_Staff_Login' ) ) {
+			NURAX_Staff_Login::card();
+		}
 		echo '<p><button type="submit" form="nd-settings-form" class="nd-btn nd-btn--primary">Save settings</button></p>';
 		self::footer();
 	}

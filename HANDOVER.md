@@ -1,6 +1,16 @@
 # HANDOVER.md - current state for the next developer / AI agent
 
-Last updated: 26 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+Last updated: 27 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+
+## UPDATE 27 Nov 2026 22:15 EAT (Ray) - plugin 1.137.0: authenticator app for all staff + private login address
+
+- Owner (27 Nov): secure wp-admin login. Choices: authenticator app (not e-mail codes), for administrators AND shop managers, and a private login address instead of /wp-admin and /wp-login.php.
+- New `includes/class-nura-staff-login.php` (NURAX_Staff_Login), loaded after the login guard. Card "Staff sign-in" (`#nd-login`) on NURA Desk > Settings, below Security & customer data, administrators only.
+- **Authenticator app** (uses the "Two Factor" plugin, already active): staff = `manage_options` or `manage_woocommerce` (filter `nurax_2fa_staff`). A staff account without the app (`Two_Factor_Totp` enabled + `_two_factor_totp_key`) is redirected from every wp-admin screen to `profile.php?nurax_2fa=setup#two-factor-options` (admin-ajax / admin-post / profile stay open) with step-by-step setup instructions. Once the app is on, `Two_Factor_Email` is dropped for that account and the app is the primary method; backup codes still work. Turning the app on/off e-mails admin_email + the user and logs `security` in the activity log. Fails open if the Two Factor plugin is inactive (admins get a red notice). Card lists every admin/shop manager with Set up / Not set up.
+- **Private login address**: not active until the owner saves one on the card (stored in option `nurax_login_slug`, never in this public repo; 6-40 chars, reserved words and existing page/post/product slugs refused; confirm tick required). Saving e-mails the address to admin_email, logs it, and purges LiteSpeed. When set: `/<slug>/` serves wp-login.php (no-cache); signed-out `/wp-login.php` (except `?action=postpass`) and `/wp-admin/` (except admin-ajax.php, admin-post.php) get a branded 404; `site_url`, `network_site_url`, `wp_redirect`, login/logout/lostpassword/register URLs are rewritten to the slug (password-reset e-mails, logout, idle-logout and the Two Factor code screen all follow); `/login`, `/admin`, `/dashboard` shortcuts removed. Customers are unaffected (My Account login).
+- **Emergency switches** (wp-config.php): `define( 'NURAX_LOGIN_SLUG_OFF', true );` brings /wp-login.php back; `define( 'NURAX_STAFF_2FA_OFF', true );` stops requiring the app. Optional `define( 'NURAX_LOGIN_SLUG', '...' );` sets the address from wp-config (the card form is then hidden).
+- php -l pass (PHP 8.3). Not yet installed.
+- **Owner steps after install:** (1) Replace current with uploaded, Purge All. (2) Owner sets up the app first: Users > Profile > Two-Factor Options > Authenticator App (scan QR, enter code), tick it, create Backup Recovery Codes and keep them offline, Update Profile. (3) Each shop manager does the same at next sign-in. (4) NURA Desk > Settings > Staff sign-in: save a private login address, bookmark it, tell staff. (5) Test in a private window: /wp-admin/ shows Page not found; the private address shows the login, password + 6-digit code works.
 
 ## UPDATE 27 Nov 2026 10:50 EAT (Ray) - plugin 1.136.0: Bus & shuttle first for Thika, Juja, Ruiru and Kitengela
 

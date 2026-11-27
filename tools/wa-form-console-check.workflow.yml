@@ -1,0 +1,55 @@
+name: WhatsApp order form console check
+
+# Read-only check of the live WhatsApp order form: records browser console errors while
+# switching delivery options for Mombasa, Nakuru and Karen. Never submits the form or sends
+# an M-Pesa prompt (those requests are blocked in the script). The report is committed to
+# checks/wa-form-console-report.json.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * *" # 08:00 Nairobi, daily
+  push:
+    branches: [main]
+    paths:
+      - tools/wa-form-console-check.py
+      - .github/workflows/wa-form-console-check.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wa-form-console-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Playwright
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Run check
+        id: run
+        continue-on-error: true
+        run: |
+          mkdir -p checks
+          python tools/wa-form-console-check.py checks/wa-form-console-report.json
+      - name: Save report
+        if: always()
+        run: |
+          if [ -f checks/wa-form-console-report.json ]; then
+            git config user.name "nura-check-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add checks/wa-form-console-report.json
+            git commit -m "WhatsApp form console check report [skip ci]" || echo "No change"
+            git pull --rebase origin main && git push origin HEAD:main || echo "Push failed"
+          fi
+      - name: Fail on errors
+        if: steps.run.outcome != 'success'
+        run: exit 1

@@ -2,6 +2,14 @@
 
 Last updated: 26 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 27 Nov 2026 10:50 EAT (Ray) - plugin 1.136.0: Bus & shuttle first for Thika, Juja, Ruiru and Kitengela
+
+- Owner: for shuttle towns near Nairobi the Bus & shuttle parcel is the convenient option. New `NURAX_Rider_Fee::shuttle_first_areas()` (filter `nurax_shuttle_first_areas`, default Thika, Juja, Ruiru, Kitengela) and `shuttle_first( $area_name )`.
+- Checkout: at the end of `rates()`, when the matched rider area is a shuttle town, the Bus & shuttle rate is moved to the front so it is the default; rider, Fargo and pickup stay available.
+- WhatsApp order form: `ship_quote()` moves the Bus & shuttle option in front of the rider option for these towns, so the form pre-selects it (`shuttle_first: true` in the quote).
+- Prices unchanged: shuttle KSh 350 (free over KSh 10,000); rider fees still from the table (Thika KSh 2,300, Kitengela KSh 1,650). The owner's requests for a fixed Thika rider fee and a shuttle fee for Juja/Ruiru/Kitengela arrived with "[amount]" placeholders, so no amounts were changed. Fixed fees go in NURA Desk > Rider fees (4th column) and shuttle prices in WooCommerce shipping zones.
+- tools/wa-form-console-check.py: adds Juja, Ruiru, Kitengela and checks the shuttle is first and pre-selected in the four shuttle towns.
+
 ## UPDATE 27 Nov 2026 10:25 EAT (Ray) - plugin 1.135.0: free CBD pay-on-delivery option on the WhatsApp form for big Nairobi orders; amount on the M-Pesa prompt button
 
 - WhatsApp order form, Nairobi, no area recognised yet, subtotal at or over the rider `free_min` (KSh 10,000): `ship_quote()` adds option `cbd` "Nairobi CBD delivery - pay on delivery (cash or M-Pesa)" at KSh 0 after the rider option, matching checkout's free Nairobi CBD rate. Choosing it sets `cbdOn()` true (pay on delivery shown); `ajax_stk()` accepts `ship_opt=cbd` at KSh 0.

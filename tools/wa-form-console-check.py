@@ -19,7 +19,10 @@ ITEM_PRICE = 500  # ASTYLSST Texture Spray, quantity 1
 # (county, town typed). Expected fees are checked where known; every option is also
 # checked for "total = item + option price".
 CASES = [("Mombasa", "Mombasa"), ("Nakuru", "Nakuru"), ("Kisumu", "Kisumu"), ("Uasin Gishu", "Eldoret"),
-         ("Kiambu", "Thika"), ("Nairobi", "Westlands"), ("Nairobi", "Karen")]
+         ("Kiambu", "Thika"), ("Kiambu", "Juja"), ("Kiambu", "Ruiru"), ("Kajiado", "Kitengela"),
+         ("Nairobi", "Westlands"), ("Nairobi", "Karen")]
+# Shuttle towns: Bus & shuttle must be listed first and pre-selected (plugin 1.136.0).
+SHUTTLE_FIRST = {"Thika", "Juja", "Ruiru", "Kitengela"}
 EXPECTED = {  # option label contains -> fee in KSh (normal pricing, order under KSh 10,000)
     "Bus & shuttle": 350,
     "Fargo Courier": 550,
@@ -63,6 +66,12 @@ def main(out):
             pg.wait_for_timeout(2000)
             opts = pg.locator("[data-nwo-ship] input[name='ship_opt']")
             n = opts.count()
+            if town in SHUTTLE_FIRST and n:
+                first = opts.nth(0).locator("xpath=..").inner_text().strip().replace("\n", " ")
+                checked = opts.nth(0).is_checked()
+                if "Bus & shuttle" not in first or not checked:
+                    rep["unexpected_totals"].append({"county": county, "town": town, "option": first,
+                        "problems": ["Bus & shuttle should be first and pre-selected (first: %s, selected: %s)" % (first, checked)]})
             if n == 0:
                 rep["steps"].append({"county": county, "town": town, "note": "no delivery options shown"})
             for i in range(n):

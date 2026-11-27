@@ -512,6 +512,18 @@ class NURAX_WA_Order {
 			$q['free_over'] = 0;
 			$q['rule']      = $opts[0]['label'];
 		}
+		// 1.136.0: shuttle towns - Bus & shuttle first (the form pre-selects the first option).
+		if ( ! empty( $q['rider'] ) && ! empty( $q['area'] ) && class_exists( 'NURAX_Rider_Fee' ) && method_exists( 'NURAX_Rider_Fee', 'shuttle_first' ) && NURAX_Rider_Fee::shuttle_first( $q['area'] ) && isset( $opts[0]['id'] ) && 'rider' === $opts[0]['id'] ) {
+			foreach ( $opts as $i => $o ) {
+				if ( preg_match( '/shuttle|\bbus\b/i', $o['label'] ) ) {
+					$bus = $o;
+					array_splice( $opts, $i, 1 );
+					array_unshift( $opts, $bus );
+					$q['shuttle_first'] = true;
+					break;
+				}
+			}
+		}
 		$q['options'] = $opts;
 		return $q;
 	}

@@ -308,6 +308,24 @@ TXT;
 		}
 	}
 
+	/**
+	 * 1.136.0 - Owner: towns where the Bus & shuttle parcel is the convenient default. On checkout and the
+	 * WhatsApp order form the shuttle is listed first and pre-selected; rider delivery stays available.
+	 * Filter: nurax_shuttle_first_areas (area names exactly as in the rider table).
+	 */
+	public static function shuttle_first_areas() {
+		return (array) apply_filters( 'nurax_shuttle_first_areas', array( 'Thika', 'Juja', 'Ruiru', 'Kitengela' ) );
+	}
+
+	public static function shuttle_first( $area_name ) {
+		foreach ( self::shuttle_first_areas() as $a ) {
+			if ( 0 === strcasecmp( trim( (string) $area_name ), $a ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/** Areas in the rider table that are outside Nairobi County (normal fee during the offer). */
 	public static function promo_outside_county() {
 		return (array) apply_filters( 'nurax_free_nairobi_outside', array(
@@ -491,6 +509,18 @@ TXT;
 				if ( false === stripos( $label, 'free' ) ) {
 					$rate->set_label( $label . ' - free on orders over ' . self::money( $s['free_min'] ) );
 				}
+			}
+		}
+		// 1.136.0: shuttle towns (Thika, Juja, Ruiru, Kitengela) - Bus & shuttle first, so it is the default.
+		if ( $area && self::shuttle_first( $area[0] ) ) {
+			$first = array();
+			foreach ( $rates as $id => $rate ) {
+				if ( is_object( $rate ) && preg_match( '/shuttle|\bbus\b/i', (string) $rate->get_label() ) ) {
+					$first[ $id ] = $rate;
+				}
+			}
+			if ( $first ) {
+				$rates = $first + $rates;
 			}
 		}
 		return $rates;

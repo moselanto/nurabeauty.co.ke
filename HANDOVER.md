@@ -2,6 +2,13 @@
 
 Last updated: 27 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 27 Nov 2026 23:00 EAT (Ray) - theme 1.161.47 (Add to Bag black and gold) + plugin 1.137.1 (login-address messages at top, refused saves logged)
+
+- Theme 1.161.47: WooCommerce 11.3.1 core CSS colours `button.button.alt` purple (#7f54b3) with `.woocommerce:where(...) button.button.alt` (specificity 0,3,1), which beat the theme's `form.cart .single_add_to_cart_button` (0,2,1), so Add to Bag showed purple. New rules at the end of `assets/css/woocommerce.css` (`body form.cart button.single_add_to_cart_button.button.alt`): ink background + white text; hover/focus gold background + ink text (focus outline gold); disabled / `.disabled` / `.wc-variation-selection-needed` ink at 55% with no hover change. Not caused by plugin 1.137.0 (back-office files only).
+- Plugin 1.137.1: Staff sign-in messages now use `nd_msg` (`login_saved`, `login_cleared`, `login_bad`, `login_confirm`) via `NURAX_Staff_Login::messages()` merged into `NURAX_Desk::notice()`, so they show at the top of NURA Desk Settings (the card no longer shows its own message). Refused saves write a `security` warn entry to the activity log with the reason only (the typed address is never logged).
+- Background: owner's first save of the private address on 27 Nov did not take effect (signed-out /wp-login.php still served the form posting to wp-login.php); a re-save with the box ticked worked. Exact reason unknown because refused saves were not logged before 1.137.1.
+- php -l pass; CSS braces balanced.
+
 ## UPDATE 27 Nov 2026 22:15 EAT (Ray) - plugin 1.137.0: authenticator app for all staff + private login address
 
 - Owner (27 Nov): secure wp-admin login. Choices: authenticator app (not e-mail codes), for administrators AND shop managers, and a private login address instead of /wp-admin and /wp-login.php.

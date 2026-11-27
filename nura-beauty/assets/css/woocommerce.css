@@ -400,3 +400,21 @@ html body ul.products li.product .woocommerce-LoopProduct-link img{flex-shrink:0
 
 /* 1.110.5 Homepage "Shop wigs & beauty": cards the shuffle hides (beyond 2 rows) must stay hidden; the 1.110.1 display:flex !important card rule had un-hidden them. */
 html body ul.products li.product[hidden],html body .woocommerce ul.products li.product[hidden],html body [data-nura-shuffle] ul.products li.product[hidden]{display:none !important}
+
+/* 1.161.47: Add to Bag in the black-and-gold site style. WooCommerce 11 colours
+   button.button.alt purple (#7f54b3) with a more specific selector than ours,
+   so these rules restate the colours with higher specificity (normal, hover,
+   focus, disabled / no option chosen yet). */
+body form.cart button.single_add_to_cart_button.button.alt,
+body form.cart button.single_add_to_cart_button.button.alt:visited{background:var(--nura-ink,#0E0E0E);background-color:var(--nura-ink,#0E0E0E);color:#fff;border:0}
+body form.cart button.single_add_to_cart_button.button.alt:hover,
+body form.cart button.single_add_to_cart_button.button.alt:focus-visible{background:var(--nura-gold,#C9A24B);background-color:var(--nura-gold,#C9A24B);color:var(--nura-ink,#0E0E0E)}
+body form.cart button.single_add_to_cart_button.button.alt:focus-visible{outline:2px solid var(--nura-gold,#C9A24B);outline-offset:2px}
+body form.cart button.single_add_to_cart_button.button.alt.disabled,
+body form.cart button.single_add_to_cart_button.button.alt.disabled:hover,
+body form.cart button.single_add_to_cart_button.button.alt.wc-variation-selection-needed,
+body form.cart button.single_add_to_cart_button.button.alt.wc-variation-selection-needed:hover,
+body form.cart button.single_add_to_cart_button.button.alt:disabled,
+body form.cart button.single_add_to_cart_button.button.alt:disabled:hover,
+body form.cart button.single_add_to_cart_button.button.alt:disabled[disabled],
+body form.cart button.single_add_to_cart_button.button.alt:disabled[disabled]:hover{background:var(--nura-ink,#0E0E0E);background-color:var(--nura-ink,#0E0E0E);color:#fff;opacity:.55;cursor:not-allowed}

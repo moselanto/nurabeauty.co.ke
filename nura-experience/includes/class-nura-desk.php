@@ -553,6 +553,9 @@ class NURAX_Desk {
 			'synced'    => array( 'success', 'Audience refreshed from the shop, accounts, WhatsApp orders, plans and appointments.' ),
 			'tested'    => array( 'success', 'Test e-mail sent. Check your inbox (and spam folder).' ),
 		);
+		if ( class_exists( 'NURAX_Staff_Login' ) ) {
+			$map = array_merge( $map, NURAX_Staff_Login::messages() ); // 1.137.1 staff sign-in messages at the top.
+		}
 		$k = isset( $_GET['nd_msg'] ) ? sanitize_key( wp_unslash( $_GET['nd_msg'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $map[ $k ] ) ) {
 			echo '<div class="notice notice-' . esc_attr( $map[ $k ][0] ) . ' is-dismissible nd-notice"><p>' . esc_html( $map[ $k ][1] ) . '</p></div>';

@@ -319,19 +319,7 @@ class NURAX_Staff_Login {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		$msg  = isset( $_GET['nd_login'] ) ? sanitize_key( wp_unslash( $_GET['nd_login'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$msgs = array(
-			'saved'   => array( 'success', 'Private login address saved and e-mailed to ' . get_option( 'admin_email' ) . '. Bookmark it now. /wp-login.php and /wp-admin/ (signed out) now show Page not found.' ),
-			'cleared' => array( 'success', 'Private login address removed. Staff sign in at /wp-admin/ again.' ),
-			'bad'     => array( 'error', 'That address cannot be used. Use 6 to 40 lower-case letters, numbers or dashes, not a word like login, admin or shop, and not the address of an existing page.' ),
-			'confirm' => array( 'error', 'Tick the box to confirm you have written the new address down.' ),
-		);
-
 		echo '<section class="nd-card nd-sec" id="nd-login"><header class="nd-card__h"><h2>Staff sign-in</h2>' . ( self::enforced() ? '<span class="nd-badge nd-badge--confirmed">App required</span>' : '<span class="nd-badge nd-badge--muted">Password only</span>' ) . '</header>';
-		if ( isset( $msgs[ $msg ] ) ) {
-			echo '<p class="nd-alert nd-alert--' . esc_attr( $msgs[ $msg ][0] ) . '">' . esc_html( $msgs[ $msg ][1] ) . '</p>';
-		}
-
 		// Authenticator app status per staff account.
 		echo '<h3>Authenticator app</h3>';
 		if ( ! self::two_factor_ready() ) {
@@ -377,6 +365,16 @@ class NURAX_Staff_Login {
 		echo '</section>';
 	}
 
+	/** 1.137.1: messages for NURAX_Desk::notice() (shown at the top of NURA Desk Settings). */
+	public static function messages() {
+		return array(
+			'login_saved'   => array( 'success', 'Private login address saved and e-mailed to ' . get_option( 'admin_email' ) . '. Bookmark it now. /wp-login.php and /wp-admin/ (signed out) now show Page not found.' ),
+			'login_cleared' => array( 'success', 'Private login address removed. Staff sign in at /wp-admin/ again.' ),
+			'login_bad'     => array( 'error', 'Private login address NOT saved: that address cannot be used. Use 6 to 40 lower-case letters, numbers or dashes, not a word like login, admin or shop, and not the address of an existing page. Nothing changed.' ),
+			'login_confirm' => array( 'error', 'Private login address NOT saved: tick the box to confirm you have written the new address down, then save again. Nothing changed.' ),
+		);
+	}
+
 	/** Save or clear the private login address (administrators only). */
 	public static function h_save() {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -389,16 +387,19 @@ class NURAX_Staff_Login {
 			delete_option( self::OPT_SLUG );
 			self::audit( 'Private login address removed', 'warn' );
 			do_action( 'litespeed_purge_all' );
-			wp_safe_redirect( add_query_arg( 'nd_login', 'cleared', $back ) . '#nd-login' );
+			wp_safe_redirect( add_query_arg( 'nd_msg', 'login_cleared', $back ) );
 			exit;
 		}
 		$slug = self::clean_slug( isset( $_POST['slug'] ) ? wp_unslash( $_POST['slug'] ) : '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- clean_slug sanitizes.
 		if ( '' === $slug || get_page_by_path( $slug, OBJECT, array( 'page', 'post', 'product' ) ) ) {
-			wp_safe_redirect( add_query_arg( 'nd_login', 'bad', $back ) . '#nd-login' );
+			// 1.137.1: refused saves are logged (reason only, never the address typed) and shown at the top of Settings.
+			self::audit( 'Private login address NOT saved: address refused (too short/long, blocked word or existing page)', 'warn' );
+			wp_safe_redirect( add_query_arg( 'nd_msg', 'login_bad', $back ) );
 			exit;
 		}
 		if ( empty( $_POST['confirm'] ) ) {
-			wp_safe_redirect( add_query_arg( 'nd_login', 'confirm', $back ) . '#nd-login' );
+			self::audit( 'Private login address NOT saved: confirmation box not ticked', 'warn' );
+			wp_safe_redirect( add_query_arg( 'nd_msg', 'login_confirm', $back ) );
 			exit;
 		}
 		update_option( self::OPT_SLUG, $slug, true );
@@ -410,7 +411,7 @@ class NURAX_Staff_Login {
 		);
 		self::audit( 'Private login address changed', 'warn' );
 		do_action( 'litespeed_purge_all' );
-		wp_safe_redirect( add_query_arg( 'nd_login', 'saved', $back ) . '#nd-login' );
+		wp_safe_redirect( add_query_arg( 'nd_msg', 'login_saved', $back ) );
 		exit;
 	}
 

@@ -415,8 +415,94 @@ class NURAX_WA_Order {
 		return '' === $area || NURAX_Rider_Fee::promo_in_county( $area );
 	}
 
-	/** Delivery quote for a county + subtotal. */
+	/**
+	 * 1.134.0: bus/shuttle and courier options from the county's WooCommerce zone, priced like
+	 * checkout (NURAX_Rider_Fee::rates(): bus & shuttle free on orders over the free minimum).
+	 * Rider, CBD, pick-up and the zone's free-shipping method are left out (the rider quote covers them).
+	 */
+	private static function ship_options( $county, $sub ) {
+		if ( ! class_exists( 'WC_Shipping_Zones' ) ) {
+			return array();
+		}
+		$free_min = 0;
+		if ( class_exists( 'NURAX_Rider_Fee' ) ) {
+			$st       = NURAX_Rider_Fee::settings();
+			$free_min = isset( $st['free_min'] ) ? (float) $st['free_min'] : 0;
+		}
+		$package = array(
+			'contents'      => array(),
+			'contents_cost' => $sub,
+			'destination'   => array( 'country' => 'KE', 'state' => self::state_code( $county ), 'postcode' => '', 'city' => '', 'address' => '', 'address_1' => '', 'address_2' => '' ),
+		);
+		$out = array();
+		try {
+			$zone = WC_Shipping_Zones::get_zone_matching_package( $package );
+			if ( ! $zone ) {
+				return array();
+			}
+			foreach ( $zone->get_shipping_methods( true ) as $m ) {
+				$id = isset( $m->id ) ? (string) $m->id : '';
+				if ( in_array( $id, array( 'local_pickup', 'pickup_location', 'free_shipping', 'nura_rider' ), true ) ) {
+					continue;
+				}
+				$title = trim( wp_strip_all_tags( (string) $m->get_title() ) );
+				if ( '' === $title || preg_match( '/\brider\b|\bcbd\b|pick ?up/i', $title ) ) {
+					continue;
+				}
+				$raw = trim( (string) $m->get_option( 'cost', '' ) );
+				if ( '' === $raw || ! is_numeric( $raw ) ) {
+					continue;
+				}
+				$cost  = max( 0, (float) $raw );
+				$free  = $free_min > 0 && (float) $sub >= $free_min && preg_match( '/shuttle|\bbus\b/i', $title );
+				$out[] = array(
+					'id'       => $id . ':' . ( isset( $m->instance_id ) ? (int) $m->instance_id : 0 ),
+					'label'    => html_entity_decode( $title, ENT_QUOTES, 'UTF-8' ),
+					'fee'      => $free ? 0 : $cost,
+					'full_fee' => $cost,
+					'free'     => (bool) $free,
+				);
+			}
+		} catch ( \Throwable $e ) {
+			return array();
+		}
+		usort( $out, function ( $a, $b ) { return $a['full_fee'] <=> $b['full_fee']; } );
+		return $out;
+	}
+
+	/** Delivery quote for a county + subtotal, with the bus/courier options (1.134.0). */
 	public static function ship_quote( $county, $sub, $area = '' ) {
+		$q = self::ship_quote_base( $county, $sub, $area );
+		if ( ! is_array( $q ) ) {
+			return $q;
+		}
+		$opts = self::ship_options( $county, $sub );
+		if ( empty( $opts ) ) {
+			return $q;
+		}
+		$rider = ! empty( $q['rider'] ) || 'Nairobi' === $county;
+		if ( $rider ) {
+			array_unshift( $opts, array(
+				'id'    => 'rider',
+				'label' => ! empty( $q['area'] ) ? sprintf( /* translators: %s: area */ __( 'Rider delivery to %s', 'nura-experience' ), $q['area'] ) : __( 'Rider delivery', 'nura-experience' ),
+				'fee'   => isset( $q['fee'] ) ? (float) $q['fee'] : 0,
+				'from'  => ! empty( $q['from'] ),
+				'free'  => ! empty( $q['known'] ) && empty( $q['from'] ) && (float) $q['fee'] <= 0,
+			) );
+		} else {
+			// Outside the rider area: the cheapest option (bus & shuttle) is the default, as at checkout.
+			$q['known']     = true;
+			$q['fee']       = (float) $opts[0]['fee'];
+			$q['free']      = $q['fee'] <= 0;
+			$q['free_over'] = 0;
+			$q['rule']      = $opts[0]['label'];
+		}
+		$q['options'] = $opts;
+		return $q;
+	}
+
+	/** Delivery quote for a county + subtotal (rider / zone price, before options). */
+	private static function ship_quote_base( $county, $sub, $area = '' ) {
 		// 1.122.0: rider fee from the area the customer types (same rules + table as checkout).
 		if ( '' !== trim( (string) $area ) && class_exists( 'NURAX_Rider_Fee' ) ) {
 			$r = NURAX_Rider_Fee::quote( $area, $sub );
@@ -1358,6 +1444,16 @@ class NURAX_WA_Order {
 				wp_send_json_error( array( 'message' => __( 'We will confirm the delivery fee for your area on WhatsApp first. Send the order, then pay when we confirm the total.', 'nura-experience' ) ), 400 );
 			}
 			$fee = max( 0, (float) $q['fee'] );
+			// 1.134.0: the delivery option the customer picked on the form (bus, courier or rider).
+			$opt = isset( $in['ship_opt'] ) ? sanitize_text_field( (string) $in['ship_opt'] ) : '';
+			if ( '' !== $opt && ! empty( $q['options'] ) ) {
+				foreach ( $q['options'] as $o ) {
+					if ( $o['id'] === $opt && empty( $o['from'] ) ) {
+						$fee = max( 0, (float) $o['fee'] );
+						break;
+					}
+				}
+			}
 		}
 		$amount = (int) round( $total + $fee );
 		if ( $amount < 10 || $amount > 300000 ) {

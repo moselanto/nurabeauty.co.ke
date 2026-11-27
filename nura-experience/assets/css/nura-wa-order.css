@@ -302,3 +302,10 @@ html.nwo-lock,html.nwo-lock body{overflow:hidden!important}
   .nwo-foot__row .nwo-submit span{overflow:hidden;text-overflow:ellipsis}
   .nwo-foot__row .nwo-submit .nwo-ico{width:18px;height:18px;flex:none}
 }
+
+/* 1.134.0: delivery options (rider, bus & shuttle, courier) */
+.nwo-shipopts{display:grid;gap:6px;margin-top:8px}
+.nwo-shipopt{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #cfe9d8;border-radius:10px;background:#fff;color:#1d5e36;cursor:pointer;font-size:.84rem}
+.nwo-shipopt span{flex:1}
+.nwo-shipopt b{white-space:nowrap}
+.nwo-shipopt input{accent-color:#1faa53;margin:0}

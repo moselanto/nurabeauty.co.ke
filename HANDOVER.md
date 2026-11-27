@@ -2,6 +2,13 @@
 
 Last updated: 26 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 27 Nov 2026 10:30 EAT (Ray) - plugin 1.134.0: WhatsApp order form shows bus & shuttle and Fargo/G4S options like checkout
+
+- Investigation first (live, KSh 12,000 Store API test cart vs `nurax_wa_ship`, before this change): CBD and Westlands matched (rider free over KSh 10,000 on both); Karen rider KSh 800 on both. Confirmed mismatch: Mombasa and Nakuru - checkout bus & shuttle FREE over KSh 10,000, form quoted KSh 350, because `wc_quote()` reads the zone cost directly and never applies `NURAX_Rider_Fee::rates()` free rule. Also the form showed only one price (cheapest) where checkout offers Bus 350 and Fargo 550.
+- New `NURAX_WA_Order::ship_options()` lists the county zone's non-rider, non-CBD, non-pickup methods with their cost (bus & shuttle free over `free_min`, as in `rates()`). `ship_quote()` (old body now `ship_quote_base()`) adds `options`; Nairobi and typed rider areas get a 'rider' option first; other counties default to the cheapest option (bus), so the KSh 10,000 free bus rule now matches checkout.
+- JS: radio list in the delivery box (`name="ship_opt"`), `applyOpt()` sets the fee/total, the WhatsApp message names the option, and the M-Pesa prompt sends `ship_opt`; `ajax_stk()` charges that option's fee from the server-side quote.
+- php -l and node --check pass; `.min.js` identical to `.js`; CSS appended to `nura-wa-order.css`.
+
 ## UPDATE 27 Nov 2026 10:05 EAT (Ray) - plugin 1.133.0: free Nairobi delivery week ended early; M-Pesa prompt charges the typed area's fee
 
 - Owner: remove the free Nairobi delivery promo (Fri 27 Nov). `NURAX_Rider_Fee::promo_window()` now returns an empty window, so `promo_on()` is false: checkout rider/CBD rates, the WhatsApp order form and the announcement-bar override all return to normal pricing. The promo code is kept; to run it again, return two Africa/Nairobi dates from `promo_window()` or the `nurax_free_nairobi_window` filter.

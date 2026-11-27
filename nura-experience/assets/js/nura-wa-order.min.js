@@ -25,6 +25,7 @@
   var billShip = modal.querySelector('[data-nwo-bship]');
   var shipBox = modal.querySelector('[data-nwo-ship]');
   var ship = null, shipKey = '', shipTimer = null;
+  var shipOpt = ''; // 1.134.0: chosen delivery option (rider, bus & shuttle, courier)
   var titleEl = modal.querySelector('[data-nwo-title]');
   var doneEl = modal.querySelector('[data-nwo-done]');
   var deliveryEl = modal.querySelector('[data-nwo-delivery]');
@@ -247,9 +248,32 @@
         if (shipKey !== key) { return; }
         ship = (res && res.success && res.data) ? res.data : { known: false };
         ship.fee = Number(ship.fee) || 0; ship.free_over = Number(ship.free_over) || 0;
+        ship.base = { rider: ship.rider, from: ship.from, fee: ship.fee, known: ship.known, rule: ship.rule, free_over: ship.free_over };
+        applyOpt();
         renderBill(); syncPay();
       }).catch(fail);
     }, 150);
+  }
+  function applyOpt() {
+    if (!ship || !ship.base || !ship.options || !ship.options.length) { return; }
+    var o = null;
+    ship.options.forEach(function (x) { if (x.id === shipOpt) { o = x; } });
+    if (!o) { o = ship.options[0]; }
+    var b = ship.base;
+    ship.optId = o.id; ship.optLabel = '';
+    ship.rider = b.rider; ship.from = b.from; ship.fee = b.fee; ship.known = b.known; ship.rule = b.rule; ship.free_over = b.free_over;
+    if (o.id !== 'rider') {
+      ship.rider = false; ship.from = false; ship.known = true; ship.free_over = 0;
+      ship.fee = Number(o.fee) || 0; ship.optLabel = o.label;
+      ship.rule = o.label + (o.free ? ' - free on orders over KSh 10,000' : '');
+    }
+  }
+  function optsHtml() {
+    if (!ship || !ship.options || ship.options.length < 2) { return ''; }
+    return '<span class="nwo-shipopts" role="radiogroup" aria-label="Delivery option">' + ship.options.map(function (o) {
+      var price = o.from ? 'from ' + money(o.fee) : (Number(o.fee) > 0 ? money(o.fee) : 'FREE');
+      return '<label class="nwo-shipopt"><input type="radio" name="ship_opt" value="' + esc(o.id) + '"' + (o.id === ship.optId ? ' checked' : '') + '><span>' + esc(o.label) + '</span><b>' + esc(price) + '</b></label>';
+    }).join('') + '</span>';
   }
   function renderBill() {
     if (!state) { return; }
@@ -285,7 +309,7 @@
             (ship.eta ? '<small>' + esc(ship.eta) + '</small>' : '');
         }
         if (ship.known && ship.fee > 0 && ship.free_over > sub) { h += '<small class="nwo-ship__up">Add ' + esc(money(ship.free_over - sub)) + ' more for free delivery.</small>'; }
-        shipBox.innerHTML = h + '</span>';
+        shipBox.innerHTML = h + optsHtml() + '</span>';
         shipBox.hidden = false;
       } else { shipBox.hidden = true; }
     }
@@ -441,7 +465,7 @@
       L.push('Delivery: ' + (ship.fee > 0 ? money(ship.fee) : 'FREE') + ' (rider to ' + ship.area + ', ' + ship.km + ' km from our studio)');
       L.push('    ' + (ship.rule || ''));
     } else {
-      L.push((pick ? 'Collection' : 'Delivery') + ': ' + (pick ? 'Free (studio pick-up)' : (sk ? (ship.fee > 0 ? money(ship.fee) : 'Free') : 'To be confirmed')));
+      L.push((pick ? 'Collection' : 'Delivery') + ': ' + (pick ? 'Free (studio pick-up)' : (sk ? (ship.fee > 0 ? money(ship.fee) : 'Free') : 'To be confirmed')) + (!pick && ship && ship.optLabel ? ' (' + ship.optLabel + ')' : ''));
     }
     if (sub > 0) { L.push(sk ? '*TOTAL: ' + from + money(sub + (pick ? 0 : ship.fee)) + '*' : '*TOTAL: ' + from + money(sub) + ' + delivery*'); }
     L.push(SEP);
@@ -694,6 +718,14 @@
     if (e.target.name === 'fulfil' || e.target.name === 'location') { refreshShip(); }
     if (e.target.name === 'location' && e.target.value) { setErr(e.target, ''); }
   });
+  if (shipBox) {
+    shipBox.addEventListener('change', function (e) {
+      if (e.target.name !== 'ship_opt') { return; }
+      shipOpt = e.target.value;
+      if (stk && !stkPaid()) { stk = null; clearTimeout(stkTimer); }
+      applyOpt(); renderBill(); syncPay();
+    });
+  }
   var areaTimer = null;
   form.addEventListener('input', function (e) {
     var t = e.target;
@@ -761,6 +793,7 @@
     fd.append('items', JSON.stringify(orderItems()));
     ['fulfil', 'location', 'area', 'town', 'website'].forEach(function (k) { fd.append(k, val(k)); }); // 1.133.0: area + town so the prompt charges the fee the form shows
     fd.append('cbd', cbdOn() ? '1' : '');
+    fd.append('ship_opt', ship && ship.optId ? ship.optId : '');
     stkBtn.disabled = true;
     stkSay('Sending the prompt to your phone...', '');
     fetch(C.ajax || '/wp-admin/admin-ajax.php', { method: 'POST', body: fd, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (res) {

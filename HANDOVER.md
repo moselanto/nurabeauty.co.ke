@@ -2,6 +2,12 @@
 
 Last updated: 27 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 27 Nov 2026 23:40 EAT (Ray) - theme 1.161.49: cart hero contrast
+
+- Cart body has no `nura-inner` class, so the 1.161.48 contrast rules missed it. Measured on /cart/: hero background #0E0E0E; eyebrow "The House of Radiant Confidence" resolved to #8a6a24 (3.83:1). Breadcrumbs sit on the white page with #8b8b8b (3.41:1).
+- Fix (end of assets/css/woocommerce.css, scoped `body:not(.nura-inner)`): hero eyebrow brand gold #C9A24B (8.05:1), breadcrumbs #5c5650 (7.24:1), hover #7a5a12.
+- gtag: Site Kit prints GT-MK5TWKVD; Google for WooCommerce (GLA) prints its own gtag/js?id=AW-18515352802 because GlobalSiteTag only reuses a library added by "Google Analytics for WooCommerce", not Site Kit (GLA issue #4041; fix in open PR #4153, filter `woocommerce_gla_reuse_site_kit_gtag`). The third request (`AW-...&cx=c&gtm=...`) is the Google tag fetching its linked Ads destination. Not changed yet: owner decision.
+
 ## UPDATE 27 Nov 2026 23:30 EAT (Ray) - theme 1.161.48: block-cart script trim + colour contrast
 
 - Cart (mobile PSI 76, TBT 650 ms, SI 6.4 s). Confirmed from the live HTML: /cart/ is the WooCommerce Cart block, so it loads React + wp-components (components.min.js 817 KiB uncompressed), wc-cart-checkout-base (212), vendors (133), react-dom (129), date (141) + moment (57) and ~70 other block scripts (88 scripts, ~3.5 MB uncompressed incl. two gtag tags ~1 MB). Head blockers: 11 stylesheets (wc-blocks, all-products, packages-style, cart block, select2, nurax, nura-ux, woocommerce-layout/general, theme main + woocommerce) and sync jQuery, underscore, wp-util. WooCommerce also enqueues classic-cart helpers the block never uses.

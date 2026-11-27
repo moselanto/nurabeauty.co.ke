@@ -440,3 +440,12 @@ html body.nura-inner .nura-breadcrumbs a:hover{color:#7a5a12}
 html body footer.site-footer,html body .site-footer,html body #colophon,html body.single-product .woocommerce-tabs{content-visibility:visible!important;contain-intrinsic-size:none!important}
 html body .site-footer .nura-foot-bottom,html body .site-footer .nura-pay,html body .site-footer .nura-foot-bottom span{color:rgba(243,233,220,.78)}
 html body .site-footer .nura-foot-links a,html body .site-footer .nura-foot-col a{color:rgba(243,233,220,.88)}
+
+
+/* 1.161.49: cart (and other non-inner pages) hero + breadcrumbs. Measured on /cart/:
+   hero background #0E0E0E (ink); eyebrow resolved to #8a6a24 (3.83:1, fails) -> brand gold
+   #C9A24B (8.05:1). Breadcrumbs sit on the white page (#FFFFFF), colour #8b8b8b (3.41:1, fails)
+   -> #5c5650 (7.24:1); hover keeps the darker gold. Inner pages (cream hero) keep their 1.161.48 colours. */
+html body:not(.nura-inner) .nura-page-hero .nura-eyebrow{color:#C9A24B}
+html body:not(.nura-inner) .nura-breadcrumbs,html body:not(.nura-inner) .nura-breadcrumbs li,html body:not(.nura-inner) .nura-breadcrumbs a{color:#5c5650}
+html body:not(.nura-inner) .nura-breadcrumbs a:hover{color:#7a5a12}

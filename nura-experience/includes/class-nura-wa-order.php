@@ -489,6 +489,21 @@ class NURAX_WA_Order {
 				'from'  => ! empty( $q['from'] ),
 				'free'  => ! empty( $q['known'] ) && empty( $q['from'] ) && (float) $q['fee'] <= 0,
 			) );
+			// 1.135.0: Nairobi, no area recognised yet, order at or over the free minimum: offer the
+			// free Nairobi CBD pay-on-delivery option, as checkout does (NURAX_Rider_Fee::rates()).
+			if ( 'Nairobi' === $county && ! empty( $q['from'] ) && empty( $q['rider'] ) && class_exists( 'NURAX_Rider_Fee' ) ) {
+				$st  = NURAX_Rider_Fee::settings();
+				$min = isset( $st['free_min'] ) ? (float) $st['free_min'] : 0;
+				if ( $min > 0 && (float) $sub >= $min ) {
+					array_splice( $opts, 1, 0, array( array(
+						'id'    => 'cbd',
+						'label' => __( 'Nairobi CBD delivery - pay on delivery (cash or M-Pesa)', 'nura-experience' ),
+						'fee'   => 0,
+						'free'  => true,
+						'cbd'   => true,
+					) ) );
+				}
+			}
 		} else {
 			// Outside the rider area: the cheapest option (bus & shuttle) is the default, as at checkout.
 			$q['known']     = true;

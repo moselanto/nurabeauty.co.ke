@@ -2,6 +2,12 @@
 
 Last updated: 26 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 27 Nov 2026 10:25 EAT (Ray) - plugin 1.135.0: free CBD pay-on-delivery option on the WhatsApp form for big Nairobi orders; amount on the M-Pesa prompt button
+
+- WhatsApp order form, Nairobi, no area recognised yet, subtotal at or over the rider `free_min` (KSh 10,000): `ship_quote()` adds option `cbd` "Nairobi CBD delivery - pay on delivery (cash or M-Pesa)" at KSh 0 after the rider option, matching checkout's free Nairobi CBD rate. Choosing it sets `cbdOn()` true (pay on delivery shown); `ajax_stk()` accepts `ship_opt=cbd` at KSh 0.
+- The "Send M-Pesa prompt" button now reads "Send M-Pesa prompt - KSh X" using `amountDue()` (no amount while the price is a "From" price or the delivery fee is unknown); still "Paid" after payment.
+- php -l and node --check pass; `.min.js` identical to `.js`.
+
 ## UPDATE 27 Nov 2026 10:30 EAT (Ray) - plugin 1.134.0: WhatsApp order form shows bus & shuttle and Fargo/G4S options like checkout
 
 - Investigation first (live, KSh 12,000 Store API test cart vs `nurax_wa_ship`, before this change): CBD and Westlands matched (rider free over KSh 10,000 on both); Karen rider KSh 800 on both. Confirmed mismatch: Mombasa and Nakuru - checkout bus & shuttle FREE over KSh 10,000, form quoted KSh 350, because `wc_quote()` reads the zone cost directly and never applies `NURAX_Rider_Fee::rates()` free rule. Also the form showed only one price (cheapest) where checkout offers Bus 350 and Fargo 550.

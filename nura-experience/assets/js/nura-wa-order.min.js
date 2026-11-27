@@ -116,6 +116,7 @@
   function riderQ() { return !!(ship && !ship.loading && ship.rider && val('fulfil') !== 'pickup'); }
   function cbdOn() {
     if (val('fulfil') === 'pickup') { return false; }
+    if (ship && !ship.loading && ship.optId === 'cbd') { return true; } // 1.135.0: free CBD pay-on-delivery option
     if (riderQ()) { return !!ship.within; } // 1.122.0: the typed area decides (within 5 km of the CBD).
     var c = form.elements.cbd; return !!(c && c.checked && val('location') === 'Nairobi');
   }
@@ -248,7 +249,7 @@
         if (shipKey !== key) { return; }
         ship = (res && res.success && res.data) ? res.data : { known: false };
         ship.fee = Number(ship.fee) || 0; ship.free_over = Number(ship.free_over) || 0;
-        ship.base = { rider: ship.rider, from: ship.from, fee: ship.fee, known: ship.known, rule: ship.rule, free_over: ship.free_over };
+        ship.base = { rider: ship.rider, from: ship.from, fee: ship.fee, known: ship.known, rule: ship.rule, free_over: ship.free_over, within: ship.within };
         applyOpt();
         renderBill(); syncPay();
       }).catch(fail);
@@ -262,10 +263,12 @@
     var b = ship.base;
     ship.optId = o.id; ship.optLabel = '';
     ship.rider = b.rider; ship.from = b.from; ship.fee = b.fee; ship.known = b.known; ship.rule = b.rule; ship.free_over = b.free_over;
+    ship.within = b.within;
     if (o.id !== 'rider') {
       ship.rider = false; ship.from = false; ship.known = true; ship.free_over = 0;
       ship.fee = Number(o.fee) || 0; ship.optLabel = o.label;
       ship.rule = o.label + (o.free ? ' - free on orders over KSh 10,000' : '');
+      if (o.id === 'cbd') { ship.within = true; ship.rule = o.label + ' - free on orders over KSh 10,000'; } // 1.135.0
     }
   }
   function optsHtml() {
@@ -330,6 +333,11 @@
   }
   function syncPayAmount() {
     if (payAmt) { payAmt.textContent = amountText(); }
+    // 1.135.0: the prompt button shows the amount that will be charged.
+    if (stkBtn && stkBtn.textContent !== 'Paid') {
+      var a = amountDue();
+      stkBtn.textContent = 'Send M-Pesa prompt' + (a && a.known && !isFrom() ? ' - ' + money(a.value) : '');
+    }
   }
   function syncPay() {
     var pick = val('fulfil') === 'pickup';

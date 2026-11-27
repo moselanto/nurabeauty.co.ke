@@ -54,11 +54,13 @@ def main(out):
                 return route.abort()
             return route.continue_()
         pg.route("**/admin-ajax.php*", guard)
-        pg.goto(URL, wait_until="domcontentloaded", timeout=45000)
-        pg.wait_for_timeout(2500)
-        pg.locator("[data-nwo-open='product']").first.click()
-        pg.wait_for_selector("#nwo-location", state="visible", timeout=15000)
         for county, town in CASES:
+            # Fresh page per place, so the default option is what a new customer sees
+            # (the form remembers the last option picked while it stays open).
+            pg.goto(URL, wait_until="domcontentloaded", timeout=45000)
+            pg.wait_for_timeout(2000)
+            pg.locator("[data-nwo-open='product']").first.click()
+            pg.wait_for_selector("#nwo-location", state="visible", timeout=15000)
             pg.select_option("#nwo-location", county)
             pg.fill("#nwo-town", town)
             if pg.locator("#nwo-area").is_visible():

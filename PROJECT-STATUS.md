@@ -1,12 +1,12 @@
 # NURA Beauty - project status and next steps
 
-Last updated: 16 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOVER.md` (version table, release rows, session log) and `README.md`.
+Last updated: 28 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOVER.md` (version table, release rows, session log) and `README.md`.
 
 ## Live versions
 | Component | Version | Notes |
 |---|---|---|
-| Theme `nura-beauty/` (parent) | **1.161.21** (live since 16 Nov 16:10 EAT; visible closed-day message under the booking date field, commit ba9aea7; 1.161.20 booking open days + early-fee line, f95101a) | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
-| Plugin `nura-experience/` | **1.114.1** (live since 16 Nov 20:30 EAT; Meta set-up check on NURA Desk > Order alerts) | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, review asks, **Stock tab (1.110.0; fixes 1.110.1-1.110.2)**. |
+| Theme `nura-beauty/` (parent) | **1.161.50** (28 Nov; GA4 Google tag loads immediately, only the Ads AW- loader stays delayed; commit eaf05cb) | Child theme `nura-beauty-child` is the active theme. Always upload the parent with "Replace current with uploaded". |
+| Plugin `nura-experience/` | **1.138.0** (live since 28 Nov ~14:20 EAT; M-Pesa statement counts charges across hand-entered vouchers, commit 677cafc) | NURA Desk back office, WhatsApp orders, AI stylist, bookings, accounts/P&L, M-Pesa statement, Stock, staff sign-in (authenticator app + private login address, 1.137.0). |
 
 ## How a release is done (the working method)
 1. Edit in the repo, run `php -l` on every changed file.
@@ -33,6 +33,12 @@ Last updated: 16 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 - Categories: `human-hair-wigs` = Pure Human Wigs, `human-hair-blend-wigs` = Semi Human Wigs, `human-blend-wigs` = Human Blend Wigs (Bob Wavy), High Fibre = only 274. Slugs never change.
 - Care products returns: unopened, original packaging, within 48 hours; opened care products can't be returned (hygiene).
 - Product slugs never change on renames (Rank Math follows titles). Old supplier names live in `nura_pai_alt_names()` (schema alternateName, llms.txt).
+
+## Done (27-28 Nov 2026)
+- **Staff sign-in (plugin 1.137.0-1.137.1):** authenticator app required for administrators and shop managers; private login address. 28 Nov: address changed from /nurastaff/ to a random one (kept out of this public repo; owner has it, e-mailed to admin_email). Old address, /wp-login.php and /wp-admin/ return 404 signed-out. Only staff account: `moses` (admin), app set up; no shop managers yet. Emergency switches: `NURAX_LOGIN_SLUG_OFF`, `NURAX_STAFF_2FA_OFF` in wp-config.php.
+- **M-Pesa statement charges (plugin 1.138.0, installed 28 Nov):** the charges card now adds up all M-Pesa charges vouchers in the statement period (Paystack/card/bank fees excluded). 11-28 Nov statement: green, KSh 449.35 in PV-0049 + PV-0061 + PV-0062 + PV-0063.
+- **Books 26-27 Nov:** orders #2609-#2619, vouchers PV-0055-PV-0063 (see docs/operations-log-2026-11.md).
+- Speed/analytics 27-28 Nov: block-cart script trim, contrast fixes, Add to Bag black and gold, one Google Ads loader (1.137.2), GA4 tag immediate (theme 1.161.50). Check GA4 sessions vs Search Console clicks in the week after 28 Nov.
 
 ## Done (16 Nov 2026)
 - **Booking hours (owner confirmed 16 Nov): Mon-Sat 9:00 am-7:30 pm, Sunday closed.** NURA Desk > Settings saved: First slot 09:00, Last slot 19:00, Early booking before 08:00 (unchanged; only applies to special early bookings), open days Mon-Sat, Sunday closed. Settings only, no code release.
@@ -70,6 +76,9 @@ Last updated: 16 Nov 2026 by Town assistant (Ray). Read this first, then `HANDOV
 - Theme 1.161.21: a visible message under the date field (`[data-nb-closed-msg]`) shows "We are closed on Sundays. Please pick another day." (or the matching day) for any unticked day, and hides again when an open day is picked. It no longer depends on the browser pop-up.
 
 ## Pending - owner input needed
+0. **Order #2585** (26 Nov, KSh 1,000 cash installation, no name, entered 10:25 am): not a duplicate of #2609/#2610 on the records (M-Pesa 26 Nov receipts = exactly the five M-Pesa orders), but staff should confirm it was a real cash sale.
+0. **Cart page**: switch to the classic cart shortcode to drop the React/block stack (mobile PSI 76)? Owner decision.
+0. **Referral programme** branch `referral-programme` unreleased: needs three owner decisions and a version above 1.138.0.
 1. **Checkout totals on a phone**: the "updating..." fix (1.129.2) is not yet confirmed by the owner.
 2. **New wig photos (1200 px or larger)**: softest originals are Human Hair Bob, Bob Wavy, Latisha Sensational Headband, 12 Inch Jerry Curls, Loose Wave Frontal, Luxury Body Wave, Minky Headband. Two care images are only 680 px (Texture Spray `2026/11/2-3.jpg`, Melting Spray `2026/11/cscr-1.jpg`).
 3. **October orders**: most were marked Test, so revenue shows KSh 0; one cash-on-delivery order (#1777, KSh 8,800) and 13 WhatsApp orders (KSh 58,410) are unpaid. Mark real ones as paid in NURA Desk > Accounts; they then appear in Ask for reviews.

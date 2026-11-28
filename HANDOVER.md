@@ -2,13 +2,21 @@
 
 Last updated: 28 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 28 Nov 2026 14:30 EAT (Ray) - wp-admin work today (no code): staff login address, 26-27 Nov books
+
+- **Private staff login address changed** (NURA Desk > Settings > Staff sign-in) from the guessable /nurastaff/ to a random address. The address is NOT recorded in this public repo: it is in option `nurax_login_slug`, was e-mailed to admin_email (care@nurabeauty.co.ke) and the owner has it. Verified signed-out: new address serves the login form (no-store, noindex); /nurastaff/, /wp-login.php, /wp-admin/, /login, /admin, /dashboard return 404.
+- **Authenticator app status:** the only administrator/shop manager account is `moses` (Owner / admin), app Set up. No shop manager accounts exist yet; new ones are forced to set up the app on first sign-in.
+- Staff sign-in guide for staff (Town document, private) covers app setup, offline backup codes, keeping the address private, lock-out steps. It deliberately omits the address.
+- Books for 26-27 Nov entered (orders #2609-#2619, vouchers PV-0055-PV-0063, PV-0059 reclassified to Owner capital in): details in `docs/operations-log-2026-11.md`.
+
 ## UPDATE 28 Nov 2026 14:20 EAT (Ray) - plugin 1.138.0: M-Pesa statement recognises charges entered by hand in several vouchers
 
 - Owner: Accounts > M-Pesa statement kept showing "KSh 449 Not in the books yet" although the charges were in hand-entered vouchers PV-0049, PV-0061 and PV-0062. Cause: `charges_recorded()` only accepted ONE fees voucher equal to the whole statement total, or the CHG reference made by its own "Record charges" button.
 - `includes/class-nura-mpesa-recon.php`: new `charges_booked( $from, $to )` adds up every voucher in category `fees` dated inside the statement period (first to last statement date), leaving out method card/bank and anything with "Paystack" in payee, description or note (Paystack/card fees are not on the till statement). `charges_recorded()` keeps the two old checks and now also returns the voucher list when that sum equals the statement charges (within 1 cent).
 - KPI card: green "In the books (PV-..., PV-...)" when they match; otherwise "KSh X in the books (PV-...) | KSh D not in the books yet" (or "more in the books than on the statement"). The full-total "Record KSh N M-Pesa charges" button is hidden once part of the charges is booked, and the `charges` action refuses it with the difference to add, so charges are never counted twice. REST `/nurax/v1/mpesa-recon` also returns `charges_booked`.
 - Expected on the 11-27 Nov statement: 420.35 of 449.35 booked, KSh 29.00 not in the books (26 Nov charges after 00:53: UKQMP3ZJIY 11.00 #2613, UKQE24S6LA 5.50 #2609, UKQFX3ZURP 7.00 PV-0058, UKQ883LWRG 5.50 #2610). Adding a 29.00 voucher dated 26 Nov turns the card green.
-- php -l pass (PHP 8.3.14); query checked against sample vouchers. Not yet installed.
+- php -l pass (PHP 8.3.14); query checked against sample vouchers.
+- **Installed 28 Nov 2026 ~14:20 EAT** (Replace current with uploaded, LiteSpeed Purge All). Voucher PV-0063 (KSh 29.00, 26 Nov) added; with the 11-28 Nov statement re-read, the card shows green "In the books (PV-0049, PV-0063, PV-0061, PV-0062)", KSh 449.35. Brief transient database-connection errors were seen in wp-admin during the session; later requests succeeded (watch for repeats).
 
 ## UPDATE 28 Nov 2026 - Theme 1.161.50: GA4 Google tag loads immediately
 

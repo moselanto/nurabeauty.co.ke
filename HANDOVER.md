@@ -2,6 +2,13 @@
 
 Last updated: 27 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
 
+## UPDATE 28 Nov 2026 - Theme 1.161.50: GA4 Google tag loads immediately
+
+- `inc/nura-r6.php` section 4: the delay list now holds only the Google Ads loader (`gtag/js?id=AW-`). Site Kit's Google tag (GT-MK5TWKVD, feeding GA4 G-FK5L7NBCZ4) loads at once on every page, so visitors who leave without tapping are counted. Before this, r6 (1.150.0) delayed every gtag loader on shop, product, category and content pages, contradicting the 1.75.0 rule in nura-speed.php / nura-perf.php; GA4 showed 178 organic sessions vs 353 Search Console clicks from Kenya alone (28 days).
+- Meta (connect.facebook.net) and TikTok (analytics.tiktok.com) stay delayed until first tap/scroll/key or the fallback timeout. Cart, checkout, account untouched.
+- Off switch (back to delaying all gtag loaders): `add_filter( 'nura_r6_ga_now', '__return_false' );`
+- Check: GA4 sessions vs Search Console clicks over the week after release.
+
 ## UPDATE 28 Nov 2026 00:05 EAT (Ray) - plugin 1.137.3: per-request A/B switch for the gtag-loader change
 
 - `?nurax_gtag_once=0` on any URL prints Google for WooCommerce's own AW loader for that request only (pre-1.137.2 behaviour); nothing is stored, so there is nothing to switch back on. Used for alternating PageSpeed A/B runs on /cart/ (off: `/cart/?nurax_gtag_once=0`, on: `/cart/?nurax_gtag_once=1`).

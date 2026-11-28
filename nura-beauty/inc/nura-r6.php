@@ -21,7 +21,7 @@
  *    after main.css, and the results bar floats arrived late. Both are fixed in the first paint.
  *
  * Off switches: add_filter( 'nura_r6_<part>', '__return_false' ) with part = redirects, robots,
- * validfrom, delay_ga, cls.
+ * validfrom, delay_ga, cls, ga_now (1.161.50: GA4 Google tag loads immediately; only AW- is delayed).
  *
  * @package NURA_Beauty
  */
@@ -114,7 +114,10 @@ add_filter( 'nura_perf_stage', function ( $s ) {
 }, 20 );
 add_filter( 'nura_delay_tag_hosts', function ( $hosts ) {
 	if ( nura_r6_on( 'delay_ga' ) && function_exists( 'nura_perf_protected' ) && ! nura_perf_protected() ) {
-		$hosts[] = 'googletagmanager.com/gtag/js';
+		// 1.161.50: only the Google Ads loader (AW-) waits for a tap. The Google tag for GA4 (Site Kit
+		// GT-MK5TWKVD / G-FK5L7NBCZ4) loads straight away so visitors who leave without tapping are still
+		// counted. Back to delaying every gtag loader: add_filter( 'nura_r6_ga_now', '__return_false' ).
+		$hosts[] = nura_r6_on( 'ga_now' ) ? 'googletagmanager.com/gtag/js?id=AW-' : 'googletagmanager.com/gtag/js';
 	}
 	return array_values( array_unique( $hosts ) );
 }, 30 );
@@ -124,7 +127,8 @@ add_action( 'template_redirect', function () {
 	}
 	// Inline / hard-coded gtag loaders that do not pass through script_loader_tag.
 	ob_start( function ( $html ) {
-		return preg_replace( '#<script([^>]*?)\s+src=(["\'])(https://www\.googletagmanager\.com/gtag/js\?id=[^"\']+)\2([^>]*)>\s*</script>#i', '<script type="text/plain" data-nura-src="$3"></script>', $html );
+		$ids = nura_r6_on( 'ga_now' ) ? 'AW-' : '';
+		return preg_replace( '#<script([^>]*?)\s+src=(["\'])(https://www\.googletagmanager\.com/gtag/js\?id=' . $ids . '[^"\']+)\2([^>]*)>\s*</script>#i', '<script type="text/plain" data-nura-src="$3"></script>', $html );
 	} );
 }, 98 );
 

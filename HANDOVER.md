@@ -1,6 +1,14 @@
 # HANDOVER.md - current state for the next developer / AI agent
 
-Last updated: 27 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+Last updated: 28 Nov 2026. Read this with [AGENTS.md](AGENTS.md) before changing anything, so finished work is not redone.
+
+## UPDATE 28 Nov 2026 14:20 EAT (Ray) - plugin 1.138.0: M-Pesa statement recognises charges entered by hand in several vouchers
+
+- Owner: Accounts > M-Pesa statement kept showing "KSh 449 Not in the books yet" although the charges were in hand-entered vouchers PV-0049, PV-0061 and PV-0062. Cause: `charges_recorded()` only accepted ONE fees voucher equal to the whole statement total, or the CHG reference made by its own "Record charges" button.
+- `includes/class-nura-mpesa-recon.php`: new `charges_booked( $from, $to )` adds up every voucher in category `fees` dated inside the statement period (first to last statement date), leaving out method card/bank and anything with "Paystack" in payee, description or note (Paystack/card fees are not on the till statement). `charges_recorded()` keeps the two old checks and now also returns the voucher list when that sum equals the statement charges (within 1 cent).
+- KPI card: green "In the books (PV-..., PV-...)" when they match; otherwise "KSh X in the books (PV-...) | KSh D not in the books yet" (or "more in the books than on the statement"). The full-total "Record KSh N M-Pesa charges" button is hidden once part of the charges is booked, and the `charges` action refuses it with the difference to add, so charges are never counted twice. REST `/nurax/v1/mpesa-recon` also returns `charges_booked`.
+- Expected on the 11-27 Nov statement: 420.35 of 449.35 booked, KSh 29.00 not in the books (26 Nov charges after 00:53: UKQMP3ZJIY 11.00 #2613, UKQE24S6LA 5.50 #2609, UKQFX3ZURP 7.00 PV-0058, UKQ883LWRG 5.50 #2610). Adding a 29.00 voucher dated 26 Nov turns the card green.
+- php -l pass (PHP 8.3.14); query checked against sample vouchers. Not yet installed.
 
 ## UPDATE 28 Nov 2026 - Theme 1.161.50: GA4 Google tag loads immediately
 

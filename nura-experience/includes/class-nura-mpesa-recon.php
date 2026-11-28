@@ -1,6 +1,6 @@
 <?php
 /**
- * NURA Desk - M-Pesa statement matching, M-Pesa code checks and staff float (NURA Experience 1.129.0; Paystack fee button, paid date, REST check 1.130.0).
+ * NURA Desk - M-Pesa statement matching, M-Pesa code checks and staff float (NURA Experience 1.129.0; Paystack fee button, paid date, REST check 1.130.0; charges recognised across hand-entered vouchers 1.138.0).
  *
  * Accounts > M-Pesa statement: paste the text of the Safaricom till statement (open the PDF, select
  * all, copy, paste) or upload the CSV export. Nothing is written on upload: the page shows every
@@ -171,6 +171,7 @@ class NURAX_Mpesa_Recon {
 					'to'                => $to,
 					'charges'           => round( $chg, 2 ),
 					'charges_recorded'  => self::charges_recorded( $from, $to, round( $chg, 2 ) ),
+					'charges_booked'    => self::charges_booked( $from, $to )['total'], // 1.138.0
 					'rows'              => $rows,
 				);
 			},
@@ -538,7 +539,14 @@ class NURAX_Mpesa_Recon {
 		return $out;
 	}
 
-	/** Charges already in the books for the statement period. */
+	/**
+	 * Charges already in the books for the statement period.
+	 * Returns the voucher number(s) that cover them, or '' when they are not (fully) in the books.
+	 * 1.138.0: besides one voucher for the exact total (or the CHG reference made by the
+	 * "Record charges" button), the charges also count as recorded when all M-Pesa charges
+	 * vouchers dated inside the statement period add up to the statement total, so charges
+	 * entered by hand in several vouchers are recognised.
+	 */
 	private static function charges_recorded( $from, $to, $total ) {
 		global $wpdb;
 		$res = (array) $wpdb->get_results( $wpdb->prepare( 'SELECT txn, SUM(amount) AS total FROM ' . NURAX_Desk_Accounts::table() . " WHERE deleted = 0 AND category = 'fees' AND entry_date BETWEEN %s AND %s GROUP BY txn", $from, gmdate( 'Y-m-d', strtotime( $to . ' +3 days' ) ) ) ); // phpcs:ignore WordPress.DB
@@ -549,7 +557,36 @@ class NURAX_Mpesa_Recon {
 		}
 		$ref = self::charge_ref( $from, $to );
 		$led = self::ledger_by_ref( $ref );
-		return $led ? $led[0]->txn : '';
+		if ( $led ) {
+			return $led[0]->txn;
+		}
+		$b = self::charges_booked( $from, $to );
+		if ( $b['txns'] && abs( $b['total'] - $total ) < 0.01 ) {
+			return implode( ', ', $b['txns'] );
+		}
+		return '';
+	}
+
+	/**
+	 * 1.138.0: every M-Pesa charges voucher dated inside the statement period, hand-entered ones included.
+	 * Category "M-Pesa, bank & card charges" only; card and bank fees and anything that mentions
+	 * Paystack (payee, description or note) are left out, because those are not on the till statement.
+	 *
+	 * @return array{total: float, txns: string[]}
+	 */
+	private static function charges_booked( $from, $to ) {
+		global $wpdb;
+		$ps  = '%' . $wpdb->esc_like( 'paystack' ) . '%';
+		$res = (array) $wpdb->get_results( $wpdb->prepare( 'SELECT txn, SUM(amount) AS total, MIN(entry_date) AS d FROM ' . NURAX_Desk_Accounts::table() . " WHERE deleted = 0 AND category = 'fees' AND method NOT IN ('card','bank') AND payee NOT LIKE %s AND description NOT LIKE %s AND note NOT LIKE %s AND entry_date BETWEEN %s AND %s GROUP BY txn ORDER BY d ASC, txn ASC", $ps, $ps, $ps, $from, $to ) ); // phpcs:ignore WordPress.DB
+		$sum  = 0;
+		$txns = array();
+		foreach ( $res as $v ) {
+			$sum += (float) $v->total;
+			if ( '' !== (string) $v->txn ) {
+				$txns[] = (string) $v->txn;
+			}
+		}
+		return array( 'total' => round( $sum, 2 ), 'txns' => $txns );
 	}
 
 	private static function charge_ref( $from, $to ) {
@@ -640,9 +677,14 @@ class NURAX_Mpesa_Recon {
 				$total += $r['charge'];
 			}
 			$total = round( $total, 2 );
+			$booked = self::charges_booked( $from, $to );
 			if ( $total <= 0 || self::charges_recorded( $from, $to, $total ) ) {
 				$msg = 'refused';
 				$err = 'The M-Pesa charges for this statement are already in the books.';
+			} elseif ( $booked['total'] > 0 ) {
+				// 1.138.0: part of the charges is already in hand-entered vouchers; recording the full total would count them twice.
+				$msg = 'refused';
+				$err = 'Some M-Pesa charges for this period are already in the books (' . NURAX_Desk::money( $booked['total'] ) . ' in ' . implode( ', ', $booked['txns'] ) . '). Add only the difference, ' . NURAX_Desk::money( round( $total - $booked['total'], 2 ) ) . ', as a voucher.';
 			} else {
 				self::insert_voucher( $to, array( array( 'category' => 'fees', 'description' => 'M-Pesa charges ' . date_i18n( 'j M', strtotime( $from ) ) . ' to ' . date_i18n( 'j M Y', strtotime( $to ) ) . ' (per statement)', 'amount' => $total ) ), 'mpesa', self::charge_ref( $from, $to ), 'Safaricom', 'Recorded from the M-Pesa statement.' );
 			}
@@ -765,14 +807,23 @@ class NURAX_Mpesa_Recon {
 		list( $no, $to_ ) = $sum( $out );
 		list( $mo, $tmo ) = $sum( $out, $ok );
 		$crec = self::charges_recorded( $from, $to, $chg );
+		$cbk  = $crec ? null : self::charges_booked( $from, $to ); // 1.138.0
+		if ( $crec ) {
+			$ctxt = 'In the books (' . $crec . ')';
+		} elseif ( $cbk && $cbk['total'] > 0 ) {
+			$cdif = round( $chg - $cbk['total'], 2 );
+			$ctxt = NURAX_Desk::money( $cbk['total'] ) . ' in the books (' . implode( ', ', $cbk['txns'] ) . ') | ' . ( $cdif > 0 ? NURAX_Desk::money( $cdif ) . ' not in the books yet' : NURAX_Desk::money( -$cdif ) . ' more in the books than on the statement' );
+		} else {
+			$ctxt = 'Not in the books yet';
+		}
 		echo '<div class="nd-kpis na-kpis" style="margin-top:12px">';
 		NURAX_Desk::kpi( 'Money in', NURAX_Desk::money( $ti ), $mi . ' of ' . $ni . ' matched | ' . NURAX_Desk::money( $ti - $tmi ) . ' not in the books', $mi === $ni ? 'green' : 'red' );
 		NURAX_Desk::kpi( 'Money out', NURAX_Desk::money( $to_ ), $mo . ' of ' . $no . ' matched | ' . NURAX_Desk::money( $to_ - $tmo ) . ' not in the books', $mo === $no ? 'green' : 'red' );
-		NURAX_Desk::kpi( 'M-Pesa charges', NURAX_Desk::money( $chg ), $crec ? 'In the books (' . $crec . ')' : 'Not in the books yet', $crec ? 'green' : 'red' );
+		NURAX_Desk::kpi( 'M-Pesa charges', NURAX_Desk::money( $chg ), $ctxt, $crec ? 'green' : 'red' );
 		echo '</div>';
 		echo '<p>Statement ' . esc_html( date_i18n( 'j M', strtotime( $from ) ) . ' to ' . date_i18n( 'j M Y', strtotime( $to ) ) ) . ', read ' . esc_html( $run['at'] ) . '. ';
 		echo self::act_btn( 'clear', '', 'Clear this statement', 'nd-btn--ghost nd-btn--sm' ); // phpcs:ignore WordPress.Security.EscapeOutput
-		if ( ! $crec && $chg > 0 ) {
+		if ( ! $crec && $chg > 0 && ! ( $cbk && $cbk['total'] > 0 ) ) { // 1.138.0: no full-total button once part is booked.
 			echo ' ' . self::act_btn( 'charges', '', 'Record ' . NURAX_Desk::money( $chg ) . ' M-Pesa charges', 'nd-btn--primary nd-btn--sm' ); // phpcs:ignore WordPress.Security.EscapeOutput
 		}
 		echo '</p>';
